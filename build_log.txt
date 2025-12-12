@@ -1,0 +1,1 @@
+﻿src/components/ChatInterface.tsx(76,30): error TS2304: Cannot find name 'Part'.

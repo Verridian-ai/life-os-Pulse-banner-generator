@@ -1,0 +1,26 @@
+[
+  {
+    "name": "Main Bundle",
+    "path": "dist/assets/index-*.js",
+    "limit": "500 KB",
+    "webpack": false
+  },
+  {
+    "name": "Main CSS",
+    "path": "dist/assets/index-*.css",
+    "limit": "50 KB",
+    "webpack": false
+  },
+  {
+    "name": "Vendor Bundle",
+    "path": "dist/assets/vendor-*.js",
+    "limit": "300 KB",
+    "webpack": false
+  },
+  {
+    "name": "Total Assets",
+    "path": "dist/assets/*",
+    "limit": "1 MB",
+    "webpack": false
+  }
+]
