@@ -6,8 +6,6 @@ import {
     BTN_BLUE_INACTIVE,
     BTN_PURPLE_ACTIVE,
     BTN_PURPLE_INACTIVE,
-    BTN_RED_ACTIVE,
-    BTN_RED_INACTIVE,
     BTN_GREEN_ACTIVE,
     BTN_GREEN_INACTIVE
 } from '../../styles';
@@ -15,16 +13,12 @@ import {
 interface HeaderProps {
     activeTab: Tab;
     setActiveTab: (tab: Tab) => void;
-    isLiveConnected: boolean;
-    onLiveToggle: () => void;
     onOpenSettings: () => void;
 }
 
 const Header: React.FC<HeaderProps> = ({
     activeTab,
     setActiveTab,
-    isLiveConnected,
-    onLiveToggle,
     onOpenSettings
 }) => {
     return (
@@ -79,14 +73,6 @@ const Header: React.FC<HeaderProps> = ({
                     >
                         <span className="material-icons text-sm md:text-base drop-shadow-md">auto_awesome</span>
                         Design Partner
-                    </button>
-
-                    <button
-                        onClick={onLiveToggle}
-                        className={`${BTN_BASE} ${isLiveConnected ? BTN_RED_ACTIVE : BTN_RED_INACTIVE} text-sm py-1.5 px-3`}
-                    >
-                        <span className="material-icons text-sm md:text-base drop-shadow-md">{isLiveConnected ? 'mic_off' : 'mic'}</span>
-                        {isLiveConnected ? 'End Session' : 'Live'}
                     </button>
                 </nav>
 

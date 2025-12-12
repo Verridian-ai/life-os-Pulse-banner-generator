@@ -11,10 +11,8 @@ interface SettingsModalProps {
 export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose }) => {
     // State for form fields
     const [provider, setProvider] = useState<'gemini' | 'openrouter'>('gemini');
-    const [voiceProvider, setVoiceProvider] = useState<'gemini' | 'openai'>('gemini');
     const [geminiKey, setGeminiKey] = useState(localStorage.getItem('gemini_api_key') || import.meta.env.VITE_GEMINI_API_KEY || '');
     const [openRouterKey, setOpenRouterKey] = useState(localStorage.getItem('openrouter_api_key') || import.meta.env.VITE_OPENROUTER_API_KEY || '');
-    const [openaiKey, setOpenaiKey] = useState(localStorage.getItem('openai_api_key') || import.meta.env.VITE_OPENAI_API_KEY || '');
     const [replicateKey, setReplicateKey] = useState(localStorage.getItem('replicate_api_key') || import.meta.env.VITE_REPLICATE_API_KEY || '');
     const [model, setModel] = useState('');
     const [imageModel, setImageModel] = useState('');
@@ -66,11 +64,9 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
 
             // Batch state updates to avoid cascading renders
             if (keys.llm_provider) setProvider(keys.llm_provider);
-            if (keys.voice_provider) setVoiceProvider(keys.voice_provider);
 
             setGeminiKey(keys.gemini_api_key || '');
             setOpenRouterKey(keys.openrouter_api_key || '');
-            setOpenaiKey(keys.openai_api_key || '');
             setReplicateKey(keys.replicate_api_key || '');
 
             const storedModel = keys.llm_model || 'google/gemini-2.0-flash-exp:free';
@@ -97,11 +93,9 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
         // Save to Supabase
         const result = await saveUserAPIKeys({
             gemini_api_key: geminiKey,
-            openai_api_key: openaiKey,
             openrouter_api_key: openRouterKey,
             replicate_api_key: replicateKey,
             llm_provider: provider,
-            voice_provider: voiceProvider,
             llm_model: finalModel,
             llm_image_model: imageModel,
             llm_upscale_model: upscaleModel,
@@ -254,68 +248,6 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
                         </div>
                     )}
 
-                    {/* Voice Chat Provider Selection */}
-                    <div className="animate-fade-in border-t border-white/10 pt-4 mt-4">
-                        <label className="block text-[10px] font-bold text-zinc-500 uppercase tracking-widest mb-2">
-                            Voice Chat Provider
-                        </label>
-                        <div className="flex bg-zinc-950 p-1 rounded-xl border border-white/5">
-                            <button
-                                onClick={() => setVoiceProvider('gemini')}
-                                className={`flex-1 py-2 rounded-lg text-xs font-bold uppercase tracking-wider transition ${voiceProvider === 'gemini' ? 'bg-zinc-800 text-white shadow-md' : 'text-zinc-500 hover:text-zinc-300'}`}
-                            >
-                                Gemini Live
-                            </button>
-                            <button
-                                onClick={() => setVoiceProvider('openai')}
-                                className={`flex-1 py-2 rounded-lg text-xs font-bold uppercase tracking-wider transition ${voiceProvider === 'openai' ? 'bg-zinc-800 text-white shadow-md' : 'text-zinc-500 hover:text-zinc-300'}`}
-                            >
-                                OpenAI Realtime
-                            </button>
-                        </div>
-                        <p className="text-[9px] text-zinc-600 mt-2">
-                            {voiceProvider === 'gemini'
-                                ? 'Uses Gemini 2.0 Flash for voice chat and live actions'
-                                : 'Uses GPT Realtime (gpt-realtime-2025-08-28) for voice chat'
-                            }
-                        </p>
-                    </div>
-
-                    {/* OpenAI Configuration */}
-                    {voiceProvider === 'openai' && (
-                        <div className="animate-fade-in">
-                            <label className="block text-[10px] font-bold text-zinc-500 uppercase tracking-widest mb-2">
-                                OpenAI API Key
-                            </label>
-                            <input
-                                type="password"
-                                value={openaiKey}
-                                onChange={(e) => setOpenaiKey(e.target.value)}
-                                placeholder="sk-..."
-                                className="w-full bg-zinc-950 border border-white/10 rounded-xl px-4 py-3 text-white text-xs font-medium focus:outline-none focus:border-purple-500/50 transition placeholder-zinc-700"
-                            />
-                            <p className="text-[9px] text-zinc-600 mt-2">
-                                <a
-                                    href="https://platform.openai.com/api-keys"
-                                    target="_blank"
-                                    rel="noopener noreferrer"
-                                    className="text-purple-400 hover:text-purple-300 underline inline-flex items-center gap-1"
-                                >
-                                    Get your OpenAI API key
-                                    <span className="material-icons text-[10px]">open_in_new</span>
-                                </a>
-                                {' • '}
-                                <a
-                                    href="https://platform.openai.com/docs/guides/realtime"
-                                    target="_blank"
-                                    rel="noopener noreferrer"
-                                    className="text-purple-400 hover:text-purple-300 underline"
-                                >
-                                    Realtime API Docs
-                                </a>
-                            </p>
-                        </div>
-                    )}
 
                     {/* Replicate Configuration */}
                     <div className="animate-fade-in border-t border-white/10 pt-4 mt-4">

@@ -5,11 +5,9 @@ import { supabase } from './supabase';
 
 export interface UserAPIKeys {
     gemini_api_key?: string;
-    openai_api_key?: string;
     openrouter_api_key?: string;
     replicate_api_key?: string;
     llm_provider?: 'gemini' | 'openrouter';
-    voice_provider?: 'gemini' | 'openai';
     llm_model?: string;
     llm_image_model?: string;
     llm_upscale_model?: string;
@@ -70,11 +68,9 @@ export async function getUserAPIKeys(): Promise<UserAPIKeys> {
         // Merge database keys with .env fallback
         return {
             gemini_api_key: data.gemini_api_key || import.meta.env.VITE_GEMINI_API_KEY,
-            openai_api_key: data.openai_api_key || import.meta.env.VITE_OPENAI_API_KEY,
             openrouter_api_key: data.openrouter_api_key || import.meta.env.VITE_OPENROUTER_API_KEY,
             replicate_api_key: data.replicate_api_key || import.meta.env.VITE_REPLICATE_API_KEY,
             llm_provider: data.llm_provider as 'gemini' | 'openrouter' || 'gemini',
-            voice_provider: data.voice_provider as 'gemini' | 'openai' || 'gemini',
             llm_model: data.llm_model,
             llm_image_model: data.llm_image_model,
             llm_upscale_model: data.llm_upscale_model,
@@ -101,11 +97,9 @@ export async function saveUserAPIKeys(keys: UserAPIKeys): Promise<{ success: boo
 
         const payload: any = {
             gemini_api_key: keys.gemini_api_key || null,
-            openai_api_key: keys.openai_api_key || null,
             openrouter_api_key: keys.openrouter_api_key || null,
             replicate_api_key: keys.replicate_api_key || null,
             llm_provider: keys.llm_provider || 'gemini',
-            voice_provider: keys.voice_provider || 'gemini',
             llm_model: keys.llm_model || null,
             llm_image_model: keys.llm_image_model || null,
             llm_upscale_model: keys.llm_upscale_model || null,
@@ -185,11 +179,9 @@ export async function deleteUserAPIKeys(): Promise<{ success: boolean; error?: s
 function getEnvFallbackKeys(): UserAPIKeys {
     return {
         gemini_api_key: import.meta.env.VITE_GEMINI_API_KEY,
-        openai_api_key: import.meta.env.VITE_OPENAI_API_KEY,
         openrouter_api_key: import.meta.env.VITE_OPENROUTER_API_KEY,
         replicate_api_key: import.meta.env.VITE_REPLICATE_API_KEY,
         llm_provider: 'gemini',
-        voice_provider: 'gemini',
     };
 }
 
@@ -202,7 +194,6 @@ export async function migrateLocalStorageToSupabase(): Promise<void> {
     // Check if we have keys in localStorage
     const hasLocalStorage =
         localStorage.getItem('gemini_api_key') ||
-        localStorage.getItem('openai_api_key') ||
         localStorage.getItem('openrouter_api_key') ||
         localStorage.getItem('replicate_api_key');
 
@@ -214,11 +205,9 @@ export async function migrateLocalStorageToSupabase(): Promise<void> {
     // Get all keys from localStorage
     const keys: UserAPIKeys = {
         gemini_api_key: localStorage.getItem('gemini_api_key') || undefined,
-        openai_api_key: localStorage.getItem('openai_api_key') || undefined,
         openrouter_api_key: localStorage.getItem('openrouter_api_key') || undefined,
         replicate_api_key: localStorage.getItem('replicate_api_key') || undefined,
         llm_provider: (localStorage.getItem('llm_provider') as 'gemini' | 'openrouter') || 'gemini',
-        voice_provider: (localStorage.getItem('voice_provider') as 'gemini' | 'openai') || 'gemini',
         llm_model: localStorage.getItem('llm_model') || undefined,
         llm_image_model: localStorage.getItem('llm_image_model') || undefined,
         llm_upscale_model: localStorage.getItem('llm_upscale_model') || undefined,

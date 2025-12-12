@@ -5,7 +5,6 @@ import GenerativeSidebar from './components/features/GenerativeSidebar';
 import CanvasEditor from './components/features/CanvasEditor';
 import ChatInterface from './components/ChatInterface';
 import ImageGallery from './components/features/ImageGallery';
-import LiveActionPanel from './components/features/LiveActionPanel';
 import ChatHistoryPanel from './components/features/ChatHistoryPanel';
 import { SettingsModal } from './components/features/SettingsModal';
 import { ScreenReaderAnnouncerProvider, useAnnouncer } from './components/accessibility/ScreenReaderAnnouncer';
@@ -14,24 +13,12 @@ import { generateImage, generatePromptFromRefImages as generateMagicPrompt } fro
 import { Tab } from './constants';
 import { CanvasProvider, useCanvas } from './context/CanvasContext';
 import { AIProvider } from './context/AIContext';
-import { LiveClient, ToolCall, TranscriptEntry } from './services/liveClient';
-import { OpenAIRealtimeClient } from './services/openaiRealtimeClient';
-import { ActionExecutor, ActionResult } from './services/actionExecutor';
-import { getUserAPIKeys, migrateLocalStorageToSupabase } from './services/apiKeyStorage';
+import { migrateLocalStorageToSupabase } from './services/apiKeyStorage';
 
 const AppContent = () => {
     const [activeTab, setActiveTab] = useState<Tab>(Tab.STUDIO);
     const [showSettings, setShowSettings] = useState(false);
-    const [isLiveConnected, setIsLiveConnected] = useState(false);
-    const [liveClient, setLiveClient] = useState<LiveClient | OpenAIRealtimeClient | null>(null);
     const [notification, setNotification] = useState<{ message: string, type: 'warning' | 'info' } | null>(null);
-    const [isConnecting, setIsConnecting] = useState(false);
-
-    // Live Action states
-    const [transcript, setTranscript] = useState<TranscriptEntry[]>([]);
-    const [pendingAction, setPendingAction] = useState<{ toolCall: ToolCall; result: ActionResult } | null>(null);
-    const [actionExecutor, setActionExecutor] = useState<ActionExecutor | null>(null);
-    const [executingAction, setExecutingAction] = useState(false);
 
     // Accessibility states
     const [showChatHistory, setShowChatHistory] = useState(false);
@@ -247,35 +234,7 @@ const AppContent = () => {
         });
     }, []);
 
-    // Initialize ActionExecutor
-    useEffect(() => {
-        const executor = new ActionExecutor(
-            (imageUrl: string, type: 'background' | 'profile') => {
-                if (type === 'background') {
-                    setBgImage(imageUrl);
-                    announce('Image applied to canvas', 'polite');
-                } else {
-                    // For profile images - would need access to canvas context
-                    console.log('[App] Profile image update not yet implemented');
-                }
-            },
-            true // Start in preview mode
-        );
-        setActionExecutor(executor);
-    }, [setBgImage, announce]);
 
-    // Cleanup live client on unmount
-    useEffect(() => {
-        return () => {
-            // Clean up voice chat connection when component unmounts
-            if (liveClient) {
-                console.log('[App] Component unmounting, disconnecting live client...');
-                liveClient.disconnect().catch((error) => {
-                    console.error('[App] Error during unmount cleanup:', error);
-                });
-            }
-        };
-    }, [liveClient]);
 
     // Keyboard shortcuts
     useKeyboardShortcuts({
@@ -294,7 +253,6 @@ const AppContent = () => {
             onClosePanels: () => {
                 setShowChatHistory(false);
                 setShowSettings(false);
-                setPendingAction(null);
             },
             onOpenSettings: () => {
                 setShowSettings(true);
@@ -303,247 +261,12 @@ const AppContent = () => {
         })
     });
 
-    // Handle tool calls from live client
-    const handleToolCall = async (toolCall: ToolCall) => {
-        console.log('[App] Tool call received:', toolCall);
-
-        if (!actionExecutor) {
-            console.error('[App] ActionExecutor not initialized');
-            return;
-        }
-
-        // Execute the tool call
-        const result = await actionExecutor.executeToolCall(toolCall);
-
-        // Set as pending action for user approval
-        setPendingAction({ toolCall, result });
-
-        if (result.success) {
-            setNotification({
-                message: `ACTION READY: ${toolCall.name.toUpperCase()}`,
-                type: 'info'
-            });
-        } else {
-            setNotification({
-                message: `ACTION FAILED: ${result.error}`,
-                type: 'warning'
-            });
-        }
-    };
-
-    // Handle transcript updates
-    const handleTranscriptUpdate = (entry: TranscriptEntry) => {
-        setTranscript(prev => [...prev, entry]);
-    };
-
-    // Approve pending action
-    const handleApproveAction = async () => {
-        if (!pendingAction || !actionExecutor) return;
-
-        setExecutingAction(true);
-        try {
-            // Apply the preview to canvas
-            if (pendingAction.result.preview) {
-                actionExecutor.applyPreview(pendingAction.result.preview);
-                setNotification({
-                    message: 'ACTION APPLIED TO CANVAS',
-                    type: 'info'
-                });
-            }
-        } catch (error) {
-            console.error('[App] Failed to apply action:', error);
-            setNotification({
-                message: 'FAILED TO APPLY ACTION',
-                type: 'warning'
-            });
-        } finally {
-            setPendingAction(null);
-            setExecutingAction(false);
-        }
-    };
-
-    // Reject pending action
-    const handleRejectAction = () => {
-        setPendingAction(null);
-        setNotification({
-            message: 'ACTION REJECTED',
-            type: 'info'
-        });
-    };
-
-    const handleLiveToggle = async () => {
-        // Guard against concurrent connection attempts
-        if (isConnecting) {
-            console.log('[Live] Connection operation already in progress, ignoring...');
-            return;
-        }
-
-        if (!isLiveConnected) {
-            // START LIVE CONNECTION
-            setIsConnecting(true);
-
-            // Load API keys from Supabase
-            const apiKeys = await getUserAPIKeys();
-            const voiceProvider = apiKeys.voice_provider || 'gemini';
-
-            if (voiceProvider === 'openai') {
-                // Use OpenAI Realtime
-                const openaiKey = apiKeys.openai_api_key;
-
-                if (!openaiKey) {
-                    setNotification({
-                        message: 'OPENAI API KEY REQUIRED. Check Settings.',
-                        type: 'warning'
-                    });
-                    setIsConnecting(false);
-                    return;
-                }
-
-                try {
-                    console.log('[Live] Starting OpenAI Realtime connection...');
-                    const client = new OpenAIRealtimeClient(openaiKey);
-
-                    await client.connect(
-                        (message: string) => {
-                            // Handle incoming message from AI
-                            console.log('[Live] Received message:', message);
-                        },
-                        (connected: boolean) => {
-                            console.log('[Live] Connection status changed:', connected);
-                            setIsLiveConnected(connected);
-                            if (connected) {
-                                setNotification({
-                                    message: 'OPENAI REALTIME CONNECTED',
-                                    type: 'info'
-                                });
-                            } else {
-                                setNotification({
-                                    message: 'OPENAI REALTIME DISCONNECTED',
-                                    type: 'info'
-                                });
-                            }
-                        },
-                        handleToolCall,
-                        handleTranscriptUpdate
-                    );
-
-                    setLiveClient(client);
-                    setIsConnecting(false);
-                    console.log('[Live] ✅ OpenAI Realtime connected successfully');
-                } catch (error: any) {
-                    console.error('[Live] OpenAI connection failed:', error);
-
-                    let errorMsg = 'OPENAI REALTIME CONNECTION FAILED';
-
-                    if (error.message?.includes('Permission denied') || error.message?.includes('permission')) {
-                        errorMsg = 'MIC BLOCKED. Click lock icon in address bar to Allow.';
-                    } else if (error.message?.includes('not supported')) {
-                        errorMsg = 'MICROPHONE NOT SUPPORTED IN THIS BROWSER';
-                    } else if (error.message?.includes('No microphone found')) {
-                        errorMsg = 'NO MICROPHONE FOUND. Check system settings.';
-                    } else if (error.message?.includes('already in use')) {
-                        errorMsg = 'MICROPHONE BUSY. Close other apps using mic.';
-                    } else if (error.message?.includes('API') || error.message?.includes('Unauthorized')) {
-                        errorMsg = 'INVALID OPENAI API KEY. Check Settings.';
-                    }
-
-                    setNotification({ message: errorMsg, type: 'warning' });
-                    setIsLiveConnected(false);
-                    setIsConnecting(false);
-                }
-            } else {
-                // Use Gemini Live
-                const geminiKey = apiKeys.gemini_api_key;
-
-                if (!geminiKey) {
-                    setNotification({
-                        message: 'GEMINI API KEY REQUIRED. Check Settings.',
-                        type: 'warning'
-                    });
-                    setIsConnecting(false);
-                    return;
-                }
-
-                try {
-                    console.log('[Live] Starting Gemini Live connection...');
-                    const client = new LiveClient(geminiKey);
-
-                    await client.connect(
-                        (message: string) => {
-                            // Handle incoming message from AI
-                            console.log('[Live] Received message:', message);
-                        },
-                        (connected: boolean) => {
-                            console.log('[Live] Connection status changed:', connected);
-                            setIsLiveConnected(connected);
-                            if (connected) {
-                                setNotification({
-                                    message: 'GEMINI LIVE CONNECTED',
-                                    type: 'info'
-                                });
-                            } else {
-                                setNotification({
-                                    message: 'GEMINI LIVE DISCONNECTED',
-                                    type: 'info'
-                                });
-                            }
-                        },
-                        handleToolCall,
-                        handleTranscriptUpdate
-                    );
-
-                    setLiveClient(client);
-                    setIsConnecting(false);
-                    console.log('[Live] ✅ Gemini Live connected successfully');
-                } catch (error: any) {
-                    console.error('[Live] Gemini connection failed:', error);
-
-                    let errorMsg = 'GEMINI LIVE CONNECTION FAILED';
-
-                    if (error.message?.includes('Permission denied') || error.message?.includes('permission')) {
-                        errorMsg = 'MIC BLOCKED. Click lock icon in address bar to Allow.';
-                    } else if (error.message?.includes('not supported')) {
-                        errorMsg = 'MICROPHONE NOT SUPPORTED IN THIS BROWSER';
-                    } else if (error.message?.includes('No microphone found')) {
-                        errorMsg = 'NO MICROPHONE FOUND. Check system settings.';
-                    } else if (error.message?.includes('already in use')) {
-                        errorMsg = 'MICROPHONE BUSY. Close other apps using mic.';
-                    } else if (error.message?.includes('API')) {
-                        errorMsg = 'INVALID API KEY. Check Settings.';
-                    }
-
-                    setNotification({ message: errorMsg, type: 'warning' });
-                    setIsLiveConnected(false);
-                    setIsConnecting(false);
-                }
-            }
-        } else {
-            // STOP LIVE CONNECTION
-            setIsConnecting(true);
-            console.log('[Live] Stopping Live Audio connection...');
-            if (liveClient) {
-                try {
-                    await liveClient.disconnect();
-                    console.log('[Live] ✅ Live Audio disconnected successfully');
-                } catch (error) {
-                    console.error('[Live] Disconnect error:', error);
-                }
-                setLiveClient(null);
-            }
-            setIsLiveConnected(false);
-            setTranscript([]);
-            setPendingAction(null);
-            setIsConnecting(false);
-        }
-    };
 
     return (
         <div className="min-h-screen bg-black text-white font-sans flex flex-col">
             <Header
                 activeTab={activeTab}
                 setActiveTab={setActiveTab}
-                isLiveConnected={isLiveConnected}
-                onLiveToggle={handleLiveToggle}
                 onOpenSettings={() => setShowSettings(true)}
             />
 
@@ -604,24 +327,6 @@ const AppContent = () => {
                 )}
             </main>
 
-            {/* Live Action Panel - Shows when live audio is connected */}
-            {isLiveConnected && (
-                <LiveActionPanel
-                    isConnected={isLiveConnected}
-                    transcript={transcript}
-                    pendingAction={pendingAction}
-                    onApproveAction={handleApproveAction}
-                    onRejectAction={handleRejectAction}
-                    executingAction={executingAction}
-                />
-            )}
-
-            {/* Chat History Panel - Accessible via Ctrl+H */}
-            <ChatHistoryPanel
-                isOpen={showChatHistory}
-                onClose={() => setShowChatHistory(false)}
-                transcript={transcript}
-            />
         </div>
     );
 };
