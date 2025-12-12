@@ -81,8 +81,8 @@ SNYK_TOKEN                  # Security vulnerability scanning
 ### 1. Fork/Clone Repository
 
 ```bash
-git clone https://github.com/yourusername/nanobanna-pro.git
-cd nanobanna-pro
+git clone https://github.com/Verridian-ai/life-os-Pulse-banner-generator.git
+cd life-os-Pulse-banner-generator
 npm install
 ```
 
@@ -257,7 +257,7 @@ git push origin main --follow-tags
 4. Select "production" environment
 5. Click "Approve and deploy"
 
-**Production URL:** `https://nanobanna-pro.vercel.app`
+**Production URL:** `https://life-os-banner.verridian.ai`
 
 ---
 
@@ -286,7 +286,7 @@ vercel ls
 vercel rollback <deployment-url>
 
 # Or rollback to specific deployment ID
-vercel alias set <old-deployment-url> nanobanna-pro.vercel.app
+vercel alias set <old-deployment-url> life-os-banner.verridian.ai
 ```
 
 ### Manual Rollback (GitHub)
@@ -319,12 +319,12 @@ git push origin main
 **Vercel Analytics:**
 - Real-time traffic monitoring
 - Web Vitals (LCP, FID, CLS)
-- Access at: https://vercel.com/dashboard → nanobanna-pro → Analytics
+- Access at: https://vercel.com/verridian-ai/life-os-banner → Analytics
 
 **GitHub Actions:**
 - Workflow run history
 - Build logs and artifacts
-- Access at: https://github.com/yourusername/nanobanna-pro/actions
+- Access at: https://github.com/Verridian-ai/life-os-Pulse-banner-generator/actions
 
 ### Performance Monitoring
 
@@ -438,10 +438,10 @@ vercel --prod --debug
 
 ```bash
 # Test health endpoint
-curl -I https://nanobanna-pro.vercel.app
+curl -I https://life-os-banner.verridian.ai
 
 # Check response time
-curl -o /dev/null -s -w '%{time_total}\n' https://nanobanna-pro.vercel.app
+curl -o /dev/null -s -w '%{time_total}\n' https://life-os-banner.verridian.ai
 ```
 
 ### Secret Configuration Issues

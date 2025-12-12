@@ -478,8 +478,8 @@ console.error('[ServiceName] Error:', error);
 ### Resources
 
 - **Documentation**: See [README.md](README.md), [CLAUDE.md](CLAUDE.md), [DEPLOYMENT.md](DEPLOYMENT.md)
-- **Issues**: Check [open issues](https://github.com/yourusername/nanobanna-pro/issues)
-- **Discussions**: Use [GitHub Discussions](https://github.com/yourusername/nanobanna-pro/discussions)
+- **Issues**: Check [open issues](https://github.com/Verridian-ai/life-os-Pulse-banner-generator/issues)
+- **Discussions**: Use [GitHub Discussions](https://github.com/Verridian-ai/life-os-Pulse-banner-generator/discussions)
 
 ### Contact
 

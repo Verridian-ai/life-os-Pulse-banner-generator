@@ -187,8 +187,8 @@ npm run preview
 - 📖 Wiki: [Complete documentation](./WIKI.md)
 
 ### For Contributors
-- 🐛 [Report bugs](https://github.com/yourusername/nanobanna-pro/issues)
-- 💡 [Request features](https://github.com/yourusername/nanobanna-pro/discussions)
+- 🐛 [Report bugs](https://github.com/Verridian-ai/life-os-Pulse-banner-generator/issues)
+- 💡 [Request features](https://github.com/Verridian-ai/life-os-Pulse-banner-generator/discussions)
 
 ---
 

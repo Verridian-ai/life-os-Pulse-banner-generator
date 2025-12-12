@@ -83,7 +83,7 @@ jobs:
     needs: [pre-deploy-checks]
     environment:
       name: production
-      url: https://nanobanna-pro.vercel.app
+      url: https://life-os-banner.verridian.ai
 
     steps:
       - name: Checkout code
@@ -162,7 +162,7 @@ jobs:
       - name: Check homepage health
         run: |
           echo "Checking production homepage..."
-          HTTP_CODE=$(curl -s -o /dev/null -w "%{http_code}" https://nanobanna-pro.vercel.app)
+          HTTP_CODE=$(curl -s -o /dev/null -w "%{http_code}" https://life-os-banner.verridian.ai)
           if [ "$HTTP_CODE" -ge 200 ] && [ "$HTTP_CODE" -lt 400 ]; then
             echo "✅ Homepage is healthy (HTTP $HTTP_CODE)"
           else
@@ -174,13 +174,13 @@ jobs:
         run: |
           echo "Checking critical API endpoints..."
           # Add your critical endpoints here
-          # curl -f https://nanobanna-pro.vercel.app/api/health || exit 1
+          # curl -f https://life-os-banner.verridian.ai/api/health || exit 1
           echo "✅ All endpoints responding"
 
       - name: Performance check
         run: |
           echo "Running performance check..."
-          LOAD_TIME=$(curl -o /dev/null -s -w '%{time_total}\n' https://nanobanna-pro.vercel.app)
+          LOAD_TIME=$(curl -o /dev/null -s -w '%{time_total}\n' https://life-os-banner.verridian.ai)
           echo "Load time: ${LOAD_TIME}s"
           if (( $(echo "$LOAD_TIME > 5" | bc -l) )); then
             echo "⚠️  Warning: Load time exceeds 5 seconds"
@@ -213,7 +213,7 @@ jobs:
               repo: context.repo.repo,
               tag_name: tag,
               name: `Release ${tag}`,
-              body: `🚀 Production deployment successful!\n\n📦 Version: ${{ needs.pre-deploy-checks.outputs.version }}\n\n🔗 [View deployment](https://nanobanna-pro.vercel.app)`,
+              body: `🚀 Production deployment successful!\n\n📦 Version: ${{ needs.pre-deploy-checks.outputs.version }}\n\n🔗 [View deployment](https://life-os-banner.verridian.ai)`,
               draft: false,
               prerelease: false
             });
@@ -227,7 +227,7 @@ jobs:
               owner: context.repo.owner,
               repo: context.repo.repo,
               commit_sha: context.sha,
-              body: `🎉 **Production Deployment Successful!**\n\n✅ Version: ${{ needs.pre-deploy-checks.outputs.version }}\n🌐 Live URL: https://nanobanna-pro.vercel.app\n🏥 Health checks: Passed\n\n_Deployed at ${new Date().toISOString()}_`
+              body: `🎉 **Production Deployment Successful!**\n\n✅ Version: ${{ needs.pre-deploy-checks.outputs.version }}\n🌐 Live URL: https://life-os-banner.verridian.ai\n🏥 Health checks: Passed\n\n_Deployed at ${new Date().toISOString()}_`
             });
 
       - name: Update deployment metrics

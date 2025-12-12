@@ -30,7 +30,7 @@ This guide will help you configure all required secrets for the CI/CD pipeline.
    - This is your `VERCEL_ORG_ID`
 
 4. **Get Project ID**
-   - Go to your project settings: https://vercel.com/your-org/nanobanna-pro/settings
+   - Go to your project settings: https://vercel.com/verridian-ai/life-os-banner/settings
    - Under "General" → "Project ID"
    - Copy the ID
    - This is your `VERCEL_PROJECT_ID`

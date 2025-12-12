@@ -176,7 +176,7 @@ jobs:
 
       - name: Run accessibility tests with pa11y
         run: |
-          npx pa11y-ci --sitemap https://nanobanna-pro.vercel.app/sitemap.xml || true
+          npx pa11y-ci --sitemap https://life-os-banner.verridian.ai/sitemap.xml || true
         continue-on-error: true
 
       - name: Comment accessibility results
