@@ -41,7 +41,7 @@ const createMockCanvas = () => {
 
 // Mock HTMLCanvasElement
 const mockCanvas = createMockCanvas();
-HTMLCanvasElement.prototype.getContext = vi.fn(() => mockCanvas as any);
+HTMLCanvasElement.prototype.getContext = vi.fn(() => mockCanvas as unknown as CanvasRenderingContext2D);
 
 // Mock Image
 class MockImage {
@@ -59,7 +59,7 @@ class MockImage {
   }
 }
 
-global.Image = MockImage as any;
+global.Image = MockImage as unknown as typeof Image;
 
 describe('BannerCanvas', () => {
   const mockOnElementsChange = vi.fn();
@@ -282,12 +282,12 @@ describe('BannerCanvas', () => {
   });
 
   it('should expose generateStageImage method via ref', () => {
-    const ref = { current: null };
-    render(<BannerCanvas ref={ref as any} {...defaultProps} />);
+    const ref = { current: null } as React.MutableRefObject<{ generateStageImage?: () => string } | null>;
+    render(<BannerCanvas ref={ref as React.Ref<unknown>} {...defaultProps} />);
 
     expect(ref.current).toBeTruthy();
-    if (ref.current) {
-      expect(typeof (ref.current as any).generateStageImage).toBe('function');
+    if (ref.current && 'generateStageImage' in ref.current) {
+      expect(typeof ref.current.generateStageImage).toBe('function');
     }
   });
 

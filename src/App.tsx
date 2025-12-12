@@ -1,11 +1,10 @@
 
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 import Header from './components/layout/Header';
 import GenerativeSidebar from './components/features/GenerativeSidebar';
 import CanvasEditor from './components/features/CanvasEditor';
 import ChatInterface from './components/ChatInterface';
 import ImageGallery from './components/features/ImageGallery';
-import ChatHistoryPanel from './components/features/ChatHistoryPanel';
 import { SettingsModal } from './components/features/SettingsModal';
 import { ScreenReaderAnnouncerProvider, useAnnouncer } from './components/accessibility/ScreenReaderAnnouncer';
 import { useKeyboardShortcuts, getDefaultShortcuts } from './hooks/useKeyboardShortcuts';
@@ -38,8 +37,6 @@ const AppContent = () => {
     const [isMagicPrompting, setIsMagicPrompting] = useState(false);
     const [editPrompt, setEditPrompt] = useState('');
     const [isEditing, setIsEditing] = useState(false);
-    const [magicEditSuggestions, setMagicEditSuggestions] = useState<string[]>([]);
-    const [generationSuggestions, setGenerationSuggestions] = useState<string[]>([]);
 
     const handleGenerate = async (overridePrompt?: string) => {
         const promptToUse = overridePrompt || genPrompt;
@@ -306,8 +303,6 @@ const AppContent = () => {
                             onEdit={handleEdit}
                             onRemoveBg={handleRemoveBg}
                             onUpscale={handleUpscale}
-                            magicEditSuggestions={magicEditSuggestions}
-                            generationSuggestions={generationSuggestions}
                             bgImage={bgImage}
                             onImageUpdate={(img) => setBgImage(img)}
                         />

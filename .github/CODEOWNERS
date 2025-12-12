@@ -1,0 +1,70 @@
+# ============================================================================
+# Code Owners Configuration
+# ============================================================================
+# This file defines code ownership and automatic reviewer assignments.
+#
+# Format: <pattern> <owners>
+# - Patterns follow .gitignore syntax
+# - Owners are GitHub usernames or team slugs (@org/team-name)
+# - Later matches take precedence over earlier ones
+#
+# Learn more: https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/customizing-your-repository/about-code-owners
+# ============================================================================
+
+# Global owner - reviews all changes by default
+* @Verridian-ai
+
+# ============================================================================
+# Frontend Components & UI
+# ============================================================================
+/src/components/**         @Verridian-ai
+/src/styles/**             @Verridian-ai
+/public/**                 @Verridian-ai
+
+# ============================================================================
+# Business Logic & Services
+# ============================================================================
+/src/services/**           @Verridian-ai
+/src/context/**            @Verridian-ai
+/src/hooks/**              @Verridian-ai
+
+# ============================================================================
+# Configuration Files (Critical)
+# ============================================================================
+/.github/workflows/**      @Verridian-ai
+/vercel.json              @Verridian-ai
+/tsconfig.json            @Verridian-ai
+/vite.config.ts           @Verridian-ai
+/package.json             @Verridian-ai
+/.env.example             @Verridian-ai
+
+# ============================================================================
+# Security & Authentication
+# ============================================================================
+/src/services/auth.ts           @Verridian-ai
+/src/services/supabase.ts       @Verridian-ai
+/src/services/apiKeyStorage.ts  @Verridian-ai
+
+# ============================================================================
+# Database & Schema
+# ============================================================================
+/supabase/**              @Verridian-ai
+
+# ============================================================================
+# Tests & Quality Assurance
+# ============================================================================
+**/*.test.ts              @Verridian-ai
+**/*.test.tsx             @Verridian-ai
+/vitest.config.ts         @Verridian-ai
+
+# ============================================================================
+# Documentation
+# ============================================================================
+*.md                      @Verridian-ai
+/docs/**                  @Verridian-ai
+
+# ============================================================================
+# Deployment & Infrastructure
+# ============================================================================
+/.github/workflows/cd-*.yml    @Verridian-ai
+/scripts/**                    @Verridian-ai

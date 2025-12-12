@@ -1,13 +1,13 @@
 
-import { describe, it, expect } from 'vitest';
-import { render, screen } from '@testing-library/react';
+import { describe, it } from 'vitest';
+import { render } from '@testing-library/react';
 import App from './App';
 import React from 'react';
 
 // Mock matchMedia for JSDOM
 Object.defineProperty(window, 'matchMedia', {
     writable: true,
-    value: (query: any) => ({
+    value: (query: string) => ({
         matches: false,
         media: query,
         onchange: null,
