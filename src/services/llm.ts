@@ -13,17 +13,11 @@ type LLMProvider = 'gemini' | 'openrouter';
 const getSettings = () => {
     const provider = (localStorage.getItem('llm_provider') as LLMProvider) || 'gemini';
 
-    // Hardcoded API keys for testing (TODO: Remove before production)
-    const HARDCODED_GEMINI_KEY = 'AIzaSyBSeZLyOLZed0RQj4DByKDnv3PVnVZfbNM';
-    const HARDCODED_OPENROUTER_KEY = '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';
-    const HARDCODED_REPLICATE_KEY = ''; // No valid key - user must provide one
-
-    const geminiKey = localStorage.getItem('gemini_api_key') || import.meta.env.VITE_GEMINI_API_KEY || HARDCODED_GEMINI_KEY;
-    const openRouterKey = localStorage.getItem('openrouter_api_key') || import.meta.env.VITE_OPENROUTER_API_KEY || HARDCODED_OPENROUTER_KEY;
-    const replicateKey = localStorage.getItem('replicate_api_key') || import.meta.env.VITE_REPLICATE_API_KEY || HARDCODED_REPLICATE_KEY;
-
-    console.log('[Settings] Replicate Key from localStorage:', localStorage.getItem('replicate_api_key') ? 'Found' : 'Not found');
-    console.log('[Settings] Replicate Key from env:', import.meta.env.VITE_REPLICATE_API_KEY ? 'Found' : 'Not found');
+    // Get API keys from localStorage or environment variables only
+    // Users must configure their own API keys via Settings or environment
+    const geminiKey = localStorage.getItem('gemini_api_key') || import.meta.env.VITE_GEMINI_API_KEY || '';
+    const openRouterKey = localStorage.getItem('openrouter_api_key') || import.meta.env.VITE_OPENROUTER_API_KEY || '';
+    const replicateKey = localStorage.getItem('replicate_api_key') || import.meta.env.VITE_REPLICATE_API_KEY || '';
     const stackKey = localStorage.getItem('stack_api_key') || import.meta.env.VITE_STACK_API_KEY || '';
     const model = localStorage.getItem('llm_model') || 'nano-banana-pro';
     const imageModel = localStorage.getItem('llm_image_model') || MODELS.imageGen;
