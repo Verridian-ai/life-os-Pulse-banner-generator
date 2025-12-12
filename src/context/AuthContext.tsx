@@ -34,6 +34,7 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
+// eslint-disable-next-line react-refresh/only-export-components
 export const useAuth = () => {
   const context = useContext(AuthContext);
   if (!context) {
@@ -53,7 +54,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [isLoading, setIsLoading] = useState(true);
 
   // Load user profile from Neon database
-  const loadUserProfile = async (supabaseUserId: string) => {
+  const loadUserProfile = async (_supabaseUserId: string) => {
     try {
       const profile = await getCurrentUserProfile();
       setUser(profile);

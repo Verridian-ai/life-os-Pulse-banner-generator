@@ -15,6 +15,7 @@ import { getModelMetadata } from '../services/modelRouter';
 
 const AIContext = createContext<AIContextType | undefined>(undefined);
 
+// eslint-disable-next-line react-refresh/only-export-components
 export const useAI = () => {
   const context = useContext(AIContext);
   if (!context) {
@@ -29,10 +30,12 @@ interface AIProviderProps {
 
 export const AIProvider: React.FC<AIProviderProps> = ({ children }) => {
   // Model Selection
-  const [selectedProvider, setSelectedProvider] = useState<'gemini' | 'openrouter' | 'replicate'>(
-    () => (localStorage.getItem('llm_provider') as any) || 'gemini'
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const [selectedProvider, _setSelectedProvider] = useState<'gemini' | 'openrouter' | 'replicate'>(
+    () => (localStorage.getItem('llm_provider') as 'gemini' | 'openrouter' | 'replicate') || 'gemini'
   );
-  const [selectedModel, setSelectedModel] = useState<string>(
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const [selectedModel, _setSelectedModel] = useState<string>(
     () => localStorage.getItem('llm_model') || ''
   );
   const [availableModels, setAvailableModels] = useState<ModelMetadata[]>([]);

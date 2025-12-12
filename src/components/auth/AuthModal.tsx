@@ -35,9 +35,9 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onSuccess
             setEmail('');
             setPassword('');
             setFullName('');
-        } catch (err: any) {
+        } catch (err: unknown) {
             console.error('[AuthModal] Error:', err);
-            setError(err.message || 'Authentication failed');
+            setError(err instanceof Error ? err.message : 'Authentication failed');
         } finally {
             setLoading(false);
         }

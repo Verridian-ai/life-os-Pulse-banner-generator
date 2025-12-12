@@ -4,12 +4,12 @@ import { getReplicateService } from './replicate';
 
 export interface ToolCall {
     name: string;
-    args: Record<string, any>;
+    args: Record<string, unknown>;
 }
 
 export interface ActionResult {
     success: boolean;
-    result?: any;
+    result?: string;
     error?: string;
     preview?: string; // Image URL for preview
 }
@@ -124,7 +124,8 @@ export class ActionExecutor {
      * Magic edit with inpainting
      */
     private async magicEdit(args: { base_image: string; prompt: string; mask?: string }): Promise<ActionResult> {
-        const { base_image, prompt, mask } = args;
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+        const { base_image: _base_image, prompt, mask } = args;
 
         console.log('[ActionExecutor] Magic edit:', { prompt, hasMask: !!mask });
 

@@ -1,4 +1,4 @@
-import { createClient, User, Session, AuthError } from '@supabase/supabase-js';
+import { createClient, User, Session } from '@supabase/supabase-js';
 import { classifyError, getUserFriendlyMessage } from '../utils/errorHandler';
 
 // Supabase configuration
@@ -202,7 +202,7 @@ export const uploadImage = async (
         console.log('[Supabase] Uploading image:', { filePath, size: blob.size, mimeType });
 
         // Upload to Supabase Storage
-        const { data, error } = await supabase.storage
+        const { error } = await supabase.storage
             .from(IMAGES_BUCKET)
             .upload(filePath, blob, {
                 contentType: mimeType,

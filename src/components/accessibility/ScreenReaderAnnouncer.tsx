@@ -9,6 +9,7 @@ const AnnouncerContext = createContext<AnnouncerContextType | undefined>(undefin
 /**
  * Hook to access the screen reader announcer
  */
+// eslint-disable-next-line react-refresh/only-export-components
 export const useAnnouncer = () => {
     const context = useContext(AnnouncerContext);
     if (!context) {

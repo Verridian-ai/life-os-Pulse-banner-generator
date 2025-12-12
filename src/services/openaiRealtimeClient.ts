@@ -1,9 +1,15 @@
 // OpenAI Realtime API Client for Voice Chat
 // Uses the latest gpt-realtime-2025-08-28 model
 
+declare global {
+    interface Window {
+        webkitAudioContext: typeof AudioContext;
+    }
+}
+
 export interface ToolCall {
     name: string;
-    args: Record<string, any>;
+    args: Record<string, unknown>;
 }
 
 export interface TranscriptEntry {
@@ -60,13 +66,13 @@ export class OpenAIRealtimeClient {
                 }
             });
             console.log('[OpenAI Realtime] ✓ Microphone access granted');
-        } catch (error: any) {
+        } catch (error: unknown) {
             console.error('[OpenAI Realtime] Microphone access failed:', error);
-            throw new Error(`Microphone error: ${error.message}`);
+            throw new Error(`Microphone error: ${error instanceof Error ? error.message : 'Unknown error'}`);
         }
 
         // Create audio context
-        this.audioContext = new (window.AudioContext || (window as any).webkitAudioContext)({ sampleRate: 24000 });
+        this.audioContext = new (window.AudioContext || window.webkitAudioContext)({ sampleRate: 24000 });
 
         // Connect to OpenAI Realtime API via WebSocket
         // NOTE: Browser WebSocket API doesn't support custom headers.
@@ -76,19 +82,37 @@ export class OpenAIRealtimeClient {
         // doesn't support this, you'll need to:
         // 1. Use the official OpenAI Realtime SDK/library, OR
         // 2. Set up a backend proxy to add the required headers
-        const wsUrl = `wss://api.openai.com/v1/realtime?model=gpt-realtime-2025-08-28&api_key=${encodeURIComponent(this.apiKey)}`;
+        const wsUrl = `wss://api.openai.com/v1/realtime?model=gpt-realtime-2025-08-28`;
 
         return new Promise<void>((resolve, reject) => {
+            let didOpen = false;
+            let didSettle = false;
+            const safeResolve = () => {
+                if (didSettle) return;
+                didSettle = true;
+                resolve();
+            };
+            const safeReject = (error: unknown) => {
+                if (didSettle) return;
+                didSettle = true;
+                reject(error);
+            };
+
             try {
-                this.ws = new WebSocket(wsUrl);
+                this.ws = new WebSocket(wsUrl, [
+                    'realtime',
+                    `openai-insecure-api-key.${this.apiKey}`,
+                    'openai-beta.realtime-v1'
+                ]);
             } catch (error) {
                 console.error('[OpenAI Realtime] Failed to create WebSocket:', error);
-                reject(error);
+                safeReject(error);
                 return;
             }
 
             this.ws.onopen = () => {
                 console.log('[OpenAI Realtime] ✓ WebSocket connected');
+                didOpen = true;
                 this.isConnected = true;
                 onStatus(true);
 
@@ -112,7 +136,7 @@ export class OpenAIRealtimeClient {
 
                 // Set up audio processing
                 this.setupAudioProcessing();
-                resolve();
+                safeResolve();
             };
 
             this.ws.onmessage = (event) => {
@@ -128,13 +152,23 @@ export class OpenAIRealtimeClient {
                 console.error('[OpenAI Realtime] WebSocket error:', error);
                 this.isConnected = false;
                 onStatus(false);
-                reject(error);
+                this.disconnect().catch((disconnectError) => {
+                    console.error('[OpenAI Realtime] Cleanup after error failed:', disconnectError);
+                });
+                safeReject(error);
             };
 
             this.ws.onclose = () => {
                 console.log('[OpenAI Realtime] WebSocket closed');
                 this.isConnected = false;
                 onStatus(false);
+                this.disconnect().catch((disconnectError) => {
+                    console.error('[OpenAI Realtime] Cleanup after close failed:', disconnectError);
+                });
+
+                if (!didOpen) {
+                    safeReject(new Error('OpenAI Realtime connection closed before it was established'));
+                }
             };
         });
     }
@@ -175,7 +209,15 @@ export class OpenAIRealtimeClient {
     }
 
     private handleMessage(
-        message: any,
+        message: {
+            type: string;
+            delta?: string;
+            transcript?: string;
+            item?: { content?: Array<{ text?: string }> };
+            name?: string;
+            arguments?: string;
+            error?: unknown;
+        },
         onMessage: (text: string) => void,
         onToolCall?: (toolCall: ToolCall) => void,
         onTranscript?: (entry: TranscriptEntry) => void
@@ -216,7 +258,7 @@ export class OpenAIRealtimeClient {
             case 'response.output_item.added':
                 // Assistant response added
                 if (message.item?.content) {
-                    const text = message.item.content.map((c: any) => c.text).join('');
+                    const text = message.item.content.map((c) => c.text).filter(Boolean).join('');
                     if (text) {
                         const entry: TranscriptEntry = {
                             role: 'assistant',
@@ -277,7 +319,7 @@ export class OpenAIRealtimeClient {
         }
     }
 
-    private sendMessage(message: any) {
+    private sendMessage(message: Record<string, unknown>) {
         if (this.ws && this.ws.readyState === WebSocket.OPEN) {
             this.ws.send(JSON.stringify(message));
         }

@@ -37,7 +37,7 @@ export const fetchOpenRouterModels = async (apiKey: string): Promise<OpenRouterM
       if (Date.now() - timestamp < CACHE_DURATION) {
         return models;
       }
-    } catch (error) {
+    } catch {
       // Invalid cache, continue to fetch
     }
   }
@@ -204,7 +204,7 @@ export const getCachedModels = (): OpenRouterModel[] | null => {
   try {
     const { models } = JSON.parse(cached);
     return models;
-  } catch (error) {
+  } catch {
     return null;
   }
 };

@@ -1,8 +1,38 @@
 import { useState, useRef, useEffect, useCallback } from 'react';
 import { generateAgentResponse } from '../services/llm';
 
+// WebSpeech API types (not fully available in all TS configurations)
+interface WebSpeechRecognition extends EventTarget {
+    continuous: boolean;
+    interimResults: boolean;
+    lang: string;
+    onstart: (() => void) | null;
+    onend: (() => void) | null;
+    onresult: ((event: WebSpeechRecognitionEvent) => void) | null;
+    start(): void;
+    stop(): void;
+}
+
+interface WebSpeechRecognitionEvent {
+    results: {
+        [index: number]: {
+            [index: number]: {
+                transcript: string;
+                confidence: number;
+            };
+        };
+        length: number;
+    };
+}
+
+declare global {
+    interface Window {
+        webkitSpeechRecognition: new () => WebSpeechRecognition;
+    }
+}
+
 interface UseVoiceAgentProps {
-    onToolCall: (toolName: string, args: any) => Promise<string>; // Returns tool output result
+    onToolCall: (toolName: string, args: Record<string, unknown>) => Promise<string>; // Returns tool output result
     getCanvasScreenshot: () => string | null;
 }
 
@@ -13,35 +43,10 @@ export const useVoiceAgent = ({ onToolCall, getCanvasScreenshot }: UseVoiceAgent
     const [transcript, setTranscript] = useState('');
 
     // Refs for Web Speech API
-    const recognitionRef = useRef<any>(null); // Type any because webkitSpeechRecognition is not standard TS
+    const recognitionRef = useRef<WebSpeechRecognition | null>(null);
     const synthesisRef = useRef<SpeechSynthesis>(window.speechSynthesis);
 
-    useEffect(() => {
-        // Initialize Speech Recognition
-        if ('webkitSpeechRecognition' in window) {
-            // @ts-expect-error - webkitSpeechRecognition is not in TypeScript types
-            const recognition = new window.webkitSpeechRecognition();
-            recognition.continuous = false;
-            recognition.interimResults = false;
-            recognition.lang = 'en-US';
-
-            recognition.onstart = () => setIsListening(true);
-            recognition.onend = () => setIsListening(false);
-
-            recognition.onresult = async (event: any) => {
-                const text = event.results[0][0].transcript;
-                setTranscript(text);
-                setIsListening(false);
-                await processInput(text);
-            };
-
-            recognitionRef.current = recognition;
-        } else {
-            console.error("Web Speech API not supported");
-        }
-    }, []);
-
-    const speak = (text: string) => {
+    const speak = useCallback((text: string) => {
         if (!text) return;
         setIsSpeaking(true);
         const utter = new SpeechSynthesisUtterance(text);
@@ -49,9 +54,9 @@ export const useVoiceAgent = ({ onToolCall, getCanvasScreenshot }: UseVoiceAgent
         // Clean text of markdown
         utter.text = text.replace(/\*/g, '');
         synthesisRef.current.speak(utter);
-    };
+    }, []);
 
-    const processInput = async (input: string) => {
+    const processInput = useCallback(async (input: string) => {
         setIsThinking(true);
         try {
             const screenshot = getCanvasScreenshot();
@@ -79,7 +84,32 @@ export const useVoiceAgent = ({ onToolCall, getCanvasScreenshot }: UseVoiceAgent
         } finally {
             setIsThinking(false);
         }
-    };
+    }, [getCanvasScreenshot, onToolCall, speak]);
+
+    useEffect(() => {
+        // Initialize Speech Recognition
+        if ('webkitSpeechRecognition' in window) {
+            // @ts-expect-error - webkitSpeechRecognition is not in TypeScript types
+            const recognition = new window.webkitSpeechRecognition();
+            recognition.continuous = false;
+            recognition.interimResults = false;
+            recognition.lang = 'en-US';
+
+            recognition.onstart = () => setIsListening(true);
+            recognition.onend = () => setIsListening(false);
+
+            recognition.onresult = async (event: WebSpeechRecognitionEvent) => {
+                const text = event.results[0][0].transcript;
+                setTranscript(text);
+                setIsListening(false);
+                await processInput(text);
+            };
+
+            recognitionRef.current = recognition;
+        } else {
+            console.error("Web Speech API not supported");
+        }
+    }, [processInput]);
 
     const toggleListening = useCallback(() => {
         if (isListening) {

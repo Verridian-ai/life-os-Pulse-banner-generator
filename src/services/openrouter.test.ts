@@ -70,10 +70,10 @@ describe('OpenRouter Service', () => {
 
   describe('fetchOpenRouterModels', () => {
     it('should fetch models from API', async () => {
-      (global.fetch as any).mockResolvedValueOnce({
+      vi.mocked(global.fetch).mockResolvedValueOnce({
         ok: true,
         json: async () => ({ data: mockModels })
-      });
+      } as Response);
 
       const models = await fetchOpenRouterModels('test-api-key');
 
@@ -108,10 +108,10 @@ describe('OpenRouter Service', () => {
       };
       localStorageMock.setItem('openrouter_models_cache', JSON.stringify(cachedData));
 
-      (global.fetch as any).mockResolvedValueOnce({
+      vi.mocked(global.fetch).mockResolvedValueOnce({
         ok: true,
         json: async () => ({ data: mockModels })
-      });
+      } as Response);
 
       await fetchOpenRouterModels('test-api-key');
 
@@ -119,10 +119,10 @@ describe('OpenRouter Service', () => {
     });
 
     it('should handle API errors gracefully', async () => {
-      (global.fetch as any).mockResolvedValueOnce({
+      vi.mocked(global.fetch).mockResolvedValueOnce({
         ok: false,
         statusText: 'Unauthorized'
-      });
+      } as Response);
 
       const models = await fetchOpenRouterModels('invalid-key');
 
@@ -136,7 +136,7 @@ describe('OpenRouter Service', () => {
       };
       localStorageMock.setItem('openrouter_models_cache', JSON.stringify(cachedData));
 
-      (global.fetch as any).mockRejectedValueOnce(new Error('Network error'));
+      vi.mocked(global.fetch).mockRejectedValueOnce(new Error('Network error'));
 
       const models = await fetchOpenRouterModels('test-api-key');
 
@@ -212,10 +212,10 @@ describe('OpenRouter Service', () => {
 
   describe('getModelById', () => {
     it('should find model by ID', async () => {
-      (global.fetch as any).mockResolvedValueOnce({
+      vi.mocked(global.fetch).mockResolvedValueOnce({
         ok: true,
         json: async () => ({ data: mockModels })
-      });
+      } as Response);
 
       const model = await getModelById('openai/gpt-4', 'test-api-key');
 
@@ -224,10 +224,10 @@ describe('OpenRouter Service', () => {
     });
 
     it('should return null for non-existent model', async () => {
-      (global.fetch as any).mockResolvedValueOnce({
+      vi.mocked(global.fetch).mockResolvedValueOnce({
         ok: true,
         json: async () => ({ data: mockModels })
-      });
+      } as Response);
 
       const model = await getModelById('non-existent/model', 'test-api-key');
 

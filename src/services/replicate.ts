@@ -2,9 +2,7 @@
 
 import type {
   ReplicatePrediction,
-  ReplicateStartRequest,
   ReplicateQuality,
-  ReplicateError as ReplicateErrorType,
 } from '../types/replicate';
 import { MODELS } from '../constants';
 
@@ -13,7 +11,7 @@ export class ReplicateError extends Error {
     message: string,
     public predictionId?: string,
     public status?: string,
-    public detail?: any
+    public detail?: unknown
   ) {
     super(message);
     this.name = 'ReplicateError';
@@ -33,7 +31,7 @@ export class ReplicateService {
   /**
    * Start a new Replicate prediction
    */
-  private async startPrediction(version: string, input: any): Promise<string> {
+  private async startPrediction(version: string, input: Record<string, unknown>): Promise<string> {
     if (!this.apiKey) {
       throw new ReplicateError('Replicate API key not found. Please add it in Settings.');
     }
@@ -137,7 +135,7 @@ export class ReplicateService {
    */
   async upscale(imageUrl: string, quality: ReplicateQuality = 'balanced'): Promise<string> {
     const version = MODELS.replicate.upscale[quality];
-    const input: any = {
+    const input: Record<string, unknown> = {
       image: imageUrl,
       scale: 2,
     };
@@ -174,7 +172,7 @@ export class ReplicateService {
     model: 'flux' | 'ideogram' = 'flux'
   ): Promise<string> {
     const version = MODELS.replicate.inpaint[model];
-    const input: any = {
+    const input: Record<string, unknown> = {
       image: imageUrl,
       prompt,
     };

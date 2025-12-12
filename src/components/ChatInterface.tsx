@@ -14,7 +14,6 @@ const BTN_BASE = "h-10 md:h-12 px-4 md:px-6 rounded-full font-black uppercase tr
 const BTN_BLUE_INACTIVE = "bg-zinc-900 text-blue-500 shadow-[4px_4px_8px_rgba(0,0,0,0.5),-4px_-4px_8px_rgba(255,255,255,0.05)] border border-blue-500/20 hover:text-blue-400 hover:border-blue-500/50 hover:shadow-[0_0_15px_rgba(59,130,246,0.2)]";
 const BTN_BLUE_ACTIVE = "bg-gradient-to-br from-blue-600 to-cyan-700 text-white shadow-[0_0_20px_rgba(37,99,235,0.4)] border border-blue-400/30 scale-[1.02]";
 
-const BTN_NEU_SOLID = "bg-zinc-800 text-zinc-400 shadow-[3px_3px_6px_rgba(0,0,0,0.5),-3px_-3px_6px_rgba(255,255,255,0.05)] border border-white/5 hover:text-white hover:scale-[1.02] active:scale-[0.98]";
 const BTN_NEU_WHITE = "bg-white text-black shadow-[0_0_15px_rgba(255,255,255,0.2)] hover:bg-zinc-200 active:scale-[0.98]";
 
 const ChatInterface: React.FC<ChatInterfaceProps> = ({ onGenerateFromPrompt }) => {

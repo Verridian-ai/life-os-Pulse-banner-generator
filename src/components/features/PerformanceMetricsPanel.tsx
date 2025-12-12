@@ -10,7 +10,7 @@ interface PerformanceMetricsPanelProps {
 export const PerformanceMetricsPanel: React.FC<PerformanceMetricsPanelProps> = ({
   onClearMetrics,
 }) => {
-  const { performanceMetrics, getTotalCost, getAvgResponseTime } = useAI();
+  const { performanceMetrics } = useAI();
   const [timeRange, setTimeRange] = useState<'24h' | '7d' | '30d' | 'all'>('all');
   const [showDetails, setShowDetails] = useState(false);
 

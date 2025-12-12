@@ -59,7 +59,7 @@ export const ImageToolsPanel: React.FC<ImageToolsPanelProps> = ({ bgImage, onIma
     if (setReplicateOperation) {
       setReplicateOperation({
         id: Date.now().toString(),
-        type: operation as any,
+        type: operation as 'upscale' | 'removebg' | 'restore' | 'faceenhance',
         status: 'starting',
         progress: 0,
         inputImage: bgImage,
@@ -97,8 +97,8 @@ export const ImageToolsPanel: React.FC<ImageToolsPanelProps> = ({ bgImage, onIma
           setShowComparison(false);
         }, 8000);
       }, 1000);
-    } catch (err: any) {
-      const errorMsg = err.message || 'Operation failed';
+    } catch (err: unknown) {
+      const errorMsg = err instanceof Error ? err.message : 'Operation failed';
       setError(errorMsg);
 
       // Update operation to failed

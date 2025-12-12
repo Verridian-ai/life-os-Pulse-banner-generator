@@ -95,7 +95,17 @@ export async function saveUserAPIKeys(keys: UserAPIKeys): Promise<{ success: boo
         // Check if user is authenticated
         const { data: { user } } = await supabase.auth.getUser();
 
-        const payload: any = {
+        const payload: {
+            gemini_api_key: string | null;
+            openrouter_api_key: string | null;
+            replicate_api_key: string | null;
+            llm_provider: string;
+            llm_model: string | null;
+            llm_image_model: string | null;
+            llm_upscale_model: string | null;
+            user_id?: string | null;
+            session_id?: string | null;
+        } = {
             gemini_api_key: keys.gemini_api_key || null,
             openrouter_api_key: keys.openrouter_api_key || null,
             replicate_api_key: keys.replicate_api_key || null,
@@ -130,9 +140,9 @@ export async function saveUserAPIKeys(keys: UserAPIKeys): Promise<{ success: boo
         console.log('[API Keys] ✓ Saved to Supabase');
         return { success: true };
 
-    } catch (error: any) {
+    } catch (error: unknown) {
         console.error('[API Keys] Unexpected error saving:', error);
-        return { success: false, error: error.message };
+        return { success: false, error: error instanceof Error ? error.message : 'Unknown error' };
     }
 }
 
@@ -167,9 +177,9 @@ export async function deleteUserAPIKeys(): Promise<{ success: boolean; error?: s
         console.log('[API Keys] ✓ Deleted from Supabase');
         return { success: true };
 
-    } catch (error: any) {
+    } catch (error: unknown) {
         console.error('[API Keys] Unexpected error deleting:', error);
-        return { success: false, error: error.message };
+        return { success: false, error: error instanceof Error ? error.message : 'Unknown error' };
     }
 }
 

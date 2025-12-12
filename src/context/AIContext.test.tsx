@@ -299,8 +299,8 @@ describe('AIContext', () => {
       render(<TestComponent />);
       // If we get here, the test should fail
       expect(true).toBe(false);
-    } catch (error: any) {
-      expect(error.message).toContain('useAI must be used within AIProvider');
+    } catch (error: unknown) {
+      expect(error instanceof Error ? error.message : '').toContain('useAI must be used within AIProvider');
     } finally {
       console.error = consoleError;
     }

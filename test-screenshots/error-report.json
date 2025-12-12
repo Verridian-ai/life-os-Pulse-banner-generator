@@ -1,0 +1,8 @@
+{
+  "timestamp": "2025-12-12T17:39:52.443Z",
+  "errors": [],
+  "warnings": [
+    "[WARNING] cdn.tailwindcss.com should not be used in production. To use Tailwind CSS in production, install it as a PostCSS plugin or use the Tailwind CLI: https://tailwindcss.com/docs/installation",
+    "[WARNING] GoTrueClient@sb-bkergrdlytwvdzszmuos-auth-token:1 (2.87.1) 2025-12-12T17:39:45.156Z Multiple GoTrueClient instances detected in the same browser context. It is not an error, but this should be avoided as it may produce undefined behavior when used concurrently under the same storage key."
+  ]
+}

@@ -26,8 +26,8 @@ const getSupabase = () => {
 };
 
 // Create a proxy that we can use throughout the file
-const supabase = new Proxy({} as any, {
-  get(target, prop) {
+const supabase = new Proxy({} as NonNullable<typeof supabaseClient>, {
+  get(_target, prop) {
     const client = getSupabase();
     if (!client) {
       throw new Error('Supabase not configured');
@@ -736,7 +736,18 @@ export const deleteImageRecord = async (imageId: string): Promise<boolean> => {
 /**
  * Search images by tags
  */
-export const searchImagesByTags = async (tags: string[]): Promise<any[]> => {
+export const searchImagesByTags = async (tags: string[]): Promise<Array<{
+  id: string;
+  storage_url: string;
+  prompt: string;
+  model_used: string;
+  quality: string;
+  generation_type: string;
+  tags: string[];
+  created_at: string;
+  is_favorite: boolean;
+  file_name: string;
+}>> => {
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return [];
 

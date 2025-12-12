@@ -17,8 +17,8 @@ const getSupabase = () => {
 };
 
 // Create a proxy that we can use throughout the file
-const supabase = new Proxy({} as any, {
-  get(target, prop) {
+const supabase = new Proxy({} as NonNullable<typeof supabaseClient>, {
+  get(_target, prop) {
     const client = getSupabase();
     if (!client) {
       throw new Error('Supabase not configured');
@@ -52,7 +52,7 @@ const getImageDimensions = (file: File): Promise<{ width: number; height: number
 /**
  * Generate a unique filename with user folder structure
  */
-const generateFileName = async (file: File, bucket: BucketName): Promise<string> => {
+const generateFileName = async (file: File): Promise<string> => {
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) throw new Error('Not authenticated');
 
@@ -73,13 +73,13 @@ export const uploadImage = async (
 ): Promise<UploadImageResponse> => {
   try {
     // Generate unique filename
-    const fileName = await generateFileName(file, bucket);
+    const fileName = await generateFileName(file);
 
     // Get image dimensions
     const dimensions = await getImageDimensions(file);
 
     // Upload to Supabase Storage
-    const { data, error } = await supabase.storage
+    const { error } = await supabase.storage
       .from(bucket)
       .upload(fileName, file, {
         cacheControl: '3600',
@@ -100,9 +100,9 @@ export const uploadImage = async (
       width: dimensions.width,
       height: dimensions.height,
     };
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Upload error:', error);
-    throw new Error(`Failed to upload image: ${error.message}`);
+    throw new Error(`Failed to upload image: ${error instanceof Error ? error.message : 'Unknown error'}`);
   }
 };
 
@@ -203,7 +203,7 @@ export const getSignedUrl = async (
  */
 export const listUserFiles = async (
   bucket: BucketName = 'designs'
-): Promise<any[]> => {
+): Promise<Array<{ name: string; id: string; created_at: string; updated_at: string; last_accessed_at: string; metadata: Record<string, unknown> }>> => {
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return [];
 
@@ -227,7 +227,7 @@ export const listUserFiles = async (
 export const getFileMetadata = async (
   filePath: string,
   bucket: BucketName = 'designs'
-): Promise<any | null> => {
+): Promise<{ name: string; id: string; created_at: string; updated_at: string; last_accessed_at: string; metadata: Record<string, unknown> } | null> => {
   const { data, error } = await supabase.storage
     .from(bucket)
     .list(filePath.split('/')[0], {

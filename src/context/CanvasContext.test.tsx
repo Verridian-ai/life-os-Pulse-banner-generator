@@ -1,7 +1,6 @@
 import { describe, it, expect, vi } from 'vitest';
 import { render, screen, waitFor } from '@testing-library/react';
 import { CanvasProvider, useCanvas } from './CanvasContext';
-import { ReactNode } from 'react';
 
 // Test component that uses canvas context
 const TestComponent = () => {
@@ -257,8 +256,8 @@ describe('CanvasContext', () => {
       render(<TestComponent />);
       // If we get here, the test should fail
       expect(true).toBe(false);
-    } catch (error: any) {
-      expect(error.message).toContain('useCanvas must be used within CanvasProvider');
+    } catch (error: unknown) {
+      expect(error instanceof Error ? error.message : '').toContain('useCanvas must be used within CanvasProvider');
     } finally {
       console.error = consoleError;
     }

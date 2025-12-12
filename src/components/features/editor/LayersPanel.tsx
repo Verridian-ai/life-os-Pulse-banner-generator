@@ -3,7 +3,6 @@ import React from 'react';
 import { useCanvas } from '../../../context/CanvasContext';
 import { BTN_NEU_SOLID } from '../../../styles';
 import { FONT_OPTIONS } from '../../../constants';
-import { BannerElement } from '../../../types';
 
 const LayersPanel: React.FC = () => {
     const {

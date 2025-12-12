@@ -1,7 +1,38 @@
 
 import React, { useState, useEffect } from 'react';
-import { BTN_NEU_SOLID, BTN_NEU_WHITE } from '../../styles';
 import { getUserAPIKeys, saveUserAPIKeys } from '../../services/apiKeyStorage';
+
+// Common OpenRouter Models (Text) - Updated with Latest Models (Dec 2025)
+// Moved outside component to avoid useEffect dependency issues
+const COMMON_MODELS = [
+    { id: 'nano-banana-pro', name: 'Nano Banana Pro (Best for Voice/Prompt)' }, // Maps to gemini-2.0-flash
+    { id: 'zhipu/glm-4.6-plus', name: 'GLM 4.6 Plus (Top Ranked, 13.1% traffic)' },
+    { id: 'minimax/minimax-m2-plus', name: 'MiniMax M2 Plus (Coding & Agentic)' },
+    { id: 'openai/gpt-5.1', name: 'GPT-5.1 (Latest from OpenAI)' },
+    { id: 'openai/gpt-5-mini', name: 'GPT-5 Mini (Fast & Affordable)' },
+    { id: 'google/gemini-3-pro-preview', name: 'Gemini 3 Pro Preview (Advanced Reasoning)' },
+    { id: 'google/gemini-2.0-flash-exp:free', name: 'Gemini 2.0 Flash (Free)' },
+    { id: 'deepseek/deepseek-chat-v3', name: 'DeepSeek V3 (Top Tier)' },
+    { id: 'anthropic/claude-3.7-sonnet', name: 'Claude 3.7 Sonnet (Latest)' },
+    { id: 'meta-llama/llama-4-scout', name: 'Llama 4 Scout (Latest Meta)' },
+];
+
+// Replicate Upscale Models - Moved outside component to avoid useEffect dependency issues
+const UPSCALE_MODELS = [
+    { id: 'nightmareai/real-esrgan:42fed1c4974146d4d2414e2be2c5277c7fcf05fcc3a73ab241b637189a1445ad', name: 'Real-ESRGAN (General/Fast)' },
+    { id: 'jingyunliang/swinir:660d922d3312f51a4c0905772274443a516087828062df157e382d5cc707e71f', name: 'SwinIR (Restoration)' },
+    { id: 'sczhou/codeformer:7de2ea26c616d5bf2245ad0d5e24f0ff9a6204578a5c876db53142edd9d2cd56', name: 'CodeFormer (Face Enhance)' },
+];
+
+// Common Image Models - Moved outside component for consistency
+const IMAGE_MODELS = [
+    { id: 'gemini-3-pro-image-preview', name: 'Nano Banana Pro (4K, Best Quality)' },
+    { id: 'gemini-2.5-flash-image', name: 'Nano Banana (2K, Fast)' },
+    { id: 'black-forest-labs/flux-1-schnell', name: 'Flux 1 Schnell (Fast/Cheap)' },
+    { id: 'black-forest-labs/flux-1-dev', name: 'Flux 1 Dev (High Quality)' },
+    { id: 'recraft-ai/recraft-v3', name: 'Recraft V3 (vector-like)' },
+    { id: 'stabilityai/stable-diffusion-xl-base-1.0', name: 'SDXL 1.0' },
+];
 
 interface SettingsModalProps {
     isOpen: boolean;
@@ -21,38 +52,6 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
 
     // Status
     const [saved, setSaved] = useState(false);
-    const [testStatus, setTestStatus] = useState<{ [key: string]: 'idle' | 'testing' | 'success' | 'failure' }>({});
-
-    // Common OpenRouter Models (Text) - Updated with Latest Models (Dec 2025)
-    const COMMON_MODELS = [
-        { id: 'nano-banana-pro', name: '🍌 Nano Banana Pro (Best for Voice/Prompt)' }, // Maps to gemini-2.0-flash
-        { id: 'zhipu/glm-4.6-plus', name: 'GLM 4.6 Plus (Top Ranked, 13.1% traffic)' },
-        { id: 'minimax/minimax-m2-plus', name: 'MiniMax M2 Plus (Coding & Agentic)' },
-        { id: 'openai/gpt-5.1', name: 'GPT-5.1 (Latest from OpenAI)' },
-        { id: 'openai/gpt-5-mini', name: 'GPT-5 Mini (Fast & Affordable)' },
-        { id: 'google/gemini-3-pro-preview', name: 'Gemini 3 Pro Preview (Advanced Reasoning)' },
-        { id: 'google/gemini-2.0-flash-exp:free', name: 'Gemini 2.0 Flash (Free)' },
-        { id: 'deepseek/deepseek-chat-v3', name: 'DeepSeek V3 (Top Tier)' },
-        { id: 'anthropic/claude-3.7-sonnet', name: 'Claude 3.7 Sonnet (Latest)' },
-        { id: 'meta-llama/llama-4-scout', name: 'Llama 4 Scout (Latest Meta)' },
-    ];
-
-    // Replicate Upscale Models
-    const UPSCALE_MODELS = [
-        { id: 'nightmareai/real-esrgan:42fed1c4974146d4d2414e2be2c5277c7fcf05fcc3a73ab241b637189a1445ad', name: 'Real-ESRGAN (General/Fast)' },
-        { id: 'jingyunliang/swinir:660d922d3312f51a4c0905772274443a516087828062df157e382d5cc707e71f', name: 'SwinIR (Restoration)' },
-        { id: 'sczhou/codeformer:7de2ea26c616d5bf2245ad0d5e24f0ff9a6204578a5c876db53142edd9d2cd56', name: 'CodeFormer (Face Enhance)' },
-    ];
-
-    // Common Image Models
-    const IMAGE_MODELS = [
-        { id: 'gemini-3-pro-image-preview', name: '🍌 Nano Banana Pro (4K, Best Quality)' },
-        { id: 'gemini-2.5-flash-image', name: '🍌 Nano Banana (2K, Fast)' },
-        { id: 'black-forest-labs/flux-1-schnell', name: 'Flux 1 Schnell (Fast/Cheap)' },
-        { id: 'black-forest-labs/flux-1-dev', name: 'Flux 1 Dev (High Quality)' },
-        { id: 'recraft-ai/recraft-v3', name: 'Recraft V3 (vector-like)' },
-        { id: 'stabilityai/stable-diffusion-xl-base-1.0', name: 'SDXL 1.0' },
-    ];
 
     // Load settings on mount
     useEffect(() => {

@@ -58,21 +58,25 @@ const AVAILABLE_TOOLS: { type: ToolType; name: string; icon: string; description
   },
 ];
 
-const CHAIN_TEMPLATES = [
+const CHAIN_TEMPLATES: Array<{
+  name: string;
+  description: string;
+  steps: Array<{ tool: ToolType; params: Record<string, string | number | boolean> }>;
+}> = [
   {
     name: 'Professional Polish',
     description: 'Upscale, restore, and enhance',
     steps: [
       { tool: 'upscale' as ToolType, params: { quality: 'balanced' } },
-      { tool: 'restore' as ToolType, params: {} },
-      { tool: 'faceenhance' as ToolType, params: {} },
+      { tool: 'restore' as ToolType, params: {} as Record<string, string | number | boolean> },
+      { tool: 'faceenhance' as ToolType, params: {} as Record<string, string | number | boolean> },
     ],
   },
   {
     name: 'Clean Background',
     description: 'Remove BG and upscale',
     steps: [
-      { tool: 'removebg' as ToolType, params: {} },
+      { tool: 'removebg' as ToolType, params: {} as Record<string, string | number | boolean> },
       { tool: 'upscale' as ToolType, params: { quality: 'best' } },
     ],
   },
@@ -81,7 +85,7 @@ const CHAIN_TEMPLATES = [
     description: 'Fast upscale and restore',
     steps: [
       { tool: 'upscale' as ToolType, params: { quality: 'fast' } },
-      { tool: 'restore' as ToolType, params: {} },
+      { tool: 'restore' as ToolType, params: {} as Record<string, string | number | boolean> },
     ],
   },
 ];
@@ -91,13 +95,13 @@ export const ToolChainBuilder: React.FC<ToolChainBuilderProps> = ({
   onChainComplete,
 }) => {
   const { activeChain, setActiveChain, chainProgress } = useAI();
-  const [chainSteps, setChainSteps] = useState<{ tool: ToolType; params: any }[]>([]);
+  const [chainSteps, setChainSteps] = useState<{ tool: ToolType; params: Record<string, string | number | boolean> }[]>([]);
   const [chainName, setChainName] = useState('Custom Chain');
   const [isExecuting, setIsExecuting] = useState(false);
   const [showTemplates, setShowTemplates] = useState(false);
 
   const addStep = (tool: ToolType) => {
-    const defaultParams: Record<ToolType, any> = {
+    const defaultParams: Record<ToolType, Record<string, string | number | boolean>> = {
       upscale: { quality: 'balanced' },
       removebg: {},
       restore: {},
@@ -129,7 +133,7 @@ export const ToolChainBuilder: React.FC<ToolChainBuilderProps> = ({
     setChainSteps(newSteps);
   };
 
-  const updateStepParam = (index: number, paramKey: string, value: any) => {
+  const updateStepParam = (index: number, paramKey: string, value: string | number | boolean) => {
     const newSteps = [...chainSteps];
     newSteps[index].params[paramKey] = value;
     setChainSteps(newSteps);
@@ -198,10 +202,10 @@ export const ToolChainBuilder: React.FC<ToolChainBuilderProps> = ({
 
       onChainComplete(currentImageData);
       alert('Chain execution completed!');
-    } catch (error: any) {
+    } catch (error: unknown) {
       chain.status = 'failed';
       setActiveChain(chain);
-      alert(`Chain execution failed: ${error.message}`);
+      alert(`Chain execution failed: ${error instanceof Error ? error.message : 'Unknown error'}`);
     } finally {
       setIsExecuting(false);
       setTimeout(() => setActiveChain(null), 3000);
@@ -323,7 +327,7 @@ export const ToolChainBuilder: React.FC<ToolChainBuilderProps> = ({
                   {/* Step Parameters */}
                   {step.tool === 'upscale' && (
                     <select
-                      value={step.params.quality}
+                      value={String(step.params.quality ?? '')}
                       onChange={(e) => updateStepParam(idx, 'quality', e.target.value)}
                       className="w-full bg-zinc-900 border border-white/10 rounded p-2 text-xs text-white"
                     >
@@ -336,7 +340,7 @@ export const ToolChainBuilder: React.FC<ToolChainBuilderProps> = ({
                   {(step.tool === 'edit' || step.tool === 'generate') && (
                     <input
                       type="text"
-                      value={step.params.prompt}
+                      value={String(step.params.prompt ?? '')}
                       onChange={(e) => updateStepParam(idx, 'prompt', e.target.value)}
                       className="w-full bg-zinc-900 border border-white/10 rounded p-2 text-xs text-white"
                       placeholder="Enter prompt..."

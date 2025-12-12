@@ -1,7 +1,6 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useEffect, useRef } from 'react';
 import { TranscriptEntry, ToolCall } from '../../services/liveClient';
 import { ActionResult } from '../../services/actionExecutor';
-import { BTN_NEU_SOLID } from '../../styles';
 
 interface LiveActionPanelProps {
     isConnected: boolean;

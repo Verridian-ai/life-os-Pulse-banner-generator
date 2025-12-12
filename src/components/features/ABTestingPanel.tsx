@@ -21,7 +21,7 @@ interface Variant {
 export const ABTestingPanel: React.FC<ABTestingPanelProps> = ({
   basePrompt,
   referenceImages,
-  brandProfile,
+  brandProfile: _brandProfile,
   onSelectVariant,
 }) => {
   const [variants, setVariants] = useState<Variant[]>([]);
@@ -74,8 +74,8 @@ export const ABTestingPanel: React.FC<ABTestingPanelProps> = ({
           console.error(`Failed to generate ${style.name} variant:`, error);
         }
       }
-    } catch (error: any) {
-      alert(`Failed to generate variants: ${error.message}`);
+    } catch (error: unknown) {
+      alert(`Failed to generate variants: ${error instanceof Error ? error.message : 'Unknown error'}`);
     } finally {
       setIsGenerating(false);
     }
@@ -117,7 +117,7 @@ export const ABTestingPanel: React.FC<ABTestingPanelProps> = ({
           {[3, 5].map((count) => (
             <button
               key={count}
-              onClick={() => setVariantCount(count as any)}
+              onClick={() => setVariantCount(count as 3 | 5)}
               disabled={isGenerating}
               className={`flex-1 py-2 px-4 rounded-lg text-sm font-bold transition ${
                 variantCount === count

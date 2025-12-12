@@ -88,15 +88,15 @@ describe('Replicate Service', () => {
 
   describe('upscale', () => {
     it('should upscale image successfully', async () => {
-      (global.fetch as any)
+      vi.mocked(global.fetch)
         .mockResolvedValueOnce({
           ok: true,
           json: async () => mockPredictionStarted
-        })
+        } as Response)
         .mockResolvedValueOnce({
           ok: true,
           json: async () => mockPredictionSucceeded
-        });
+        } as Response);
 
       const service = new ReplicateService('test-key');
       const result = await service.upscale('https://example.com/input.png', 'balanced');
@@ -105,15 +105,15 @@ describe('Replicate Service', () => {
     });
 
     it('should handle upscale with different quality settings', async () => {
-      (global.fetch as any)
+      vi.mocked(global.fetch)
         .mockResolvedValueOnce({
           ok: true,
           json: async () => mockPredictionStarted
-        })
+        } as Response)
         .mockResolvedValueOnce({
           ok: true,
           json: async () => mockPredictionSucceeded
-        });
+        } as Response);
 
       const service = new ReplicateService('test-key');
       const result = await service.upscale('https://example.com/input.png', 'fast');
@@ -131,15 +131,15 @@ describe('Replicate Service', () => {
 
   describe('removeBg', () => {
     it('should remove background successfully', async () => {
-      (global.fetch as any)
+      vi.mocked(global.fetch)
         .mockResolvedValueOnce({
           ok: true,
           json: async () => mockPredictionStarted
-        })
+        } as Response)
         .mockResolvedValueOnce({
           ok: true,
           json: async () => mockPredictionSucceeded
-        });
+        } as Response);
 
       const service = new ReplicateService('test-key');
       const result = await service.removeBg('https://example.com/input.png');
@@ -150,15 +150,15 @@ describe('Replicate Service', () => {
 
   describe('inpaint', () => {
     it('should inpaint image with prompt', async () => {
-      (global.fetch as any)
+      vi.mocked(global.fetch)
         .mockResolvedValueOnce({
           ok: true,
           json: async () => mockPredictionStarted
-        })
+        } as Response)
         .mockResolvedValueOnce({
           ok: true,
           json: async () => mockPredictionSucceeded
-        });
+        } as Response);
 
       const service = new ReplicateService('test-key');
       const result = await service.inpaint(
@@ -170,15 +170,15 @@ describe('Replicate Service', () => {
     });
 
     it('should inpaint with mask', async () => {
-      (global.fetch as any)
+      vi.mocked(global.fetch)
         .mockResolvedValueOnce({
           ok: true,
           json: async () => mockPredictionStarted
-        })
+        } as Response)
         .mockResolvedValueOnce({
           ok: true,
           json: async () => mockPredictionSucceeded
-        });
+        } as Response);
 
       const service = new ReplicateService('test-key');
       const result = await service.inpaint(
@@ -191,15 +191,15 @@ describe('Replicate Service', () => {
     });
 
     it('should support different models', async () => {
-      (global.fetch as any)
+      vi.mocked(global.fetch)
         .mockResolvedValueOnce({
           ok: true,
           json: async () => mockPredictionStarted
-        })
+        } as Response)
         .mockResolvedValueOnce({
           ok: true,
           json: async () => mockPredictionSucceeded
-        });
+        } as Response);
 
       const service = new ReplicateService('test-key');
       const result = await service.inpaint(
@@ -215,15 +215,15 @@ describe('Replicate Service', () => {
 
   describe('outpaint', () => {
     it('should outpaint image in specified direction', async () => {
-      (global.fetch as any)
+      vi.mocked(global.fetch)
         .mockResolvedValueOnce({
           ok: true,
           json: async () => mockPredictionStarted
-        })
+        } as Response)
         .mockResolvedValueOnce({
           ok: true,
           json: async () => mockPredictionSucceeded
-        });
+        } as Response);
 
       const service = new ReplicateService('test-key');
       const result = await service.outpaint(
@@ -238,15 +238,15 @@ describe('Replicate Service', () => {
 
   describe('restore', () => {
     it('should restore degraded image', async () => {
-      (global.fetch as any)
+      vi.mocked(global.fetch)
         .mockResolvedValueOnce({
           ok: true,
           json: async () => mockPredictionStarted
-        })
+        } as Response)
         .mockResolvedValueOnce({
           ok: true,
           json: async () => mockPredictionSucceeded
-        });
+        } as Response);
 
       const service = new ReplicateService('test-key');
       const result = await service.restore('https://example.com/input.png');
@@ -257,15 +257,15 @@ describe('Replicate Service', () => {
 
   describe('faceEnhance', () => {
     it('should enhance faces in image', async () => {
-      (global.fetch as any)
+      vi.mocked(global.fetch)
         .mockResolvedValueOnce({
           ok: true,
           json: async () => mockPredictionStarted
-        })
+        } as Response)
         .mockResolvedValueOnce({
           ok: true,
           json: async () => mockPredictionSucceeded
-        });
+        } as Response);
 
       const service = new ReplicateService('test-key');
       const result = await service.faceEnhance('https://example.com/input.png');
@@ -276,12 +276,12 @@ describe('Replicate Service', () => {
 
   describe('error handling', () => {
     it('should handle API errors', async () => {
-      (global.fetch as any).mockResolvedValueOnce({
+      vi.mocked(global.fetch).mockResolvedValueOnce({
         ok: false,
         status: 401,
         statusText: 'Unauthorized',
         json: async () => ({ detail: 'Invalid API key' })
-      });
+      } as Response);
 
       const service = new ReplicateService('invalid-key');
 
@@ -290,15 +290,15 @@ describe('Replicate Service', () => {
     });
 
     it('should handle failed predictions', async () => {
-      (global.fetch as any)
+      vi.mocked(global.fetch)
         .mockResolvedValueOnce({
           ok: true,
           json: async () => mockPredictionStarted
-        })
+        } as Response)
         .mockResolvedValueOnce({
           ok: true,
           json: async () => mockPredictionFailed
-        });
+        } as Response);
 
       const service = new ReplicateService('test-key');
 
@@ -307,15 +307,15 @@ describe('Replicate Service', () => {
     });
 
     it('should handle prediction with no output', async () => {
-      (global.fetch as any)
+      vi.mocked(global.fetch)
         .mockResolvedValueOnce({
           ok: true,
           json: async () => mockPredictionStarted
-        })
+        } as Response)
         .mockResolvedValueOnce({
           ok: true,
           json: async () => ({ ...mockPredictionSucceeded, output: null })
-        });
+        } as Response);
 
       const service = new ReplicateService('test-key');
 
@@ -328,19 +328,19 @@ describe('Replicate Service', () => {
     it('should call progress callback during processing', async () => {
       const onProgress = vi.fn();
 
-      (global.fetch as any)
+      vi.mocked(global.fetch)
         .mockResolvedValueOnce({
           ok: true,
           json: async () => mockPredictionStarted
-        })
+        } as Response)
         .mockResolvedValueOnce({
           ok: true,
           json: async () => ({ ...mockPredictionStarted, status: 'processing' })
-        })
+        } as Response)
         .mockResolvedValueOnce({
           ok: true,
           json: async () => mockPredictionSucceeded
-        });
+        } as Response);
 
       const service = new ReplicateService('test-key', onProgress);
       await service.upscale('https://example.com/input.png');
@@ -351,9 +351,9 @@ describe('Replicate Service', () => {
 
   describe('cancelPrediction', () => {
     it('should cancel running prediction', async () => {
-      (global.fetch as any).mockResolvedValueOnce({
+      vi.mocked(global.fetch).mockResolvedValueOnce({
         ok: true
-      });
+      } as Response);
 
       const service = new ReplicateService('test-key');
       await service.cancelPrediction('pred_123');
@@ -365,9 +365,9 @@ describe('Replicate Service', () => {
     });
 
     it('should handle cancel errors gracefully', async () => {
-      (global.fetch as any).mockResolvedValueOnce({
+      vi.mocked(global.fetch).mockResolvedValueOnce({
         ok: false
-      });
+      } as Response);
 
       const service = new ReplicateService('test-key');
 
@@ -378,10 +378,10 @@ describe('Replicate Service', () => {
 
   describe('getPredictionStatus', () => {
     it('should fetch prediction status', async () => {
-      (global.fetch as any).mockResolvedValueOnce({
+      vi.mocked(global.fetch).mockResolvedValueOnce({
         ok: true,
         json: async () => mockPredictionStarted
-      });
+      } as Response);
 
       const service = new ReplicateService('test-key');
       const status = await service.getPredictionStatus('pred_123');
@@ -391,9 +391,9 @@ describe('Replicate Service', () => {
     });
 
     it('should handle fetch errors', async () => {
-      (global.fetch as any).mockResolvedValueOnce({
+      vi.mocked(global.fetch).mockResolvedValueOnce({
         ok: false
-      });
+      } as Response);
 
       const service = new ReplicateService('test-key');
 

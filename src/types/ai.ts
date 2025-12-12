@@ -37,7 +37,7 @@ export interface ToolChain {
 export interface ChainStep {
   id: string;
   tool: 'generate' | 'upscale' | 'edit' | 'removebg' | 'inpaint' | 'outpaint' | 'restore' | 'faceenhance';
-  params: Record<string, any>;
+  params: Record<string, string | number | boolean>;
   status: 'pending' | 'running' | 'completed' | 'failed';
   result?: string; // image URL or base64
   error?: string;

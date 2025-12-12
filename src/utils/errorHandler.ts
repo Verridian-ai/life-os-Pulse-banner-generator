@@ -3,14 +3,15 @@
 export interface NetworkError extends Error {
   type: 'network' | 'cors' | 'timeout' | 'fetch' | 'api' | 'unknown';
   retryable: boolean;
-  originalError?: any;
+  originalError?: unknown;
 }
 
 /**
  * Classifies an error into specific types for better error handling
  */
-export const classifyError = (error: any): NetworkError => {
-  const message = error?.message?.toLowerCase() || '';
+export const classifyError = (error: unknown): NetworkError => {
+  const errorObj = error as { message?: string; name?: string };
+  const message = errorObj?.message?.toLowerCase() || '';
   const errorString = String(error).toLowerCase();
 
   // Failed to fetch - generic network error
@@ -36,7 +37,7 @@ export const classifyError = (error: any): NetworkError => {
   }
 
   // Timeout errors
-  if (message.includes('timeout') || message.includes('aborted') || error.name === 'AbortError') {
+  if (message.includes('timeout') || message.includes('aborted') || errorObj.name === 'AbortError') {
     return {
       name: 'TimeoutError',
       message: 'Request timed out. Server took too long to respond.',
@@ -91,7 +92,7 @@ export const classifyError = (error: any): NetworkError => {
   // Unknown error
   return {
     name: 'UnknownError',
-    message: error?.message || 'An unexpected error occurred',
+    message: errorObj?.message || 'An unexpected error occurred',
     type: 'unknown',
     retryable: false,
     originalError: error
@@ -190,7 +191,7 @@ export const fetchWithTimeout = async (
 /**
  * User-friendly error messages for UI display
  */
-export const getUserFriendlyMessage = (error: any): string => {
+export const getUserFriendlyMessage = (error: unknown): string => {
   const classified = classifyError(error);
 
   switch (classified.type) {

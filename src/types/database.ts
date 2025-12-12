@@ -18,7 +18,7 @@ export interface Design {
   description?: string;
   thumbnail_url?: string;
   design_url: string;
-  canvas_data?: any; // Full canvas state
+  canvas_data?: Record<string, unknown>; // Full canvas state
   width: number;
   height: number;
   tags?: string[];
@@ -57,7 +57,7 @@ export interface UsageMetric {
   input_tokens?: number;
   output_tokens?: number;
   error_message?: string;
-  metadata?: any;
+  metadata?: Record<string, unknown>;
   created_at: string;
 }
 
@@ -86,7 +86,7 @@ export interface UserPreferences {
   openrouter_api_key?: string;
   replicate_api_key?: string;
   gcs_bucket_name?: string;
-  preferences?: any;
+  preferences?: Record<string, unknown>;
   updated_at: string;
 }
 
@@ -104,7 +104,7 @@ export interface CreateDesignRequest {
   description?: string;
   thumbnail_url?: string;
   design_url: string;
-  canvas_data?: any;
+  canvas_data?: Record<string, unknown>;
   width?: number;
   height?: number;
   tags?: string[];
@@ -116,7 +116,7 @@ export interface UpdateDesignRequest {
   description?: string;
   thumbnail_url?: string;
   design_url?: string;
-  canvas_data?: any;
+  canvas_data?: Record<string, unknown>;
   tags?: string[];
   is_public?: boolean;
 }

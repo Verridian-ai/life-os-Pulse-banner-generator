@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { getUserImages, toggleImageFavorite, deleteImageRecord } from '../../services/database';
 import { useCanvas } from '../../context/CanvasContext';
 import { BTN_NEU_SOLID, INPUT_NEU } from '../../styles';
@@ -27,11 +27,15 @@ const ImageGallery: React.FC = () => {
     const [showFavoritesOnly, setShowFavoritesOnly] = useState(false);
     const [hoveredImageId, setHoveredImageId] = useState<string | null>(null);
 
-    // Load images
-    const loadImages = async () => {
+    // Load images - wrapped in useCallback to satisfy exhaustive-deps
+    const loadImages = useCallback(async () => {
         setLoading(true);
         try {
-            const filters: any = {};
+            const filters: {
+                searchQuery?: string;
+                generationType?: string;
+                favorites?: boolean;
+            } = {};
 
             if (searchQuery) {
                 filters.searchQuery = searchQuery;
@@ -53,12 +57,12 @@ const ImageGallery: React.FC = () => {
         } finally {
             setLoading(false);
         }
-    };
+    }, [searchQuery, filterType, showFavoritesOnly]);
 
     // Load on mount and when filters change
     useEffect(() => {
         loadImages();
-    }, [searchQuery, filterType, showFavoritesOnly]);
+    }, [loadImages]);
 
     // Handle apply to canvas
     const handleApplyToCanvas = (imageUrl: string) => {

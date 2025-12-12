@@ -60,7 +60,7 @@ describe('ActionExecutor', () => {
     };
 
     it('should generate background successfully', async () => {
-      (generateImage as any).mockResolvedValueOnce('https://example.com/image.png');
+      vi.mocked(generateImage).mockResolvedValueOnce('https://example.com/image.png');
 
       const result = await executor.executeToolCall(toolCall);
 
@@ -70,7 +70,7 @@ describe('ActionExecutor', () => {
     });
 
     it('should handle generation errors', async () => {
-      (generateImage as any).mockRejectedValueOnce(new Error('Generation failed'));
+      vi.mocked(generateImage).mockRejectedValueOnce(new Error('Generation failed'));
 
       const result = await executor.executeToolCall(toolCall);
 
@@ -80,7 +80,7 @@ describe('ActionExecutor', () => {
 
     it('should return preview in preview mode', async () => {
       executor.setPreviewMode(true);
-      (generateImage as any).mockResolvedValueOnce('https://example.com/image.png');
+      vi.mocked(generateImage).mockResolvedValueOnce('https://example.com/image.png');
 
       const result = await executor.executeToolCall(toolCall);
 
@@ -90,7 +90,7 @@ describe('ActionExecutor', () => {
     });
 
     it('should handle null image generation', async () => {
-      (generateImage as any).mockResolvedValueOnce(null);
+      vi.mocked(generateImage).mockResolvedValueOnce(null);
 
       const result = await executor.executeToolCall(toolCall);
 
@@ -99,7 +99,7 @@ describe('ActionExecutor', () => {
     });
 
     it('should use default quality if not specified', async () => {
-      (generateImage as any).mockResolvedValueOnce('https://example.com/image.png');
+      vi.mocked(generateImage).mockResolvedValueOnce('https://example.com/image.png');
 
       await executor.executeToolCall({
         name: 'generate_background',
@@ -156,7 +156,7 @@ describe('ActionExecutor', () => {
       const mockService = {
         upscale: vi.fn().mockResolvedValue('https://example.com/upscaled.png')
       };
-      (getReplicateService as any).mockReturnValueOnce(mockService);
+      vi.mocked(getReplicateService).mockReturnValueOnce(mockService as ReturnType<typeof getReplicateService>);
 
       const result = await executor.executeToolCall(toolCall);
 
@@ -169,7 +169,7 @@ describe('ActionExecutor', () => {
       const mockService = {
         upscale: vi.fn().mockRejectedValue(new Error('Upscale failed'))
       };
-      (getReplicateService as any).mockReturnValueOnce(mockService);
+      vi.mocked(getReplicateService).mockReturnValueOnce(mockService as ReturnType<typeof getReplicateService>);
 
       const result = await executor.executeToolCall(toolCall);
 
@@ -181,7 +181,7 @@ describe('ActionExecutor', () => {
       const mockService = {
         upscale: vi.fn().mockResolvedValue('https://example.com/upscaled.png')
       };
-      (getReplicateService as any).mockReturnValueOnce(mockService);
+      vi.mocked(getReplicateService).mockReturnValueOnce(mockService as ReturnType<typeof getReplicateService>);
 
       await executor.executeToolCall({
         name: 'upscale_image',
@@ -200,7 +200,7 @@ describe('ActionExecutor', () => {
       const mockService = {
         restore: vi.fn().mockResolvedValue('https://example.com/restored.png')
       };
-      (getReplicateService as any).mockReturnValueOnce(mockService);
+      vi.mocked(getReplicateService).mockReturnValueOnce(mockService as ReturnType<typeof getReplicateService>);
 
       const result = await executor.executeToolCall({
         name: 'restore_image',
@@ -215,7 +215,7 @@ describe('ActionExecutor', () => {
       const mockService = {
         restore: vi.fn().mockRejectedValue(new Error('Restore failed'))
       };
-      (getReplicateService as any).mockReturnValueOnce(mockService);
+      vi.mocked(getReplicateService).mockReturnValueOnce(mockService as ReturnType<typeof getReplicateService>);
 
       const result = await executor.executeToolCall({
         name: 'restore_image',
@@ -232,7 +232,7 @@ describe('ActionExecutor', () => {
       const mockService = {
         faceEnhance: vi.fn().mockResolvedValue('https://example.com/enhanced.png')
       };
-      (getReplicateService as any).mockReturnValueOnce(mockService);
+      vi.mocked(getReplicateService).mockReturnValueOnce(mockService as ReturnType<typeof getReplicateService>);
 
       const result = await executor.executeToolCall({
         name: 'enhance_face',
@@ -248,7 +248,7 @@ describe('ActionExecutor', () => {
       const mockService = {
         faceEnhance: vi.fn().mockRejectedValue(new Error('Enhance failed'))
       };
-      (getReplicateService as any).mockReturnValueOnce(mockService);
+      vi.mocked(getReplicateService).mockReturnValueOnce(mockService as ReturnType<typeof getReplicateService>);
 
       const result = await executor.executeToolCall({
         name: 'enhance_face',

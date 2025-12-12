@@ -89,9 +89,9 @@ export const uploadImageToGCS = async (
       width: dimensions.width,
       height: dimensions.height,
     };
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('GCS upload error:', error);
-    throw new Error(`Failed to upload image: ${error.message}`);
+    throw new Error(`Failed to upload image: ${error instanceof Error ? error.message : 'Unknown error'}`);
   }
 };
 
@@ -154,7 +154,7 @@ export const uploadImageViaSignedURL = async (
       width: dimensions.width,
       height: dimensions.height,
     };
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Signed URL upload error:', error);
     // Fallback to base64 upload
     return uploadImageToGCS({ file, folder: folder as 'designs' | 'references' | 'avatars' | 'logos' | undefined });

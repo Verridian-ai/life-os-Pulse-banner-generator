@@ -62,7 +62,7 @@ const neonFetch = async <T>(
 /**
  * Execute raw SQL query
  */
-export const executeQuery = async <T>(query: string, params: any[] = []): Promise<T> => {
+export const executeQuery = async <T>(query: string, params: (string | number | boolean | null | string[])[] = []): Promise<T> => {
   return neonFetch<T>('/query', {
     method: 'POST',
     body: JSON.stringify({ query, params }),
@@ -105,7 +105,7 @@ export const updateUser = async (
   updates: Partial<Pick<User, 'full_name' | 'avatar_url' | 'is_pro'>>
 ): Promise<User> => {
   const fields: string[] = [];
-  const values: any[] = [supabaseUserId];
+  const values: (string | number | boolean | null)[] = [supabaseUserId];
   let paramIndex = 2;
 
   if (updates.full_name !== undefined) {
@@ -203,7 +203,7 @@ export const updateDesign = async (
   updates: UpdateDesignRequest
 ): Promise<Design> => {
   const fields: string[] = [];
-  const values: any[] = [designId];
+  const values: (string | number | boolean | null)[] = [designId];
   let paramIndex = 2;
 
   Object.entries(updates).forEach(([key, value]) => {
@@ -367,7 +367,7 @@ export const getUserMetrics = async (
   endDate?: Date
 ): Promise<UsageMetric[]> => {
   let query = 'SELECT * FROM usage_metrics WHERE user_id = $1';
-  const params: any[] = [userId];
+  const params: (string | number | boolean | null)[] = [userId];
 
   if (startDate) {
     query += ' AND created_at >= $2';
@@ -449,7 +449,7 @@ export const updateUserPreferences = async (
   preferences: Partial<Omit<UserPreferences, 'user_id' | 'updated_at'>>
 ): Promise<UserPreferences> => {
   const fields: string[] = [];
-  const values: any[] = [userId];
+  const values: (string | number | boolean | null)[] = [userId];
   let paramIndex = 2;
 
   Object.entries(preferences).forEach(([key, value]) => {

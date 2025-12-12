@@ -3,7 +3,7 @@ import { MODELS } from "../constants";
 
 export interface ToolCall {
     name: string;
-    args: Record<string, any>;
+    args: Record<string, unknown>;
 }
 
 export interface TranscriptEntry {
@@ -15,8 +15,8 @@ export interface TranscriptEntry {
 
 export class LiveClient {
     private client: GoogleGenAI;
-    private sessionPromise: Promise<any> | null = null;
-    private session: any = null;
+    private sessionPromise: Promise<unknown> | null = null;
+    private session: { sendRealtimeInput: (input: { audio: { mimeType: string; data: string } }) => Promise<void>; close?: () => Promise<void> } | null = null;
     private inputAudioContext: AudioContext | null = null;
     private outputAudioContext: AudioContext | null = null;
     private nextStartTime = 0;
@@ -76,25 +76,40 @@ export class LiveClient {
                 }
             });
             console.log('[LiveClient] ✓ Microphone access granted');
-        } catch (error: any) {
+        } catch (error: unknown) {
             console.error('[LiveClient] Microphone access failed:', error);
+            const err = error as { name?: string; message?: string };
 
-            if (error.name === 'NotAllowedError' || error.name === 'PermissionDeniedError') {
+            try {
+                await this.inputAudioContext?.close();
+                await this.outputAudioContext?.close();
+            } catch {
+                // Ignore cleanup errors
+            }
+            this.inputAudioContext = null;
+            this.outputAudioContext = null;
+
+            if (err.name === 'NotAllowedError' || err.name === 'PermissionDeniedError') {
                 throw new Error('Permission denied: Please allow microphone access');
-            } else if (error.name === 'NotFoundError') {
+            } else if (err.name === 'NotFoundError') {
                 throw new Error('No microphone found on this device');
-            } else if (error.name === 'NotReadableError') {
+            } else if (err.name === 'NotReadableError') {
                 throw new Error('Microphone is already in use by another application');
             } else {
-                throw new Error(`Microphone error: ${error.message}`);
+                throw new Error(`Microphone error: ${err.message || 'Unknown error'}`);
             }
         }
+
+        // Store stream early so unexpected disconnects can still clean up the mic.
+        this.audioStream = stream;
 
         console.log('[LiveClient] Connecting to Gemini Live API...');
         this.sessionPromise = this.client.live.connect({
             model: MODELS.liveAudio,
             config: {
-                responseModalities: [Modality.AUDIO, Modality.TEXT],
+                responseModalities: [Modality.AUDIO],
+                inputAudioTranscription: {},
+                outputAudioTranscription: {},
                 systemInstruction: "You are a helpful creative director assisting a user in designing their LinkedIn banner. Keep responses concise and focused on design advice, color psychology, and professional branding.",
             },
             callbacks: {
@@ -105,6 +120,8 @@ export class LiveClient {
                 },
                 onmessage: async (msg: LiveServerMessage) => {
                     const parts = msg.serverContent?.modelTurn?.parts || [];
+                    const serverContent = msg.serverContent;
+                    const hasTextPart = parts.some((p: { text?: string }) => !!p?.text);
 
                     // Process all parts
                     for (const part of parts) {
@@ -155,10 +172,40 @@ export class LiveClient {
                         }
                     }
 
+                    // Handle input/output transcriptions (useful when response modality is AUDIO)
+                    if (serverContent?.inputTranscription?.text) {
+                        const entry: TranscriptEntry = {
+                            role: 'user',
+                            text: serverContent.inputTranscription.text,
+                            timestamp: Date.now()
+                        };
+                        this.transcript.push(entry);
+
+                        if (onTranscript) {
+                            onTranscript(entry);
+                        }
+                    }
+
+                    if (serverContent?.outputTranscription?.text && !hasTextPart) {
+                        const text = serverContent.outputTranscription.text;
+                        onMessage(text);
+
+                        const entry: TranscriptEntry = {
+                            role: 'assistant',
+                            text,
+                            timestamp: Date.now()
+                        };
+                        this.transcript.push(entry);
+
+                        if (onTranscript) {
+                            onTranscript(entry);
+                        }
+                    }
+
                     // Handle user turns (for transcript)
-                    const serverContent = msg.serverContent as any;
-                    if (serverContent?.userTurn) {
-                        const userParts = serverContent.userTurn.parts || [];
+                    const legacyServerContent = msg.serverContent as { userTurn?: { parts?: Array<{ text?: string }> } } | undefined;
+                    if (legacyServerContent?.userTurn) {
+                        const userParts = legacyServerContent.userTurn.parts || [];
                         for (const part of userParts) {
                             if (part.text) {
                                 const entry: TranscriptEntry = {
@@ -174,32 +221,83 @@ export class LiveClient {
                             }
                         }
                     }
+
+                    // Handle dedicated tool call messages
+                    if (msg.toolCall?.functionCalls && Array.isArray(msg.toolCall.functionCalls)) {
+                        for (const fc of msg.toolCall.functionCalls) {
+                            const toolCall: ToolCall = {
+                                name: fc.name || 'unknown',
+                                args: (fc.args as Record<string, unknown>) || {}
+                            };
+
+                            console.log('[LiveClient] Tool call detected:', toolCall);
+
+                            if (onToolCall) {
+                                onToolCall(toolCall);
+                            }
+
+                            // Attach tool call to the last transcript entry if present
+                            if (this.transcript.length > 0) {
+                                const lastEntry = this.transcript[this.transcript.length - 1];
+                                if (!lastEntry.toolCalls) {
+                                    lastEntry.toolCalls = [];
+                                }
+                                lastEntry.toolCalls.push(toolCall);
+                            }
+                        }
+                    }
                 },
                 onclose: () => {
                     console.log('[LiveClient] WebSocket connection closed');
                     this.isConnected = false;
                     onStatus(false);
+
+                    if (this.cleanup) {
+                        this.cleanup();
+                        this.cleanup = null;
+                    }
                 },
                 onerror: (err) => {
                     console.error('[LiveClient] WebSocket error:', err);
                     this.isConnected = false;
                     onStatus(false);
+
+                    if (this.cleanup) {
+                        this.cleanup();
+                        this.cleanup = null;
+                    }
                 }
             }
         });
 
         // Store the session for proper cleanup
         try {
-            this.session = await this.sessionPromise;
+            this.session = await this.sessionPromise as { sendRealtimeInput: (input: { audio: { mimeType: string; data: string } }) => Promise<void>; close?: () => Promise<void> };
             console.log('[LiveClient] ✓ Session established');
         } catch (error) {
             console.error('[LiveClient] Failed to establish session:', error);
+
+            // Clean up mic + audio contexts on connection failures.
+            try {
+                stream.getTracks().forEach((t) => t.stop());
+            } catch {
+                // Ignore
+            }
+            try {
+                await this.inputAudioContext?.close();
+                await this.outputAudioContext?.close();
+            } catch {
+                // Ignore
+            }
+            this.audioStream = null;
+            this.inputAudioContext = null;
+            this.outputAudioContext = null;
+
             throw error;
         }
 
         // NOW set up audio processing AFTER session is ready
         console.log('[LiveClient] Setting up audio processing...');
-        this.audioStream = stream;
         this.sourceNode = this.inputAudioContext.createMediaStreamSource(stream);
         this.scriptProcessor = this.inputAudioContext.createScriptProcessor(4096, 1, 1);
 
@@ -216,7 +314,7 @@ export class LiveClient {
             // We don't await here to keep the audio processor synchronous
             try {
                 const promise = this.session.sendRealtimeInput({
-                    media: {
+                    audio: {
                         mimeType: 'audio/pcm;rate=16000',
                         data: b64Data
                     }
@@ -224,7 +322,7 @@ export class LiveClient {
 
                 // Handle async errors without blocking the audio thread
                 if (promise && typeof promise.catch === 'function') {
-                    promise.catch((error: any) => {
+                    promise.catch((error: { name?: string }) => {
                         // Only disconnect on persistent errors, not transient ones
                         if (this.isConnected && error.name !== 'AbortError') {
                             console.error('[LiveClient] Audio send failed:', error);
@@ -261,7 +359,7 @@ export class LiveClient {
                 try {
                     this.scriptProcessor.disconnect();
                     this.scriptProcessor.onaudioprocess = null;
-                } catch (e) {
+                } catch {
                     // Already disconnected
                 }
                 this.scriptProcessor = null;
@@ -269,7 +367,7 @@ export class LiveClient {
             if (this.sourceNode) {
                 try {
                     this.sourceNode.disconnect();
-                } catch (e) {
+                } catch {
                     // Already disconnected
                 }
                 this.sourceNode = null;
@@ -279,7 +377,7 @@ export class LiveClient {
             try {
                 this.inputAudioContext?.close();
                 this.outputAudioContext?.close();
-            } catch (e) {
+            } catch {
                 // Already closed
             }
             console.log('[LiveClient] ✓ Audio resources cleaned up');

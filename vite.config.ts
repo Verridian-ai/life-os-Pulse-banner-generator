@@ -20,8 +20,8 @@ export default defineConfig(({ mode }) => {
           headers: {
             'Content-Type': 'application/json'
           },
-          configure: (proxy, options) => {
-            proxy.on('proxyReq', (proxyReq, req, res) => {
+          configure: (proxy, _options) => {
+            proxy.on('proxyReq', (proxyReq, req, _res) => {
               // Get the token from custom header
               const token = req.headers['x-replicate-token'];
 

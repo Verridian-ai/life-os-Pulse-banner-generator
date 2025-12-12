@@ -3,7 +3,6 @@
 import React, { useState, useEffect } from 'react';
 import { useAI } from '../../context/AIContext';
 import { fetchOpenRouterModels } from '../../services/openrouter';
-import { getModelMetadata } from '../../services/modelRouter';
 import { MODELS } from '../../constants';
 
 interface ModelSelectorProps {
@@ -11,10 +10,10 @@ interface ModelSelectorProps {
 }
 
 export const ModelSelector: React.FC<ModelSelectorProps> = ({ onModelChange }) => {
-  const { selectedProvider, selectedModel, availableModels, modelOverride, setModelOverride } = useAI();
+  const { modelOverride, setModelOverride } = useAI();
   const [autoSelect, setAutoSelect] = useState(true);
   const [provider, setProvider] = useState<'gemini' | 'openrouter'>('gemini');
-  const [openrouterModels, setOpenrouterModels] = useState<any[]>([]);
+  const [openrouterModels, setOpenrouterModels] = useState<{ id: string; name: string }[]>([]);
   const [isLoadingModels, setIsLoadingModels] = useState(false);
 
   // Load OpenRouter models when provider changes
@@ -116,7 +115,7 @@ export const ModelSelector: React.FC<ModelSelectorProps> = ({ onModelChange }) =
               {['gemini', 'openrouter'].map((p) => (
                 <button
                   key={p}
-                  onClick={() => handleProviderChange(p as any)}
+                  onClick={() => handleProviderChange(p as 'gemini' | 'openrouter')}
                   className={`flex-1 py-2 px-4 rounded-lg text-sm font-bold transition ${
                     provider === p
                       ? 'bg-blue-600 text-white'

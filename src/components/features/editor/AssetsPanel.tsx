@@ -11,11 +11,13 @@ const AssetsPanel: React.FC = () => {
     } = useCanvas();
 
     // Helper for adding ref as layer since it's not directly in context actions yet in the same way
-    // Actually we need to make sure onReferenceLayerAdd is handeld. 
+    // Actually we need to make sure onReferenceLayerAdd is handeld.
     // Let's implement local logic if context doesn't have it, or assume context update.
     // Checking Context: it doesn't have onReferenceLayerAdd directly exposing "addElement".
 
-    const handleAddLayer = (img: string) => {
+    // Helper function for adding images as layers - currently unused but kept for potential future use
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const _handleAddLayer = (img: string) => {
         addElement({
             id: Date.now().toString(),
             type: 'image',

@@ -20,7 +20,7 @@ export interface ReplicatePrediction {
 
 export interface ReplicateStartRequest {
   version: string;
-  input: Record<string, any>;
+  input: Record<string, unknown>;
   webhook?: string;
   webhook_events_filter?: ('start' | 'output' | 'logs' | 'completed')[];
 }
@@ -98,7 +98,7 @@ export class ReplicateError extends Error {
     message: string,
     public predictionId?: string,
     public status?: string,
-    public detail?: any
+    public detail?: unknown
   ) {
     super(message);
     this.name = 'ReplicateError';

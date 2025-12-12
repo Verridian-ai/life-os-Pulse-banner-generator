@@ -5,7 +5,7 @@ import { Part } from "../types";
 import type { ImageEditTurn, BrandProfile } from "../types/ai";
 import { uploadImage } from "./supabase";
 import { createImage } from "./database";
-import { retry, fetchWithTimeout, classifyError, getUserFriendlyMessage } from "../utils/errorHandler";
+import { classifyError, getUserFriendlyMessage } from "../utils/errorHandler";
 
 // Types
 type LLMProvider = 'gemini' | 'openrouter';
@@ -35,7 +35,7 @@ const getGoogleClient = (key: string) => {
 const callOpenRouter = async (
     apiKey: string,
     model: string,
-    messages: { role: string; content: any }[]
+    messages: { role: string; content: string | Array<{ type: string; text?: string; image_url?: { url: string } }> }[]
 ) => {
     if (!apiKey) throw new Error("OpenRouter API Key not found");
 
@@ -66,7 +66,7 @@ const callOpenRouter = async (
 };
 
 // --- Replicate Client ---
-const callReplicate = async (apiKey: string, version: string, input: any) => {
+const callReplicate = async (apiKey: string, version: string, input: Record<string, unknown>) => {
     console.log('[Replicate] Starting prediction with:', { version, hasApiKey: !!apiKey });
 
     if (!apiKey) {
@@ -208,9 +208,8 @@ export const generateDesignChatResponse = async (
         });
 
         // Add current user message
-        const currentContent: any[] = [{ type: "text", text: prompt }];
+        const currentContent: Array<{ type: string; text?: string; image_url?: { url: string } }> = [{ type: "text", text: prompt }];
         images.forEach(img => {
-            const mimeType = img.substring(img.indexOf(':') + 1, img.indexOf(';'));
             // Ensure base64 is clean
             const base64 = img; // Usually implies full data URI in this context based on app flow
             currentContent.push({ type: "image_url", image_url: { url: base64 } });
@@ -270,7 +269,7 @@ export const generateDesignChatResponse = async (
                     return { role: h.role === 'model' ? 'assistant' : 'user', content };
                 });
 
-                const currentContent: any[] = [{ type: "text", text: prompt }];
+                const currentContent: Array<{ type: string; text?: string; image_url?: { url: string } }> = [{ type: "text", text: prompt }];
                 images.forEach(img => {
                     currentContent.push({ type: "image_url", image_url: { url: img } });
                 });
@@ -338,12 +337,22 @@ const AGENT_TOOLS = [
     }
 ];
 
+interface AgentToolCall {
+    name: string;
+    args: Record<string, unknown>;
+}
+
+interface AgentHistoryItem {
+    role: string;
+    parts?: Array<{ text?: string; inlineData?: { mimeType: string; data: string } }>;
+}
+
 export const generateAgentResponse = async (
     userTranscript: string,
     currentScreenshot: string | null, // Base64
-    history: any[] = [],
+    history: AgentHistoryItem[] = [],
     _isRetry: boolean = false
-): Promise<{ text: string, toolCalls?: any[] }> => {
+): Promise<{ text: string, toolCalls?: AgentToolCall[] }> => {
     const { geminiKey, openRouterKey, model } = getSettings();
 
     console.log('[Voice Agent] Starting with:', { hasGeminiKey: !!geminiKey, hasOpenRouterKey: !!openRouterKey, isRetry: _isRetry });
@@ -355,7 +364,7 @@ export const generateAgentResponse = async (
     try {
         const ai = getGoogleClient(geminiKey);
 
-        const parts: any[] = [{ text: userTranscript }];
+        const parts: Array<{ text?: string; inlineData?: { mimeType: string; data: string } }> = [{ text: userTranscript }];
         if (currentScreenshot) {
             parts.push({ inlineData: { mimeType: 'image/png', data: currentScreenshot.split(',')[1] } });
         }
@@ -365,7 +374,7 @@ export const generateAgentResponse = async (
             model: "gemini-2.0-flash-exp",
             config: {
                 systemInstruction: "You are Nano, an expert design partner. You are helpful, enthusiastic, and concise. You have access to tools to control the canvas. When a user asks to change the background or edit something, USE THE TOOLS. Do not just describe what you would do.",
-                tools: [{ functionDeclarations: AGENT_TOOLS as any }]
+                tools: [{ functionDeclarations: AGENT_TOOLS }]
             },
             contents: [
                 ...history, // Previous history
@@ -374,23 +383,19 @@ export const generateAgentResponse = async (
         });
 
         // Handle Tool Calls
-        const candidates = (response as any).candidates;
+        const candidates = response.candidates;
         let text = "";
         try {
-            if (typeof (response as any).text === 'function') {
-                text = (response as any).text();
-            } else {
-                text = (response as any).text || "";
-            }
-        } catch (e) {
+            text = response.text || "";
+        } catch {
             text = "";
         }
 
-        let functionCalls: any[] = [];
+        let functionCalls: AgentToolCall[] = [];
         if (candidates && candidates[0]?.content?.parts) {
             functionCalls = candidates[0].content.parts
-                .filter((part: any) => part.functionCall)
-                .map((part: any) => part.functionCall);
+                .filter((part): part is typeof part & { functionCall: { name: string; args: Record<string, unknown> } } => 'functionCall' in part && part.functionCall !== undefined)
+                .map((part) => part.functionCall);
         }
 
         if (functionCalls.length > 0) {
@@ -407,14 +412,14 @@ export const generateAgentResponse = async (
             console.warn('[Voice Agent] ⚠️ Gemini agent failed, falling back to OpenRouter');
 
             try {
-                const messages: any[] = [];
+                const messages: Array<{ role: string; content: string | Array<{ type: string; text?: string; image_url?: { url: string } }> }> = [];
 
                 // Convert history
-                history.forEach((msg: any) => {
+                history.forEach((msg) => {
                     if (msg.role === 'user' || msg.role === 'assistant') {
-                        const content: any[] = [];
+                        const content: Array<{ type: string; text?: string; image_url?: { url: string } }> = [];
                         if (msg.parts) {
-                            msg.parts.forEach((part: any) => {
+                            msg.parts.forEach((part) => {
                                 if (part.text) content.push({ type: 'text', text: part.text });
                                 if (part.inlineData) {
                                     content.push({
@@ -429,7 +434,7 @@ export const generateAgentResponse = async (
                 });
 
                 // Add current message
-                const currentContent: any[] = [{ type: 'text', text: userTranscript }];
+                const currentContent: Array<{ type: string; text?: string; image_url?: { url: string } }> = [{ type: 'text', text: userTranscript }];
                 if (currentScreenshot) {
                     currentContent.push({
                         type: 'image_url',
@@ -478,7 +483,7 @@ export const generateThinkingResponse = async (
         }));
         messages.push({ role: 'user', content: prompt });
 
-        const text = await callOpenRouter(openRouterKey, model, messages as any);
+        const text = await callOpenRouter(openRouterKey, model, messages);
         return { text, groundingMetadata: null };
     }
 
@@ -518,14 +523,14 @@ export const generateSearchResponse = async (
 
     if (provider === 'openrouter') {
         // Just do standard chat
-        const messages = history.map(h => ({
+        const messages: Array<{ role: string; content: string }> = history.map(h => ({
             role: h.role === 'model' ? 'assistant' : 'user',
-            content: h.parts.map(p => p.text).join('\n')
+            content: h.parts.map(p => p.text).filter((t): t is string => t !== undefined).join('\n')
         }));
         messages.push({ role: 'user', content: prompt });
         messages.unshift({ role: 'system', content: "You are a helpful assistant. Search the web if you can (simulation)." });
 
-        const text = await callOpenRouter(openRouterKey, model, messages as any);
+        const text = await callOpenRouter(openRouterKey, model, messages);
         return { text, groundingMetadata: null };
     }
 
@@ -561,15 +566,16 @@ export const generatePromptFromRefImages = async (images: string[], userHint: st
     const { provider, geminiKey, openRouterKey, model } = getSettings();
 
     if (provider === 'openrouter') {
-        const messages: any[] = [{
-            role: 'user',
-            content: [
-                { type: 'text', text: `Analyze available reference images. Extract aesthetic. User hint: ${userHint}. Write a LinkedIn banner prompt.` }
-            ]
-        }];
+        const contentArray: Array<{ type: string; text?: string; image_url?: { url: string } }> = [
+            { type: 'text', text: `Analyze available reference images. Extract aesthetic. User hint: ${userHint}. Write a LinkedIn banner prompt.` }
+        ];
         images.forEach(img => {
-            messages[0].content.push({ type: "image_url", image_url: { url: img } });
+            contentArray.push({ type: "image_url", image_url: { url: img } });
         });
+        const messages: Array<{ role: string; content: Array<{ type: string; text?: string; image_url?: { url: string } }> }> = [{
+            role: 'user',
+            content: contentArray
+        }];
 
         return await callOpenRouter(openRouterKey, model, messages);
     }
@@ -663,7 +669,7 @@ export const generateImage = async (
 
     try {
         // Build multi-turn conversation for iterative editing
-        const contents: any[] = [];
+        const contents: Array<{ role: string; parts: Part[] }> = [];
 
         // Add edit history for multi-turn editing
         editHistory.forEach(turn => {

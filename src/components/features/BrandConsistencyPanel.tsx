@@ -9,7 +9,6 @@ import {
   importBrandProfile,
   clearBrandProfile,
 } from '../../services/brandEngine';
-import type { BrandProfile } from '../../types/ai';
 
 interface BrandConsistencyPanelProps {
   refImages: string[];
@@ -42,8 +41,8 @@ export const BrandConsistencyPanel: React.FC<BrandConsistencyPanelProps> = ({
       const extracted = await extractBrandFromImages(refImages);
       updateBrandProfile(extracted);
       alert('Brand profile extracted successfully!');
-    } catch (error: any) {
-      alert(`Failed to extract brand: ${error.message}`);
+    } catch (error: unknown) {
+      alert(`Failed to extract brand: ${error instanceof Error ? error.message : 'Unknown error'}`);
     } finally {
       setIsExtracting(false);
     }
@@ -64,8 +63,8 @@ export const BrandConsistencyPanel: React.FC<BrandConsistencyPanelProps> = ({
     try {
       const result = await checkBrandConsistency(currentImage, brandProfile);
       setConsistencyResult(result);
-    } catch (error: any) {
-      alert(`Failed to check consistency: ${error.message}`);
+    } catch (error: unknown) {
+      alert(`Failed to check consistency: ${error instanceof Error ? error.message : 'Unknown error'}`);
     } finally {
       setIsChecking(false);
     }
@@ -99,8 +98,8 @@ export const BrandConsistencyPanel: React.FC<BrandConsistencyPanelProps> = ({
       } else {
         alert('Invalid brand profile format');
       }
-    } catch (error: any) {
-      alert(`Import failed: ${error.message}`);
+    } catch (error: unknown) {
+      alert(`Import failed: ${error instanceof Error ? error.message : 'Unknown error'}`);
     }
   };
 

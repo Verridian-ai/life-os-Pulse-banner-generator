@@ -47,9 +47,9 @@ export const signUp = async (
     }
 
     return { user: data.user, error: null };
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Sign up error:', error);
-    return { user: null, error };
+    return { user: null, error: error instanceof Error ? error : new Error('Sign up failed') };
   }
 };
 
@@ -77,9 +77,9 @@ export const signIn = async (
     }
 
     return { user: data.user, session: data.session, error: null };
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Sign in error:', error);
-    return { user: null, session: null, error };
+    return { user: null, session: null, error: error instanceof Error ? error : new Error('Sign in failed') };
   }
 };
 
@@ -100,9 +100,9 @@ export const signInWithGoogle = async (): Promise<{ error: Error | null }> => {
 
     if (error) throw error;
     return { error: null };
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Google sign in error:', error);
-    return { error };
+    return { error: error instanceof Error ? error : new Error('Google sign in failed') };
   }
 };
 
@@ -123,9 +123,9 @@ export const signInWithGitHub = async (): Promise<{ error: Error | null }> => {
 
     if (error) throw error;
     return { error: null };
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('GitHub sign in error:', error);
-    return { error };
+    return { error: error instanceof Error ? error : new Error('GitHub sign in failed') };
   }
 };
 
@@ -144,9 +144,9 @@ export const signOut = async (): Promise<{ error: Error | null }> => {
     localStorage.removeItem('supabase.auth.token');
 
     return { error: null };
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Sign out error:', error);
-    return { error };
+    return { error: error instanceof Error ? error : new Error('Sign out failed') };
   }
 };
 
@@ -195,9 +195,9 @@ export const resetPassword = async (email: string): Promise<{ error: Error | nul
 
     if (error) throw error;
     return { error: null };
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Reset password error:', error);
-    return { error };
+    return { error: error instanceof Error ? error : new Error('Reset password failed') };
   }
 };
 
@@ -213,9 +213,9 @@ export const updatePassword = async (newPassword: string): Promise<{ error: Erro
 
     if (error) throw error;
     return { error: null };
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Update password error:', error);
-    return { error };
+    return { error: error instanceof Error ? error : new Error('Update password failed') };
   }
 };
 
