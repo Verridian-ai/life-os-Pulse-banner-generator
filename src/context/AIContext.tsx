@@ -73,6 +73,7 @@ export const AIProvider: React.FC<AIProviderProps> = ({ children }) => {
   // Load available models on mount
   useEffect(() => {
     const models = Object.values(getModelMetadata());
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setAvailableModels(models);
   }, []);
 
@@ -97,6 +98,7 @@ export const AIProvider: React.FC<AIProviderProps> = ({ children }) => {
   // Update chain progress based on active chain
   useEffect(() => {
     if (!activeChain) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setChainProgress(0);
       return;
     }

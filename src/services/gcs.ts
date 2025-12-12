@@ -157,7 +157,7 @@ export const uploadImageViaSignedURL = async (
   } catch (error: any) {
     console.error('Signed URL upload error:', error);
     // Fallback to base64 upload
-    return uploadImageToGCS({ file, folder });
+    return uploadImageToGCS({ file, folder: folder as 'designs' | 'references' | 'avatars' | 'logos' | undefined });
   }
 };
 

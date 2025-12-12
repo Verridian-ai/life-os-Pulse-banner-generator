@@ -188,6 +188,7 @@ export const getCurrentUserProfile = async (): Promise<User | null> => {
  */
 export const resetPassword = async (email: string): Promise<{ error: Error | null }> => {
   try {
+    if (!supabase) throw new Error('Supabase not configured');
     const { error } = await supabase.auth.resetPasswordForEmail(email, {
       redirectTo: `${window.location.origin}/auth/reset-password`,
     });
@@ -205,6 +206,7 @@ export const resetPassword = async (email: string): Promise<{ error: Error | nul
  */
 export const updatePassword = async (newPassword: string): Promise<{ error: Error | null }> => {
   try {
+    if (!supabase) throw new Error('Supabase not configured');
     const { error } = await supabase.auth.updateUser({
       password: newPassword,
     });

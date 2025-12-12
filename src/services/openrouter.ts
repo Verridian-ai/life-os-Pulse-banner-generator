@@ -73,7 +73,9 @@ export const fetchOpenRouterModels = async (apiKey: string): Promise<OpenRouterM
       try {
         const { models } = JSON.parse(cached);
         return models;
-      } catch {}
+      } catch {
+        // Ignore parse errors for corrupted cache
+      }
     }
     return [];
   }

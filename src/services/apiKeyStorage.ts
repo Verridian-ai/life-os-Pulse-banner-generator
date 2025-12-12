@@ -1,7 +1,7 @@
 // API Key Storage Service using Supabase
 // Manages secure storage and retrieval of user API keys
 
-import { getSupabase } from './database';
+import { supabase } from './supabase';
 
 export interface UserAPIKeys {
     gemini_api_key?: string;
@@ -30,7 +30,7 @@ function getSessionId(): string {
  * Falls back to .env variables if not found in database
  */
 export async function getUserAPIKeys(): Promise<UserAPIKeys> {
-    const supabase = getSupabase();
+    // Use imported supabase client
     if (!supabase) {
         console.warn('[API Keys] Supabase not configured, using .env fallback');
         return getEnvFallbackKeys();
@@ -42,9 +42,7 @@ export async function getUserAPIKeys(): Promise<UserAPIKeys> {
 
         let query = supabase
             .from('user_api_keys')
-            .select('*')
-            .limit(1)
-            .single();
+            .select('*');
 
         if (user) {
             // Authenticated user
@@ -55,7 +53,7 @@ export async function getUserAPIKeys(): Promise<UserAPIKeys> {
             query = query.eq('session_id', sessionId);
         }
 
-        const { data, error } = await query;
+        const { data, error } = await query.limit(1).single();
 
         if (error && error.code !== 'PGRST116') { // PGRST116 = not found
             console.error('[API Keys] Error fetching keys:', error);
@@ -92,7 +90,7 @@ export async function getUserAPIKeys(): Promise<UserAPIKeys> {
  * Save user's API keys to Supabase
  */
 export async function saveUserAPIKeys(keys: UserAPIKeys): Promise<{ success: boolean; error?: string }> {
-    const supabase = getSupabase();
+    // Use imported supabase client
     if (!supabase) {
         return { success: false, error: 'Supabase not configured' };
     }
@@ -148,7 +146,7 @@ export async function saveUserAPIKeys(keys: UserAPIKeys): Promise<{ success: boo
  * Delete user's API keys from Supabase
  */
 export async function deleteUserAPIKeys(): Promise<{ success: boolean; error?: string }> {
-    const supabase = getSupabase();
+    // Use imported supabase client
     if (!supabase) {
         return { success: false, error: 'Supabase not configured' };
     }

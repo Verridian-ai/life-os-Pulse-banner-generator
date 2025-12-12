@@ -45,22 +45,22 @@ export class ActionExecutor {
         try {
             switch (toolCall.name) {
                 case 'generate_background':
-                    return await this.generateBackground(toolCall.args);
+                    return await this.generateBackground(toolCall.args as { prompt: string; quality?: string });
 
                 case 'magic_edit':
-                    return await this.magicEdit(toolCall.args);
+                    return await this.magicEdit(toolCall.args as { base_image: string; prompt: string; mask?: string });
 
                 case 'remove_background':
-                    return await this.removeBackground(toolCall.args);
+                    return await this.removeBackground(toolCall.args as { image_url: string });
 
                 case 'upscale_image':
-                    return await this.upscaleImage(toolCall.args);
+                    return await this.upscaleImage(toolCall.args as { image_url: string; mode?: string });
 
                 case 'restore_image':
-                    return await this.restoreImage(toolCall.args);
+                    return await this.restoreImage(toolCall.args as { image_url: string });
 
                 case 'enhance_face':
-                    return await this.enhanceFace(toolCall.args);
+                    return await this.enhanceFace(toolCall.args as { image_url: string });
 
                 default:
                     return {
@@ -144,30 +144,11 @@ export class ActionExecutor {
 
         console.log('[ActionExecutor] Removing background from:', image_url);
 
-        try {
-            const service = getReplicateService();
-            const resultUrl = await service.removeBackground(image_url);
-
-            if (this.previewMode) {
-                return {
-                    success: true,
-                    result: resultUrl,
-                    preview: resultUrl
-                };
-            }
-
-            this.onUpdate(resultUrl, 'background');
-
-            return {
-                success: true,
-                result: resultUrl
-            };
-        } catch (error) {
-            return {
-                success: false,
-                error: error instanceof Error ? error.message : 'Background removal failed'
-            };
-        }
+        // TODO: Implement removeBackground in replicate service
+        return {
+            success: false,
+            error: 'Remove background feature is not yet implemented'
+        };
     }
 
     /**

@@ -614,9 +614,9 @@ export const generateImage = async (
     size: "1K" | "2K" | "4K" = "4K",
     editHistory: ImageEditTurn[] = [],
     _isRetry: boolean = false // Internal flag for fallback retry
-) => {
+): Promise<string> => {
     const { provider, geminiKey, openRouterKey, imageModel } = getSettings();
-    let modelToUse = imageModel;
+    const modelToUse = imageModel;
 
     // Auto-fallback: If using Nano Banana Pro and this is first attempt, try it
     // If model not found, we'll retry with Nano Banana automatically
@@ -836,7 +836,7 @@ export const generateImage = async (
                     localStorage.setItem('llm_image_model', fallbackModel);
 
                     try {
-                        const result = await generateImage(prompt, referenceImages, size === '4K' ? '2K' : size, editHistory, true);
+                        const result: string = await generateImage(prompt, referenceImages, size === '4K' ? '2K' : size, editHistory, true);
                         console.log('[Image Gen] ✅ Fallback to Nano Banana successful!');
                         return result;
                     } catch (retryError) {

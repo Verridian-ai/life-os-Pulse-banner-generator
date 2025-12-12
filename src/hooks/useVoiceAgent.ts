@@ -19,7 +19,7 @@ export const useVoiceAgent = ({ onToolCall, getCanvasScreenshot }: UseVoiceAgent
     useEffect(() => {
         // Initialize Speech Recognition
         if ('webkitSpeechRecognition' in window) {
-            // @ts-ignore
+            // @ts-expect-error - webkitSpeechRecognition is not in TypeScript types
             const recognition = new window.webkitSpeechRecognition();
             recognition.continuous = false;
             recognition.interimResults = false;

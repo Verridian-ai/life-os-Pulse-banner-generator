@@ -66,7 +66,7 @@ export const getCurrentUser = async (): Promise<User | null> => {
  * Update user profile
  */
 export const updateUser = async (
-  updates: Partial<Pick<User, 'name' | 'avatar_url' | 'subscription_tier'>>
+  updates: Partial<Pick<User, 'full_name' | 'avatar_url'>>
 ): Promise<User | null> => {
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) throw new Error('Not authenticated');
