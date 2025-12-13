@@ -1,21 +1,13 @@
 // Supabase Auth Service
 
-import { createClient, type User as SupabaseUser, type Session } from '@supabase/supabase-js';
+import { type User as SupabaseUser, type Session } from '@supabase/supabase-js';
 import { upsertUser, getCurrentUser } from './db-api';
 import type { User } from '../types/database';
 
-// Initialize Supabase client
-const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || '';
-const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY || '';
+import { supabase } from './supabase';
 
-const hasCredentials = supabaseUrl && supabaseAnonKey;
-
-if (!hasCredentials) {
-  console.warn('Supabase credentials not found. Auth features will be disabled.');
-}
-
-// Only create client if credentials are available
-export const supabase = hasCredentials ? createClient(supabaseUrl, supabaseAnonKey) : null;
+// Re-export supabase client for backward compatibility
+export { supabase };
 
 /**
  * Sign up with email and password
@@ -226,7 +218,7 @@ export const updatePassword = async (newPassword: string): Promise<{ error: Erro
  */
 export const onAuthStateChange = (callback: (event: string, session: Session | null) => void) => {
   if (!supabase) {
-    return { data: { subscription: { unsubscribe: () => {} } } };
+    return { data: { subscription: { unsubscribe: () => { } } } };
   }
   return supabase.auth.onAuthStateChange(callback);
 };
