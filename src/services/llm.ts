@@ -9,9 +9,13 @@ import { classifyError, getUserFriendlyMessage } from '../utils/errorHandler';
 // Types
 type LLMProvider = 'gemini' | 'openrouter';
 
+type OpenRouterContentItem =
+  | { type: 'text'; text: string }
+  | { type: 'image_url'; image_url: { url: string } };
+
 type OpenRouterMessage = {
   role: string;
-  content: string | Array<{ type: string; text?: string; image_url?: { url: string } }>;
+  content: string | OpenRouterContentItem[];
 };
 
 const getSettings = () => {
@@ -51,11 +55,7 @@ const getGoogleClient = (key: string) => {
 };
 
 // --- OpenRouter Client (Fetch wrapper) ---
-const callOpenRouter = async (
-  apiKey: string,
-  model: string,
-  messages: OpenRouterMessage[],
-) => {
+const callOpenRouter = async (apiKey: string, model: string, messages: OpenRouterMessage[]) => {
   if (!apiKey) throw new Error('OpenRouter API Key not found');
 
   const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
@@ -226,9 +226,9 @@ export const generateDesignChatResponse = async (
   // 1. OpenRouter Path
   if (provider === 'openrouter') {
     // Convert History to OpenAI format for OpenRouter
-    const messages = history.map((h) => {
-      const content = h.parts
-        .map((p) => {
+    const messages: OpenRouterMessage[] = history.map((h) => {
+      const content: OpenRouterContentItem[] = h.parts
+        .map((p): OpenRouterContentItem | null => {
           if (p.text) return { type: 'text', text: p.text };
           if (p.inlineData)
             return {
@@ -237,14 +237,12 @@ export const generateDesignChatResponse = async (
             };
           return null;
         })
-        .filter((p): p is NonNullable<typeof p> => Boolean(p));
+        .filter((p): p is OpenRouterContentItem => p !== null);
       return { role: h.role === 'model' ? 'assistant' : 'user', content };
     });
 
     // Add current user message
-    const currentContent: Array<{ type: string; text?: string; image_url?: { url: string } }> = [
-      { type: 'text', text: prompt },
-    ];
+    const currentContent: OpenRouterContentItem[] = [{ type: 'text', text: prompt }];
     images.forEach((img) => {
       // Ensure base64 is clean
       const base64 = img; // Usually implies full data URI in this context based on app flow
@@ -253,9 +251,12 @@ export const generateDesignChatResponse = async (
     messages.push({ role: 'user', content: currentContent });
 
     // Add system instruction if supported (usually accepted as 'system' role)
+    const systemContent: OpenRouterContentItem[] = [
+      { type: 'text', text: DESIGN_SYSTEM_INSTRUCTION + PROFILE_ZONE_CONSTRAINT },
+    ];
     messages.unshift({
       role: 'system',
-      content: [{ type: 'text', text: DESIGN_SYSTEM_INSTRUCTION + PROFILE_ZONE_CONSTRAINT }],
+      content: systemContent,
     });
 
     const text = await callOpenRouter(openRouterKey, model, messages);
@@ -296,9 +297,9 @@ export const generateDesignChatResponse = async (
 
       try {
         // Convert history to OpenAI format
-        const messages = history.map((h) => {
-          const content = h.parts
-            .map((p) => {
+        const messages: OpenRouterMessage[] = history.map((h) => {
+          const content: OpenRouterContentItem[] = h.parts
+            .map((p): OpenRouterContentItem | null => {
               if (p.text) return { type: 'text', text: p.text };
               if (p.inlineData)
                 return {
@@ -307,19 +308,21 @@ export const generateDesignChatResponse = async (
                 };
               return null;
             })
-            .filter((p): p is NonNullable<typeof p> => Boolean(p));
+            .filter((p): p is OpenRouterContentItem => p !== null);
           return { role: h.role === 'model' ? 'assistant' : 'user', content };
         });
 
-        const currentContent: Array<{ type: string; text?: string; image_url?: { url: string } }> =
-          [{ type: 'text', text: prompt }];
+        const currentContent: OpenRouterContentItem[] = [{ type: 'text', text: prompt }];
         images.forEach((img) => {
           currentContent.push({ type: 'image_url', image_url: { url: img } });
         });
         messages.push({ role: 'user', content: currentContent });
+        const systemContent: OpenRouterContentItem[] = [
+          { type: 'text', text: DESIGN_SYSTEM_INSTRUCTION + PROFILE_ZONE_CONSTRAINT },
+        ];
         messages.unshift({
           role: 'system',
-          content: [{ type: 'text', text: DESIGN_SYSTEM_INSTRUCTION + PROFILE_ZONE_CONSTRAINT }],
+          content: systemContent,
         });
 
         const fallbackModel = model || 'google/gemini-3-pro-preview';
@@ -477,15 +480,12 @@ export const generateAgentResponse = async (
       console.warn('[Voice Agent] ⚠️ Gemini agent failed, falling back to OpenRouter');
 
       try {
-        const messages: Array<{
-          role: string;
-          content: string | Array<{ type: string; text?: string; image_url?: { url: string } }>;
-        }> = [];
+        const messages: OpenRouterMessage[] = [];
 
         // Convert history
         history.forEach((msg) => {
           if (msg.role === 'user' || msg.role === 'assistant') {
-            const content: Array<{ type: string; text?: string; image_url?: { url: string } }> = [];
+            const content: OpenRouterContentItem[] = [];
             if (msg.parts) {
               msg.parts.forEach((part) => {
                 if (part.text) content.push({ type: 'text', text: part.text });
@@ -504,8 +504,7 @@ export const generateAgentResponse = async (
         });
 
         // Add current message
-        const currentContent: Array<{ type: string; text?: string; image_url?: { url: string } }> =
-          [{ type: 'text', text: userTranscript }];
+        const currentContent: OpenRouterContentItem[] = [{ type: 'text', text: userTranscript }];
         if (currentScreenshot) {
           currentContent.push({
             type: 'image_url',
@@ -638,7 +637,7 @@ export const generatePromptFromRefImages = async (images: string[], userHint: st
   const { provider, geminiKey, openRouterKey, model } = getSettings();
 
   if (provider === 'openrouter') {
-    const contentArray: Array<{ type: string; text?: string; image_url?: { url: string } }> = [
+    const contentArray: OpenRouterContentItem[] = [
       {
         type: 'text',
         text: `Analyze available reference images. Extract aesthetic. User hint: ${userHint}. Write a LinkedIn banner prompt.`,
@@ -647,10 +646,7 @@ export const generatePromptFromRefImages = async (images: string[], userHint: st
     images.forEach((img) => {
       contentArray.push({ type: 'image_url', image_url: { url: img } });
     });
-    const messages: Array<{
-      role: string;
-      content: Array<{ type: string; text?: string; image_url?: { url: string } }>;
-    }> = [
+    const messages: OpenRouterMessage[] = [
       {
         role: 'user',
         content: contentArray,
