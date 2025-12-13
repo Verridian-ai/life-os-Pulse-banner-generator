@@ -4,6 +4,11 @@ import App from './App';
 import { ErrorBoundary } from './components/ErrorBoundary';
 import './index.css';
 import { AuthProvider } from './context/AuthContext';
+import { checkEnvVars } from './utils/envCheck';
+
+// Check environment variables on startup
+console.log('🚀 Nanobanna Pro - Initializing...');
+checkEnvVars();
 
 const rootElement = document.getElementById('root');
 if (!rootElement) {
