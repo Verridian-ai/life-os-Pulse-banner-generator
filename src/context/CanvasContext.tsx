@@ -132,25 +132,27 @@ export const CanvasProvider: React.FC<{ children: ReactNode }> = ({ children }) 
 
   // Actions
   const addElement = useCallback((el: BannerElement) => {
-    setElements((prev) => [...prev, el]);
+    setElements((prev: BannerElement[]) => [...prev, el]);
     setSelectedElementId(el.id);
   }, []);
 
   const updateElement = useCallback((id: string, changes: Partial<BannerElement>) => {
-    setElements((prev) => prev.map((el) => (el.id === id ? { ...el, ...changes } : el)));
+    setElements((prev: BannerElement[]) =>
+      prev.map((el: BannerElement) => (el.id === id ? { ...el, ...changes } : el)),
+    );
   }, []);
 
   const deleteElement = useCallback(
     (id: string) => {
-      setElements((prev) => prev.filter((el) => el.id !== id));
+      setElements((prev: BannerElement[]) => prev.filter((el: BannerElement) => el.id !== id));
       if (selectedElementId === id) setSelectedElementId(null);
     },
     [selectedElementId],
   );
 
   const centerElement = useCallback((id: string, axis: 'horizontal' | 'vertical') => {
-    setElements((prev) =>
-      prev.map((el) => {
+    setElements((prev: BannerElement[]) =>
+      prev.map((el: BannerElement) => {
         if (el.id !== id) return el;
 
         // Logic duplicated from App.tsx for now - ideally constants should be used
@@ -179,7 +181,7 @@ export const CanvasProvider: React.FC<{ children: ReactNode }> = ({ children }) 
   // Image History Management
   const addToHistory = useCallback(
     (img: string) => {
-      setImageHistory((prev) => {
+      setImageHistory((prev: string[]) => {
         // Remove any "future" history if we're not at the end
         const newHistory = prev.slice(0, historyIndex + 1);
         // Add new image
@@ -235,11 +237,11 @@ export const CanvasProvider: React.FC<{ children: ReactNode }> = ({ children }) 
       setIsProcessingImg(true);
       const files = Array.from(e.target.files);
       try {
-        const promises = files.map((f) => optimizeImage(f, 1500, 1500));
+        const promises = files.map((f: File) => optimizeImage(f, 1500, 1500));
         const results = await Promise.all(promises);
 
         // 1. Add to Library
-        setRefImages((prev) => [...prev, ...results]);
+        setRefImages((prev: string[]) => [...prev, ...results]);
 
         // 2. Auto-add to Banner (Safe Spot)
         const newElements = results.map((img, idx) => ({
@@ -253,7 +255,7 @@ export const CanvasProvider: React.FC<{ children: ReactNode }> = ({ children }) 
           rotation: 0,
         }));
 
-        setElements((prev) => [...prev, ...newElements]);
+        setElements((prev: BannerElement[]) => [...prev, ...newElements]);
       } catch (err) {
         console.error('Reference upload failed', err);
       } finally {
