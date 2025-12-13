@@ -11,7 +11,7 @@ concurrency:
   cancel-in-progress: true
 
 env:
-  NODE_VERSION: '18'
+  NODE_VERSION: '20'
   VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL }}
   VITE_SUPABASE_ANON_KEY: ${{ secrets.VITE_SUPABASE_ANON_KEY }}
 
@@ -104,7 +104,7 @@ jobs:
 
     strategy:
       matrix:
-        node-version: [18, 20]
+        node-version: [20, 22]
 
     steps:
       - name: Checkout code
@@ -141,7 +141,7 @@ jobs:
           fi
 
       - name: Upload build artifacts
-        if: matrix.node-version == 18
+        if: matrix.node-version == 20
         uses: actions/upload-artifact@v4
         with:
           name: build-artifacts
