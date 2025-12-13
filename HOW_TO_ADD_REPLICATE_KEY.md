@@ -1,12 +1,14 @@
 # How to Add Replicate API Key - Quick Guide
 
 ## The Error You're Seeing
+
 ```
 Operation Failed
 Replicate API key not found. Please add it in Settings.
 ```
 
 This means you need to add a Replicate API key to use:
+
 - 🔍 **Upscale** - Enhance image resolution
 - ✨ **Magic Refiner** (Best/Balanced/Fast) - Improve image quality
 - 🎨 **Background Removal** - Remove image backgrounds
@@ -16,6 +18,7 @@ This means you need to add a Replicate API key to use:
 ## Step 1: Get a Replicate API Key (Free!)
 
 ### Option A: Get it from Replicate.com
+
 1. **Go to** https://replicate.com/
 2. **Click "Sign In"** (top right)
 3. **Sign up** with GitHub, Google, or email
@@ -23,6 +26,7 @@ This means you need to add a Replicate API key to use:
 5. **Copy your token** - It looks like: `r8_xxxxxxxxxxxxxxxxxxxxx`
 
 ### Option B: Get Your Own Token
+
 Get your own free Replicate API token at https://replicate.com/account/api-tokens
 
 ⚠️ **Note**: Never share your API keys publicly or commit them to git.
@@ -66,6 +70,7 @@ Get your own free Replicate API token at https://replicate.com/account/api-token
 3. **Should work!** 🎉
 
 If you still get an error:
+
 - Check the browser console (F12) for more details
 - Make sure you saved the settings
 - Try refreshing the page
@@ -75,6 +80,7 @@ If you still get an error:
 ## Pricing
 
 Replicate uses pay-per-use:
+
 - ✅ **Free credits** to start
 - 💰 After that: **~$0.01 - $0.10 per operation**
 - 📊 Most operations cost **a few cents**
@@ -86,16 +92,19 @@ Check pricing: https://replicate.com/pricing
 ## Troubleshooting
 
 ### "Invalid API key" error
+
 - Make sure the key starts with `r8_`
 - Check for extra spaces when copying
 - Get a fresh token from Replicate
 
 ### "Quota exceeded" error
+
 - You've used all free credits
 - Add payment method on Replicate dashboard
 - Or get a new free account
 
 ### Settings not saving
+
 - Try Method B (add to .env.local)
 - Restart the dev server
 - Clear browser cache (Ctrl+Shift+R)
@@ -105,15 +114,17 @@ Check pricing: https://replicate.com/pricing
 ## Quick Commands
 
 **Check if key is set:**
+
 ```bash
 # In browser console (F12)
 localStorage.getItem('replicate_api_key')
 ```
 
 **Set key manually in browser:**
+
 ```javascript
 // In browser console (F12)
-localStorage.setItem('replicate_api_key', 'r8_your_key_here')
+localStorage.setItem('replicate_api_key', 'r8_your_key_here');
 ```
 
 ---

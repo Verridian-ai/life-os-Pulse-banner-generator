@@ -7,6 +7,7 @@ Complete setup instructions for integrating Supabase Auth, Neon Database, and Go
 ## 🚀 Quick Setup Overview
 
 Your stack:
+
 - **Authentication**: Supabase Auth
 - **Database**: Neon PostgreSQL (with Data API)
 - **File Storage**: Google Cloud Storage
@@ -113,6 +114,7 @@ $$;
 ### Step 2.1: Database Already Created
 
 You already have:
+
 - **Neon Project**: `ep-flat-firefly-a71brgai`
 - **Data API Endpoint**: `https://ep-flat-firefly-a71brgai.apirest.ap-southeast-2.aws.neon.tech/neondb/rest/v1`
 
@@ -130,6 +132,7 @@ SELECT tablename FROM pg_tables WHERE schemaname = 'public';
 ```
 
 You should see:
+
 - `users`
 - `designs`
 - `brand_profiles`
@@ -240,11 +243,13 @@ VITE_GCS_BUCKET_NAME=nanobanna-pro
 For the service account key, you have 2 options:
 
 **Option A**: Store in environment variable (local development)
+
 ```env
 GCS_SERVICE_ACCOUNT_KEY='{"type":"service_account",...}'
 ```
 
 **Option B**: Store file path (recommended)
+
 ```env
 GOOGLE_APPLICATION_CREDENTIALS=/path/to/service-account-key.json
 ```
@@ -322,16 +327,19 @@ app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
 ```
 
 Install dependencies:
+
 ```bash
 npm install express @google-cloud/storage cors
 ```
 
 Run backend:
+
 ```bash
 node backend/server.js
 ```
 
 Add to `.env.local`:
+
 ```env
 VITE_BACKEND_URL=http://localhost:3000
 ```
@@ -433,9 +441,11 @@ Set these in your hosting provider (Vercel/Netlify/etc.):
 Update CORS configurations to include your production domain:
 
 **Supabase**:
+
 - **Authentication** > **URL Configuration** > Add production URL
 
 **GCS**:
+
 ```bash
 gsutil cors set cors-prod.json gs://nanobanna-pro
 ```
@@ -476,21 +486,25 @@ gsutil cors set cors-prod.json gs://nanobanna-pro
 ## 🆘 Troubleshooting
 
 ### "Not authenticated" error
+
 - Check if Supabase session is active: `localStorage.getItem('supabase.auth.token')`
 - Verify JWT token is being sent in requests
 - Check Neon RLS policies allow the operation
 
 ### CORS errors on GCS upload
+
 - Verify CORS configuration on bucket
 - Check origin is whitelisted in `cors.json`
 - Make sure signed URLs include correct content-type
 
 ### Database connection errors
+
 - Verify Neon project is active (not paused)
 - Check API endpoint URL is correct
 - Ensure JWT token is valid and not expired
 
 ### File upload fails
+
 - Check GCS bucket permissions
 - Verify service account has Storage Admin role
 - Ensure signed URL hasn't expired (15min limit)

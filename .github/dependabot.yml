@@ -4,62 +4,62 @@
 version: 2
 updates:
   # NPM Dependencies
-  - package-ecosystem: "npm"
-    directory: "/"
+  - package-ecosystem: 'npm'
+    directory: '/'
     schedule:
-      interval: "weekly"
-      day: "monday"
-      time: "09:00"
-      timezone: "America/New_York"
+      interval: 'weekly'
+      day: 'monday'
+      time: '09:00'
+      timezone: 'America/New_York'
     open-pull-requests-limit: 10
     reviewers:
-      - "your-github-username"  # Replace with actual reviewer
+      - 'your-github-username' # Replace with actual reviewer
     assignees:
-      - "your-github-username"  # Replace with actual assignee
+      - 'your-github-username' # Replace with actual assignee
     labels:
-      - "dependencies"
-      - "automated"
+      - 'dependencies'
+      - 'automated'
     commit-message:
-      prefix: "chore"
-      prefix-development: "chore"
-      include: "scope"
+      prefix: 'chore'
+      prefix-development: 'chore'
+      include: 'scope'
     # Group updates by type
     groups:
       production-dependencies:
-        dependency-type: "production"
+        dependency-type: 'production'
         update-types:
-          - "minor"
-          - "patch"
+          - 'minor'
+          - 'patch'
       development-dependencies:
-        dependency-type: "development"
+        dependency-type: 'development'
         update-types:
-          - "minor"
-          - "patch"
+          - 'minor'
+          - 'patch'
     # Allow specific dependencies to be updated
     allow:
-      - dependency-type: "direct"
-      - dependency-type: "indirect"
+      - dependency-type: 'direct'
+      - dependency-type: 'indirect'
     # Ignore major version updates for breaking changes
     ignore:
-      - dependency-name: "*"
-        update-types: ["version-update:semver-major"]
+      - dependency-name: '*'
+        update-types: ['version-update:semver-major']
 
   # GitHub Actions
-  - package-ecosystem: "github-actions"
-    directory: "/"
+  - package-ecosystem: 'github-actions'
+    directory: '/'
     schedule:
-      interval: "weekly"
-      day: "monday"
-      time: "10:00"
-      timezone: "America/New_York"
+      interval: 'weekly'
+      day: 'monday'
+      time: '10:00'
+      timezone: 'America/New_York'
     open-pull-requests-limit: 5
     labels:
-      - "github-actions"
-      - "dependencies"
-      - "automated"
+      - 'github-actions'
+      - 'dependencies'
+      - 'automated'
     commit-message:
-      prefix: "ci"
-      include: "scope"
+      prefix: 'ci'
+      include: 'scope'
 
   # Docker (if using Docker in the future)
   # - package-ecosystem: "docker"

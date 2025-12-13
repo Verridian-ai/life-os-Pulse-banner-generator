@@ -12,7 +12,7 @@ export type OperationType = 'text' | 'vision' | 'reasoning' | 'image_gen' | 'ima
 export const selectModelForTask = (
   operation: OperationType,
   autoSelect: boolean = true,
-  manualOverride: string | null = null
+  manualOverride: string | null = null,
 ): string => {
   // If manual override specified, use it
   if (manualOverride) {
@@ -134,10 +134,7 @@ export const getModelMetadata = (): Record<string, ModelMetadata> => {
 /**
  * Get cost estimate for an operation
  */
-export const estimateCost = (
-  operation: OperationType,
-  modelId?: string
-): number => {
+export const estimateCost = (operation: OperationType, modelId?: string): number => {
   const model = modelId || selectModelForTask(operation);
   const metadata = getModelMetadata()[model];
   return metadata?.costPerCall || 0.001;
@@ -147,21 +144,16 @@ export const estimateCost = (
  * Compare models by capability
  */
 export const filterModelsByCapability = (
-  capability: 'text' | 'vision' | 'thinking' | 'image_gen' | 'image_edit'
+  capability: 'text' | 'vision' | 'thinking' | 'image_gen' | 'image_edit',
 ): ModelMetadata[] => {
   const allModels = getModelMetadata();
-  return Object.values(allModels).filter(model =>
-    model.capabilities.includes(capability)
-  );
+  return Object.values(allModels).filter((model) => model.capabilities.includes(capability));
 };
 
 /**
  * Get recommended model with fallbacks
  */
-export const getModelWithFallback = (
-  operation: OperationType,
-  preferredModel?: string
-): string => {
+export const getModelWithFallback = (operation: OperationType, preferredModel?: string): string => {
   // Try preferred model first
   if (preferredModel) {
     const metadata = getModelMetadata()[preferredModel];

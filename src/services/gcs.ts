@@ -8,7 +8,10 @@ import type { UploadImageRequest, UploadImageResponse } from '../types/database'
 const getGCSConfig = () => {
   return {
     projectId: import.meta.env.VITE_GCS_PROJECT_ID || localStorage.getItem('gcs_project_id') || '',
-    bucketName: import.meta.env.VITE_GCS_BUCKET_NAME || localStorage.getItem('gcs_bucket_name') || 'nanobanna-pro',
+    bucketName:
+      import.meta.env.VITE_GCS_BUCKET_NAME ||
+      localStorage.getItem('gcs_bucket_name') ||
+      'nanobanna-pro',
     // For client-side uploads, we'll use signed URLs from a backend endpoint
     // Or use Firebase Storage SDK which integrates well with GCS
   };
@@ -59,7 +62,7 @@ const getImageDimensions = (file: File): Promise<{ width: number; height: number
  * For now, this converts to base64 for database storage (not recommended for large images)
  */
 export const uploadImageToGCS = async (
-  request: UploadImageRequest
+  request: UploadImageRequest,
 ): Promise<UploadImageResponse> => {
   const { file, folder } = request;
 
@@ -91,7 +94,9 @@ export const uploadImageToGCS = async (
     };
   } catch (error: unknown) {
     console.error('GCS upload error:', error);
-    throw new Error(`Failed to upload image: ${error instanceof Error ? error.message : 'Unknown error'}`);
+    throw new Error(
+      `Failed to upload image: ${error instanceof Error ? error.message : 'Unknown error'}`,
+    );
   }
 };
 
@@ -106,7 +111,7 @@ export const uploadImageToGCS = async (
  */
 export const uploadImageViaSignedURL = async (
   file: File,
-  folder?: string
+  folder?: string,
 ): Promise<UploadImageResponse> => {
   const fileName = generateFileName(file, folder);
 
@@ -117,7 +122,7 @@ export const uploadImageViaSignedURL = async (
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${localStorage.getItem('supabase.auth.token')}`,
+        Authorization: `Bearer ${localStorage.getItem('supabase.auth.token')}`,
       },
       body: JSON.stringify({
         fileName,
@@ -157,7 +162,10 @@ export const uploadImageViaSignedURL = async (
   } catch (error: unknown) {
     console.error('Signed URL upload error:', error);
     // Fallback to base64 upload
-    return uploadImageToGCS({ file, folder: folder as 'designs' | 'references' | 'avatars' | 'logos' | undefined });
+    return uploadImageToGCS({
+      file,
+      folder: folder as 'designs' | 'references' | 'avatars' | 'logos' | undefined,
+    });
   }
 };
 
@@ -212,7 +220,7 @@ export const getImageUrl = (fileUrl: string): string => {
  */
 export const uploadMultipleImages = async (
   files: File[],
-  folder?: string
+  folder?: string,
 ): Promise<UploadImageResponse[]> => {
   const uploads = files.map((file) => uploadImageViaSignedURL(file, folder));
   return Promise.all(uploads);
@@ -224,7 +232,7 @@ export const uploadMultipleImages = async (
 export const uploadCanvasAsImage = async (
   canvas: HTMLCanvasElement,
   fileName: string,
-  folder?: string
+  folder?: string,
 ): Promise<UploadImageResponse> => {
   return new Promise((resolve, reject) => {
     canvas.toBlob(async (blob) => {

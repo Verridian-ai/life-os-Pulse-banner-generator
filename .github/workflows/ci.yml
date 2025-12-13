@@ -193,7 +193,7 @@ jobs:
       - name: Perform CodeQL Analysis
         uses: github/codeql-action/analyze@v4
         with:
-          category: "/language:javascript"
+          category: '/language:javascript'
 
       - name: Trivy vulnerability scanner
         uses: aquasecurity/trivy-action@master

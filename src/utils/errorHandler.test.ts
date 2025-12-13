@@ -4,7 +4,7 @@ import {
   getUserFriendlyMessage,
   handleError,
   retry,
-  fetchWithTimeout
+  fetchWithTimeout,
 } from './errorHandler';
 
 describe('Error Handler', () => {
@@ -90,7 +90,8 @@ describe('Error Handler', () => {
     });
 
     it('should retry on failure', async () => {
-      const fn = vi.fn()
+      const fn = vi
+        .fn()
         .mockRejectedValueOnce(new Error('fail'))
         .mockRejectedValueOnce(new Error('fail'))
         .mockResolvedValue('success');
@@ -122,13 +123,13 @@ describe('Error Handler', () => {
     });
 
     it('should timeout on slow requests', async () => {
-      global.fetch = vi.fn().mockImplementation(
-        () => new Promise(resolve => setTimeout(resolve, 10000))
-      );
+      global.fetch = vi
+        .fn()
+        .mockImplementation(() => new Promise((resolve) => setTimeout(resolve, 10000)));
 
-      await expect(
-        fetchWithTimeout('https://api.example.com/test', {}, 100)
-      ).rejects.toThrow('timeout');
+      await expect(fetchWithTimeout('https://api.example.com/test', {}, 100)).rejects.toThrow(
+        'timeout',
+      );
     });
   });
 });

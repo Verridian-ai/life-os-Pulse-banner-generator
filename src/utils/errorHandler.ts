@@ -21,7 +21,7 @@ export const classifyError = (error: unknown): NetworkError => {
       message: 'Network connection failed. Please check your internet connection.',
       type: 'fetch',
       retryable: true,
-      originalError: error
+      originalError: error,
     };
   }
 
@@ -32,29 +32,37 @@ export const classifyError = (error: unknown): NetworkError => {
       message: 'Cross-origin request blocked. The API may not allow requests from this domain.',
       type: 'cors',
       retryable: false,
-      originalError: error
+      originalError: error,
     };
   }
 
   // Timeout errors
-  if (message.includes('timeout') || message.includes('aborted') || errorObj.name === 'AbortError') {
+  if (
+    message.includes('timeout') ||
+    message.includes('aborted') ||
+    errorObj.name === 'AbortError'
+  ) {
     return {
       name: 'TimeoutError',
       message: 'Request timed out. Server took too long to respond.',
       type: 'timeout',
       retryable: true,
-      originalError: error
+      originalError: error,
     };
   }
 
   // Network connectivity errors
-  if (message.includes('network') || message.includes('connection') || message.includes('offline')) {
+  if (
+    message.includes('network') ||
+    message.includes('connection') ||
+    message.includes('offline')
+  ) {
     return {
       name: 'NetworkError',
       message: 'No internet connection. Please check your network.',
       type: 'network',
       retryable: true,
-      originalError: error
+      originalError: error,
     };
   }
 
@@ -65,7 +73,7 @@ export const classifyError = (error: unknown): NetworkError => {
       message: 'Invalid API key or authentication failed.',
       type: 'api',
       retryable: false,
-      originalError: error
+      originalError: error,
     };
   }
 
@@ -75,7 +83,7 @@ export const classifyError = (error: unknown): NetworkError => {
       message: 'Rate limit exceeded. Please wait and try again.',
       type: 'api',
       retryable: true, // Can retry after delay
-      originalError: error
+      originalError: error,
     };
   }
 
@@ -85,7 +93,7 @@ export const classifyError = (error: unknown): NetworkError => {
       message: 'Resource not found. The API endpoint may be incorrect.',
       type: 'api',
       retryable: false,
-      originalError: error
+      originalError: error,
     };
   }
 
@@ -95,7 +103,7 @@ export const classifyError = (error: unknown): NetworkError => {
     message: errorObj?.message || 'An unexpected error occurred',
     type: 'unknown',
     retryable: false,
-    originalError: error
+    originalError: error,
   };
 };
 
@@ -113,17 +121,8 @@ export interface RetryOptions {
 /**
  * Retries a function with exponential backoff
  */
-export const retry = async <T>(
-  fn: () => Promise<T>,
-  options: RetryOptions = {}
-): Promise<T> => {
-  const {
-    maxAttempts = 3,
-    delay = 1000,
-    backoff = true,
-    onRetry,
-    shouldRetry
-  } = options;
+export const retry = async <T>(fn: () => Promise<T>, options: RetryOptions = {}): Promise<T> => {
+  const { maxAttempts = 3, delay = 1000, backoff = true, onRetry, shouldRetry } = options;
 
   let lastError: NetworkError | null = null;
 
@@ -154,7 +153,7 @@ export const retry = async <T>(
       }
 
       // Wait before retrying
-      await new Promise(resolve => setTimeout(resolve, waitTime));
+      await new Promise((resolve) => setTimeout(resolve, waitTime));
     }
   }
 
@@ -167,7 +166,7 @@ export const retry = async <T>(
 export const fetchWithTimeout = async (
   url: string,
   options: RequestInit = {},
-  timeout = 30000
+  timeout = 30000,
 ): Promise<Response> => {
   const controller = new AbortController();
   const timeoutId = setTimeout(() => controller.abort(), timeout);
@@ -175,7 +174,7 @@ export const fetchWithTimeout = async (
   try {
     const response = await fetch(url, {
       ...options,
-      signal: controller.signal
+      signal: controller.signal,
     });
     clearTimeout(timeoutId);
     return response;

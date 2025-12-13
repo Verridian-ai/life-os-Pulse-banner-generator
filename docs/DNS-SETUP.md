@@ -5,6 +5,7 @@ This guide shows you exactly which DNS records to add to your domain registrar t
 ## Your Domain Configuration
 
 Based on your deployment configuration:
+
 - **Production URL**: `life-os-banner.verridian.ai`
 - **Domain**: `verridian.ai`
 - **Subdomain**: `life-os-banner`
@@ -15,11 +16,12 @@ Based on your deployment configuration:
 
 If you're using `life-os-banner.verridian.ai`:
 
-| Type | Name | Value | TTL |
-|------|------|-------|-----|
+| Type      | Name             | Value                  | TTL  |
+| --------- | ---------------- | ---------------------- | ---- |
 | **CNAME** | `life-os-banner` | `cname.vercel-dns.com` | 3600 |
 
 **Example:**
+
 ```
 Type:   CNAME
 Name:   life-os-banner
@@ -31,13 +33,14 @@ TTL:    3600 (or Auto)
 
 If you want to use `verridian.ai` (without subdomain):
 
-| Type | Name | Value | TTL |
-|------|------|-------|-----|
+| Type  | Name               | Value         | TTL  |
+| ----- | ------------------ | ------------- | ---- |
 | **A** | `@` or leave empty | `76.76.21.21` | 3600 |
 | **A** | `@` or leave empty | `76.76.21.22` | 3600 |
 | **A** | `@` or leave empty | `76.76.21.23` | 3600 |
 
 **Example:**
+
 ```
 Type:   A
 Name:   @ (or leave blank)
@@ -59,13 +62,13 @@ TTL:    3600
 
 To use both `life-os-banner.verridian.ai` AND `verridian.ai`:
 
-| Type | Name | Value | TTL |
-|------|------|-------|-----|
-| **A** | `@` | `76.76.21.21` | 3600 |
-| **A** | `@` | `76.76.21.22` | 3600 |
-| **A** | `@` | `76.76.21.23` | 3600 |
+| Type      | Name             | Value                  | TTL  |
+| --------- | ---------------- | ---------------------- | ---- |
+| **A**     | `@`              | `76.76.21.21`          | 3600 |
+| **A**     | `@`              | `76.76.21.22`          | 3600 |
+| **A**     | `@`              | `76.76.21.23`          | 3600 |
 | **CNAME** | `life-os-banner` | `cname.vercel-dns.com` | 3600 |
-| **CNAME** | `www` | `cname.vercel-dns.com` | 3600 |
+| **CNAME** | `www`            | `cname.vercel-dns.com` | 3600 |
 
 ## Step-by-Step Instructions
 
@@ -151,11 +154,13 @@ dig verridian.ai
 ### Expected Results
 
 **For CNAME (subdomain):**
+
 ```
 life-os-banner.verridian.ai    canonical name = cname.vercel-dns.com
 ```
 
 **For A records (root domain):**
+
 ```
 verridian.ai    A    76.76.21.21
 verridian.ai    A    76.76.21.22
@@ -197,6 +202,7 @@ verridian.ai    A    76.76.21.23
 6. Click **Save**
 
 **⚠️ Cloudflare Important Note:**
+
 - For CNAME records pointing to Vercel, you MUST disable the proxy (gray cloud, not orange)
 - Orange cloud will cause issues with Vercel's SSL certificates
 
@@ -240,10 +246,12 @@ You don't need to do anything - Vercel handles SSL automatically!
 ### Issue: Domain not connecting after 24 hours
 
 **Solution:**
+
 1. Verify DNS records at your registrar
 2. Check for typos in the values
 3. Make sure TTL is set correctly (3600 or Auto)
 4. Clear your DNS cache:
+
    ```bash
    # Windows
    ipconfig /flushdns
@@ -255,6 +263,7 @@ You don't need to do anything - Vercel handles SSL automatically!
 ### Issue: SSL certificate not activating
 
 **Solution:**
+
 1. Wait 30 minutes after DNS propagation
 2. Remove and re-add the domain in Vercel
 3. Check that DNS records are correct
@@ -263,6 +272,7 @@ You don't need to do anything - Vercel handles SSL automatically!
 ### Issue: "Invalid Configuration" in Vercel
 
 **Solution:**
+
 1. Verify the CNAME value is exactly: `cname.vercel-dns.com`
 2. For A records, verify IPs are correct
 3. Check there are no conflicting records
@@ -271,6 +281,7 @@ You don't need to do anything - Vercel handles SSL automatically!
 ### Issue: DNS propagation taking too long
 
 **Solution:**
+
 1. Lower the TTL to 300 (5 minutes)
 2. Wait an additional 24 hours
 3. Check different DNS servers:
@@ -284,6 +295,7 @@ You don't need to do anything - Vercel handles SSL automatically!
 **Cause**: DNS caching
 
 **Solution:**
+
 ```bash
 # Clear DNS cache on each device
 # Windows
@@ -301,6 +313,7 @@ sudo systemd-resolve --flush-caches
 ### 1. Check DNS Propagation
 
 Visit: https://dnschecker.org
+
 - Enter your domain: `life-os-banner.verridian.ai`
 - Select **CNAME** (or **A** for root domain)
 - Click **Search**
@@ -309,6 +322,7 @@ Visit: https://dnschecker.org
 ### 2. Check SSL Certificate
 
 Visit your site in browser:
+
 - URL: `https://life-os-banner.verridian.ai`
 - Look for padlock icon in address bar
 - Click padlock → Certificate
@@ -328,20 +342,20 @@ HTTP/2 200
 
 ### Vercel DNS Values
 
-| Purpose | Record Type | Value |
-|---------|-------------|-------|
-| Subdomain | CNAME | `cname.vercel-dns.com` |
-| Root domain (1) | A | `76.76.21.21` |
-| Root domain (2) | A | `76.76.21.22` |
-| Root domain (3) | A | `76.76.21.23` |
+| Purpose         | Record Type | Value                  |
+| --------------- | ----------- | ---------------------- |
+| Subdomain       | CNAME       | `cname.vercel-dns.com` |
+| Root domain (1) | A           | `76.76.21.21`          |
+| Root domain (2) | A           | `76.76.21.22`          |
+| Root domain (3) | A           | `76.76.21.23`          |
 
 ### Common TTL Values
 
-| Value | Duration | Use Case |
-|-------|----------|----------|
-| 300 | 5 minutes | Testing/frequent changes |
-| 3600 | 1 hour | Standard (recommended) |
-| 86400 | 24 hours | Stable production |
+| Value | Duration  | Use Case                 |
+| ----- | --------- | ------------------------ |
+| 300   | 5 minutes | Testing/frequent changes |
+| 3600  | 1 hour    | Standard (recommended)   |
+| 86400 | 24 hours  | Stable production        |
 
 ## Summary
 

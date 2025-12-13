@@ -32,8 +32,8 @@ const createMockCanvas = () => {
     canvas: {
       toDataURL: vi.fn(() => 'data:image/png;base64,test'),
       width: 1584,
-      height: 396
-    }
+      height: 396,
+    },
   };
 
   return mockContext;
@@ -79,7 +79,7 @@ describe('BannerCanvas', () => {
     onElementsChange: mockOnElementsChange,
     selectedElementId: null,
     onSelectElement: mockOnSelectElement,
-    onProfileFaceEnhance: mockOnProfileFaceEnhance
+    onProfileFaceEnhance: mockOnProfileFaceEnhance,
   };
 
   beforeEach(() => {
@@ -96,10 +96,7 @@ describe('BannerCanvas', () => {
 
   it('should render with background image', () => {
     const { container } = render(
-      <BannerCanvas
-        {...defaultProps}
-        backgroundImage="https://example.com/bg.png"
-      />
+      <BannerCanvas {...defaultProps} backgroundImage='https://example.com/bg.png' />,
     );
 
     const canvas = container.querySelector('canvas');
@@ -116,15 +113,10 @@ describe('BannerCanvas', () => {
       fontSize: 24,
       fontFamily: 'Arial',
       color: '#000000',
-      rotation: 0
+      rotation: 0,
     };
 
-    render(
-      <BannerCanvas
-        {...defaultProps}
-        elements={[textElement]}
-      />
-    );
+    render(<BannerCanvas {...defaultProps} elements={[textElement]} />);
 
     const canvas = document.querySelector('canvas');
     expect(canvas).not.toBeNull();
@@ -139,15 +131,10 @@ describe('BannerCanvas', () => {
       width: 200,
       height: 200,
       content: 'https://example.com/image.png',
-      rotation: 0
+      rotation: 0,
     };
 
-    render(
-      <BannerCanvas
-        {...defaultProps}
-        elements={[imageElement]}
-      />
-    );
+    render(<BannerCanvas {...defaultProps} elements={[imageElement]} />);
 
     const canvas = document.querySelector('canvas');
     expect(canvas).not.toBeNull();
@@ -157,9 +144,9 @@ describe('BannerCanvas', () => {
     render(
       <BannerCanvas
         {...defaultProps}
-        profilePic="https://example.com/profile.png"
+        profilePic='https://example.com/profile.png'
         profileTransform={{ x: 100, y: 50, scale: 1.5 }}
-      />
+      />,
     );
 
     const canvas = document.querySelector('canvas');
@@ -167,24 +154,14 @@ describe('BannerCanvas', () => {
   });
 
   it('should render safe zones when enabled', () => {
-    render(
-      <BannerCanvas
-        {...defaultProps}
-        showSafeZones={true}
-      />
-    );
+    render(<BannerCanvas {...defaultProps} showSafeZones={true} />);
 
     const canvas = document.querySelector('canvas');
     expect(canvas).not.toBeNull();
   });
 
   it('should not render safe zones when disabled', () => {
-    render(
-      <BannerCanvas
-        {...defaultProps}
-        showSafeZones={false}
-      />
-    );
+    render(<BannerCanvas {...defaultProps} showSafeZones={false} />);
 
     const canvas = document.querySelector('canvas');
     expect(canvas).not.toBeNull();
@@ -200,16 +177,10 @@ describe('BannerCanvas', () => {
       fontSize: 24,
       fontFamily: 'Arial',
       color: '#000000',
-      rotation: 0
+      rotation: 0,
     };
 
-    render(
-      <BannerCanvas
-        {...defaultProps}
-        elements={[textElement]}
-        selectedElementId="1"
-      />
-    );
+    render(<BannerCanvas {...defaultProps} elements={[textElement]} selectedElementId='1' />);
 
     const canvas = document.querySelector('canvas');
     expect(canvas).not.toBeNull();
@@ -226,7 +197,7 @@ describe('BannerCanvas', () => {
         fontSize: 24,
         fontFamily: 'Arial',
         color: '#000000',
-        rotation: 0
+        rotation: 0,
       },
       {
         id: '2',
@@ -237,16 +208,11 @@ describe('BannerCanvas', () => {
         fontSize: 32,
         fontFamily: 'Helvetica',
         color: '#FF0000',
-        rotation: 0
-      }
+        rotation: 0,
+      },
     ];
 
-    render(
-      <BannerCanvas
-        {...defaultProps}
-        elements={elements}
-      />
-    );
+    render(<BannerCanvas {...defaultProps} elements={elements} />);
 
     const canvas = document.querySelector('canvas');
     expect(canvas).not.toBeNull();
@@ -262,15 +228,10 @@ describe('BannerCanvas', () => {
       fontSize: 24,
       fontFamily: 'Arial',
       color: '#000000',
-      rotation: 45
+      rotation: 45,
     };
 
-    render(
-      <BannerCanvas
-        {...defaultProps}
-        elements={[rotatedElement]}
-      />
-    );
+    render(<BannerCanvas {...defaultProps} elements={[rotatedElement]} />);
 
     const canvas = document.querySelector('canvas');
     expect(canvas).not.toBeNull();
@@ -285,8 +246,12 @@ describe('BannerCanvas', () => {
   });
 
   it('should expose generateStageImage method via ref', () => {
-    const ref = { current: null } as React.MutableRefObject<{ generateStageImage?: () => string } | null>;
-    render(<BannerCanvas ref={ref as unknown as React.Ref<BannerCanvasHandle>} {...defaultProps} />);
+    const ref = { current: null } as React.MutableRefObject<{
+      generateStageImage?: () => string;
+    } | null>;
+    render(
+      <BannerCanvas ref={ref as unknown as React.Ref<BannerCanvasHandle>} {...defaultProps} />,
+    );
 
     expect(ref.current).toBeTruthy();
     if (ref.current && 'generateStageImage' in ref.current) {
@@ -305,7 +270,7 @@ describe('BannerCanvas', () => {
         fontSize: 48,
         fontFamily: 'Arial',
         color: '#000000',
-        rotation: 0
+        rotation: 0,
       },
       {
         id: '2',
@@ -315,19 +280,19 @@ describe('BannerCanvas', () => {
         width: 300,
         height: 200,
         content: 'https://example.com/graphic.png',
-        rotation: 0
-      }
+        rotation: 0,
+      },
     ];
 
     render(
       <BannerCanvas
         {...defaultProps}
-        backgroundImage="https://example.com/bg.png"
-        profilePic="https://example.com/profile.png"
+        backgroundImage='https://example.com/bg.png'
+        profilePic='https://example.com/profile.png'
         elements={elements}
         showSafeZones={true}
-        selectedElementId="1"
-      />
+        selectedElementId='1'
+      />,
     );
 
     const canvas = document.querySelector('canvas');

@@ -70,11 +70,13 @@ Check that the table exists:
 #### Fix Now:
 
 1. **Add `.env` to `.gitignore`**:
+
    ```bash
    echo ".env" >> .gitignore
    ```
 
 2. **Remove `.env` from git** (keeps file locally):
+
    ```bash
    git rm --cached .env
    git add .gitignore
@@ -82,11 +84,13 @@ Check that the table exists:
    ```
 
 3. **Rename `.env` to `.env.example`** (template):
+
    ```bash
    mv .env .env.example
    ```
 
 4. **Edit `.env.example`** and replace all API keys with placeholders:
+
    ```env
    # Replace actual keys with:
    VITE_GEMINI_API_KEY=your_gemini_key_here
@@ -103,6 +107,7 @@ Check that the table exists:
 ### Step 4: Test the New System
 
 1. **Start your dev server**:
+
    ```bash
    npm run dev
    ```
@@ -110,6 +115,7 @@ Check that the table exists:
 2. **Open app** at http://localhost:5173
 
 3. **Check console** - You should see:
+
    ```
    [API Keys] Checking for localStorage migration...
    [API Keys] Migrated localStorage to Supabase  (if you had keys in localStorage)
@@ -148,11 +154,11 @@ Check that the table exists:
 
 ### Storage Location:
 
-| User Type | Where Keys Are Stored |
-|-----------|----------------------|
-| **Logged In** | Supabase `user_api_keys` table (linked to `user_id`) |
-| **Anonymous** | Supabase `user_api_keys` table (linked to `session_id`) |
-| **No Supabase** | Falls back to `.env.local` |
+| User Type       | Where Keys Are Stored                                   |
+| --------------- | ------------------------------------------------------- |
+| **Logged In**   | Supabase `user_api_keys` table (linked to `user_id`)    |
+| **Anonymous**   | Supabase `user_api_keys` table (linked to `session_id`) |
+| **No Supabase** | Falls back to `.env.local`                              |
 
 ---
 
@@ -217,6 +223,7 @@ The database table has RLS policies that ensure:
 ### "No keys found, using .env fallback"
 
 **Normal Behavior**: This means:
+
 - No keys in database yet, OR
 - User hasn't entered keys in Settings yet
 - Falling back to `.env.local` values
@@ -229,6 +236,7 @@ The database table has RLS policies that ensure:
 ### Old localStorage Keys Still Used
 
 **Solution**: Open browser console and run:
+
 ```javascript
 localStorage.clear();
 location.reload();

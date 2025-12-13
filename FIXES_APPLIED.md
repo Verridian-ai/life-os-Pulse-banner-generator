@@ -9,16 +9,19 @@
 ## Problems Identified
 
 ### 1. Wrong Model ID Being Used
+
 **Location:** `src/services/llm.ts:524`
 **Issue:** The function was hardcoded to use `MODELS.imageGen` instead of respecting the user's model selection from Settings.
 
 **Before:**
+
 ```typescript
 const response = await ai.models.generateContent({
     model: MODELS.imageGen, // Always used gemini-3-pro-image-preview
 ```
 
 **After:**
+
 ```typescript
 const response = await ai.models.generateContent({
     model: modelToUse, // Now uses the model from user settings
@@ -29,23 +32,26 @@ const response = await ai.models.generateContent({
 ---
 
 ### 2. Poor MIME Type Detection
+
 **Location:** `src/services/llm.ts:510-515`
 **Issue:** Simple string check for MIME type was unreliable.
 
 **Before:**
+
 ```typescript
 const base64Data = img.split(',')[1] || img;
 const mimeType = img.includes('png') ? 'image/png' : 'image/jpeg';
 ```
 
 **After:**
+
 ```typescript
 if (img.startsWith('data:')) {
-    const matches = img.match(/^data:([^;]+);base64,(.+)$/);
-    if (matches) {
-        mimeType = matches[1]; // Properly extracted
-        base64Data = matches[2];
-    }
+  const matches = img.match(/^data:([^;]+);base64,(.+)$/);
+  if (matches) {
+    mimeType = matches[1]; // Properly extracted
+    base64Data = matches[2];
+  }
 }
 ```
 
@@ -54,10 +60,12 @@ if (img.startsWith('data:')) {
 ---
 
 ### 3. No Detailed Error Messages
+
 **Location:** `src/services/llm.ts` and `src/App.tsx`
 **Issue:** Users only saw "GENERATION FAILED" with no context about what went wrong.
 
 **Before:**
+
 ```typescript
 } catch (error) {
     console.error(error);
@@ -66,6 +74,7 @@ if (img.startsWith('data:')) {
 ```
 
 **After:**
+
 ```typescript
 } catch (error) {
     let errorMessage = 'GENERATION FAILED';
@@ -87,16 +96,18 @@ if (img.startsWith('data:')) {
 ---
 
 ### 4. No Console Logging
+
 **Location:** `src/services/llm.ts`
 **Issue:** When things failed, there was no visibility into what was happening.
 
 **After:**
+
 ```typescript
 console.log('[Image Gen] Starting generation with:', {
-    provider,
-    model: modelToUse,
-    size,
-    refImagesCount: referenceImages.length,
+  provider,
+  model: modelToUse,
+  size,
+  refImagesCount: referenceImages.length,
 });
 
 console.log(`[Image Gen] Calling Gemini API with model: ${modelToUse}, size: ${size}`);
@@ -109,13 +120,15 @@ console.log(`[Image Gen] ✓ Image found in candidate ${i}, part ${j}`);
 ---
 
 ### 5. No API Key Validation
+
 **Location:** `src/services/llm.ts:493-495`
 **Issue:** Function would try to call API even without an API key, causing cryptic errors.
 
 **After:**
+
 ```typescript
 if (!geminiKey) {
-    throw new Error("Gemini API key not found. Please add your API key in Settings.");
+  throw new Error('Gemini API key not found. Please add your API key in Settings.');
 }
 ```
 
@@ -124,14 +137,16 @@ if (!geminiKey) {
 ---
 
 ### 6. No Response Validation
+
 **Location:** `src/services/llm.ts:579-582`
 **Issue:** If API returned empty candidates (safety filters), no helpful error was shown.
 
 **After:**
+
 ```typescript
 const candidates = response.candidates || [];
 if (candidates.length === 0) {
-    throw new Error("API returned no candidates. Response may have been blocked by safety filters.");
+  throw new Error('API returned no candidates. Response may have been blocked by safety filters.');
 }
 ```
 
@@ -142,7 +157,9 @@ if (candidates.length === 0) {
 ## Files Modified
 
 ### 1. `src/services/llm.ts`
+
 **Changes:**
+
 - ✅ Fixed model selection bug (line 566)
 - ✅ Added detailed console logging (lines 457-464, 562, 576, 591)
 - ✅ Improved MIME type detection (lines 525-554)
@@ -152,23 +169,29 @@ if (candidates.length === 0) {
 - ✅ Applied same fixes to `editImage()` function (lines 619-693)
 
 ### 2. `src/App.tsx`
+
 **Changes:**
+
 - ✅ Better error handling in `handleGenerate()` (lines 49-70)
 - ✅ Better error handling in `handleEdit()` (lines 117-134)
 - ✅ Success notifications added
 - ✅ Specific error messages for common issues
 
 ### 3. `test-image-gen.html` (NEW)
+
 **Purpose:** Standalone diagnostic tool
 **Features:**
+
 - Test API key connectivity
 - List available models
 - Test image generation with detailed logging
 - Error log viewer
 
 ### 4. `DEBUG_IMAGE_GENERATION.md` (NEW)
+
 **Purpose:** Complete debugging guide
 **Sections:**
+
 - Quick diagnosis steps
 - Common errors & fixes
 - Browser console commands
@@ -176,6 +199,7 @@ if (candidates.length === 0) {
 - Known issues & workarounds
 
 ### 5. `FIXES_APPLIED.md` (THIS FILE)
+
 **Purpose:** Summary of all fixes applied
 
 ---
@@ -185,6 +209,7 @@ if (candidates.length === 0) {
 ### Quick Test (2 minutes)
 
 1. **Start the app:**
+
    ```bash
    npm run dev
    ```
@@ -204,6 +229,7 @@ if (candidates.length === 0) {
    - Watch the console for `[Image Gen]` messages
 
 5. **Expected console output:**
+
    ```
    [Image Gen] Starting generation with: {provider: "gemini", model: "imagen-3.0-generate-001", ...}
    [Image Gen] Calling Gemini API with model: imagen-3.0-generate-001, size: 1K
@@ -221,6 +247,7 @@ if (candidates.length === 0) {
 ### Advanced Test (5 minutes)
 
 1. **Open `test-image-gen.html` in browser:**
+
    ```
    file:///C:/Users/Danie/Desktop/nanobanna-pro/test-image-gen.html
    ```
@@ -253,27 +280,33 @@ if (candidates.length === 0) {
 ## Known Working Configurations
 
 ### Configuration 1: Stable (Recommended)
+
 ```
 Provider: Gemini
 Image Model: imagen-3.0-generate-001
 Size: 2K or 4K
 ```
+
 **Status:** ✅ Should work for all users
 
 ### Configuration 2: Fast
+
 ```
 Provider: Gemini
 Image Model: imagen-3.0-fast-generate-001
 Size: 1K or 2K
 ```
+
 **Status:** ✅ Faster, lower quality
 
 ### Configuration 3: Experimental
+
 ```
 Provider: Gemini
 Image Model: gemini-3-pro-image-preview
 Size: 4K
 ```
+
 **Status:** ⚠️ May not be available for all API keys
 
 ---
@@ -283,6 +316,7 @@ Size: 4K
 ### Issue: Still getting "Model not found"
 
 **Solution:**
+
 1. Open Settings
 2. Change "Image Generation Model" to: `imagen-3.0-generate-001`
 3. Save and try again
@@ -294,6 +328,7 @@ The `gemini-3-pro-image-preview` model is very new and may not be publicly avail
 ### Issue: "API quota exceeded"
 
 **Solution:**
+
 - Your free tier limit has been reached
 - Wait until quota resets (check: https://aistudio.google.com/app/apikey)
 - Or upgrade to paid tier
@@ -303,11 +338,13 @@ The `gemini-3-pro-image-preview` model is very new and may not be publicly avail
 ### Issue: Image generation is slow
 
 **Explanation:**
+
 - Image generation takes 10-30 seconds (normal)
 - Higher quality (4K) takes longer
 - Reference images increase processing time
 
 **Solution:**
+
 - Use 1K or 2K size for faster results
 - Use `imagen-3.0-fast-generate-001` model
 - Reduce number of reference images

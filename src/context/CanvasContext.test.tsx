@@ -24,35 +24,55 @@ const TestComponent = () => {
     addElement,
     deleteElement,
     profileTransform,
-    setProfileTransform
+    setProfileTransform,
   } = useCanvas();
 
   return (
     <div>
-      <div data-testid="bgImage">{bgImage || 'none'}</div>
-      <div data-testid="elements">{elements.length}</div>
-      <div data-testid="selectedElementId">{selectedElementId || 'none'}</div>
-      <div data-testid="showSafeZones">{showSafeZones ? 'true' : 'false'}</div>
-      <div data-testid="profilePic">{profilePic || 'none'}</div>
-      <div data-testid="refImages">{refImages.length}</div>
-      <div data-testid="isProcessingImg">{isProcessingImg ? 'true' : 'false'}</div>
-      <div data-testid="canUndo">{canUndo ? 'true' : 'false'}</div>
-      <div data-testid="canRedo">{canRedo ? 'true' : 'false'}</div>
-      <div data-testid="profileTransform">{JSON.stringify(profileTransform)}</div>
-      <button type="button" onClick={() => setBgImage('test.png')}>Set BG</button>
-      <button type="button" onClick={() => setElements([{ id: '1', type: 'text', x: 0, y: 0, content: 'Test' }])}>
+      <div data-testid='bgImage'>{bgImage || 'none'}</div>
+      <div data-testid='elements'>{elements.length}</div>
+      <div data-testid='selectedElementId'>{selectedElementId || 'none'}</div>
+      <div data-testid='showSafeZones'>{showSafeZones ? 'true' : 'false'}</div>
+      <div data-testid='profilePic'>{profilePic || 'none'}</div>
+      <div data-testid='refImages'>{refImages.length}</div>
+      <div data-testid='isProcessingImg'>{isProcessingImg ? 'true' : 'false'}</div>
+      <div data-testid='canUndo'>{canUndo ? 'true' : 'false'}</div>
+      <div data-testid='canRedo'>{canRedo ? 'true' : 'false'}</div>
+      <div data-testid='profileTransform'>{JSON.stringify(profileTransform)}</div>
+      <button type='button' onClick={() => setBgImage('test.png')}>
+        Set BG
+      </button>
+      <button
+        type='button'
+        onClick={() => setElements([{ id: '1', type: 'text', x: 0, y: 0, content: 'Test' }])}
+      >
         Add Element
       </button>
-      <button type="button" onClick={() => setSelectedElementId('1')}>Select Element</button>
-      <button type="button" onClick={() => setShowSafeZones(false)}>Hide Safe Zones</button>
-      <button type="button" onClick={() => setProfilePic('profile.png')}>Set Profile</button>
-      <button type="button" onClick={() => setRefImages(['ref1.png'])}>Add Ref</button>
-      <button type="button" onClick={() => setIsProcessingImg(true)}>Set Processing</button>
-      <button type="button" onClick={() => addElement({ id: '2', type: 'text', x: 0, y: 0, content: 'New' })}>
+      <button type='button' onClick={() => setSelectedElementId('1')}>
+        Select Element
+      </button>
+      <button type='button' onClick={() => setShowSafeZones(false)}>
+        Hide Safe Zones
+      </button>
+      <button type='button' onClick={() => setProfilePic('profile.png')}>
+        Set Profile
+      </button>
+      <button type='button' onClick={() => setRefImages(['ref1.png'])}>
+        Add Ref
+      </button>
+      <button type='button' onClick={() => setIsProcessingImg(true)}>
+        Set Processing
+      </button>
+      <button
+        type='button'
+        onClick={() => addElement({ id: '2', type: 'text', x: 0, y: 0, content: 'New' })}
+      >
         Add New Element
       </button>
-      <button type="button" onClick={() => deleteElement('1')}>Delete Element</button>
-      <button type="button" onClick={() => setProfileTransform({ x: 10, y: 20, scale: 1.5 })}>
+      <button type='button' onClick={() => deleteElement('1')}>
+        Delete Element
+      </button>
+      <button type='button' onClick={() => setProfileTransform({ x: 10, y: 20, scale: 1.5 })}>
         Set Transform
       </button>
     </div>
@@ -64,7 +84,7 @@ describe('CanvasContext', () => {
     render(
       <CanvasProvider>
         <TestComponent />
-      </CanvasProvider>
+      </CanvasProvider>,
     );
 
     expect(screen.getByTestId('bgImage')).toHaveTextContent('none');
@@ -75,7 +95,7 @@ describe('CanvasContext', () => {
     render(
       <CanvasProvider>
         <TestComponent />
-      </CanvasProvider>
+      </CanvasProvider>,
     );
 
     const button = screen.getByText('Set BG');
@@ -90,7 +110,7 @@ describe('CanvasContext', () => {
     render(
       <CanvasProvider>
         <TestComponent />
-      </CanvasProvider>
+      </CanvasProvider>,
     );
 
     const button = screen.getByText('Add Element');
@@ -105,7 +125,7 @@ describe('CanvasContext', () => {
     render(
       <CanvasProvider>
         <TestComponent />
-      </CanvasProvider>
+      </CanvasProvider>,
     );
 
     const button = screen.getByText('Select Element');
@@ -120,7 +140,7 @@ describe('CanvasContext', () => {
     render(
       <CanvasProvider>
         <TestComponent />
-      </CanvasProvider>
+      </CanvasProvider>,
     );
 
     expect(screen.getByTestId('showSafeZones')).toHaveTextContent('true');
@@ -137,7 +157,7 @@ describe('CanvasContext', () => {
     render(
       <CanvasProvider>
         <TestComponent />
-      </CanvasProvider>
+      </CanvasProvider>,
     );
 
     const button = screen.getByText('Set Profile');
@@ -152,7 +172,7 @@ describe('CanvasContext', () => {
     render(
       <CanvasProvider>
         <TestComponent />
-      </CanvasProvider>
+      </CanvasProvider>,
     );
 
     const button = screen.getByText('Add Ref');
@@ -167,7 +187,7 @@ describe('CanvasContext', () => {
     render(
       <CanvasProvider>
         <TestComponent />
-      </CanvasProvider>
+      </CanvasProvider>,
     );
 
     expect(screen.getByTestId('isProcessingImg')).toHaveTextContent('false');
@@ -184,7 +204,7 @@ describe('CanvasContext', () => {
     render(
       <CanvasProvider>
         <TestComponent />
-      </CanvasProvider>
+      </CanvasProvider>,
     );
 
     const button = screen.getByText('Add New Element');
@@ -199,7 +219,7 @@ describe('CanvasContext', () => {
     render(
       <CanvasProvider>
         <TestComponent />
-      </CanvasProvider>
+      </CanvasProvider>,
     );
 
     // First add an element
@@ -221,7 +241,7 @@ describe('CanvasContext', () => {
     render(
       <CanvasProvider>
         <TestComponent />
-      </CanvasProvider>
+      </CanvasProvider>,
     );
 
     const initialTransform = JSON.parse(screen.getByTestId('profileTransform').textContent || '{}');
@@ -240,7 +260,7 @@ describe('CanvasContext', () => {
     render(
       <CanvasProvider>
         <TestComponent />
-      </CanvasProvider>
+      </CanvasProvider>,
     );
 
     expect(screen.getByTestId('canUndo')).toHaveTextContent('false');
@@ -257,7 +277,9 @@ describe('CanvasContext', () => {
       // If we get here, the test should fail
       expect(true).toBe(false);
     } catch (error: unknown) {
-      expect(error instanceof Error ? error.message : '').toContain('useCanvas must be used within CanvasProvider');
+      expect(error instanceof Error ? error.message : '').toContain(
+        'useCanvas must be used within CanvasProvider',
+      );
     } finally {
       console.error = consoleError;
     }

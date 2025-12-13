@@ -4,7 +4,7 @@ import type { ToolCall, OnUpdateCallback } from './actionExecutor';
 
 // Mock services
 vi.mock('./llm', () => ({
-  generateImage: vi.fn()
+  generateImage: vi.fn(),
 }));
 
 vi.mock('./replicate', () => ({
@@ -12,8 +12,8 @@ vi.mock('./replicate', () => ({
     upscale: vi.fn(),
     removeBg: vi.fn(),
     restore: vi.fn(),
-    faceEnhance: vi.fn()
-  }))
+    faceEnhance: vi.fn(),
+  })),
 }));
 
 import { generateImage } from './llm';
@@ -55,8 +55,8 @@ describe('ActionExecutor', () => {
       name: 'generate_background',
       args: {
         prompt: 'A beautiful sunset',
-        quality: '2K'
-      }
+        quality: '2K',
+      },
     };
 
     it('should generate background successfully', async () => {
@@ -103,7 +103,7 @@ describe('ActionExecutor', () => {
 
       await executor.executeToolCall({
         name: 'generate_background',
-        args: { prompt: 'Test' }
+        args: { prompt: 'Test' },
       });
 
       expect(generateImage).toHaveBeenCalledWith('Test', [], '2K');
@@ -116,8 +116,8 @@ describe('ActionExecutor', () => {
         name: 'magic_edit',
         args: {
           base_image: 'https://example.com/base.png',
-          prompt: 'Edit this'
-        }
+          prompt: 'Edit this',
+        },
       };
 
       const result = await executor.executeToolCall(toolCall);
@@ -132,8 +132,8 @@ describe('ActionExecutor', () => {
       const toolCall: ToolCall = {
         name: 'remove_background',
         args: {
-          image_url: 'https://example.com/image.png'
-        }
+          image_url: 'https://example.com/image.png',
+        },
       };
 
       const result = await executor.executeToolCall(toolCall);
@@ -148,13 +148,13 @@ describe('ActionExecutor', () => {
       name: 'upscale_image',
       args: {
         image_url: 'https://example.com/image.png',
-        mode: 'balanced'
-      }
+        mode: 'balanced',
+      },
     };
 
     it('should upscale image successfully', async () => {
       const mockService = {
-        upscale: vi.fn().mockResolvedValue('https://example.com/upscaled.png')
+        upscale: vi.fn().mockResolvedValue('https://example.com/upscaled.png'),
       };
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       vi.mocked(getReplicateService).mockReturnValueOnce(mockService as any);
@@ -168,7 +168,7 @@ describe('ActionExecutor', () => {
 
     it('should handle upscale errors', async () => {
       const mockService = {
-        upscale: vi.fn().mockRejectedValue(new Error('Upscale failed'))
+        upscale: vi.fn().mockRejectedValue(new Error('Upscale failed')),
       };
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       vi.mocked(getReplicateService).mockReturnValueOnce(mockService as any);
@@ -181,34 +181,31 @@ describe('ActionExecutor', () => {
 
     it('should use default mode if not specified', async () => {
       const mockService = {
-        upscale: vi.fn().mockResolvedValue('https://example.com/upscaled.png')
+        upscale: vi.fn().mockResolvedValue('https://example.com/upscaled.png'),
       };
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       vi.mocked(getReplicateService).mockReturnValueOnce(mockService as any);
 
       await executor.executeToolCall({
         name: 'upscale_image',
-        args: { image_url: 'https://example.com/image.png' }
+        args: { image_url: 'https://example.com/image.png' },
       });
 
-      expect(mockService.upscale).toHaveBeenCalledWith(
-        'https://example.com/image.png',
-        'balanced'
-      );
+      expect(mockService.upscale).toHaveBeenCalledWith('https://example.com/image.png', 'balanced');
     });
   });
 
   describe('executeToolCall - restore_image', () => {
     it('should restore image successfully', async () => {
       const mockService = {
-        restore: vi.fn().mockResolvedValue('https://example.com/restored.png')
+        restore: vi.fn().mockResolvedValue('https://example.com/restored.png'),
       };
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       vi.mocked(getReplicateService).mockReturnValueOnce(mockService as any);
 
       const result = await executor.executeToolCall({
         name: 'restore_image',
-        args: { image_url: 'https://example.com/image.png' }
+        args: { image_url: 'https://example.com/image.png' },
       });
 
       expect(result.success).toBe(true);
@@ -217,14 +214,14 @@ describe('ActionExecutor', () => {
 
     it('should handle restore errors', async () => {
       const mockService = {
-        restore: vi.fn().mockRejectedValue(new Error('Restore failed'))
+        restore: vi.fn().mockRejectedValue(new Error('Restore failed')),
       };
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       vi.mocked(getReplicateService).mockReturnValueOnce(mockService as any);
 
       const result = await executor.executeToolCall({
         name: 'restore_image',
-        args: { image_url: 'https://example.com/image.png' }
+        args: { image_url: 'https://example.com/image.png' },
       });
 
       expect(result.success).toBe(false);
@@ -235,14 +232,14 @@ describe('ActionExecutor', () => {
   describe('executeToolCall - enhance_face', () => {
     it('should enhance face successfully', async () => {
       const mockService = {
-        faceEnhance: vi.fn().mockResolvedValue('https://example.com/enhanced.png')
+        faceEnhance: vi.fn().mockResolvedValue('https://example.com/enhanced.png'),
       };
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       vi.mocked(getReplicateService).mockReturnValueOnce(mockService as any);
 
       const result = await executor.executeToolCall({
         name: 'enhance_face',
-        args: { image_url: 'https://example.com/image.png' }
+        args: { image_url: 'https://example.com/image.png' },
       });
 
       expect(result.success).toBe(true);
@@ -252,14 +249,14 @@ describe('ActionExecutor', () => {
 
     it('should handle face enhance errors', async () => {
       const mockService = {
-        faceEnhance: vi.fn().mockRejectedValue(new Error('Enhance failed'))
+        faceEnhance: vi.fn().mockRejectedValue(new Error('Enhance failed')),
       };
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       vi.mocked(getReplicateService).mockReturnValueOnce(mockService as any);
 
       const result = await executor.executeToolCall({
         name: 'enhance_face',
-        args: { image_url: 'https://example.com/image.png' }
+        args: { image_url: 'https://example.com/image.png' },
       });
 
       expect(result.success).toBe(false);
@@ -271,7 +268,7 @@ describe('ActionExecutor', () => {
     it('should handle unknown tool', async () => {
       const result = await executor.executeToolCall({
         name: 'unknown_tool',
-        args: {}
+        args: {},
       });
 
       expect(result.success).toBe(false);

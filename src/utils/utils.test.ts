@@ -23,7 +23,9 @@ describe('Utils', () => {
   describe('debounce', () => {
     it('should delay function execution', async () => {
       let called = false;
-      const fn = () => { called = true; };
+      const fn = () => {
+        called = true;
+      };
       const debounced = (callback: () => void, delay: number) => {
         let timeout: NodeJS.Timeout;
         return () => {
@@ -37,7 +39,7 @@ describe('Utils', () => {
 
       expect(called).toBe(false);
 
-      await new Promise(resolve => setTimeout(resolve, 150));
+      await new Promise((resolve) => setTimeout(resolve, 150));
       expect(called).toBe(true);
     });
   });

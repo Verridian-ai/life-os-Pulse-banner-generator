@@ -30,6 +30,7 @@ This guide will walk you through deploying your application to Vercel with your 
    - Click "Import"
 
 3. **Configure Project**
+
    ```
    Project Name: life-os-banner
    Framework Preset: Vite
@@ -41,6 +42,7 @@ This guide will walk you through deploying your application to Vercel with your 
 
 4. **Environment Variables (Add Now)**
    Click "Add Environment Variable" for each:
+
    ```
    VITE_SUPABASE_URL = your-supabase-url
    VITE_SUPABASE_ANON_KEY = your-supabase-anon-key
@@ -91,12 +93,14 @@ After creating the project, you need these for GitHub Actions:
 ### B. Get Organization ID
 
 **Method 1: From Vercel Dashboard**
+
 1. Go to: https://vercel.com/account
 2. Look for "Your ID" or "Team ID" section
 3. Copy the ID (format: `team_xxxxxxxxxxxxxxxxxxxxx`)
 4. This is your `VERCEL_ORG_ID`
 
 **Method 2: Using Vercel CLI**
+
 ```bash
 # Link project (if not already linked)
 vercel link
@@ -106,6 +110,7 @@ cat .vercel/project.json
 ```
 
 The `.vercel/project.json` file will contain:
+
 ```json
 {
   "orgId": "team_xxxxxxxxxxxxxxxxxxxxx",
@@ -119,6 +124,7 @@ The `.vercel/project.json` file will contain:
 The `projectId` in `.vercel/project.json` is your `VERCEL_PROJECT_ID`
 
 **Or From Dashboard:**
+
 1. Go to your project: https://vercel.com/verridian-ai/life-os-banner
 2. Settings → General
 3. Look for "Project ID"
@@ -150,6 +156,7 @@ Value: [your production Supabase anon key]
 ```
 
 **Optional (for staging):**
+
 ```
 Name: STAGING_SUPABASE_URL
 Value: [your staging Supabase URL]
@@ -177,6 +184,7 @@ Value: [your staging Supabase anon key]
    You'll see one of these configurations:
 
    **Option A: CNAME Record (Recommended)**
+
    ```
    Type: CNAME
    Name: life-os-banner
@@ -184,6 +192,7 @@ Value: [your staging Supabase anon key]
    ```
 
    **Option B: A Records**
+
    ```
    Type: A
    Name: life-os-banner
@@ -198,6 +207,7 @@ Value: [your staging Supabase anon key]
 2. **Add DNS Record**
 
    **If Using CNAME (Recommended):**
+
    ```
    Type: CNAME
    Host: life-os-banner
@@ -206,6 +216,7 @@ Value: [your staging Supabase anon key]
    ```
 
    **If Using A Record:**
+
    ```
    Type: A
    Host: life-os-banner
@@ -222,6 +233,7 @@ Value: [your staging Supabase anon key]
 ### C. Verify Domain Configuration
 
 **Check DNS Propagation:**
+
 ```bash
 # Check CNAME
 dig life-os-banner.verridian.ai CNAME
@@ -234,12 +246,14 @@ nslookup life-os-banner.verridian.ai 8.8.8.8
 ```
 
 **Or use online tools:**
+
 - https://dnschecker.org/#CNAME/life-os-banner.verridian.ai
 - https://www.whatsmydns.net/#CNAME/life-os-banner.verridian.ai
 
 ### D. SSL Certificate (Automatic)
 
 Vercel automatically provisions SSL certificates via Let's Encrypt:
+
 - Certificate is issued within minutes after DNS propagation
 - Auto-renews every 90 days
 - HTTPS is enforced automatically
@@ -263,16 +277,19 @@ Vercel automatically provisions SSL certificates via Let's Encrypt:
 ### B. Test URLs
 
 **Vercel Default URL:**
+
 ```
 https://life-os-banner.vercel.app
 ```
 
 **Production Custom Domain:**
+
 ```
 https://life-os-banner.verridian.ai
 ```
 
 **Test Checklist:**
+
 - [ ] Homepage loads
 - [ ] No console errors
 - [ ] Images load correctly
@@ -302,6 +319,7 @@ git push origin test/vercel-deployment
 ### A. Environment-Specific Configuration
 
 **Production Environment Variables:**
+
 ```
 VITE_SUPABASE_URL=https://your-prod-project.supabase.co
 VITE_SUPABASE_ANON_KEY=your-prod-anon-key
@@ -310,6 +328,7 @@ VITE_ENABLE_ANALYTICS=true
 ```
 
 **Set in Vercel Dashboard:**
+
 1. Go to: Settings → Environment Variables
 2. For each variable:
    - Add variable
@@ -332,6 +351,7 @@ Node.js Version: 18.x
 ### C. Security Headers (Already Configured)
 
 Your `vercel.json` already includes security headers:
+
 - X-Content-Type-Options: nosniff
 - X-Frame-Options: DENY
 - X-XSS-Protection: 1; mode=block
@@ -341,6 +361,7 @@ Your `vercel.json` already includes security headers:
 ### D. Performance Settings
 
 **Enable these in Vercel Dashboard:**
+
 1. **Speed Insights**
    - Settings → Speed Insights
    - Enable for production
@@ -372,6 +393,7 @@ git push origin develop
 ### B. Staging Domain (Optional)
 
 Add a staging subdomain:
+
 ```
 staging.life-os-banner.verridian.ai
 ```
@@ -387,6 +409,7 @@ staging.life-os-banner.verridian.ai
 ### A. Set Up Alerts
 
 **Vercel Integrations:**
+
 1. Go to: https://vercel.com/integrations
 2. Consider adding:
    - **Slack** - Deployment notifications
@@ -396,17 +419,20 @@ staging.life-os-banner.verridian.ai
 ### B. Monitor Deployments
 
 **Vercel Dashboard:**
+
 - Deployments tab: View all deployments
 - Analytics: Traffic and performance
 - Logs: Runtime logs
 
 **GitHub Actions:**
+
 - Actions tab: CI/CD pipeline status
 - Deployments: GitHub deployment history
 
 ### C. Scheduled Tasks
 
 **Health Checks:**
+
 ```bash
 # Add to cron job or monitoring service
 curl -f https://life-os-banner.verridian.ai || \
@@ -414,6 +440,7 @@ curl -f https://life-os-banner.verridian.ai || \
 ```
 
 **Uptime Monitoring Services:**
+
 - UptimeRobot (free): https://uptimerobot.com/
 - Pingdom
 - StatusCake
@@ -425,10 +452,12 @@ curl -f https://life-os-banner.verridian.ai || \
 ### Issue 1: Build Fails in Vercel
 
 **Symptoms:**
+
 - Build succeeds locally but fails on Vercel
 - "Command failed" error
 
 **Solutions:**
+
 ```bash
 # Check build locally
 npm run build
@@ -447,10 +476,12 @@ node -v  # Should be 18+
 ### Issue 2: Environment Variables Not Working
 
 **Symptoms:**
+
 - "undefined" in console
 - Features not working
 
 **Solutions:**
+
 1. Check variable names start with `VITE_`
 2. Redeploy after adding variables
 3. Verify in build logs: Search for "Loaded env"
@@ -465,10 +496,12 @@ npm run preview
 ### Issue 3: Custom Domain Not Working
 
 **Symptoms:**
+
 - DNS_PROBE_FINISHED_NXDOMAIN
 - Domain doesn't resolve
 
 **Solutions:**
+
 ```bash
 # Check DNS propagation
 dig life-os-banner.verridian.ai
@@ -483,10 +516,12 @@ dig verridian.ai NS
 ### Issue 4: SSL Certificate Issues
 
 **Symptoms:**
+
 - "Not Secure" warning
 - Certificate error
 
 **Solutions:**
+
 1. Wait 10-15 minutes after DNS propagation
 2. Check: Vercel Dashboard → Domains → Certificate Status
 3. If "Invalid Configuration": Fix DNS records
@@ -495,10 +530,12 @@ dig verridian.ai NS
 ### Issue 5: GitHub Actions Deployment Fails
 
 **Symptoms:**
+
 - "Invalid credentials" error
 - "Project not found" error
 
 **Solutions:**
+
 1. Verify GitHub Secrets are set correctly
 2. Check token hasn't expired
 3. Verify project IDs match
@@ -518,11 +555,11 @@ cat .vercel/project.json
 
 ### URLs
 
-| Environment | URL |
-|-------------|-----|
-| Production | https://life-os-banner.verridian.ai |
-| Vercel Default | https://life-os-banner.vercel.app |
-| PR Previews | https://life-os-banner-pr-{number}.vercel.app |
+| Environment    | URL                                           |
+| -------------- | --------------------------------------------- |
+| Production     | https://life-os-banner.verridian.ai           |
+| Vercel Default | https://life-os-banner.vercel.app             |
+| PR Previews    | https://life-os-banner-pr-{number}.vercel.app |
 
 ### Commands
 
@@ -573,11 +610,13 @@ vercel env add VARIABLE_NAME production
 ## Support
 
 ### Vercel Support
+
 - Documentation: https://vercel.com/docs
 - Community: https://github.com/vercel/vercel/discussions
 - Support: https://vercel.com/support
 
 ### Project-Specific
+
 - See: `DEPLOYMENT.md` for full deployment guide
 - See: `.github/SECRETS_SETUP.md` for secrets configuration
 - See: `CI_CD_SETUP_COMPLETE.md` for CI/CD overview

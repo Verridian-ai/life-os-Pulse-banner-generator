@@ -64,7 +64,9 @@ export const BrandConsistencyPanel: React.FC<BrandConsistencyPanelProps> = ({
       const result = await checkBrandConsistency(currentImage, brandProfile);
       setConsistencyResult(result);
     } catch (error: unknown) {
-      alert(`Failed to check consistency: ${error instanceof Error ? error.message : 'Unknown error'}`);
+      alert(
+        `Failed to check consistency: ${error instanceof Error ? error.message : 'Unknown error'}`,
+      );
     } finally {
       setIsChecking(false);
     }
@@ -111,33 +113,33 @@ export const BrandConsistencyPanel: React.FC<BrandConsistencyPanelProps> = ({
   };
 
   return (
-    <div className="bg-black/40 p-5 rounded-3xl border border-white/5">
-      <h4 className="text-xs font-bold text-zinc-400 uppercase mb-4 flex items-center gap-2">
-        <span className="material-icons text-sm">palette</span>
+    <div className='bg-black/40 p-5 rounded-3xl border border-white/5'>
+      <h4 className='text-xs font-bold text-zinc-400 uppercase mb-4 flex items-center gap-2'>
+        <span className='material-icons text-sm'>palette</span>
         Brand Consistency
       </h4>
 
       {/* Extract Brand Section */}
       {!brandProfile && (
-        <div className="bg-zinc-900/50 rounded-xl p-4 mb-4">
-          <p className="text-sm text-white font-bold mb-2">No Brand Profile</p>
-          <p className="text-[10px] text-zinc-400 mb-3">
+        <div className='bg-zinc-900/50 rounded-xl p-4 mb-4'>
+          <p className='text-sm text-white font-bold mb-2'>No Brand Profile</p>
+          <p className='text-[10px] text-zinc-400 mb-3'>
             Extract brand colors, style, and identity from your reference images using AI
           </p>
           <button
-            type="button"
+            type='button'
             onClick={handleExtractBrand}
             disabled={isExtracting || refImages.length === 0}
-            className="w-full bg-gradient-to-br from-purple-600 to-purple-700 hover:from-purple-500 hover:to-purple-600 disabled:from-zinc-800 disabled:to-zinc-800 disabled:text-zinc-600 text-white font-bold py-3 px-4 rounded-xl transition flex items-center justify-center gap-2 text-sm"
+            className='w-full bg-gradient-to-br from-purple-600 to-purple-700 hover:from-purple-500 hover:to-purple-600 disabled:from-zinc-800 disabled:to-zinc-800 disabled:text-zinc-600 text-white font-bold py-3 px-4 rounded-xl transition flex items-center justify-center gap-2 text-sm'
           >
             {isExtracting ? (
               <>
-                <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
+                <div className='w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin'></div>
                 Analyzing...
               </>
             ) : (
               <>
-                <span className="material-icons text-base">auto_awesome</span>
+                <span className='material-icons text-base'>auto_awesome</span>
                 Extract Brand from {refImages.length} Images
               </>
             )}
@@ -147,22 +149,22 @@ export const BrandConsistencyPanel: React.FC<BrandConsistencyPanelProps> = ({
 
       {/* Brand Profile Display */}
       {brandProfile && (
-        <div className="space-y-4">
+        <div className='space-y-4'>
           {/* Colors */}
-          <div className="bg-zinc-900/50 rounded-xl p-4">
-            <label className="text-[10px] text-zinc-500 mb-2 block font-bold">BRAND COLORS</label>
-            <div className="flex flex-wrap gap-2">
+          <div className='bg-zinc-900/50 rounded-xl p-4'>
+            <label className='text-[10px] text-zinc-500 mb-2 block font-bold'>BRAND COLORS</label>
+            <div className='flex flex-wrap gap-2'>
               {brandProfile.colors.map((color, idx) => (
                 <div
                   key={idx}
-                  className="flex items-center gap-2 bg-zinc-800 rounded-lg p-2 border border-white/10"
+                  className='flex items-center gap-2 bg-zinc-800 rounded-lg p-2 border border-white/10'
                 >
                   <div
                     className={`w-8 h-8 rounded border border-white/20 bg-[${color.hex || '#000000'}]`}
                   ></div>
                   <div>
-                    <p className="text-xs text-white font-bold">{color.name}</p>
-                    <p className="text-[9px] text-zinc-500 font-mono">{color.hex}</p>
+                    <p className='text-xs text-white font-bold'>{color.name}</p>
+                    <p className='text-[9px] text-zinc-500 font-mono'>{color.hex}</p>
                   </div>
                 </div>
               ))}
@@ -170,13 +172,13 @@ export const BrandConsistencyPanel: React.FC<BrandConsistencyPanelProps> = ({
           </div>
 
           {/* Style Keywords */}
-          <div className="bg-zinc-900/50 rounded-xl p-4">
-            <label className="text-[10px] text-zinc-500 mb-2 block font-bold">STYLE KEYWORDS</label>
-            <div className="flex flex-wrap gap-2">
+          <div className='bg-zinc-900/50 rounded-xl p-4'>
+            <label className='text-[10px] text-zinc-500 mb-2 block font-bold'>STYLE KEYWORDS</label>
+            <div className='flex flex-wrap gap-2'>
               {brandProfile.styleKeywords.map((keyword, idx) => (
                 <span
                   key={idx}
-                  className="text-xs bg-blue-600/20 text-blue-300 px-3 py-1 rounded-full border border-blue-500/30 font-bold"
+                  className='text-xs bg-blue-600/20 text-blue-300 px-3 py-1 rounded-full border border-blue-500/30 font-bold'
                 >
                   {keyword}
                 </span>
@@ -186,19 +188,19 @@ export const BrandConsistencyPanel: React.FC<BrandConsistencyPanelProps> = ({
 
           {/* Industry & Audience */}
           {(brandProfile.industry || brandProfile.targetAudience) && (
-            <div className="bg-zinc-900/50 rounded-xl p-4">
-              <label className="text-[10px] text-zinc-500 mb-2 block font-bold">BRAND INFO</label>
-              <div className="space-y-2 text-sm">
+            <div className='bg-zinc-900/50 rounded-xl p-4'>
+              <label className='text-[10px] text-zinc-500 mb-2 block font-bold'>BRAND INFO</label>
+              <div className='space-y-2 text-sm'>
                 {brandProfile.industry && (
                   <div>
-                    <span className="text-zinc-400">Industry:</span>{' '}
-                    <span className="text-white font-bold">{brandProfile.industry}</span>
+                    <span className='text-zinc-400'>Industry:</span>{' '}
+                    <span className='text-white font-bold'>{brandProfile.industry}</span>
                   </div>
                 )}
                 {brandProfile.targetAudience && (
                   <div>
-                    <span className="text-zinc-400">Target Audience:</span>{' '}
-                    <span className="text-white font-bold">{brandProfile.targetAudience}</span>
+                    <span className='text-zinc-400'>Target Audience:</span>{' '}
+                    <span className='text-white font-bold'>{brandProfile.targetAudience}</span>
                   </div>
                 )}
               </div>
@@ -206,24 +208,24 @@ export const BrandConsistencyPanel: React.FC<BrandConsistencyPanelProps> = ({
           )}
 
           {/* Consistency Check */}
-          <div className="bg-zinc-900/50 rounded-xl p-4">
-            <label className="text-[10px] text-zinc-500 mb-2 block font-bold">
+          <div className='bg-zinc-900/50 rounded-xl p-4'>
+            <label className='text-[10px] text-zinc-500 mb-2 block font-bold'>
               CONSISTENCY CHECK
             </label>
             <button
-              type="button"
+              type='button'
               onClick={handleCheckConsistency}
               disabled={isChecking || !currentImage}
-              className="w-full bg-gradient-to-br from-green-600 to-green-700 hover:from-green-500 hover:to-green-600 disabled:from-zinc-800 disabled:to-zinc-800 disabled:text-zinc-600 text-white font-bold py-3 px-4 rounded-xl transition flex items-center justify-center gap-2 text-sm mb-3"
+              className='w-full bg-gradient-to-br from-green-600 to-green-700 hover:from-green-500 hover:to-green-600 disabled:from-zinc-800 disabled:to-zinc-800 disabled:text-zinc-600 text-white font-bold py-3 px-4 rounded-xl transition flex items-center justify-center gap-2 text-sm mb-3'
             >
               {isChecking ? (
                 <>
-                  <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
+                  <div className='w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin'></div>
                   Checking...
                 </>
               ) : (
                 <>
-                  <span className="material-icons text-base">check_circle</span>
+                  <span className='material-icons text-base'>check_circle</span>
                   Check Current Image
                 </>
               )}
@@ -232,33 +234,39 @@ export const BrandConsistencyPanel: React.FC<BrandConsistencyPanelProps> = ({
             {/* Consistency Result */}
             {consistencyResult && (
               <div
-                className={`rounded-lg p-3 border ${consistencyResult.consistent
-                  ? 'bg-green-900/20 border-green-500/30'
-                  : 'bg-orange-900/20 border-orange-500/30'
-                  }`}
+                className={`rounded-lg p-3 border ${
+                  consistencyResult.consistent
+                    ? 'bg-green-900/20 border-green-500/30'
+                    : 'bg-orange-900/20 border-orange-500/30'
+                }`}
               >
-                <div className="flex items-center justify-between mb-2">
+                <div className='flex items-center justify-between mb-2'>
                   <span
-                    className={`text-sm font-bold ${consistencyResult.consistent ? 'text-green-300' : 'text-orange-300'
-                      }`}
+                    className={`text-sm font-bold ${
+                      consistencyResult.consistent ? 'text-green-300' : 'text-orange-300'
+                    }`}
                   >
                     {consistencyResult.consistent ? 'Brand Consistent ✓' : 'Needs Improvement'}
                   </span>
                   <span
-                    className={`text-lg font-black ${consistencyResult.consistent ? 'text-green-400' : 'text-orange-400'
-                      }`}
+                    className={`text-lg font-black ${
+                      consistencyResult.consistent ? 'text-green-400' : 'text-orange-400'
+                    }`}
                   >
                     {consistencyResult.score}/100
                   </span>
                 </div>
 
                 {consistencyResult.issues.length > 0 && (
-                  <div className="mt-2">
-                    <p className="text-[10px] text-zinc-400 mb-1 font-bold">ISSUES:</p>
-                    <ul className="space-y-1">
+                  <div className='mt-2'>
+                    <p className='text-[10px] text-zinc-400 mb-1 font-bold'>ISSUES:</p>
+                    <ul className='space-y-1'>
                       {consistencyResult.issues.map((issue, idx) => (
-                        <li key={idx} className="text-[10px] text-orange-200 flex items-start gap-1">
-                          <span className="material-icons text-[12px] mt-0.5">warning</span>
+                        <li
+                          key={idx}
+                          className='text-[10px] text-orange-200 flex items-start gap-1'
+                        >
+                          <span className='material-icons text-[12px] mt-0.5'>warning</span>
                           {issue}
                         </li>
                       ))}
@@ -270,57 +278,57 @@ export const BrandConsistencyPanel: React.FC<BrandConsistencyPanelProps> = ({
           </div>
 
           {/* Import/Export/Clear */}
-          <div className="grid grid-cols-3 gap-2">
+          <div className='grid grid-cols-3 gap-2'>
             <button
-              type="button"
+              type='button'
               onClick={handleExport}
-              className="bg-zinc-800 hover:bg-zinc-700 text-white font-bold py-2 px-3 rounded-lg transition flex flex-col items-center gap-1 text-xs border border-white/10"
+              className='bg-zinc-800 hover:bg-zinc-700 text-white font-bold py-2 px-3 rounded-lg transition flex flex-col items-center gap-1 text-xs border border-white/10'
             >
-              <span className="material-icons text-sm">download</span>
+              <span className='material-icons text-sm'>download</span>
               Export
             </button>
             <button
-              type="button"
+              type='button'
               onClick={() => setShowImport(!showImport)}
-              className="bg-zinc-800 hover:bg-zinc-700 text-white font-bold py-2 px-3 rounded-lg transition flex flex-col items-center gap-1 text-xs border border-white/10"
+              className='bg-zinc-800 hover:bg-zinc-700 text-white font-bold py-2 px-3 rounded-lg transition flex flex-col items-center gap-1 text-xs border border-white/10'
             >
-              <span className="material-icons text-sm">upload</span>
+              <span className='material-icons text-sm'>upload</span>
               Import
             </button>
             <button
-              type="button"
+              type='button'
               onClick={handleClear}
-              className="bg-red-900/50 hover:bg-red-900/70 text-red-300 font-bold py-2 px-3 rounded-lg transition flex flex-col items-center gap-1 text-xs border border-red-500/30"
+              className='bg-red-900/50 hover:bg-red-900/70 text-red-300 font-bold py-2 px-3 rounded-lg transition flex flex-col items-center gap-1 text-xs border border-red-500/30'
             >
-              <span className="material-icons text-sm">delete</span>
+              <span className='material-icons text-sm'>delete</span>
               Clear
             </button>
           </div>
 
           {/* Import Modal */}
           {showImport && (
-            <div className="bg-zinc-900/50 rounded-xl p-4 border border-white/10">
-              <label className="text-[10px] text-zinc-500 mb-2 block font-bold">
+            <div className='bg-zinc-900/50 rounded-xl p-4 border border-white/10'>
+              <label className='text-[10px] text-zinc-500 mb-2 block font-bold'>
                 PASTE BRAND PROFILE JSON
               </label>
               <textarea
-                className="w-full bg-zinc-800 border border-white/10 rounded-lg p-3 text-xs text-white font-mono resize-none h-32 mb-2"
+                className='w-full bg-zinc-800 border border-white/10 rounded-lg p-3 text-xs text-white font-mono resize-none h-32 mb-2'
                 placeholder='{"colors": [...], "styleKeywords": [...], ...}'
                 value={importText}
                 onChange={(e) => setImportText(e.target.value)}
               />
-              <div className="flex gap-2">
+              <div className='flex gap-2'>
                 <button
-                  type="button"
+                  type='button'
                   onClick={handleImport}
-                  className="flex-1 bg-blue-600 hover:bg-blue-500 text-white font-bold py-2 px-4 rounded-lg transition text-xs"
+                  className='flex-1 bg-blue-600 hover:bg-blue-500 text-white font-bold py-2 px-4 rounded-lg transition text-xs'
                 >
                   Import
                 </button>
                 <button
-                  type="button"
+                  type='button'
                   onClick={() => setShowImport(false)}
-                  className="flex-1 bg-zinc-800 hover:bg-zinc-700 text-white font-bold py-2 px-4 rounded-lg transition text-xs"
+                  className='flex-1 bg-zinc-800 hover:bg-zinc-700 text-white font-bold py-2 px-4 rounded-lg transition text-xs'
                 >
                   Cancel
                 </button>
@@ -331,7 +339,7 @@ export const BrandConsistencyPanel: React.FC<BrandConsistencyPanelProps> = ({
       )}
 
       {/* Info Text */}
-      <p className="text-[9px] text-zinc-600 text-center mt-4">
+      <p className='text-[9px] text-zinc-600 text-center mt-4'>
         Brand consistency ensures all generated designs match your visual identity
       </p>
     </div>

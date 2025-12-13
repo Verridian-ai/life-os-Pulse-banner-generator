@@ -31,10 +31,11 @@ interface AIProviderProps {
 export const AIProvider: React.FC<AIProviderProps> = ({ children }) => {
   // Model Selection
   const [selectedProvider, setSelectedProvider] = useState<'gemini' | 'openrouter' | 'replicate'>(
-    () => (localStorage.getItem('llm_provider') as 'gemini' | 'openrouter' | 'replicate') || 'gemini'
+    () =>
+      (localStorage.getItem('llm_provider') as 'gemini' | 'openrouter' | 'replicate') || 'gemini',
   );
   const [selectedModel, setSelectedModel] = useState<string>(
-    () => localStorage.getItem('llm_model') || ''
+    () => localStorage.getItem('llm_model') || '',
   );
   const [availableModels, setAvailableModels] = useState<ModelMetadata[]>([]);
   const [modelOverride, setModelOverride] = useState<string | null>(null);
@@ -54,9 +55,7 @@ export const AIProvider: React.FC<AIProviderProps> = ({ children }) => {
   const [chainProgress, setChainProgress] = useState(0);
 
   // Brand Consistency
-  const [brandProfile, setBrandProfile] = useState<BrandProfile | null>(() =>
-    loadBrandProfile()
-  );
+  const [brandProfile, setBrandProfile] = useState<BrandProfile | null>(() => loadBrandProfile());
 
   // Multi-turn Image Editing
   const [editHistory, setEditHistory] = useState<ImageEditTurn[]>(() => {
@@ -104,14 +103,14 @@ export const AIProvider: React.FC<AIProviderProps> = ({ children }) => {
       return;
     }
 
-    const completedSteps = activeChain.steps.filter(s => s.status === 'completed').length;
+    const completedSteps = activeChain.steps.filter((s) => s.status === 'completed').length;
     const progress = (completedSteps / activeChain.steps.length) * 100;
     setChainProgress(progress);
   }, [activeChain]);
 
   // Add performance metric
   const addMetric = (metric: PerformanceMetric) => {
-    setPerformanceMetrics(prev => {
+    setPerformanceMetrics((prev) => {
       const updated = [...prev, metric];
       // Keep only last 1000 metrics to avoid storage bloat
       return updated.slice(-1000);
@@ -135,13 +134,13 @@ export const AIProvider: React.FC<AIProviderProps> = ({ children }) => {
     const updated = brandProfile
       ? { ...brandProfile, ...updates, lastUpdated: Date.now() }
       : ({
-        ...updates,
-        colors: updates.colors || [],
-        fonts: updates.fonts || [],
-        styleKeywords: updates.styleKeywords || [],
-        lastUpdated: Date.now(),
-        version: 1,
-      } as BrandProfile);
+          ...updates,
+          colors: updates.colors || [],
+          fonts: updates.fonts || [],
+          styleKeywords: updates.styleKeywords || [],
+          lastUpdated: Date.now(),
+          version: 1,
+        } as BrandProfile);
 
     setBrandProfile(updated);
     saveBrandProfile(updated);
@@ -149,7 +148,7 @@ export const AIProvider: React.FC<AIProviderProps> = ({ children }) => {
 
   // Add edit turn
   const addEditTurn = (turn: ImageEditTurn) => {
-    setEditHistory(prev => [...prev, turn]);
+    setEditHistory((prev) => [...prev, turn]);
   };
 
   // Clear edit history

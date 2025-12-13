@@ -29,7 +29,8 @@ export const MODELS = {
   replicate: {
     upscale: {
       fast: 'nightmareai/real-esrgan:42fed1c4974146d4d2414e2be2c5277c7fcf05fcc3a73ab241b637189a1445ad',
-      balanced: 'philz1337x/recraft-clarity-upscaler:6e46f7d0e77c95b98bc4d7d89be58ef7ff43c2fe7d2d7ffe07ca1c12e1e6b2f3',
+      balanced:
+        'philz1337x/recraft-clarity-upscaler:6e46f7d0e77c95b98bc4d7d89be58ef7ff43c2fe7d2d7ffe07ca1c12e1e6b2f3',
       best: 'batouresearch/magic-image-refiner:507ddf6f977a7e30e46c0daefd30de7d563c72322f9e4cf7cbac52ef0f667b13',
     },
     removebg: 'cjwbw/rembg:fb8af171cfa1616ddcf1242c093f9c46bcada5ad4cf6f2fbe8b81b330ec5c003',
@@ -39,7 +40,8 @@ export const MODELS = {
     },
     outpaint: 'stability-ai/stable-diffusion-outpainting',
     restore: 'sczhou/codeformer:7de2ea26c616d5bf2245ad0d5e24f0ff9a6204578a5c876db53142edd9d2cd56',
-    faceenhance: 'tencentarc/gfpgan:9283608cc6b7be6b65a8e44983db012355fde4132009bf99d976b2f0896856a3',
+    faceenhance:
+      'tencentarc/gfpgan:9283608cc6b7be6b65a8e44983db012355fde4132009bf99d976b2f0896856a3',
   },
 };
 
@@ -58,10 +60,10 @@ export const FONT_OPTIONS = [
   'Montserrat',
   'Arial',
   'Georgia',
-  'Courier New'
+  'Courier New',
 ];
 
-export const PLACEHOLDER_BG = "https://picsum.photos/1584/396";
+export const PLACEHOLDER_BG = 'https://picsum.photos/1584/396';
 
 export const DESIGN_SYSTEM_INSTRUCTION = `You are "Nano", the lead Design Partner at Nano Banana Pro. You are an energetic, expert creative director specializing in Personal Branding and LinkedIn Optimization.
 Your mission is to collaborate with the user to design the *perfect* LinkedIn Banner (1584 x 396 px) that stops the scroll and drives engagement.

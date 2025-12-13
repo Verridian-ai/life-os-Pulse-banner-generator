@@ -36,7 +36,7 @@ Related to #
 <!-- If applicable, add screenshots or videos to demonstrate the changes -->
 
 | Before | After |
-|--------|-------|
+| ------ | ----- |
 |        |       |
 
 ## Testing
@@ -124,10 +124,10 @@ VITE_NEW_VARIABLE=value
 
 <!-- If this PR includes breaking changes, describe them and the migration path -->
 
-**Breaking Changes:**
--
+## **Breaking Changes:**
 
 **Migration Steps:**
+
 1.
 2.
 3.
@@ -156,12 +156,10 @@ VITE_NEW_VARIABLE=value
 
 <!-- Any specific areas you want reviewers to focus on? -->
 
-**Please review:**
--
--
--
+## **Please review:**
 
----
+-
+- ***
 
 ## Post-Merge Tasks
 
@@ -176,6 +174,7 @@ VITE_NEW_VARIABLE=value
 ---
 
 **By submitting this PR, I confirm that:**
+
 - ✅ I have read and followed the [contributing guidelines](../CONTRIBUTING.md)
 - ✅ I have tested my changes thoroughly
 - ✅ I am ready for code review

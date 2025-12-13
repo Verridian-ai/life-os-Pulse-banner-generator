@@ -33,7 +33,7 @@ const supabase = new Proxy({} as NonNullable<typeof supabaseClient>, {
       throw new Error('Supabase not configured');
     }
     return client[prop as keyof typeof client];
-  }
+  },
 });
 
 // ============================================================================
@@ -45,14 +45,12 @@ const supabase = new Proxy({} as NonNullable<typeof supabaseClient>, {
  */
 export const getCurrentUser = async (): Promise<User | null> => {
   if (!getSupabase()) return null;
-  const { data: { user } } = await supabase.auth.getUser();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
   if (!user) return null;
 
-  const { data, error } = await supabase
-    .from('users')
-    .select('*')
-    .eq('id', user.id)
-    .single();
+  const { data, error } = await supabase.from('users').select('*').eq('id', user.id).single();
 
   if (error) {
     console.error('Error fetching user:', error);
@@ -66,9 +64,11 @@ export const getCurrentUser = async (): Promise<User | null> => {
  * Update user profile
  */
 export const updateUser = async (
-  updates: Partial<Pick<User, 'full_name' | 'avatar_url'>>
+  updates: Partial<Pick<User, 'full_name' | 'avatar_url'>>,
 ): Promise<User | null> => {
-  const { data: { user } } = await supabase.auth.getUser();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
   if (!user) throw new Error('Not authenticated');
 
   const { data, error } = await supabase
@@ -86,7 +86,9 @@ export const updateUser = async (
  * Update last login timestamp
  */
 export const updateLastLogin = async (): Promise<void> => {
-  const { data: { user } } = await supabase.auth.getUser();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
   if (!user) return;
 
   await supabase
@@ -99,11 +101,12 @@ export const updateLastLogin = async (): Promise<void> => {
  * Get user statistics
  */
 export const getUserStats = async (): Promise<UserStats | null> => {
-  const { data: { user } } = await supabase.auth.getUser();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
   if (!user) return null;
 
-  const { data, error } = await supabase
-    .rpc('get_user_stats', { p_user_id: user.id });
+  const { data, error } = await supabase.rpc('get_user_stats', { p_user_id: user.id });
 
   if (error) {
     console.error('Error fetching user stats:', error);
@@ -120,10 +123,10 @@ export const getUserStats = async (): Promise<UserStats | null> => {
 /**
  * Create a new design
  */
-export const createDesign = async (
-  data: CreateDesignRequest
-): Promise<Design | null> => {
-  const { data: { user } } = await supabase.auth.getUser();
+export const createDesign = async (data: CreateDesignRequest): Promise<Design | null> => {
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
   if (!user) throw new Error('Not authenticated');
 
   const { data: design, error } = await supabase
@@ -151,7 +154,9 @@ export const createDesign = async (
  * Get all designs for current user
  */
 export const getUserDesigns = async (): Promise<Design[]> => {
-  const { data: { user } } = await supabase.auth.getUser();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
   if (!user) return [];
 
   const { data, error } = await supabase
@@ -172,11 +177,7 @@ export const getUserDesigns = async (): Promise<Design[]> => {
  * Get a single design by ID
  */
 export const getDesignById = async (designId: string): Promise<Design | null> => {
-  const { data, error } = await supabase
-    .from('designs')
-    .select('*')
-    .eq('id', designId)
-    .single();
+  const { data, error } = await supabase.from('designs').select('*').eq('id', designId).single();
 
   if (error) {
     console.error('Error fetching design:', error);
@@ -191,7 +192,7 @@ export const getDesignById = async (designId: string): Promise<Design | null> =>
  */
 export const updateDesign = async (
   designId: string,
-  updates: UpdateDesignRequest
+  updates: UpdateDesignRequest,
 ): Promise<Design | null> => {
   const { data, error } = await supabase
     .from('designs')
@@ -208,10 +209,7 @@ export const updateDesign = async (
  * Delete a design
  */
 export const deleteDesign = async (designId: string): Promise<boolean> => {
-  const { error } = await supabase
-    .from('designs')
-    .delete()
-    .eq('id', designId);
+  const { error } = await supabase.from('designs').delete().eq('id', designId);
 
   return !error;
 };
@@ -250,9 +248,11 @@ export const incrementViewCount = async (designId: string): Promise<void> => {
  * Create a brand profile
  */
 export const createBrandProfile = async (
-  data: CreateBrandProfileRequest
+  data: CreateBrandProfileRequest,
 ): Promise<BrandProfile | null> => {
-  const { data: { user } } = await supabase.auth.getUser();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
   if (!user) throw new Error('Not authenticated');
 
   const { data: profile, error } = await supabase
@@ -279,7 +279,9 @@ export const createBrandProfile = async (
  * Get all brand profiles for current user
  */
 export const getUserBrandProfiles = async (): Promise<BrandProfile[]> => {
-  const { data: { user } } = await supabase.auth.getUser();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
   if (!user) return [];
 
   const { data, error } = await supabase
@@ -301,7 +303,9 @@ export const getUserBrandProfiles = async (): Promise<BrandProfile[]> => {
  * Get active brand profile
  */
 export const getActiveBrandProfile = async (): Promise<BrandProfile | null> => {
-  const { data: { user } } = await supabase.auth.getUser();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
   if (!user) return null;
 
   const { data, error } = await supabase
@@ -321,14 +325,13 @@ export const getActiveBrandProfile = async (): Promise<BrandProfile | null> => {
  * Set active brand profile
  */
 export const setActiveBrandProfile = async (profileId: string): Promise<boolean> => {
-  const { data: { user } } = await supabase.auth.getUser();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
   if (!user) return false;
 
   // Deactivate all other profiles
-  await supabase
-    .from('brand_profiles')
-    .update({ is_active: false })
-    .eq('user_id', user.id);
+  await supabase.from('brand_profiles').update({ is_active: false }).eq('user_id', user.id);
 
   // Activate the selected profile
   const { error } = await supabase
@@ -345,7 +348,7 @@ export const setActiveBrandProfile = async (profileId: string): Promise<boolean>
  */
 export const updateBrandProfile = async (
   profileId: string,
-  updates: Partial<CreateBrandProfileRequest>
+  updates: Partial<CreateBrandProfileRequest>,
 ): Promise<BrandProfile | null> => {
   const { data, error } = await supabase
     .from('brand_profiles')
@@ -362,10 +365,7 @@ export const updateBrandProfile = async (
  * Delete brand profile
  */
 export const deleteBrandProfile = async (profileId: string): Promise<boolean> => {
-  const { error } = await supabase
-    .from('brand_profiles')
-    .delete()
-    .eq('id', profileId);
+  const { error } = await supabase.from('brand_profiles').delete().eq('id', profileId);
 
   return !error;
 };
@@ -378,9 +378,11 @@ export const deleteBrandProfile = async (profileId: string): Promise<boolean> =>
  * Record a usage metric
  */
 export const recordMetric = async (
-  metric: Omit<UsageMetric, 'id' | 'user_id' | 'created_at'>
+  metric: Omit<UsageMetric, 'id' | 'user_id' | 'created_at'>,
 ): Promise<UsageMetric | null> => {
-  const { data: { user } } = await supabase.auth.getUser();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
   if (!user) return null;
 
   const { data, error } = await supabase
@@ -412,17 +414,13 @@ export const recordMetric = async (
 /**
  * Get usage metrics for current user (with date range)
  */
-export const getUserMetrics = async (
-  startDate?: Date,
-  endDate?: Date
-): Promise<UsageMetric[]> => {
-  const { data: { user } } = await supabase.auth.getUser();
+export const getUserMetrics = async (startDate?: Date, endDate?: Date): Promise<UsageMetric[]> => {
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
   if (!user) return [];
 
-  let query = supabase
-    .from('usage_metrics')
-    .select('*')
-    .eq('user_id', user.id);
+  let query = supabase.from('usage_metrics').select('*').eq('user_id', user.id);
 
   if (startDate) {
     query = query.gte('created_at', startDate.toISOString());
@@ -449,9 +447,11 @@ export const getUserMetrics = async (
  * Save a reference image
  */
 export const saveReferenceImage = async (
-  data: Omit<ReferenceImage, 'id' | 'user_id' | 'created_at'>
+  data: Omit<ReferenceImage, 'id' | 'user_id' | 'created_at'>,
 ): Promise<ReferenceImage | null> => {
-  const { data: { user } } = await supabase.auth.getUser();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
   if (!user) throw new Error('Not authenticated');
 
   const { data: image, error } = await supabase
@@ -478,7 +478,9 @@ export const saveReferenceImage = async (
  * Get all reference images for current user
  */
 export const getUserReferenceImages = async (): Promise<ReferenceImage[]> => {
-  const { data: { user } } = await supabase.auth.getUser();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
   if (!user) return [];
 
   const { data, error } = await supabase
@@ -499,10 +501,7 @@ export const getUserReferenceImages = async (): Promise<ReferenceImage[]> => {
  * Delete reference image
  */
 export const deleteReferenceImage = async (imageId: string): Promise<boolean> => {
-  const { error } = await supabase
-    .from('reference_images')
-    .delete()
-    .eq('id', imageId);
+  const { error } = await supabase.from('reference_images').delete().eq('id', imageId);
 
   return !error;
 };
@@ -515,7 +514,9 @@ export const deleteReferenceImage = async (imageId: string): Promise<boolean> =>
  * Get user preferences
  */
 export const getUserPreferences = async (): Promise<UserPreferences | null> => {
-  const { data: { user } } = await supabase.auth.getUser();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
   if (!user) return null;
 
   const { data, error } = await supabase
@@ -532,9 +533,11 @@ export const getUserPreferences = async (): Promise<UserPreferences | null> => {
  * Update user preferences (upsert)
  */
 export const updateUserPreferences = async (
-  preferences: Partial<Omit<UserPreferences, 'user_id' | 'updated_at'>>
+  preferences: Partial<Omit<UserPreferences, 'user_id' | 'updated_at'>>,
 ): Promise<UserPreferences | null> => {
-  const { data: { user } } = await supabase.auth.getUser();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
   if (!user) throw new Error('Not authenticated');
 
   const { data, error } = await supabase
@@ -575,7 +578,9 @@ export const createImage = async (data: {
   }
 
   try {
-    const { data: { user } } = await supabase.auth.getUser();
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
 
     if (!user) {
       console.warn('[Database] User not authenticated - cannot save image to database');
@@ -628,25 +633,26 @@ export const getUserImages = async (filters?: {
   favorites?: boolean;
   limit?: number;
   offset?: number;
-}): Promise<Array<{
-  id: string;
-  storage_url: string;
-  prompt: string;
-  model_used: string;
-  quality: string;
-  generation_type: string;
-  tags: string[];
-  created_at: string;
-  is_favorite: boolean;
-  file_name: string;
-}>> => {
-  const { data: { user } } = await supabase.auth.getUser();
+}): Promise<
+  Array<{
+    id: string;
+    storage_url: string;
+    prompt: string;
+    model_used: string;
+    quality: string;
+    generation_type: string;
+    tags: string[];
+    created_at: string;
+    is_favorite: boolean;
+    file_name: string;
+  }>
+> => {
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
   if (!user) return [];
 
-  let query = supabase
-    .from('images')
-    .select('*')
-    .eq('user_id', user.id);
+  let query = supabase.from('images').select('*').eq('user_id', user.id);
 
   // Apply filters
   if (filters?.searchQuery) {
@@ -719,10 +725,7 @@ export const toggleImageFavorite = async (imageId: string): Promise<boolean> => 
  * Delete an image
  */
 export const deleteImageRecord = async (imageId: string): Promise<boolean> => {
-  const { error } = await supabase
-    .from('images')
-    .delete()
-    .eq('id', imageId);
+  const { error } = await supabase.from('images').delete().eq('id', imageId);
 
   if (error) {
     console.error('[Database] Delete image error:', error);
@@ -736,19 +739,25 @@ export const deleteImageRecord = async (imageId: string): Promise<boolean> => {
 /**
  * Search images by tags
  */
-export const searchImagesByTags = async (tags: string[]): Promise<Array<{
-  id: string;
-  storage_url: string;
-  prompt: string;
-  model_used: string;
-  quality: string;
-  generation_type: string;
-  tags: string[];
-  created_at: string;
-  is_favorite: boolean;
-  file_name: string;
-}>> => {
-  const { data: { user } } = await supabase.auth.getUser();
+export const searchImagesByTags = async (
+  tags: string[],
+): Promise<
+  Array<{
+    id: string;
+    storage_url: string;
+    prompt: string;
+    model_used: string;
+    quality: string;
+    generation_type: string;
+    tags: string[];
+    created_at: string;
+    is_favorite: boolean;
+    file_name: string;
+  }>
+> => {
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
   if (!user) return [];
 
   const { data, error } = await supabase
@@ -775,12 +784,9 @@ export const updateImage = async (
     tags?: string[];
     is_favorite?: boolean;
     prompt?: string;
-  }
+  },
 ): Promise<boolean> => {
-  const { error } = await supabase
-    .from('images')
-    .update(updates)
-    .eq('id', imageId);
+  const { error } = await supabase.from('images').update(updates).eq('id', imageId);
 
   if (error) {
     console.error('[Database] Update image error:', error);

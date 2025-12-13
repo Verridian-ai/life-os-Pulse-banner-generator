@@ -50,6 +50,7 @@ Nanobanna Pro uses a comprehensive CI/CD pipeline with GitHub Actions and Vercel
 Configure the following secrets in GitHub Settings → Secrets and variables → Actions:
 
 #### Vercel Secrets
+
 ```
 VERCEL_TOKEN                 # Vercel API token
 VERCEL_ORG_ID                # Vercel organization ID
@@ -57,18 +58,21 @@ VERCEL_PROJECT_ID            # Vercel project ID
 ```
 
 #### Supabase Secrets (Production)
+
 ```
 VITE_SUPABASE_URL           # Production Supabase URL
 VITE_SUPABASE_ANON_KEY      # Production Supabase anonymous key
 ```
 
 #### Supabase Secrets (Staging)
+
 ```
 STAGING_SUPABASE_URL        # Staging Supabase URL
 STAGING_SUPABASE_ANON_KEY   # Staging Supabase anonymous key
 ```
 
 #### Optional Monitoring Secrets
+
 ```
 CODECOV_TOKEN               # Code coverage reporting
 SNYK_TOKEN                  # Security vulnerability scanning
@@ -127,6 +131,7 @@ The CI/CD pipeline consists of three main workflows:
 Runs on every push and PR to `main` and `develop` branches.
 
 **Jobs:**
+
 - ✅ Code Quality (ESLint, Prettier, TypeScript)
 - ✅ Test Suite (Unit tests with coverage)
 - ✅ Build Verification (Multi-node testing: Node 18 & 20)
@@ -136,6 +141,7 @@ Runs on every push and PR to `main` and `develop` branches.
 - ✅ Lighthouse Performance (PRs only)
 
 **Triggers:**
+
 ```yaml
 on:
   push:
@@ -149,16 +155,18 @@ on:
 Auto-deploys to staging environment on push to `develop` branch.
 
 **Jobs:**
+
 - Deploy to Vercel Preview
 - Run smoke tests
 - Comment deployment URL on commit
 
 **Triggers:**
+
 ```yaml
 on:
   push:
     branches: [develop]
-  workflow_dispatch:  # Manual trigger available
+  workflow_dispatch: # Manual trigger available
 ```
 
 #### 3. **Production Deployment (cd-production.yml)**
@@ -166,6 +174,7 @@ on:
 Deploys to production with manual approval on push to `main` branch.
 
 **Jobs:**
+
 - Pre-deployment validation
 - Deploy to Vercel Production (requires manual approval)
 - Health checks
@@ -173,12 +182,13 @@ Deploys to production with manual approval on push to `main` branch.
 - Automatic rollback on failure
 
 **Triggers:**
+
 ```yaml
 on:
   push:
     branches: [main]
     tags: ['v*']
-  workflow_dispatch:  # Manual trigger with options
+  workflow_dispatch: # Manual trigger with options
 ```
 
 #### 4. **PR Preview Deployment (pr-preview.yml)**
@@ -186,6 +196,7 @@ on:
 Creates preview deployments for pull requests.
 
 **Jobs:**
+
 - Deploy preview environment
 - Visual regression testing
 - Accessibility testing
@@ -251,6 +262,7 @@ git push origin main --follow-tags
 ```
 
 **Manual Approval:**
+
 1. Go to GitHub Actions → Deploy to Production workflow
 2. Click on the running workflow
 3. Click "Review deployments"
@@ -266,6 +278,7 @@ git push origin main --follow-tags
 ### Automatic Rollback
 
 If health checks fail after production deployment:
+
 - Workflow creates incident issue automatically
 - Notifies team via GitHub comment
 - Previous deployment remains active on Vercel
@@ -317,11 +330,13 @@ git push origin main
 ### Application Monitoring
 
 **Vercel Analytics:**
+
 - Real-time traffic monitoring
 - Web Vitals (LCP, FID, CLS)
 - Access at: https://vercel.com/verridian-ai/life-os-banner → Analytics
 
 **GitHub Actions:**
+
 - Workflow run history
 - Build logs and artifacts
 - Access at: https://github.com/Verridian-ai/life-os-Pulse-banner-generator/actions
@@ -329,11 +344,13 @@ git push origin main
 ### Performance Monitoring
 
 **Lighthouse CI:**
+
 - Runs on every PR
 - Checks performance, accessibility, SEO
 - Results uploaded to temporary public storage
 
 **Bundle Size Monitoring:**
+
 - Tracks bundle size changes
 - Alerts on PRs if bundle exceeds limits
 - Configured in `.size-limit.json`
@@ -341,16 +358,19 @@ git push origin main
 ### Security Monitoring
 
 **CodeQL:**
+
 - Scans for security vulnerabilities
 - Runs on every push
 - Results in Security tab on GitHub
 
 **Dependabot:**
+
 - Automated dependency updates
 - Security vulnerability alerts
 - Opens PRs for updates weekly
 
 **npm audit:**
+
 - Runs on every CI build
 - Fails build on high/critical vulnerabilities
 - Results in workflow artifacts
@@ -358,6 +378,7 @@ git push origin main
 ### Log Access
 
 **Vercel Logs:**
+
 ```bash
 # View real-time logs
 vercel logs nanobanna-pro --follow
@@ -367,6 +388,7 @@ vercel logs <deployment-url>
 ```
 
 **GitHub Actions Logs:**
+
 1. Go to Actions tab
 2. Click on workflow run
 3. Click on specific job
@@ -381,6 +403,7 @@ vercel logs <deployment-url>
 **Symptom:** CI pipeline fails at build step
 
 **Solutions:**
+
 ```bash
 # 1. Check TypeScript errors
 npm run lint
@@ -400,6 +423,7 @@ npm run build
 **Symptom:** Tests fail in CI but pass locally
 
 **Solutions:**
+
 ```bash
 # 1. Run tests in CI mode
 CI=true npx vitest run
@@ -416,6 +440,7 @@ node -v
 **Symptom:** Vercel deployment fails
 
 **Solutions:**
+
 1. Check Vercel dashboard for error logs
 2. Verify all GitHub secrets are configured
 3. Ensure Vercel project is linked correctly
@@ -431,6 +456,7 @@ vercel --prod --debug
 **Symptom:** Production deployment succeeds but health checks fail
 
 **Solutions:**
+
 1. Check Vercel function logs
 2. Verify Supabase connection
 3. Test production URL manually
@@ -449,6 +475,7 @@ curl -o /dev/null -s -w '%{time_total}\n' https://life-os-banner.verridian.ai
 **Symptom:** "Secret not found" errors
 
 **Solutions:**
+
 1. Go to GitHub Settings → Secrets and variables → Actions
 2. Verify all required secrets exist
 3. Check secret names match exactly (case-sensitive)
@@ -459,6 +486,7 @@ curl -o /dev/null -s -w '%{time_total}\n' https://life-os-banner.verridian.ai
 **Symptom:** Package installation fails
 
 **Solutions:**
+
 ```bash
 # 1. Clear npm cache
 npm cache clean --force
@@ -492,6 +520,7 @@ main (production)
 ### Commit Messages
 
 Follow Conventional Commits:
+
 ```
 feat: add user authentication
 fix: resolve canvas export issue
@@ -577,6 +606,7 @@ git push origin main --tags    # Deploy to production
 ## Changelog
 
 ### v1.0.0 (Initial Release)
+
 - Enterprise-grade CI/CD pipeline
 - Multi-environment deployments
 - Automated security scanning
@@ -585,5 +615,5 @@ git push origin main --tags    # Deploy to production
 
 ---
 
-*Last Updated: 2025-12-13*
-*Maintained by: Development Team*
+_Last Updated: 2025-12-13_
+_Maintained by: Development Team_

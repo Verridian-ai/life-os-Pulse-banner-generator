@@ -30,9 +30,11 @@ The application uses **automated CI/CD** with GitHub Actions and deploys to **Ve
 The repository includes 4 GitHub Actions workflows:
 
 #### 1. **CI Pipeline** (`.github/workflows/ci.yml`)
+
 Runs on every push and pull request to `main` and `develop` branches.
 
 **Jobs:**
+
 - **Code Quality**: ESLint, Prettier, TypeScript checks
 - **Test Suite**: Vitest with coverage reporting
 - **Build Check**: Multi-node build verification (Node 18 & 20)
@@ -42,9 +44,11 @@ Runs on every push and pull request to `main` and `develop` branches.
 - **Lighthouse CI**: Performance testing
 
 #### 2. **Production Deployment** (`.github/workflows/cd-production.yml`)
+
 Automatically deploys to production on push to `main` branch.
 
 **Jobs:**
+
 - **Pre-Deployment Checks**: Linting, testing, building
 - **Deploy to Vercel**: Production deployment with manual approval option
 - **Health Checks**: Validates deployed application
@@ -52,9 +56,11 @@ Automatically deploys to production on push to `main` branch.
 - **Rollback**: Automatic incident creation on failure
 
 #### 3. **Staging Deployment** (`.github/workflows/cd-staging.yml`)
+
 Deploys to staging environment for testing before production.
 
 #### 4. **PR Preview** (`.github/workflows/pr-preview.yml`)
+
 Creates preview deployments for pull requests.
 
 ### Deployment Flow
@@ -118,6 +124,7 @@ If you prefer to set up branch protection manually:
 3. Configure the following settings:
 
 #### Required Status Checks
+
 - ✅ Require status checks to pass before merging
 - ✅ Require branches to be up to date before merging
 - Required checks:
@@ -128,12 +135,14 @@ If you prefer to set up branch protection manually:
   - `CI Status`
 
 #### Pull Request Requirements
+
 - ✅ Require a pull request before merging
 - ✅ Require approvals: **1**
 - ✅ Dismiss stale pull request approvals when new commits are pushed
 - ✅ Require approval of the most recent reviewable push
 
 #### Additional Restrictions
+
 - ✅ Require linear history
 - ✅ Require conversation resolution before merging
 - ✅ Do not allow bypassing the above settings
@@ -158,6 +167,7 @@ The `.github/CODEOWNERS` file automatically assigns reviewers based on file path
 ```
 
 To add team reviewers:
+
 ```
 # Security-related files require security team approval
 /src/services/auth.ts @Verridian-ai/security-team
@@ -169,30 +179,32 @@ The following secrets must be configured in **Settings** → **Secrets and varia
 
 ### Required Secrets
 
-| Secret Name | Description | Where to Get |
-|------------|-------------|--------------|
-| `VERCEL_TOKEN` | Vercel authentication token | [Vercel Account Settings](https://vercel.com/account/tokens) |
-| `VERCEL_ORG_ID` | Vercel organization ID | `.vercel/project.json` after linking project |
-| `VERCEL_PROJECT_ID` | Vercel project ID | `.vercel/project.json` after linking project |
-| `VITE_SUPABASE_URL` | Supabase project URL | [Supabase Project Settings](https://supabase.com/dashboard/project/_/settings/api) |
-| `VITE_SUPABASE_ANON_KEY` | Supabase anonymous key | [Supabase Project Settings](https://supabase.com/dashboard/project/_/settings/api) |
+| Secret Name              | Description                 | Where to Get                                                                       |
+| ------------------------ | --------------------------- | ---------------------------------------------------------------------------------- |
+| `VERCEL_TOKEN`           | Vercel authentication token | [Vercel Account Settings](https://vercel.com/account/tokens)                       |
+| `VERCEL_ORG_ID`          | Vercel organization ID      | `.vercel/project.json` after linking project                                       |
+| `VERCEL_PROJECT_ID`      | Vercel project ID           | `.vercel/project.json` after linking project                                       |
+| `VITE_SUPABASE_URL`      | Supabase project URL        | [Supabase Project Settings](https://supabase.com/dashboard/project/_/settings/api) |
+| `VITE_SUPABASE_ANON_KEY` | Supabase anonymous key      | [Supabase Project Settings](https://supabase.com/dashboard/project/_/settings/api) |
 
 ### Optional Secrets
 
-| Secret Name | Description | Required For |
-|------------|-------------|--------------|
-| `CODECOV_TOKEN` | Codecov upload token | Test coverage reporting |
-| `GITHUB_TOKEN` | Automatically provided | All workflows (no setup needed) |
+| Secret Name     | Description            | Required For                    |
+| --------------- | ---------------------- | ------------------------------- |
+| `CODECOV_TOKEN` | Codecov upload token   | Test coverage reporting         |
+| `GITHUB_TOKEN`  | Automatically provided | All workflows (no setup needed) |
 
 ### Setting Up Vercel Secrets
 
 1. **Link your local project to Vercel:**
+
    ```bash
    npm install -g vercel
    vercel link
    ```
 
 2. **Get your Organization and Project IDs:**
+
    ```bash
    cat .vercel/project.json
    ```
@@ -213,20 +225,24 @@ The following secrets must be configured in **Settings** → **Secrets and varia
 ### Normal Development Flow
 
 1. **Create a feature branch:**
+
    ```bash
    git checkout -b feature/your-feature-name
    ```
 
 2. **Make changes and commit:**
+
    ```bash
    git add .
    git commit -m "feat: add your feature"
    ```
 
 3. **Push and create PR:**
+
    ```bash
    git push origin feature/your-feature-name
    ```
+
    - GitHub Actions will run CI checks
    - A preview deployment will be created
    - Request review from code owners
@@ -241,11 +257,13 @@ The following secrets must be configured in **Settings** → **Secrets and varia
 For urgent production fixes:
 
 1. **Create hotfix branch:**
+
    ```bash
    git checkout -b hotfix/critical-fix
    ```
 
 2. **Make the fix and push:**
+
    ```bash
    git add .
    git commit -m "fix: critical production issue"
@@ -263,6 +281,7 @@ For urgent production fixes:
 If a deployment causes issues:
 
 1. **Using Vercel CLI:**
+
    ```bash
    vercel rollback
    ```
@@ -313,12 +332,14 @@ This will automatically deploy to the staging environment at:
 ### Deployment Status
 
 Check deployment status at:
+
 - **GitHub Actions**: https://github.com/Verridian-ai/life-os-Pulse-banner-generator/actions
 - **Vercel Dashboard**: https://vercel.com/dashboard
 
 ### Notifications
 
 The workflows automatically:
+
 - ✅ Post success comments on commits
 - ✅ Create GitHub releases for tagged deployments
 - ✅ Open incident issues on deployment failures
@@ -327,6 +348,7 @@ The workflows automatically:
 ### Health Monitoring
 
 After each deployment, the workflow checks:
+
 1. **Homepage availability** (HTTP 200)
 2. **Load time** (< 5 seconds)
 3. **Critical endpoints** (if configured)
@@ -338,12 +360,14 @@ After each deployment, the workflow checks:
 #### 1. Deployment Fails with "Missing Secrets"
 
 **Solution:** Verify all required secrets are configured:
+
 ```bash
 # Check if secrets exist (won't show values)
 gh secret list
 ```
 
 Add missing secrets:
+
 ```bash
 gh secret set VERCEL_TOKEN
 gh secret set VITE_SUPABASE_URL
@@ -352,6 +376,7 @@ gh secret set VITE_SUPABASE_URL
 #### 2. Tests Fail in CI but Pass Locally
 
 **Solution:**
+
 - Ensure dependencies are up to date: `npm ci`
 - Check for environment-specific issues
 - Review test logs in GitHub Actions
@@ -359,6 +384,7 @@ gh secret set VITE_SUPABASE_URL
 #### 3. Build Fails in Production but Works Locally
 
 **Solution:**
+
 - Check environment variables are set correctly
 - Verify Node version matches (18 or 20)
 - Review build logs for missing dependencies
@@ -366,6 +392,7 @@ gh secret set VITE_SUPABASE_URL
 #### 4. Branch Protection Blocking Your Push
 
 **Solution:**
+
 - Create a pull request instead of pushing directly
 - Request review from code owners
 - Ensure all CI checks pass
@@ -373,6 +400,7 @@ gh secret set VITE_SUPABASE_URL
 #### 5. Vercel Deployment Timeout
 
 **Solution:**
+
 - Check if build is too large (> 50MB warning)
 - Optimize bundle size
 - Review build logs for hanging processes
@@ -399,6 +427,7 @@ gh secret set VITE_SUPABASE_URL
 ### 1. Never Push Directly to Main
 
 Always use pull requests to leverage:
+
 - Automated testing
 - Code review
 - Preview deployments
@@ -407,6 +436,7 @@ Always use pull requests to leverage:
 ### 2. Write Meaningful Commit Messages
 
 Follow conventional commits:
+
 ```
 feat: add new canvas export feature
 fix: resolve image upload bug
@@ -417,12 +447,14 @@ test: add canvas component tests
 ### 3. Tag Releases
 
 For production releases:
+
 ```bash
 git tag -a v1.2.3 -m "Release version 1.2.3"
 git push origin v1.2.3
 ```
 
 This triggers:
+
 - Production deployment
 - GitHub release creation
 - Changelog generation
@@ -436,12 +468,14 @@ This triggers:
 ### 5. Keep Dependencies Updated
 
 Regularly update dependencies:
+
 ```bash
 npm update
 npm audit fix
 ```
 
 Run security checks:
+
 ```bash
 npm audit
 ```
@@ -449,28 +483,33 @@ npm audit
 ## Quick Reference
 
 ### Deploy to Production
+
 ```bash
 git push origin main
 ```
 
 ### Deploy to Staging
+
 ```bash
 git push origin develop
 ```
 
 ### Create Preview Deployment
+
 ```bash
 # Create PR from feature branch
 git push origin feature/your-feature
 ```
 
 ### Emergency Deployment
+
 1. Go to Actions → Deploy to Production
 2. Click "Run workflow"
 3. Set `skip_tests: true`
 4. Click "Run workflow"
 
 ### Rollback
+
 ```bash
 vercel rollback
 # or

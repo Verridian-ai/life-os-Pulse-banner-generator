@@ -1,4 +1,3 @@
-
 export interface BannerElement {
   id: string;
   type: 'text' | 'image' | 'logo';
@@ -20,7 +19,7 @@ export interface ChatMessage {
   text: string;
   images?: string[]; // base64 strings
   isThinking?: boolean;
-  groundingUrls?: Array<{ title: string, url: string }>;
+  groundingUrls?: Array<{ title: string; url: string }>;
 }
 
 export interface LiveConnectionState {

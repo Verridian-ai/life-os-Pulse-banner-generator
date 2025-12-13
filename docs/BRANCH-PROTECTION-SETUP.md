@@ -5,6 +5,7 @@ This guide will walk you through setting up comprehensive branch protection for 
 ## Why Branch Protection?
 
 Branch protection prevents:
+
 - ❌ Direct pushes to main branch
 - ❌ Merging untested code
 - ❌ Deploying without code review
@@ -16,16 +17,19 @@ Branch protection prevents:
 ### Step 1: Install GitHub CLI
 
 **Windows:**
+
 ```powershell
 winget install --id GitHub.cli
 ```
 
 **macOS:**
+
 ```bash
 brew install gh
 ```
 
 **Linux:**
+
 ```bash
 # Debian/Ubuntu
 sudo apt install gh
@@ -49,6 +53,7 @@ bash scripts/setup-branch-protection.sh
 ```
 
 The script will automatically:
+
 - ✅ Detect your repository
 - ✅ Apply branch protection rules
 - ✅ Configure status checks
@@ -58,6 +63,7 @@ The script will automatically:
 ### Step 4: Verify
 
 Go to your repository settings:
+
 ```
 https://github.com/Verridian-ai/life-os-Pulse-banner-generator/settings/branches
 ```
@@ -86,11 +92,13 @@ If you prefer to set up protection manually or the script doesn't work:
 Check the following options:
 
 ##### **Require a pull request before merging**
+
 - ✅ Require approvals: `1`
 - ✅ Dismiss stale pull request approvals when new commits are pushed
 - ✅ Require approval of the most recent reviewable push
 
 ##### **Require status checks to pass before merging**
+
 - ✅ Require branches to be up to date before merging
 - Add these required status checks:
   - `Code Quality`
@@ -100,21 +108,27 @@ Check the following options:
   - `CI Status`
 
 ##### **Require conversation resolution before merging**
+
 - ✅ Enabled
 
 ##### **Require linear history**
+
 - ✅ Enabled
 
 ##### **Do not allow bypassing the above settings**
+
 - ✅ Enabled
 
 ##### **Restrict who can push to matching branches**
+
 - Leave unchecked (unless you want specific user restrictions)
 
 ##### **Allow force pushes**
+
 - ❌ Disabled (unchecked)
 
 ##### **Allow deletions**
+
 - ❌ Disabled (unchecked)
 
 ### 4. Save Changes
@@ -127,13 +141,13 @@ Click **Create** or **Save changes**
 
 Every PR must pass these checks before merging:
 
-| Check | What it does |
-|-------|--------------|
-| **Code Quality** | Runs ESLint, Prettier, and TypeScript checks |
-| **Test Suite** | Executes all unit and integration tests |
-| **Build Check** | Verifies the application builds successfully |
-| **Security Scan** | Runs CodeQL, Trivy, and npm audit |
-| **CI Status** | Overall gate ensuring all checks passed |
+| Check             | What it does                                 |
+| ----------------- | -------------------------------------------- |
+| **Code Quality**  | Runs ESLint, Prettier, and TypeScript checks |
+| **Test Suite**    | Executes all unit and integration tests      |
+| **Build Check**   | Verifies the application builds successfully |
+| **Security Scan** | Runs CodeQL, Trivy, and npm audit            |
+| **CI Status**     | Overall gate ensuring all checks passed      |
 
 ### 👥 Pull Request Reviews
 
@@ -225,6 +239,7 @@ git push origin test/branch-protection
 ```
 
 Then create a PR on GitHub:
+
 1. Go to repository
 2. Click **Pull requests** → **New pull request**
 3. Select your branch
@@ -238,6 +253,7 @@ Then create a PR on GitHub:
 ### Test 3: Try Merging Without Approval (Should Fail)
 
 After creating a PR:
+
 1. Don't request/approve review
 2. Try to click **Merge pull request**
 
@@ -343,6 +359,7 @@ This maintains audit trail and safety.
 **Cause:** CI checks failed
 
 **Solution:**
+
 1. Click "Details" next to failed check
 2. Review error logs
 3. Fix the issue in your branch
@@ -353,6 +370,7 @@ This maintains audit trail and safety.
 **Cause:** No approving review yet
 
 **Solution:**
+
 1. Request review from code owner
 2. Wait for approval
 3. Address any feedback
@@ -363,6 +381,7 @@ This maintains audit trail and safety.
 **Cause:** Main branch has new commits
 
 **Solution:**
+
 ```bash
 git checkout your-branch
 git pull origin main
@@ -376,6 +395,7 @@ Or use GitHub's "Update branch" button.
 **Cause:** Not logged into gh CLI
 
 **Solution:**
+
 ```bash
 gh auth login
 # Follow the prompts
@@ -386,6 +406,7 @@ gh auth login
 **Cause:** Not a repository admin
 
 **Solution:**
+
 - Ask repository owner to run the setup script
 - Or request admin access
 
@@ -394,6 +415,7 @@ gh auth login
 **Cause:** Workflows haven't run yet
 
 **Solution:**
+
 1. Make sure workflows are in `.github/workflows/`
 2. Push a commit to trigger workflows
 3. After first run, checks will appear
@@ -415,6 +437,7 @@ After setup, verify:
 ### 1. Always Use Pull Requests
 
 Even for small changes:
+
 ```bash
 git checkout -b fix/typo
 # ... make fix ...
@@ -426,6 +449,7 @@ git push origin fix/typo
 ### 2. Keep Branches Up to Date
 
 Before merging:
+
 ```bash
 git checkout your-branch
 git pull origin main
@@ -448,6 +472,7 @@ Resolves #789
 ### 5. Request Review Early
 
 Don't wait until everything is perfect:
+
 1. Push your branch
 2. Create **draft PR**
 3. Request feedback

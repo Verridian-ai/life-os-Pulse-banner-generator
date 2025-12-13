@@ -1,9 +1,9 @@
 // Brand Consistency Engine - Learn and enforce brand guidelines
 
-import { GoogleGenAI } from "@google/genai";
-import { MODELS } from "../constants";
-import type { BrandProfile } from "../types/ai";
-import type { Part } from "../types";
+import { GoogleGenAI } from '@google/genai';
+import { MODELS } from '../constants';
+import type { BrandProfile } from '../types/ai';
+import type { Part } from '../types';
 
 const BRAND_PROFILE_KEY = 'brand_profile';
 
@@ -11,20 +11,21 @@ const BRAND_PROFILE_KEY = 'brand_profile';
  * Extract brand profile from reference images using vision AI
  */
 export const extractBrandFromImages = async (images: string[]): Promise<Partial<BrandProfile>> => {
-  const geminiKey = localStorage.getItem('gemini_api_key') || import.meta.env.VITE_GEMINI_API_KEY || '';
-  if (!geminiKey) throw new Error("Gemini API Key required for brand analysis");
+  const geminiKey =
+    localStorage.getItem('gemini_api_key') || import.meta.env.VITE_GEMINI_API_KEY || '';
+  if (!geminiKey) throw new Error('Gemini API Key required for brand analysis');
 
   try {
     const ai = new GoogleGenAI({ apiKey: geminiKey });
 
     // Build parts array with all images
-    const parts: Part[] = images.map(img => {
+    const parts: Part[] = images.map((img) => {
       const base64Data = img.split(',')[1] || img;
       return {
         inlineData: {
           mimeType: 'image/png',
-          data: base64Data
-        }
+          data: base64Data,
+        },
       };
     });
 
@@ -45,16 +46,16 @@ Be specific and detailed. Return JSON format:
   ],
   "styleKeywords": ["modern", "professional", "tech"],
   "industry": "Technology" (if identifiable)
-}`
+}`,
     });
 
     const response = await ai.models.generateContent({
       model: MODELS.textThinking,
       contents: [{ role: 'user', parts }],
       config: {
-        responseMimeType: "application/json",
-        thinkingConfig: { thinkingBudget: 2048 }
-      }
+        responseMimeType: 'application/json',
+        thinkingConfig: { thinkingBudget: 2048 },
+      },
     });
 
     const result = JSON.parse(response.text || '{}');
@@ -67,7 +68,7 @@ Be specific and detailed. Return JSON format:
       version: 1,
     };
   } catch (error) {
-    console.error("Brand extraction error:", error);
+    console.error('Brand extraction error:', error);
     throw error;
   }
 };
@@ -80,7 +81,7 @@ export const saveBrandProfile = (profile: BrandProfile): void => {
     const serialized = JSON.stringify(profile);
     localStorage.setItem(BRAND_PROFILE_KEY, serialized);
   } catch (error) {
-    console.error("Failed to save brand profile:", error);
+    console.error('Failed to save brand profile:', error);
   }
 };
 
@@ -96,13 +97,13 @@ export const loadBrandProfile = (): BrandProfile | null => {
 
     // Validate schema version
     if (profile.version !== 1) {
-      console.warn("Brand profile version mismatch, resetting");
+      console.warn('Brand profile version mismatch, resetting');
       return null;
     }
 
     return profile;
   } catch (error) {
-    console.error("Failed to load brand profile:", error);
+    console.error('Failed to load brand profile:', error);
     return null;
   }
 };
@@ -136,16 +137,17 @@ export const clearBrandProfile = (): void => {
  */
 export const checkBrandConsistency = async (
   imageBase64: string,
-  brandProfile: BrandProfile
+  brandProfile: BrandProfile,
 ): Promise<{ consistent: boolean; issues: string[]; score: number }> => {
-  const geminiKey = localStorage.getItem('gemini_api_key') || import.meta.env.VITE_GEMINI_API_KEY || '';
-  if (!geminiKey) throw new Error("Gemini API Key required");
+  const geminiKey =
+    localStorage.getItem('gemini_api_key') || import.meta.env.VITE_GEMINI_API_KEY || '';
+  if (!geminiKey) throw new Error('Gemini API Key required');
 
   try {
     const ai = new GoogleGenAI({ apiKey: geminiKey });
 
     const base64Data = imageBase64.split(',')[1] || imageBase64;
-    const colors = brandProfile.colors.map(c => `${c.name} (${c.hex})`).join(', ');
+    const colors = brandProfile.colors.map((c) => `${c.name} (${c.hex})`).join(', ');
     const styles = brandProfile.styleKeywords.join(', ');
 
     const parts: Part[] = [
@@ -168,17 +170,17 @@ Return JSON:
   "consistent": true/false,
   "score": 0-100 (consistency score),
   "issues": ["Issue 1", "Issue 2"] (if any)
-}`
-      }
+}`,
+      },
     ];
 
     const response = await ai.models.generateContent({
       model: MODELS.textThinking,
       contents: [{ role: 'user', parts }],
       config: {
-        responseMimeType: "application/json",
-        thinkingConfig: { thinkingBudget: 1024 }
-      }
+        responseMimeType: 'application/json',
+        thinkingConfig: { thinkingBudget: 1024 },
+      },
     });
 
     const result = JSON.parse(response.text || '{}');
@@ -189,7 +191,7 @@ Return JSON:
       issues: result.issues || [],
     };
   } catch (error) {
-    console.error("Brand consistency check error:", error);
+    console.error('Brand consistency check error:', error);
     return {
       consistent: true,
       score: 100,
@@ -201,11 +203,8 @@ Return JSON:
 /**
  * Generate brand-consistent prompt suggestions
  */
-export const generateBrandPrompt = (
-  basePrompt: string,
-  brandProfile: BrandProfile
-): string => {
-  const colors = brandProfile.colors.map(c => c.hex).join(', ');
+export const generateBrandPrompt = (basePrompt: string, brandProfile: BrandProfile): string => {
+  const colors = brandProfile.colors.map((c) => c.hex).join(', ');
   const styles = brandProfile.styleKeywords.join(', ');
 
   return `${basePrompt}. Brand style: ${styles}. Use colors: ${colors}. Maintain ${brandProfile.industry || 'professional'} aesthetic for ${brandProfile.targetAudience || 'professionals'}.`;
@@ -230,13 +229,13 @@ export const importBrandProfile = (jsonString: string): boolean => {
 
     // Validate required fields
     if (!profile.colors || !profile.styleKeywords || !profile.version) {
-      throw new Error("Invalid brand profile format");
+      throw new Error('Invalid brand profile format');
     }
 
     saveBrandProfile(profile);
     return true;
   } catch (error) {
-    console.error("Failed to import brand profile:", error);
+    console.error('Failed to import brand profile:', error);
     return false;
   }
 };

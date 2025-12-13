@@ -1,6 +1,7 @@
 # Replicate API Key Setup
 
 ## The Issue
+
 Your Replicate API key was missing or incorrect. The upscale, background removal, and magic refiner features require a valid Replicate API key to work.
 
 ## How to Get a Replicate API Key
@@ -23,11 +24,12 @@ Your Replicate API key was missing or incorrect. The upscale, background removal
    - Click "Save"
 
    **OR**
-
    - Add it to `.env.local` file:
+
    ```
    VITE_REPLICATE_API_KEY=r8_your_actual_key_here
    ```
+
    - Restart the dev server
 
 ## Features That Need Replicate API Key
@@ -39,6 +41,7 @@ Your Replicate API key was missing or incorrect. The upscale, background removal
 ## Pricing
 
 Replicate uses a pay-per-use model:
+
 - You get some free credits to start
 - After that, you pay only for what you use
 - Most operations cost a few cents

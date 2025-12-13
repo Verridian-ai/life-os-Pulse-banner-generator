@@ -18,7 +18,7 @@ export default defineConfig(({ mode }) => {
           changeOrigin: true,
           rewrite: (path) => path.replace(/^\/api\/replicate/, ''),
           headers: {
-            'Content-Type': 'application/json'
+            'Content-Type': 'application/json',
           },
           configure: (proxy, _options) => {
             proxy.on('proxyReq', (proxyReq, req, _res) => {
@@ -42,19 +42,19 @@ export default defineConfig(({ mode }) => {
                 proxyReq.setHeader('Content-Type', 'application/json');
               }
             });
-          }
-        }
-      }
+          },
+        },
+      },
     },
     plugins: [react()],
     define: {
       'process.env.API_KEY': JSON.stringify(env.GEMINI_API_KEY),
-      'process.env.GEMINI_API_KEY': JSON.stringify(env.GEMINI_API_KEY)
+      'process.env.GEMINI_API_KEY': JSON.stringify(env.GEMINI_API_KEY),
     },
     resolve: {
       alias: {
         '@': path.resolve(__dirname, './src'),
-      }
+      },
     },
     build: {
       rollupOptions: {
@@ -106,6 +106,6 @@ export default defineConfig(({ mode }) => {
         functions: 65,
         lines: 70,
       },
-    }
+    },
   };
 });

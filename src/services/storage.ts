@@ -24,7 +24,7 @@ const supabase = new Proxy({} as NonNullable<typeof supabaseClient>, {
       throw new Error('Supabase not configured');
     }
     return client[prop as keyof typeof client];
-  }
+  },
 });
 
 /**
@@ -53,7 +53,9 @@ const getImageDimensions = (file: File): Promise<{ width: number; height: number
  * Generate a unique filename with user folder structure
  */
 const generateFileName = async (file: File): Promise<string> => {
-  const { data: { user } } = await supabase.auth.getUser();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
   if (!user) throw new Error('Not authenticated');
 
   const timestamp = Date.now();
@@ -69,7 +71,7 @@ const generateFileName = async (file: File): Promise<string> => {
  */
 export const uploadImage = async (
   file: File,
-  bucket: BucketName = 'designs'
+  bucket: BucketName = 'designs',
 ): Promise<UploadImageResponse> => {
   try {
     // Generate unique filename
@@ -79,19 +81,17 @@ export const uploadImage = async (
     const dimensions = await getImageDimensions(file);
 
     // Upload to Supabase Storage
-    const { error } = await supabase.storage
-      .from(bucket)
-      .upload(fileName, file, {
-        cacheControl: '3600',
-        upsert: false,
-      });
+    const { error } = await supabase.storage.from(bucket).upload(fileName, file, {
+      cacheControl: '3600',
+      upsert: false,
+    });
 
     if (error) throw error;
 
     // Get public URL
-    const { data: { publicUrl } } = supabase.storage
-      .from(bucket)
-      .getPublicUrl(fileName);
+    const {
+      data: { publicUrl },
+    } = supabase.storage.from(bucket).getPublicUrl(fileName);
 
     return {
       url: publicUrl,
@@ -102,7 +102,9 @@ export const uploadImage = async (
     };
   } catch (error: unknown) {
     console.error('Upload error:', error);
-    throw new Error(`Failed to upload image: ${error instanceof Error ? error.message : 'Unknown error'}`);
+    throw new Error(
+      `Failed to upload image: ${error instanceof Error ? error.message : 'Unknown error'}`,
+    );
   }
 };
 
@@ -110,7 +112,7 @@ export const uploadImage = async (
  * Upload image with request object
  */
 export const uploadImageToStorage = async (
-  request: UploadImageRequest
+  request: UploadImageRequest,
 ): Promise<UploadImageResponse> => {
   const bucket = (request.folder || 'designs') as BucketName;
   return uploadImage(request.file, bucket);
@@ -121,7 +123,7 @@ export const uploadImageToStorage = async (
  */
 export const deleteImage = async (
   fileUrl: string,
-  bucket: BucketName = 'designs'
+  bucket: BucketName = 'designs',
 ): Promise<boolean> => {
   try {
     // Extract file path from URL
@@ -132,9 +134,7 @@ export const deleteImage = async (
 
     const filePath = urlParts[1];
 
-    const { error } = await supabase.storage
-      .from(bucket)
-      .remove([filePath]);
+    const { error } = await supabase.storage.from(bucket).remove([filePath]);
 
     if (error) throw error;
     return true;
@@ -149,7 +149,7 @@ export const deleteImage = async (
  */
 export const uploadMultipleImages = async (
   files: File[],
-  bucket: BucketName = 'designs'
+  bucket: BucketName = 'designs',
 ): Promise<UploadImageResponse[]> => {
   const uploads = files.map((file) => uploadImage(file, bucket));
   return Promise.all(uploads);
@@ -161,24 +161,28 @@ export const uploadMultipleImages = async (
 export const uploadCanvasAsImage = async (
   canvas: HTMLCanvasElement,
   fileName: string,
-  bucket: BucketName = 'designs'
+  bucket: BucketName = 'designs',
 ): Promise<UploadImageResponse> => {
   return new Promise((resolve, reject) => {
-    canvas.toBlob(async (blob) => {
-      if (!blob) {
-        reject(new Error('Failed to convert canvas to blob'));
-        return;
-      }
+    canvas.toBlob(
+      async (blob) => {
+        if (!blob) {
+          reject(new Error('Failed to convert canvas to blob'));
+          return;
+        }
 
-      const file = new File([blob], fileName, { type: 'image/png' });
+        const file = new File([blob], fileName, { type: 'image/png' });
 
-      try {
-        const result = await uploadImage(file, bucket);
-        resolve(result);
-      } catch (error) {
-        reject(error);
-      }
-    }, 'image/png', 0.95);
+        try {
+          const result = await uploadImage(file, bucket);
+          resolve(result);
+        } catch (error) {
+          reject(error);
+        }
+      },
+      'image/png',
+      0.95,
+    );
   });
 };
 
@@ -188,11 +192,9 @@ export const uploadCanvasAsImage = async (
 export const getSignedUrl = async (
   filePath: string,
   bucket: BucketName = 'designs',
-  expiresIn: number = 3600
+  expiresIn: number = 3600,
 ): Promise<string> => {
-  const { data, error } = await supabase.storage
-    .from(bucket)
-    .createSignedUrl(filePath, expiresIn);
+  const { data, error } = await supabase.storage.from(bucket).createSignedUrl(filePath, expiresIn);
 
   if (error) throw error;
   return data.signedUrl;
@@ -202,16 +204,25 @@ export const getSignedUrl = async (
  * List files for current user
  */
 export const listUserFiles = async (
-  bucket: BucketName = 'designs'
-): Promise<Array<{ name: string; id: string; created_at: string; updated_at: string; last_accessed_at: string; metadata: Record<string, unknown> }>> => {
-  const { data: { user } } = await supabase.auth.getUser();
+  bucket: BucketName = 'designs',
+): Promise<
+  Array<{
+    name: string;
+    id: string;
+    created_at: string;
+    updated_at: string;
+    last_accessed_at: string;
+    metadata: Record<string, unknown>;
+  }>
+> => {
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
   if (!user) return [];
 
-  const { data, error } = await supabase.storage
-    .from(bucket)
-    .list(user.id, {
-      sortBy: { column: 'created_at', order: 'desc' },
-    });
+  const { data, error } = await supabase.storage.from(bucket).list(user.id, {
+    sortBy: { column: 'created_at', order: 'desc' },
+  });
 
   if (error) {
     console.error('List files error:', error);
@@ -226,13 +237,18 @@ export const listUserFiles = async (
  */
 export const getFileMetadata = async (
   filePath: string,
-  bucket: BucketName = 'designs'
-): Promise<{ name: string; id: string; created_at: string; updated_at: string; last_accessed_at: string; metadata: Record<string, unknown> } | null> => {
-  const { data, error } = await supabase.storage
-    .from(bucket)
-    .list(filePath.split('/')[0], {
-      search: filePath.split('/').pop(),
-    });
+  bucket: BucketName = 'designs',
+): Promise<{
+  name: string;
+  id: string;
+  created_at: string;
+  updated_at: string;
+  last_accessed_at: string;
+  metadata: Record<string, unknown>;
+} | null> => {
+  const { data, error } = await supabase.storage.from(bucket).list(filePath.split('/')[0], {
+    search: filePath.split('/').pop(),
+  });
 
   if (error || !data || data.length === 0) {
     console.error('Get metadata error:', error);
@@ -247,11 +263,9 @@ export const getFileMetadata = async (
  */
 export const downloadFile = async (
   filePath: string,
-  bucket: BucketName = 'designs'
+  bucket: BucketName = 'designs',
 ): Promise<Blob | null> => {
-  const { data, error } = await supabase.storage
-    .from(bucket)
-    .download(filePath);
+  const { data, error } = await supabase.storage.from(bucket).download(filePath);
 
   if (error) {
     console.error('Download error:', error);
@@ -267,11 +281,9 @@ export const downloadFile = async (
 export const moveFile = async (
   fromPath: string,
   toPath: string,
-  bucket: BucketName = 'designs'
+  bucket: BucketName = 'designs',
 ): Promise<boolean> => {
-  const { error } = await supabase.storage
-    .from(bucket)
-    .move(fromPath, toPath);
+  const { error } = await supabase.storage.from(bucket).move(fromPath, toPath);
 
   if (error) {
     console.error('Move error:', error);
@@ -287,11 +299,9 @@ export const moveFile = async (
 export const copyFile = async (
   fromPath: string,
   toPath: string,
-  bucket: BucketName = 'designs'
+  bucket: BucketName = 'designs',
 ): Promise<boolean> => {
-  const { error } = await supabase.storage
-    .from(bucket)
-    .copy(fromPath, toPath);
+  const { error } = await supabase.storage.from(bucket).copy(fromPath, toPath);
 
   if (error) {
     console.error('Copy error:', error);
@@ -305,9 +315,7 @@ export const copyFile = async (
  * Get public URL for a file
  */
 export const getPublicUrl = (filePath: string, bucket: BucketName = 'designs'): string => {
-  const { data } = supabase.storage
-    .from(bucket)
-    .getPublicUrl(filePath);
+  const { data } = supabase.storage.from(bucket).getPublicUrl(filePath);
 
   return data.publicUrl;
 };

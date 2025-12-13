@@ -1,7 +1,5 @@
 {
   "name": "Nanobanna Pro",
   "description": "Professional LinkedIn Banner Creator powered by Gemini. Design perfect banners with safe-zone visualization, AI image generation, editing, and brainstorming assistance.",
-  "requestFramePermissions": [
-    "microphone"
-  ]
+  "requestFramePermissions": ["microphone"]
 }

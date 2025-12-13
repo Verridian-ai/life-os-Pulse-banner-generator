@@ -1,7 +1,7 @@
 import React, { createContext, useContext, useState, useCallback, useRef, useEffect } from 'react';
 
 interface AnnouncerContextType {
-    announce: (message: string, priority?: 'polite' | 'assertive') => void;
+  announce: (message: string, priority?: 'polite' | 'assertive') => void;
 }
 
 const AnnouncerContext = createContext<AnnouncerContextType | undefined>(undefined);
@@ -11,103 +11,95 @@ const AnnouncerContext = createContext<AnnouncerContextType | undefined>(undefin
  */
 // eslint-disable-next-line react-refresh/only-export-components
 export const useAnnouncer = () => {
-    const context = useContext(AnnouncerContext);
-    if (!context) {
-        throw new Error('useAnnouncer must be used within ScreenReaderAnnouncerProvider');
-    }
-    return context;
+  const context = useContext(AnnouncerContext);
+  if (!context) {
+    throw new Error('useAnnouncer must be used within ScreenReaderAnnouncerProvider');
+  }
+  return context;
 };
 
 interface ScreenReaderAnnouncerProviderProps {
-    children: React.ReactNode;
+  children: React.ReactNode;
 }
 
 /**
  * Provider component that manages ARIA live regions for screen reader announcements
  */
-export const ScreenReaderAnnouncerProvider: React.FC<ScreenReaderAnnouncerProviderProps> = ({ children }) => {
-    const [politeMessage, setPoliteMessage] = useState('');
-    const [assertiveMessage, setAssertiveMessage] = useState('');
-    const politeTimeoutRef = useRef<NodeJS.Timeout | null>(null);
-    const assertiveTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+export const ScreenReaderAnnouncerProvider: React.FC<ScreenReaderAnnouncerProviderProps> = ({
+  children,
+}) => {
+  const [politeMessage, setPoliteMessage] = useState('');
+  const [assertiveMessage, setAssertiveMessage] = useState('');
+  const politeTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const assertiveTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
-    /**
-     * Announce a message to screen readers
-     * @param message - The message to announce
-     * @param priority - 'polite' (default) or 'assertive' for urgent announcements
-     */
-    const announce = useCallback((message: string, priority: 'polite' | 'assertive' = 'polite') => {
-        console.log(`[ScreenReader] ${priority.toUpperCase()}: ${message}`);
+  /**
+   * Announce a message to screen readers
+   * @param message - The message to announce
+   * @param priority - 'polite' (default) or 'assertive' for urgent announcements
+   */
+  const announce = useCallback((message: string, priority: 'polite' | 'assertive' = 'polite') => {
+    console.log(`[ScreenReader] ${priority.toUpperCase()}: ${message}`);
 
-        if (priority === 'assertive') {
-            // Clear existing timeout
-            if (assertiveTimeoutRef.current) {
-                clearTimeout(assertiveTimeoutRef.current);
-            }
+    if (priority === 'assertive') {
+      // Clear existing timeout
+      if (assertiveTimeoutRef.current) {
+        clearTimeout(assertiveTimeoutRef.current);
+      }
 
-            // Set the message
-            setAssertiveMessage(message);
+      // Set the message
+      setAssertiveMessage(message);
 
-            // Clear after 5 seconds to allow new announcements
-            assertiveTimeoutRef.current = setTimeout(() => {
-                setAssertiveMessage('');
-            }, 5000);
-        } else {
-            // Clear existing timeout
-            if (politeTimeoutRef.current) {
-                clearTimeout(politeTimeoutRef.current);
-            }
+      // Clear after 5 seconds to allow new announcements
+      assertiveTimeoutRef.current = setTimeout(() => {
+        setAssertiveMessage('');
+      }, 5000);
+    } else {
+      // Clear existing timeout
+      if (politeTimeoutRef.current) {
+        clearTimeout(politeTimeoutRef.current);
+      }
 
-            // Set the message
-            setPoliteMessage(message);
+      // Set the message
+      setPoliteMessage(message);
 
-            // Clear after 5 seconds to allow new announcements
-            politeTimeoutRef.current = setTimeout(() => {
-                setPoliteMessage('');
-            }, 5000);
-        }
-    }, []);
+      // Clear after 5 seconds to allow new announcements
+      politeTimeoutRef.current = setTimeout(() => {
+        setPoliteMessage('');
+      }, 5000);
+    }
+  }, []);
 
-    // Cleanup timeouts on unmount
-    useEffect(() => {
-        return () => {
-            if (politeTimeoutRef.current) {
-                clearTimeout(politeTimeoutRef.current);
-            }
-            if (assertiveTimeoutRef.current) {
-                clearTimeout(assertiveTimeoutRef.current);
-            }
-        };
-    }, []);
+  // Cleanup timeouts on unmount
+  useEffect(() => {
+    return () => {
+      if (politeTimeoutRef.current) {
+        clearTimeout(politeTimeoutRef.current);
+      }
+      if (assertiveTimeoutRef.current) {
+        clearTimeout(assertiveTimeoutRef.current);
+      }
+    };
+  }, []);
 
-    return (
-        <AnnouncerContext.Provider value={{ announce }}>
-            {children}
+  return (
+    <AnnouncerContext.Provider value={{ announce }}>
+      {children}
 
-            {/* ARIA Live Regions - Hidden from visual users but read by screen readers */}
-            <div className="sr-only">
-                {/* Polite announcements - Don't interrupt user */}
-                <div
-                    role="status"
-                    aria-live="polite"
-                    aria-atomic="true"
-                    className="sr-only"
-                >
-                    {politeMessage}
-                </div>
+      {/* ARIA Live Regions - Hidden from visual users but read by screen readers */}
+      <div className='sr-only'>
+        {/* Polite announcements - Don't interrupt user */}
+        <div role='status' aria-live='polite' aria-atomic='true' className='sr-only'>
+          {politeMessage}
+        </div>
 
-                {/* Assertive announcements - Interrupt user for important messages */}
-                <div
-                    role="alert"
-                    aria-live="assertive"
-                    aria-atomic="true"
-                    className="sr-only"
-                >
-                    {assertiveMessage}
-                </div>
-            </div>
-        </AnnouncerContext.Provider>
-    );
+        {/* Assertive announcements - Interrupt user for important messages */}
+        <div role='alert' aria-live='assertive' aria-atomic='true' className='sr-only'>
+          {assertiveMessage}
+        </div>
+      </div>
+    </AnnouncerContext.Provider>
+  );
 };
 
 /**

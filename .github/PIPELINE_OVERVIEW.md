@@ -84,6 +84,7 @@
 **Purpose:** Validate code quality, run tests, and build on every push/PR
 
 **Jobs:**
+
 1. **Quality** (10 min timeout)
    - ESLint linting
    - Prettier formatting check
@@ -129,6 +130,7 @@
    - Fail fast on errors
 
 **Triggers:**
+
 - Push to `main`, `develop`
 - Pull requests to `main`, `develop`
 
@@ -141,6 +143,7 @@
 **Purpose:** Auto-deploy to staging on develop branch updates
 
 **Jobs:**
+
 1. **Deploy Staging**
    - Install dependencies
    - Run tests
@@ -150,10 +153,12 @@
    - Comment deployment URL
 
 **Triggers:**
+
 - Push to `develop`
 - Manual dispatch
 
 **Environment:**
+
 - Name: `staging`
 - Secrets: `STAGING_SUPABASE_URL`, `STAGING_SUPABASE_ANON_KEY`
 
@@ -164,6 +169,7 @@
 **Purpose:** Deploy to production with manual approval and health checks
 
 **Jobs:**
+
 1. **Pre-Deploy Checks**
    - Lint
    - Test (skippable in emergencies)
@@ -194,11 +200,13 @@
    - Rollback instructions
 
 **Triggers:**
+
 - Push to `main`
 - Tags matching `v*`
 - Manual dispatch (with options)
 
 **Environment:**
+
 - Name: `production`
 - Requires: Manual approval
 - Secrets: `VITE_SUPABASE_URL`, `VITE_SUPABASE_ANON_KEY`
@@ -210,6 +218,7 @@
 **Purpose:** Create preview deployments for pull requests
 
 **Jobs:**
+
 1. **Deploy Preview**
    - Build application
    - Deploy to Vercel
@@ -228,6 +237,7 @@
    - Remove preview on PR close
 
 **Triggers:**
+
 - PR opened, synchronized, reopened
 - PR review submitted
 - PR closed (cleanup)
@@ -239,12 +249,14 @@
 ### Dependabot (`.github/dependabot.yml`)
 
 **NPM Dependencies:**
+
 - Weekly updates (Mondays, 9 AM ET)
 - Groups by production/development
 - Max 10 PRs at once
 - Ignore major version updates
 
 **GitHub Actions:**
+
 - Weekly updates (Mondays, 10 AM ET)
 - Max 5 PRs at once
 - Auto-labels
@@ -256,12 +268,14 @@
 ### 1. Lighthouse CI (`.lighthouserc.json`)
 
 **Metrics:**
+
 - Performance: ≥ 80%
 - Accessibility: ≥ 90%
 - Best Practices: ≥ 85%
 - SEO: ≥ 85%
 
 **Core Web Vitals:**
+
 - FCP: < 2s
 - LCP: < 2.5s
 - CLS: < 0.1
@@ -271,6 +285,7 @@
 ### 2. Bundle Size (`.size-limit.json`)
 
 **Limits:**
+
 - Main Bundle: 500 KB
 - Main CSS: 50 KB
 - Vendor Bundle: 300 KB
@@ -279,6 +294,7 @@
 ### 3. Test Coverage (vite.config.ts)
 
 **Thresholds:**
+
 - Statements: 70%
 - Branches: 65%
 - Functions: 65%
@@ -289,21 +305,25 @@
 ## Security Features
 
 ### 1. CodeQL Analysis
+
 - JavaScript/TypeScript scanning
 - Security and quality queries
 - SARIF results in Security tab
 
 ### 2. Trivy Scanning
+
 - Filesystem vulnerability scan
 - SARIF format
 - GitHub Security integration
 
 ### 3. npm audit
+
 - Moderate+ severity check
 - JSON results artifact
 - Continue on error (warning)
 
 ### 4. Dependency Review
+
 - PR dependency changes
 - License compliance
 - Security vulnerabilities
@@ -315,11 +335,13 @@
 ### Vercel Configuration (vercel.json)
 
 **Build:**
+
 - Command: `npm run build`
 - Output: `dist/`
 - Node: 18
 
 **Security Headers:**
+
 - X-Content-Type-Options: nosniff
 - X-Frame-Options: DENY
 - X-XSS-Protection: 1; mode=block
@@ -327,10 +349,12 @@
 - Permissions-Policy: microphone=(self), camera=(self)
 
 **Caching:**
+
 - Assets: 1 year (immutable)
 - HTML: No cache
 
 **Regions:**
+
 - Primary: iad1 (US East)
 
 ---
@@ -338,18 +362,21 @@
 ## Monitoring & Observability
 
 ### GitHub Actions
+
 - Workflow run history
 - Job-level logs
 - Artifact downloads
 - Deployment records
 
 ### Vercel
+
 - Real-time logs
 - Analytics dashboard
 - Web Vitals tracking
 - Function metrics
 
 ### Codecov
+
 - Coverage trends
 - File-level coverage
 - PR coverage impact
@@ -397,4 +424,4 @@ See [DEPLOYMENT.md](../DEPLOYMENT.md#troubleshooting) for detailed troubleshooti
 
 ---
 
-*Last Updated: 2025-12-13*
+_Last Updated: 2025-12-13_

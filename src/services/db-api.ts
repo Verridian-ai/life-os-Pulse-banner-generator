@@ -13,7 +13,8 @@ import type {
   CreateBrandProfileRequest,
 } from '../types/database';
 
-const NEON_API_BASE = 'https://ep-flat-firefly-a71brgai.apirest.ap-southeast-2.aws.neon.tech/neondb/rest/v1';
+const NEON_API_BASE =
+  'https://ep-flat-firefly-a71brgai.apirest.ap-southeast-2.aws.neon.tech/neondb/rest/v1';
 
 /**
  * Get authentication token from Supabase
@@ -33,10 +34,7 @@ const getAuthToken = (): string | null => {
 /**
  * Make authenticated request to Neon Data API
  */
-const neonFetch = async <T>(
-  endpoint: string,
-  options: RequestInit = {}
-): Promise<T> => {
+const neonFetch = async <T>(endpoint: string, options: RequestInit = {}): Promise<T> => {
   const token = getAuthToken();
   if (!token) {
     throw new Error('Not authenticated. Please log in.');
@@ -46,7 +44,7 @@ const neonFetch = async <T>(
     ...options,
     headers: {
       'Content-Type': 'application/json',
-      'Authorization': `Bearer ${token}`,
+      Authorization: `Bearer ${token}`,
       ...options.headers,
     },
   });
@@ -62,7 +60,10 @@ const neonFetch = async <T>(
 /**
  * Execute raw SQL query
  */
-export const executeQuery = async <T>(query: string, params: (string | number | boolean | null | string[])[] = []): Promise<T> => {
+export const executeQuery = async <T>(
+  query: string,
+  params: (string | number | boolean | null | string[])[] = [],
+): Promise<T> => {
   return neonFetch<T>('/query', {
     method: 'POST',
     body: JSON.stringify({ query, params }),
@@ -76,7 +77,11 @@ export const executeQuery = async <T>(query: string, params: (string | number | 
 /**
  * Get or create user profile (called after Supabase auth)
  */
-export const upsertUser = async (supabaseUserId: string, email: string, name?: string): Promise<User> => {
+export const upsertUser = async (
+  supabaseUserId: string,
+  email: string,
+  name?: string,
+): Promise<User> => {
   const query = `
     INSERT INTO users (id, email, full_name)
     VALUES ($1, $2, $3)
@@ -102,7 +107,7 @@ export const getCurrentUser = async (supabaseUserId: string): Promise<User | nul
  */
 export const updateUser = async (
   supabaseUserId: string,
-  updates: Partial<Pick<User, 'full_name' | 'avatar_url' | 'is_pro'>>
+  updates: Partial<Pick<User, 'full_name' | 'avatar_url' | 'is_pro'>>,
 ): Promise<User> => {
   const fields: string[] = [];
   const values: (string | number | boolean | null)[] = [supabaseUserId];
@@ -147,10 +152,7 @@ export const getUserStats = async (userId: string): Promise<UserStats> => {
 /**
  * Create a new design
  */
-export const createDesign = async (
-  userId: string,
-  data: CreateDesignRequest
-): Promise<Design> => {
+export const createDesign = async (userId: string, data: CreateDesignRequest): Promise<Design> => {
   const query = `
     INSERT INTO designs (
       user_id, title, description, thumbnail_url, design_url,
@@ -200,7 +202,7 @@ export const getDesignById = async (designId: string): Promise<Design | null> =>
  */
 export const updateDesign = async (
   designId: string,
-  updates: UpdateDesignRequest
+  updates: UpdateDesignRequest,
 ): Promise<Design> => {
   const fields: string[] = [];
   const values: (string | number | boolean | null)[] = [designId];
@@ -255,7 +257,7 @@ export const getPublicDesigns = async (limit: number = 20): Promise<Design[]> =>
  */
 export const createBrandProfile = async (
   userId: string,
-  data: CreateBrandProfileRequest
+  data: CreateBrandProfileRequest,
 ): Promise<BrandProfile> => {
   const query = `
     INSERT INTO brand_profiles (
@@ -308,7 +310,10 @@ export const getActiveBrandProfile = async (userId: string): Promise<BrandProfil
 /**
  * Set active brand profile
  */
-export const setActiveBrandProfile = async (userId: string, profileId: string): Promise<boolean> => {
+export const setActiveBrandProfile = async (
+  userId: string,
+  profileId: string,
+): Promise<boolean> => {
   // Deactivate all other profiles
   await executeQuery('UPDATE brand_profiles SET is_active = false WHERE user_id = $1;', [userId]);
 
@@ -332,7 +337,7 @@ export const setActiveBrandProfile = async (userId: string, profileId: string): 
  */
 export const recordMetric = async (
   userId: string,
-  metric: Omit<UsageMetric, 'id' | 'user_id' | 'created_at'>
+  metric: Omit<UsageMetric, 'id' | 'user_id' | 'created_at'>,
 ): Promise<UsageMetric> => {
   const query = `
     INSERT INTO usage_metrics (
@@ -364,7 +369,7 @@ export const recordMetric = async (
 export const getUserMetrics = async (
   userId: string,
   startDate?: Date,
-  endDate?: Date
+  endDate?: Date,
 ): Promise<UsageMetric[]> => {
   let query = 'SELECT * FROM usage_metrics WHERE user_id = $1';
   const params: (string | number | boolean | null)[] = [userId];
@@ -392,7 +397,7 @@ export const getUserMetrics = async (
  */
 export const saveReferenceImage = async (
   userId: string,
-  data: Omit<ReferenceImage, 'id' | 'user_id' | 'created_at'>
+  data: Omit<ReferenceImage, 'id' | 'user_id' | 'created_at'>,
 ): Promise<ReferenceImage> => {
   const query = `
     INSERT INTO reference_images (
@@ -446,7 +451,7 @@ export const getUserPreferences = async (userId: string): Promise<UserPreference
  */
 export const updateUserPreferences = async (
   userId: string,
-  preferences: Partial<Omit<UserPreferences, 'user_id' | 'updated_at'>>
+  preferences: Partial<Omit<UserPreferences, 'user_id' | 'updated_at'>>,
 ): Promise<UserPreferences> => {
   const fields: string[] = [];
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -462,7 +467,9 @@ export const updateUserPreferences = async (
 
   const query = `
     INSERT INTO user_preferences (user_id, ${Object.keys(preferences).join(', ')})
-    VALUES ($1, ${Object.keys(preferences).map((_, i) => `$${i + 2}`).join(', ')})
+    VALUES ($1, ${Object.keys(preferences)
+      .map((_, i) => `$${i + 2}`)
+      .join(', ')})
     ON CONFLICT (user_id)
     DO UPDATE SET ${fields.join(', ')}
     RETURNING *;

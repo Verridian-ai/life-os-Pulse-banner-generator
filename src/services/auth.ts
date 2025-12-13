@@ -15,9 +15,7 @@ if (!hasCredentials) {
 }
 
 // Only create client if credentials are available
-export const supabase = hasCredentials
-  ? createClient(supabaseUrl, supabaseAnonKey)
-  : null;
+export const supabase = hasCredentials ? createClient(supabaseUrl, supabaseAnonKey) : null;
 
 /**
  * Sign up with email and password
@@ -25,7 +23,7 @@ export const supabase = hasCredentials
 export const signUp = async (
   email: string,
   password: string,
-  metadata?: { name?: string }
+  metadata?: { name?: string },
 ): Promise<{ user: SupabaseUser | null; error: Error | null }> => {
   if (!supabase) {
     return { user: null, error: new Error('Supabase not configured') };
@@ -58,7 +56,7 @@ export const signUp = async (
  */
 export const signIn = async (
   email: string,
-  password: string
+  password: string,
 ): Promise<{ user: SupabaseUser | null; session: Session | null; error: Error | null }> => {
   if (!supabase) {
     return { user: null, session: null, error: new Error('Supabase not configured') };
@@ -79,7 +77,11 @@ export const signIn = async (
     return { user: data.user, session: data.session, error: null };
   } catch (error: unknown) {
     console.error('Sign in error:', error);
-    return { user: null, session: null, error: error instanceof Error ? error : new Error('Sign in failed') };
+    return {
+      user: null,
+      session: null,
+      error: error instanceof Error ? error : new Error('Sign in failed'),
+    };
   }
 };
 
@@ -222,11 +224,9 @@ export const updatePassword = async (newPassword: string): Promise<{ error: Erro
 /**
  * Listen to auth state changes
  */
-export const onAuthStateChange = (
-  callback: (event: string, session: Session | null) => void
-) => {
+export const onAuthStateChange = (callback: (event: string, session: Session | null) => void) => {
   if (!supabase) {
-    return { data: { subscription: { unsubscribe: () => { } } } };
+    return { data: { subscription: { unsubscribe: () => {} } } };
   }
   return supabase.auth.onAuthStateChange(callback);
 };

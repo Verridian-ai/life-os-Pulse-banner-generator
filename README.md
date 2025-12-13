@@ -16,11 +16,13 @@ Nanobanna Pro is the ultimate AI-powered design tool for creating professional L
 ### ✨ Key Features
 
 #### 🤖 Multi-LLM AI Integration
+
 - **Gemini 3 Pro Image** - 4K image generation with 14 reference images & multi-turn editing
 - **OpenRouter** - Access to 10+ latest models (GLM 4.6, MiniMax M2, GPT-5.1, Claude 3.7)
 - **Replicate** - Professional image processing (upscaling, background removal, restoration)
 
 #### 🎨 Advanced Design Tools
+
 - **4K Resolution Output** - Professional print-quality exports
 - **AI Brand Consistency** - Extract and enforce brand guidelines automatically
 - **Multi-Turn Image Editing** - Iterative refinement with AI memory
@@ -28,11 +30,13 @@ Nanobanna Pro is the ultimate AI-powered design tool for creating professional L
 - **Tool Chain Builder** - Automate multi-step design workflows
 
 #### 🎙️ Voice-Powered Creation
+
 - **Gemini Live Audio** - Natural voice conversations with AI
 - **Voice Commands** - "Upscale this image to 4K", "Remove the background"
 - **Hands-Free Design** - Complete banner creation using only your voice
 
 #### 🖼️ Professional Image Processing
+
 - **AI Upscaling** - 3 quality tiers (Fast/Balanced/Best)
 - **Background Removal** - One-click clean backgrounds
 - **Face Enhancement** - Improve portrait quality
@@ -40,6 +44,7 @@ Nanobanna Pro is the ultimate AI-powered design tool for creating professional L
 - **Inpainting & Outpainting** - Add/remove objects, extend canvases
 
 #### 📊 Smart Features
+
 - **Performance Metrics** - Track AI usage, costs, and response times
 - **Reference Library** - Save and organize brand assets
 - **Canvas State Saving** - Re-edit any design anytime
@@ -101,6 +106,7 @@ See [WIKI.md](./WIKI.md) for detailed setup instructions.
 ## 🏗️ Tech Stack
 
 ### Frontend
+
 - **React 19** - UI library
 - **TypeScript** - Type safety
 - **Vite** - Build tool & dev server
@@ -108,12 +114,14 @@ See [WIKI.md](./WIKI.md) for detailed setup instructions.
 - **Fabric.js** - Canvas manipulation
 
 ### Backend & Services
+
 - **Supabase** - Authentication, Database, Storage
 - **Vercel** - Hosting & Deployment
 - **PostgreSQL** - Relational database
 - **Row Level Security** - Multi-tenant data isolation
 
 ### AI & APIs
+
 - **Google Gemini** - Image generation, text processing, voice
 - **OpenRouter** - Multi-model LLM access
 - **Replicate** - Image processing & enhancement
@@ -123,12 +131,14 @@ See [WIKI.md](./WIKI.md) for detailed setup instructions.
 ## 🔐 Security & Privacy
 
 ### Data Protection
+
 - ✅ **Row Level Security (RLS)** - Users can only access their own data
 - ✅ **JWT Authentication** - Secure session management
 - ✅ **Encrypted API Keys** - User API keys stored securely per-account
 - ✅ **HTTPS Only** - All connections encrypted
 
 ### User Privacy
+
 - 🔒 **No data sharing** - Your designs stay private
 - 🔒 **Optional public gallery** - You control what's shared
 - 🔒 **API keys in database** - Users own their AI access
@@ -139,14 +149,18 @@ See [WIKI.md](./WIKI.md) for detailed setup instructions.
 ## 📦 Deployment Modes
 
 ### Mode 1: User-Hosted (Self-Service)
+
 Users provide their own API keys:
+
 - Sign up with email/password or OAuth
 - Enter API keys in Settings
 - Pay for their own AI usage
 - Full access to all features
 
 ### Mode 2: Pilot Hosted (Careersy Community)
+
 Pre-configured with admin API keys:
+
 - Instant access, no API key setup
 - Shared API quota for pilot users
 - Usage tracking & limits
@@ -182,11 +196,13 @@ npm run preview
 ## 📞 Support
 
 ### For Pilot Users (Careersy Community)
+
 - 📧 Email: support@careersy.com
 - 💬 Discord: [Join our community](https://discord.gg/careersy)
 - 📖 Wiki: [Complete documentation](./WIKI.md)
 
 ### For Contributors
+
 - 🐛 [Report bugs](https://github.com/Verridian-ai/life-os-Pulse-banner-generator/issues)
 - 💡 [Request features](https://github.com/Verridian-ai/life-os-Pulse-banner-generator/discussions)
 

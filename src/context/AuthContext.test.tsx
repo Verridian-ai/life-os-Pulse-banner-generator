@@ -30,8 +30,8 @@ const TestComponent = () => {
 
   return (
     <div>
-      <div data-testid="loading">{isLoading ? 'Loading' : 'Not Loading'}</div>
-      <div data-testid="user">{user ? 'Logged In' : 'Logged Out'}</div>
+      <div data-testid='loading'>{isLoading ? 'Loading' : 'Not Loading'}</div>
+      <div data-testid='user'>{user ? 'Logged In' : 'Logged Out'}</div>
     </div>
   );
 };
@@ -41,7 +41,7 @@ describe('AuthContext', () => {
     render(
       <AuthProvider>
         <TestComponent />
-      </AuthProvider>
+      </AuthProvider>,
     );
 
     await waitFor(() => {
@@ -53,7 +53,7 @@ describe('AuthContext', () => {
     render(
       <AuthProvider>
         <TestComponent />
-      </AuthProvider>
+      </AuthProvider>,
     );
 
     expect(screen.getByTestId('loading')).toHaveTextContent('Loading');
@@ -63,7 +63,7 @@ describe('AuthContext', () => {
     render(
       <AuthProvider>
         <TestComponent />
-      </AuthProvider>
+      </AuthProvider>,
     );
 
     await waitFor(() => {

@@ -9,6 +9,7 @@ If image generation is failing, follow these steps to identify the problem:
 Open your browser's Developer Console (F12) and look for messages starting with `[Image Gen]` or `[Image Edit]`.
 
 **What to look for:**
+
 - `[Image Gen] Starting generation with:` - Shows configuration
 - `[Image Gen] Calling Gemini API with model:` - Shows the model being used
 - `[Image Gen] ✓ Image found` - Success!
@@ -21,6 +22,7 @@ Open your browser's Developer Console (F12) and look for messages starting with 
 3. Click **Test Connection** to verify it works
 
 **Common Issues:**
+
 - API key not saved (check localStorage: `gemini_api_key`)
 - Invalid API key format
 - API key has expired or been revoked
@@ -30,6 +32,7 @@ Open your browser's Developer Console (F12) and look for messages starting with 
 The model ID must be exact. Current default: `gemini-3-pro-image-preview`
 
 **If this model doesn't work, try these alternatives:**
+
 1. Open Settings
 2. In "Image Generation Model" field, try:
    - `imagen-3.0-generate-001` (Imagen 3.0 - reliable fallback)
@@ -56,6 +59,7 @@ This will show detailed error messages in the Error Log section.
 **Cause:** No API key configured
 
 **Fix:**
+
 1. Go to Settings
 2. Enter your Gemini API key
 3. Click Save
@@ -70,6 +74,7 @@ https://aistudio.google.com/app/apikey
 **Cause:** This model may not be available yet or your API key doesn't have access
 
 **Fix:**
+
 1. Open Settings
 2. Change "Image Generation Model" to: `imagen-3.0-generate-001`
 3. Try generating again
@@ -81,6 +86,7 @@ https://aistudio.google.com/app/apikey
 **Cause:** Content blocked by safety filters or API error
 
 **Fix:**
+
 - Try a different, more professional prompt
 - Avoid words like "violent", "graphic", etc.
 - Check API quota at: https://aistudio.google.com/app/apikey
@@ -92,6 +98,7 @@ https://aistudio.google.com/app/apikey
 **Cause:** Model returned text instead of image, or API change
 
 **Fix:**
+
 1. Check console logs for full response
 2. Try a different model (see Step 3 above)
 3. Verify your API key has image generation permissions
@@ -103,6 +110,7 @@ https://aistudio.google.com/app/apikey
 **Cause:** You've hit your free tier limit
 
 **Fix:**
+
 - Wait until quota resets (daily/monthly)
 - Or upgrade to paid tier at: https://console.cloud.google.com/
 
@@ -113,23 +121,26 @@ https://aistudio.google.com/app/apikey
 Open DevTools Console (F12) and run these to diagnose:
 
 ### Check Current Settings
+
 ```javascript
 console.log({
   provider: localStorage.getItem('llm_provider'),
   geminiKey: localStorage.getItem('gemini_api_key') ? '✓ Set' : '✗ Missing',
   imageModel: localStorage.getItem('llm_image_model'),
   openrouterKey: localStorage.getItem('openrouter_api_key') ? '✓ Set' : '✗ Missing',
-  replicateKey: localStorage.getItem('replicate_api_key') ? '✓ Set' : '✗ Missing'
+  replicateKey: localStorage.getItem('replicate_api_key') ? '✓ Set' : '✗ Missing',
 });
 ```
 
 ### Reset to Default Model
+
 ```javascript
 localStorage.setItem('llm_image_model', 'imagen-3.0-generate-001');
 location.reload();
 ```
 
 ### Clear All Settings (Nuclear Option)
+
 ```javascript
 localStorage.clear();
 alert('Settings cleared. Page will reload.');
@@ -179,7 +190,7 @@ const result = await generateImage(
   'A professional blue background',
   [], // no reference images
   '2K', // size
-  [] // no edit history
+  [], // no edit history
 );
 
 console.log('Result:', result);
@@ -194,6 +205,7 @@ console.log('Result:', result);
 **Status:** This is a new model that may not be publicly available yet
 
 **Workaround:** Use `imagen-3.0-generate-001` instead
+
 - Open Settings
 - Set Image Generation Model to: `imagen-3.0-generate-001`
 
@@ -202,6 +214,7 @@ console.log('Result:', result);
 **Status:** Investigating - may be due to MIME type or size limits
 
 **Workaround:**
+
 - Use smaller reference images (< 5MB each)
 - Ensure images are in PNG or JPEG format
 - Maximum 14 reference images
@@ -211,6 +224,7 @@ console.log('Result:', result);
 **Status:** May not be supported on all models
 
 **Workaround:**
+
 - Use 2K size instead
 - Check if your model supports 4K (Imagen 3.0 does)
 
@@ -220,20 +234,20 @@ console.log('Result:', result);
 
 ### Gemini Image Generation Models
 
-| Model ID | Features | Status |
-|----------|----------|--------|
-| `gemini-3-pro-image-preview` | 4K, 14 refs, multi-turn | ⚠️ Limited availability |
-| `imagen-3.0-generate-001` | High quality, reliable | ✅ Stable |
-| `imagen-3.0-fast-generate-001` | Faster, lower quality | ✅ Stable |
-| `gemini-2.0-flash-exp` | Experimental | ⚠️ May change |
+| Model ID                       | Features                | Status                  |
+| ------------------------------ | ----------------------- | ----------------------- |
+| `gemini-3-pro-image-preview`   | 4K, 14 refs, multi-turn | ⚠️ Limited availability |
+| `imagen-3.0-generate-001`      | High quality, reliable  | ✅ Stable               |
+| `imagen-3.0-fast-generate-001` | Faster, lower quality   | ✅ Stable               |
+| `gemini-2.0-flash-exp`         | Experimental            | ⚠️ May change           |
 
 ### Image Sizes
 
-| Size | Resolution | Best For |
-|------|------------|----------|
-| 1K | ~1024x256 | Quick previews |
-| 2K | ~2048x512 | Standard quality |
-| 4K | ~4096x1024 | High resolution (if supported) |
+| Size | Resolution | Best For                       |
+| ---- | ---------- | ------------------------------ |
+| 1K   | ~1024x256  | Quick previews                 |
+| 2K   | ~2048x512  | Standard quality               |
+| 4K   | ~4096x1024 | High resolution (if supported) |
 
 **Note:** Actual resolution depends on aspect ratio (16:9 for LinkedIn)
 
@@ -246,6 +260,7 @@ console.log('Result:', result);
 Go to: https://github.com/Verridian-ai/life-os-Pulse-banner-generator/issues
 
 Include:
+
 - Browser console logs (screenshots or copy/paste)
 - Your settings configuration (hide API key!)
 - Steps to reproduce the error
@@ -268,6 +283,7 @@ Email: support@careersy.com
 ### Debug Mode
 
 Enable verbose logging by running in console:
+
 ```javascript
 localStorage.setItem('debug_mode', 'true');
 location.reload();
@@ -276,6 +292,7 @@ location.reload();
 ### Inspect API Requests
 
 In DevTools Network tab:
+
 1. Filter by "generative-language" or "googleapis"
 2. Look for POST requests
 3. Check Request Payload and Response
@@ -283,6 +300,7 @@ In DevTools Network tab:
 ### TypeScript Type Checking
 
 Run type check to ensure no type errors:
+
 ```bash
 npm run type-check
 ```
@@ -290,6 +308,7 @@ npm run type-check
 ### Build Test
 
 Test if the app builds without errors:
+
 ```bash
 npm run build
 ```

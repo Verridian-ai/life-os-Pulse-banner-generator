@@ -10,7 +10,7 @@ import {
   getTopModels,
   formatModelPricing,
   clearModelCache,
-  getCachedModels
+  getCachedModels,
 } from './openrouter';
 
 // Mock localStorage
@@ -50,29 +50,29 @@ describe('OpenRouter Service', () => {
       name: 'GPT-4',
       pricing: { prompt: '0.00003', completion: '0.00006' },
       context_length: 8192,
-      architecture: { modality: 'text' }
+      architecture: { modality: 'text' },
     },
     {
       id: 'anthropic/claude-3-opus',
       name: 'Claude 3 Opus',
       pricing: { prompt: '0.000015', completion: '0.000075' },
       context_length: 200000,
-      architecture: { modality: 'text+image' }
+      architecture: { modality: 'text+image' },
     },
     {
       id: 'google/gemini-pro-vision',
       name: 'Gemini Pro Vision',
       pricing: { prompt: '0.00025', completion: '0.0005' },
       context_length: 32768,
-      architecture: { modality: 'multimodal' }
-    }
+      architecture: { modality: 'multimodal' },
+    },
   ];
 
   describe('fetchOpenRouterModels', () => {
     it('should fetch models from API', async () => {
       vi.mocked(global.fetch).mockResolvedValueOnce({
         ok: true,
-        json: async () => ({ data: mockModels })
+        json: async () => ({ data: mockModels }),
       } as Response);
 
       const models = await fetchOpenRouterModels('test-api-key');
@@ -82,16 +82,16 @@ describe('OpenRouter Service', () => {
         'https://openrouter.ai/api/v1/models',
         expect.objectContaining({
           headers: expect.objectContaining({
-            'Authorization': 'Bearer test-api-key'
-          })
-        })
+            Authorization: 'Bearer test-api-key',
+          }),
+        }),
       );
     });
 
     it('should use cached models if available and fresh', async () => {
       const cachedData = {
         models: mockModels,
-        timestamp: Date.now()
+        timestamp: Date.now(),
       };
       localStorageMock.setItem('openrouter_models_cache', JSON.stringify(cachedData));
 
@@ -104,13 +104,13 @@ describe('OpenRouter Service', () => {
     it('should fetch fresh data if cache is expired', async () => {
       const cachedData = {
         models: mockModels,
-        timestamp: Date.now() - 1000 * 60 * 61 // 61 minutes ago
+        timestamp: Date.now() - 1000 * 60 * 61, // 61 minutes ago
       };
       localStorageMock.setItem('openrouter_models_cache', JSON.stringify(cachedData));
 
       vi.mocked(global.fetch).mockResolvedValueOnce({
         ok: true,
-        json: async () => ({ data: mockModels })
+        json: async () => ({ data: mockModels }),
       } as Response);
 
       await fetchOpenRouterModels('test-api-key');
@@ -121,7 +121,7 @@ describe('OpenRouter Service', () => {
     it('should handle API errors gracefully', async () => {
       vi.mocked(global.fetch).mockResolvedValueOnce({
         ok: false,
-        statusText: 'Unauthorized'
+        statusText: 'Unauthorized',
       } as Response);
 
       const models = await fetchOpenRouterModels('invalid-key');
@@ -132,7 +132,7 @@ describe('OpenRouter Service', () => {
     it('should return cached data on API error if available', async () => {
       const cachedData = {
         models: mockModels,
-        timestamp: Date.now() - 1000 * 60 * 90 // Expired but available
+        timestamp: Date.now() - 1000 * 60 * 90, // Expired but available
       };
       localStorageMock.setItem('openrouter_models_cache', JSON.stringify(cachedData));
 
@@ -159,7 +159,7 @@ describe('OpenRouter Service', () => {
       const filtered = filterModelsByCapability(mockModels, 'vision');
 
       expect(filtered).toHaveLength(2);
-      expect(filtered.some(m => m.id.includes('claude'))).toBe(true);
+      expect(filtered.some((m) => m.id.includes('claude'))).toBe(true);
     });
 
     it('should filter text-only models', () => {
@@ -214,7 +214,7 @@ describe('OpenRouter Service', () => {
     it('should find model by ID', async () => {
       vi.mocked(global.fetch).mockResolvedValueOnce({
         ok: true,
-        json: async () => ({ data: mockModels })
+        json: async () => ({ data: mockModels }),
       } as Response);
 
       const model = await getModelById('openai/gpt-4', 'test-api-key');
@@ -226,7 +226,7 @@ describe('OpenRouter Service', () => {
     it('should return null for non-existent model', async () => {
       vi.mocked(global.fetch).mockResolvedValueOnce({
         ok: true,
-        json: async () => ({ data: mockModels })
+        json: async () => ({ data: mockModels }),
       } as Response);
 
       const model = await getModelById('non-existent/model', 'test-api-key');
@@ -280,7 +280,7 @@ describe('OpenRouter Service', () => {
     it('should include popular models', () => {
       const models = getTopModels();
 
-      expect(models.some(m => m.includes('glm'))).toBe(true);
+      expect(models.some((m) => m.includes('glm'))).toBe(true);
     });
   });
 
@@ -315,7 +315,7 @@ describe('OpenRouter Service', () => {
     it('should return cached models', () => {
       const cachedData = {
         models: mockModels,
-        timestamp: Date.now()
+        timestamp: Date.now(),
       };
       localStorageMock.setItem('openrouter_models_cache', JSON.stringify(cachedData));
 

@@ -24,7 +24,11 @@ interface AuthContextType {
   isAuthenticated: boolean;
 
   // Auth methods
-  signUp: (email: string, password: string, metadata?: { name?: string }) => Promise<{ error: Error | null }>;
+  signUp: (
+    email: string,
+    password: string,
+    metadata?: { name?: string },
+  ) => Promise<{ error: Error | null }>;
   signIn: (email: string, password: string) => Promise<{ error: Error | null }>;
   signInWithGoogle: () => Promise<{ error: Error | null }>;
   signInWithGitHub: () => Promise<{ error: Error | null }>;
@@ -84,7 +88,9 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     initAuth();
 
     // Listen to auth state changes
-    const { data: { subscription } } = onAuthStateChange(async (event, session) => {
+    const {
+      data: { subscription },
+    } = onAuthStateChange(async (event, session) => {
       console.log('Auth state changed:', event);
       setSession(session);
       setSupabaseUser(session?.user || null);
@@ -114,7 +120,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const signUp = async (
     email: string,
     password: string,
-    metadata?: { name?: string }
+    metadata?: { name?: string },
   ): Promise<{ error: Error | null }> => {
     const { user: newUser, error } = await authSignUp(email, password, metadata);
     if (!error && newUser) {
@@ -125,10 +131,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   };
 
   // Sign in
-  const signIn = async (
-    email: string,
-    password: string
-  ): Promise<{ error: Error | null }> => {
+  const signIn = async (email: string, password: string): Promise<{ error: Error | null }> => {
     const { user: signedInUser, session: newSession, error } = await authSignIn(email, password);
     if (!error && signedInUser) {
       setSupabaseUser(signedInUser);

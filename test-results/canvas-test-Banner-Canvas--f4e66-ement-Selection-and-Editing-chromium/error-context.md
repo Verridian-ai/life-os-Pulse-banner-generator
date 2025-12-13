@@ -2,192 +2,192 @@
 
 ```yaml
 - generic [ref=e2]:
-  - generic [ref=e3]:
-    - banner [ref=e4]:
-      - img "Logo" [ref=e7]
-      - heading "Banner and Profile Editor" [level=1] [ref=e9]
-      - generic [ref=e10]:
-        - navigation [ref=e11]:
-          - button "edit_note Studio" [ref=e12] [cursor=pointer]:
-            - generic [ref=e13]: edit_note
-            - text: Studio
-          - button "photo_library Gallery" [ref=e14] [cursor=pointer]:
-            - generic [ref=e15]: photo_library
-            - text: Gallery
-          - button "auto_awesome Design Partner" [ref=e16] [cursor=pointer]:
-            - generic [ref=e17]: auto_awesome
-            - text: Design Partner
-          - button "mic Live" [ref=e18] [cursor=pointer]:
-            - generic [ref=e19]: mic
-            - text: Live
-        - button "settings" [ref=e20] [cursor=pointer]:
-          - generic [ref=e21]: settings
-    - main [ref=e22]:
-      - generic [ref=e23]:
-        - generic [ref=e25]:
-          - generic [ref=e26]:
-            - generic [ref=e27]:
-              - generic [ref=e29]: aspect_ratio
-              - generic [ref=e30]:
-                - heading "Canvas View" [level=2] [ref=e31]
-                - paragraph [ref=e32]: 1584 x 396 PX
-            - 'button "visibility Safe Zones: ON" [ref=e33] [cursor=pointer]':
-              - generic [ref=e34]: visibility
-              - text: "Safe Zones: ON"
-          - generic [ref=e37]:
-            - generic:
-              - generic: person
-              - text: 524 px zone
-              - generic:
-                - text: Ctrl+Scroll to Zoom
-                - text: Drag to Move
-          - generic [ref=e38]:
-            - generic [ref=e39]:
-              - generic [ref=e40]:
-                - heading "inventory_2 Assets" [level=3] [ref=e41]:
-                  - generic [ref=e42]: inventory_2
-                  - text: Assets
-                - generic [ref=e43]: Uploads
-              - generic [ref=e44]:
-                - generic [ref=e45]:
-                  - generic [ref=e46]: Canvas Background
-                  - generic [ref=e48] [cursor=pointer]:
-                    - generic [ref=e49]: add_photo_alternate
-                    - generic [ref=e50]: Upload Background
-                - generic [ref=e51]:
-                  - generic [ref=e52]: Logos
-                  - generic [ref=e55] [cursor=pointer]: add
-                - generic [ref=e56]:
-                  - generic [ref=e57]: Logos & Image Overlays
-                  - generic [ref=e60] [cursor=pointer]: add
-                - generic [ref=e61]:
-                  - generic [ref=e62]: Profile Overlay
-                  - generic [ref=e64]:
-                    - generic [ref=e65]:
-                      - generic [ref=e66]: person
-                      - generic [ref=e68] [cursor=pointer]: edit
-                    - generic [ref=e69]: Adjust your headshot placement within the "OBSTRUCTION ZONE" to ensure visibility.
-            - generic [ref=e70]:
-              - generic [ref=e71]:
-                - heading "layers Layers" [level=3] [ref=e72]:
-                  - generic [ref=e73]: layers
-                  - text: Layers
-                - button "+ Add Text" [ref=e74] [cursor=pointer]
-              - generic [ref=e76] [cursor=pointer]:
-                - generic [ref=e77]:
-                  - generic [ref=e78]: drag_indicator
-                  - textbox "ENTER TEXT..." [active] [ref=e79]: CUSTOM TEXT
-                  - button "close" [ref=e80]:
-                    - generic [ref=e81]: close
-                - generic [ref=e82]:
-                  - combobox "Font Family" [ref=e84]:
-                    - option "Inter" [selected]
-                    - option "Roboto"
-                    - option "Open Sans"
-                    - option "Lato"
-                    - option "Playfair Display"
-                    - option "Montserrat"
-                    - option "Arial"
-                    - option "Georgia"
-                    - option "Courier New"
-                  - generic [ref=e85]:
-                    - textbox "Text Color" [ref=e86]: "#ffffff"
-                    - generic [ref=e87]:
-                      - generic [ref=e88]: format_size
-                      - spinbutton "Font Size (px)": "60"
-                  - generic [ref=e89]:
-                    - button "format_align_left" [ref=e90]:
-                      - generic [ref=e91]: format_align_left
-                    - button "format_align_center" [ref=e92]:
-                      - generic [ref=e93]: format_align_center
-                    - button "format_align_right" [ref=e94]:
-                      - generic [ref=e95]: format_align_right
-                  - generic [ref=e96]:
-                    - generic [ref=e97]: Snap to Center
-                    - generic [ref=e98]:
-                      - button "align_horizontal_center" [ref=e99]:
-                        - generic [ref=e100]: align_horizontal_center
-                      - button "align_vertical_center" [ref=e102]:
-                        - generic [ref=e103]: align_vertical_center
-            - generic [ref=e105]:
-              - generic [ref=e107]: download
-              - heading "Ready to Launch?" [level=3] [ref=e108]
-              - paragraph [ref=e109]:
-                - text: Export your design as a high-fidelity PNG.
-                - text: (Profile picture and guides are excluded automatically).
-              - button "Download Banner arrow_forward" [ref=e110] [cursor=pointer]:
-                - text: Download Banner
-                - generic [ref=e111]: arrow_forward
-        - generic [ref=e113]:
-          - generic [ref=e114]:
-            - heading "auto_fix_high AI Studio" [level=3] [ref=e115]:
-              - generic [ref=e116]: auto_fix_high
-              - text: AI Studio
-            - generic [ref=e117]:
-              - generic [ref=e118]: Gemini 3 Pro
-              - button "chevron_right" [ref=e119] [cursor=pointer]:
-                - generic [ref=e120]: chevron_right
-          - generic [ref=e121]:
-            - generic [ref=e123]: Background Gen
-            - button "auto_awesome Auto-Prompt from Assets" [disabled] [ref=e124]:
-              - generic [ref=e125]: auto_awesome
-              - text: Auto-Prompt from Assets
-            - textbox "Describe your vision (e.g., 'A futuristic city skyline in purple and teal with abstract data streams')..." [ref=e126]
-            - generic [ref=e127]:
-              - generic [ref=e128]: Quality
-              - generic [ref=e129]:
-                - button "1K" [ref=e130] [cursor=pointer]
-                - button "2K" [ref=e131] [cursor=pointer]
-                - button "4K" [ref=e132] [cursor=pointer]
-            - button "draw Generate Background" [ref=e133] [cursor=pointer]:
-              - generic [ref=e134]: draw
-              - text: Generate Background
-          - generic [ref=e135]:
-            - generic [ref=e136]: Magic Edit
-            - textbox "E.g., 'Add a laptop to the desk', 'Make the lighting warmer'..." [ref=e137]
-            - button "auto_fix_normal Magic Edit" [ref=e138] [cursor=pointer]:
-              - generic [ref=e139]: auto_fix_normal
-              - text: Magic Edit
-          - generic [ref=e140]:
-            - heading "auto_fix_high Advanced Tools" [level=4] [ref=e141]:
-              - generic [ref=e142]: auto_fix_high
-              - text: Advanced Tools
-            - generic [ref=e143]:
-              - generic [ref=e144]:
-                - generic [ref=e145]: image
-                - text: Current Image
-              - generic [ref=e146]:
-                - generic [ref=e147]: image_not_supported
-                - paragraph [ref=e148]: No background image loaded
-                - paragraph [ref=e149]: Generate or upload an image first
-            - generic [ref=e150]:
-              - generic [ref=e151]: QUALITY
-              - combobox [ref=e152]:
-                - option "Fast - Real-ESRGAN (~2s, good quality)"
-                - option "Balanced - Recraft Crisp (recommended)" [selected]
-                - option "Best - Magic Refiner (highest quality)"
-              - paragraph [ref=e153]: Best balance of speed and quality
-            - generic [ref=e154]:
-              - button "undo Undo" [disabled] [ref=e155]:
-                - generic [ref=e156]: undo
-                - text: Undo
-              - button "redo Redo" [disabled] [ref=e157]:
-                - generic [ref=e158]: redo
-                - text: Redo
-            - generic [ref=e159]:
-              - button "hd Upscale" [disabled] [ref=e160]:
-                - generic [ref=e161]: hd
-                - text: Upscale
-              - button "layers_clear Remove BG" [disabled] [ref=e162]:
-                - generic [ref=e163]: layers_clear
-                - text: Remove BG
-              - button "auto_awesome Restore" [disabled] [ref=e164]:
-                - generic [ref=e165]: auto_awesome
-                - text: Restore
-              - button "face Face Enhance" [disabled] [ref=e166]:
-                - generic [ref=e167]: face
-                - text: Face Enhance
-  - generic [ref=e168]:
-    - status [ref=e169]
-    - alert [ref=e170]
+    - generic [ref=e3]:
+        - banner [ref=e4]:
+            - img "Logo" [ref=e7]
+            - heading "Banner and Profile Editor" [level=1] [ref=e9]
+            - generic [ref=e10]:
+                - navigation [ref=e11]:
+                    - button "edit_note Studio" [ref=e12] [cursor=pointer]:
+                        - generic [ref=e13]: edit_note
+                        - text: Studio
+                    - button "photo_library Gallery" [ref=e14] [cursor=pointer]:
+                        - generic [ref=e15]: photo_library
+                        - text: Gallery
+                    - button "auto_awesome Design Partner" [ref=e16] [cursor=pointer]:
+                        - generic [ref=e17]: auto_awesome
+                        - text: Design Partner
+                    - button "mic Live" [ref=e18] [cursor=pointer]:
+                        - generic [ref=e19]: mic
+                        - text: Live
+                - button "settings" [ref=e20] [cursor=pointer]:
+                    - generic [ref=e21]: settings
+        - main [ref=e22]:
+            - generic [ref=e23]:
+                - generic [ref=e25]:
+                    - generic [ref=e26]:
+                        - generic [ref=e27]:
+                            - generic [ref=e29]: aspect_ratio
+                            - generic [ref=e30]:
+                                - heading "Canvas View" [level=2] [ref=e31]
+                                - paragraph [ref=e32]: 1584 x 396 PX
+                        - 'button "visibility Safe Zones: ON" [ref=e33] [cursor=pointer]':
+                            - generic [ref=e34]: visibility
+                            - text: 'Safe Zones: ON'
+                    - generic [ref=e37]:
+                        - generic:
+                            - generic: person
+                            - text: 524 px zone
+                            - generic:
+                                - text: Ctrl+Scroll to Zoom
+                                - text: Drag to Move
+                    - generic [ref=e38]:
+                        - generic [ref=e39]:
+                            - generic [ref=e40]:
+                                - heading "inventory_2 Assets" [level=3] [ref=e41]:
+                                    - generic [ref=e42]: inventory_2
+                                    - text: Assets
+                                - generic [ref=e43]: Uploads
+                            - generic [ref=e44]:
+                                - generic [ref=e45]:
+                                    - generic [ref=e46]: Canvas Background
+                                    - generic [ref=e48] [cursor=pointer]:
+                                        - generic [ref=e49]: add_photo_alternate
+                                        - generic [ref=e50]: Upload Background
+                                - generic [ref=e51]:
+                                    - generic [ref=e52]: Logos
+                                    - generic [ref=e55] [cursor=pointer]: add
+                                - generic [ref=e56]:
+                                    - generic [ref=e57]: Logos & Image Overlays
+                                    - generic [ref=e60] [cursor=pointer]: add
+                                - generic [ref=e61]:
+                                    - generic [ref=e62]: Profile Overlay
+                                    - generic [ref=e64]:
+                                        - generic [ref=e65]:
+                                            - generic [ref=e66]: person
+                                            - generic [ref=e68] [cursor=pointer]: edit
+                                        - generic [ref=e69]: Adjust your headshot placement within the "OBSTRUCTION ZONE" to ensure visibility.
+                        - generic [ref=e70]:
+                            - generic [ref=e71]:
+                                - heading "layers Layers" [level=3] [ref=e72]:
+                                    - generic [ref=e73]: layers
+                                    - text: Layers
+                                - button "+ Add Text" [ref=e74] [cursor=pointer]
+                            - generic [ref=e76] [cursor=pointer]:
+                                - generic [ref=e77]:
+                                    - generic [ref=e78]: drag_indicator
+                                    - textbox "ENTER TEXT..." [active] [ref=e79]: CUSTOM TEXT
+                                    - button "close" [ref=e80]:
+                                        - generic [ref=e81]: close
+                                - generic [ref=e82]:
+                                    - combobox "Font Family" [ref=e84]:
+                                        - option "Inter" [selected]
+                                        - option "Roboto"
+                                        - option "Open Sans"
+                                        - option "Lato"
+                                        - option "Playfair Display"
+                                        - option "Montserrat"
+                                        - option "Arial"
+                                        - option "Georgia"
+                                        - option "Courier New"
+                                    - generic [ref=e85]:
+                                        - textbox "Text Color" [ref=e86]: '#ffffff'
+                                        - generic [ref=e87]:
+                                            - generic [ref=e88]: format_size
+                                            - spinbutton "Font Size (px)": '60'
+                                    - generic [ref=e89]:
+                                        - button "format_align_left" [ref=e90]:
+                                            - generic [ref=e91]: format_align_left
+                                        - button "format_align_center" [ref=e92]:
+                                            - generic [ref=e93]: format_align_center
+                                        - button "format_align_right" [ref=e94]:
+                                            - generic [ref=e95]: format_align_right
+                                    - generic [ref=e96]:
+                                        - generic [ref=e97]: Snap to Center
+                                        - generic [ref=e98]:
+                                            - button "align_horizontal_center" [ref=e99]:
+                                                - generic [ref=e100]: align_horizontal_center
+                                            - button "align_vertical_center" [ref=e102]:
+                                                - generic [ref=e103]: align_vertical_center
+                        - generic [ref=e105]:
+                            - generic [ref=e107]: download
+                            - heading "Ready to Launch?" [level=3] [ref=e108]
+                            - paragraph [ref=e109]:
+                                - text: Export your design as a high-fidelity PNG.
+                                - text: (Profile picture and guides are excluded automatically).
+                            - button "Download Banner arrow_forward" [ref=e110] [cursor=pointer]:
+                                - text: Download Banner
+                                - generic [ref=e111]: arrow_forward
+                - generic [ref=e113]:
+                    - generic [ref=e114]:
+                        - heading "auto_fix_high AI Studio" [level=3] [ref=e115]:
+                            - generic [ref=e116]: auto_fix_high
+                            - text: AI Studio
+                        - generic [ref=e117]:
+                            - generic [ref=e118]: Gemini 3 Pro
+                            - button "chevron_right" [ref=e119] [cursor=pointer]:
+                                - generic [ref=e120]: chevron_right
+                    - generic [ref=e121]:
+                        - generic [ref=e123]: Background Gen
+                        - button "auto_awesome Auto-Prompt from Assets" [disabled] [ref=e124]:
+                            - generic [ref=e125]: auto_awesome
+                            - text: Auto-Prompt from Assets
+                        - textbox "Describe your vision (e.g., 'A futuristic city skyline in purple and teal with abstract data streams')..." [ref=e126]
+                        - generic [ref=e127]:
+                            - generic [ref=e128]: Quality
+                            - generic [ref=e129]:
+                                - button "1K" [ref=e130] [cursor=pointer]
+                                - button "2K" [ref=e131] [cursor=pointer]
+                                - button "4K" [ref=e132] [cursor=pointer]
+                        - button "draw Generate Background" [ref=e133] [cursor=pointer]:
+                            - generic [ref=e134]: draw
+                            - text: Generate Background
+                    - generic [ref=e135]:
+                        - generic [ref=e136]: Magic Edit
+                        - textbox "E.g., 'Add a laptop to the desk', 'Make the lighting warmer'..." [ref=e137]
+                        - button "auto_fix_normal Magic Edit" [ref=e138] [cursor=pointer]:
+                            - generic [ref=e139]: auto_fix_normal
+                            - text: Magic Edit
+                    - generic [ref=e140]:
+                        - heading "auto_fix_high Advanced Tools" [level=4] [ref=e141]:
+                            - generic [ref=e142]: auto_fix_high
+                            - text: Advanced Tools
+                        - generic [ref=e143]:
+                            - generic [ref=e144]:
+                                - generic [ref=e145]: image
+                                - text: Current Image
+                            - generic [ref=e146]:
+                                - generic [ref=e147]: image_not_supported
+                                - paragraph [ref=e148]: No background image loaded
+                                - paragraph [ref=e149]: Generate or upload an image first
+                        - generic [ref=e150]:
+                            - generic [ref=e151]: QUALITY
+                            - combobox [ref=e152]:
+                                - option "Fast - Real-ESRGAN (~2s, good quality)"
+                                - option "Balanced - Recraft Crisp (recommended)" [selected]
+                                - option "Best - Magic Refiner (highest quality)"
+                            - paragraph [ref=e153]: Best balance of speed and quality
+                        - generic [ref=e154]:
+                            - button "undo Undo" [disabled] [ref=e155]:
+                                - generic [ref=e156]: undo
+                                - text: Undo
+                            - button "redo Redo" [disabled] [ref=e157]:
+                                - generic [ref=e158]: redo
+                                - text: Redo
+                        - generic [ref=e159]:
+                            - button "hd Upscale" [disabled] [ref=e160]:
+                                - generic [ref=e161]: hd
+                                - text: Upscale
+                            - button "layers_clear Remove BG" [disabled] [ref=e162]:
+                                - generic [ref=e163]: layers_clear
+                                - text: Remove BG
+                            - button "auto_awesome Restore" [disabled] [ref=e164]:
+                                - generic [ref=e165]: auto_awesome
+                                - text: Restore
+                            - button "face Face Enhance" [disabled] [ref=e166]:
+                                - generic [ref=e167]: face
+                                - text: Face Enhance
+    - generic [ref=e168]:
+        - status [ref=e169]
+        - alert [ref=e170]
 ```

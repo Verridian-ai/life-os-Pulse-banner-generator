@@ -26,9 +26,11 @@ This error occurs when the browser blocks API requests. Here are the solutions:
 Install a CORS browser extension to allow cross-origin requests:
 
 **Chrome/Edge:**
+
 - [Allow CORS: Access-Control-Allow-Origin](https://chrome.google.com/webstore/detail/allow-cors-access-control/lhobafahddgcelffkeicbaginigeejlf)
 
 **Firefox:**
+
 - [CORS Everywhere](https://addons.mozilla.org/en-US/firefox/addon/cors-everywhere/)
 
 ⚠️ **Warning:** Only use CORS extensions for development. Disable after testing.
@@ -40,8 +42,8 @@ Install a CORS browser extension to allow cross-origin requests:
 Add a proxy to your `vite.config.ts`:
 
 ```typescript
-import { defineConfig } from 'vite'
-import react from '@vitejs/plugin-react'
+import { defineConfig } from 'vite';
+import react from '@vitejs/plugin-react';
 
 export default defineConfig({
   plugins: [react()],
@@ -50,16 +52,16 @@ export default defineConfig({
       '/api/gemini': {
         target: 'https://generativelanguage.googleapis.com',
         changeOrigin: true,
-        rewrite: (path) => path.replace(/^\/api\/gemini/, '')
+        rewrite: (path) => path.replace(/^\/api\/gemini/, ''),
       },
       '/api/replicate': {
         target: 'https://api.replicate.com',
         changeOrigin: true,
-        rewrite: (path) => path.replace(/^\/api\/replicate/, '')
-      }
-    }
-  }
-})
+        rewrite: (path) => path.replace(/^\/api\/replicate/, ''),
+      },
+    },
+  },
+});
 ```
 
 Then update API calls to use `/api/gemini` and `/api/replicate` instead of full URLs.
@@ -78,6 +80,7 @@ Then update API calls to use `/api/gemini` and `/api/replicate` instead of full 
 4. Check **Network** tab to see which requests are failing
 
 Common causes:
+
 - ❌ Corporate firewall blocking external APIs
 - ❌ Antivirus blocking requests
 - ❌ Invalid/expired API key
@@ -90,6 +93,7 @@ Common causes:
 Instead of entering API keys in Settings, use environment variables:
 
 1. Create `.env.local` file:
+
 ```env
 VITE_GEMINI_API_KEY=your_gemini_key_here
 VITE_REPLICATE_API_KEY=your_replicate_key_here
@@ -109,6 +113,7 @@ For production deployments, create a backend API proxy:
 ### Option A: Vercel Serverless Functions
 
 Create `api/gemini.ts`:
+
 ```typescript
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 
@@ -119,9 +124,9 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
-      'Authorization': `Bearer ${process.env.GEMINI_API_KEY}`
+      Authorization: `Bearer ${process.env.GEMINI_API_KEY}`,
     },
-    body: JSON.stringify(body)
+    body: JSON.stringify(body),
   });
 
   const data = await response.json();
@@ -140,14 +145,17 @@ app.use(cors());
 app.use(express.json());
 
 app.post('/api/gemini/*', async (req, res) => {
-  const response = await fetch(`https://generativelanguage.googleapis.com${req.path.replace('/api/gemini', '')}`, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'Authorization': `Bearer ${process.env.GEMINI_API_KEY}`
+  const response = await fetch(
+    `https://generativelanguage.googleapis.com${req.path.replace('/api/gemini', '')}`,
+    {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${process.env.GEMINI_API_KEY}`,
+      },
+      body: JSON.stringify(req.body),
     },
-    body: JSON.stringify(req.body)
-  });
+  );
 
   const data = await response.json();
   res.json(data);
@@ -161,18 +169,22 @@ app.listen(3001, () => console.log('Proxy running on port 3001'));
 ## Specific Error Messages
 
 ### "Invalid Gemini API key"
+
 - Your API key is wrong or expired
 - Get a new key: https://aistudio.google.com/apikey
 
 ### "Gemini API key not found"
+
 - You haven't entered an API key in Settings
 - Enter your key in Settings → Gemini API Key
 
 ### "blocked by CORS policy"
+
 - Browser is blocking cross-origin requests
 - Use CORS extension or backend proxy
 
 ### "net::ERR_FAILED"
+
 - Network connectivity issue
 - Check internet connection
 - Check if firewall is blocking requests

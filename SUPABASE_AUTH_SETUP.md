@@ -1,6 +1,7 @@
 # Supabase Authentication & Database Setup Guide
 
 ## Overview
+
 This guide walks you through setting up complete user authentication and database schema for Nanobanna Pro.
 
 ---
@@ -18,12 +19,14 @@ This guide walks you through setting up complete user authentication and databas
 ### What This Creates:
 
 **Tables:**
+
 - `profiles` - User profiles with preferences and usage stats
 - `projects` - Design projects for each user
 - `images` - Generated images with metadata
 - `image_history` - Edit history for multi-turn editing
 
 **Features:**
+
 - ✅ Row Level Security (RLS) - Users can only access their own data
 - ✅ Auto-created profiles on signup
 - ✅ Auto-increment usage counters
@@ -44,10 +47,12 @@ This guide walks you through setting up complete user authentication and databas
 5. Click **Save**
 
 ### For Testing (Recommended):
+
 - **Disable email confirmations** - Users can sign up instantly
 - You can enable it later for production
 
 ### For Production:
+
 - **Enable email confirmations** - Users must verify email
 - Configure email templates in **Auth** → **Email Templates**
 
@@ -70,6 +75,7 @@ The SQL schema already includes storage policies, so they'll be applied automati
 ## Step 4: Test Authentication
 
 ### Test Sign Up:
+
 1. Start your app: `npm run dev`
 2. You should see a "Sign In" button in the header (once integrated)
 3. Click it and switch to "Sign Up"
@@ -81,12 +87,14 @@ The SQL schema already includes storage policies, so they'll be applied automati
 7. You should see your new user!
 
 ### Test Sign In:
+
 1. Sign out (if signed in)
 2. Click "Sign In"
 3. Enter same credentials
 4. Should log you in successfully
 
 ### Check Database:
+
 1. Go to **Table Editor** → `profiles`
 2. You should see a profile row for your user
 3. Check `images_generated` starts at 0
@@ -108,6 +116,7 @@ The SQL schema already includes storage policies, so they'll be applied automati
 5. Inside, your generated image
 
 ### Check Metadata:
+
 1. Go to **Table Editor** → `images`
 2. Should see a row for your image with:
    - `user_id` - Your UUID
@@ -123,6 +132,7 @@ The SQL schema already includes storage policies, so they'll be applied automati
 ## Step 6: Test Projects
 
 ### Create a Project:
+
 ```typescript
 import { supabase } from './services/supabase';
 
@@ -142,6 +152,7 @@ const createProject = async () => {
 ```
 
 ### Load Projects:
+
 ```typescript
 const loadProjects = async () => {
   const { data, error } = await supabase
@@ -160,60 +171,60 @@ const loadProjects = async () => {
 
 ### `profiles` Table
 
-| Column | Type | Description |
-|--------|------|-------------|
-| id | UUID | User ID (matches auth.users) |
-| email | TEXT | User email |
-| full_name | TEXT | User's name |
-| avatar_url | TEXT | Profile picture URL |
-| default_image_quality | TEXT | Preferred quality (1K/2K/4K) |
-| preferred_model | TEXT | Default image model |
-| images_generated | INTEGER | Total images created |
-| storage_used_mb | NUMERIC | Storage usage in MB |
+| Column                | Type    | Description                  |
+| --------------------- | ------- | ---------------------------- |
+| id                    | UUID    | User ID (matches auth.users) |
+| email                 | TEXT    | User email                   |
+| full_name             | TEXT    | User's name                  |
+| avatar_url            | TEXT    | Profile picture URL          |
+| default_image_quality | TEXT    | Preferred quality (1K/2K/4K) |
+| preferred_model       | TEXT    | Default image model          |
+| images_generated      | INTEGER | Total images created         |
+| storage_used_mb       | NUMERIC | Storage usage in MB          |
 
 ### `projects` Table
 
-| Column | Type | Description |
-|--------|------|-------------|
-| id | UUID | Project ID |
-| user_id | UUID | Owner |
-| name | TEXT | Project name |
-| description | TEXT | Project description |
-| canvas_width | INTEGER | Canvas width (default 1584) |
-| canvas_height | INTEGER | Canvas height (default 396) |
-| background_image_url | TEXT | Current background |
-| is_favorite | BOOLEAN | Starred project |
-| tags | TEXT[] | Search tags |
+| Column               | Type    | Description                 |
+| -------------------- | ------- | --------------------------- |
+| id                   | UUID    | Project ID                  |
+| user_id              | UUID    | Owner                       |
+| name                 | TEXT    | Project name                |
+| description          | TEXT    | Project description         |
+| canvas_width         | INTEGER | Canvas width (default 1584) |
+| canvas_height        | INTEGER | Canvas height (default 396) |
+| background_image_url | TEXT    | Current background          |
+| is_favorite          | BOOLEAN | Starred project             |
+| tags                 | TEXT[]  | Search tags                 |
 
 ### `images` Table
 
-| Column | Type | Description |
-|--------|------|-------------|
-| id | UUID | Image ID |
-| user_id | UUID | Owner |
-| project_id | UUID | Associated project (nullable) |
-| storage_url | TEXT | Supabase Storage URL |
-| file_name | TEXT | Filename |
-| file_size_bytes | INTEGER | File size |
-| prompt | TEXT | Generation prompt |
-| model_used | TEXT | Model that created it |
-| quality | TEXT | Quality level |
-| generation_type | TEXT | Type of operation |
-| parent_image_id | UUID | Source image (for edits) |
-| is_favorite | BOOLEAN | Starred image |
-| tags | TEXT[] | Search tags |
+| Column          | Type    | Description                   |
+| --------------- | ------- | ----------------------------- |
+| id              | UUID    | Image ID                      |
+| user_id         | UUID    | Owner                         |
+| project_id      | UUID    | Associated project (nullable) |
+| storage_url     | TEXT    | Supabase Storage URL          |
+| file_name       | TEXT    | Filename                      |
+| file_size_bytes | INTEGER | File size                     |
+| prompt          | TEXT    | Generation prompt             |
+| model_used      | TEXT    | Model that created it         |
+| quality         | TEXT    | Quality level                 |
+| generation_type | TEXT    | Type of operation             |
+| parent_image_id | UUID    | Source image (for edits)      |
+| is_favorite     | BOOLEAN | Starred image                 |
+| tags            | TEXT[]  | Search tags                   |
 
 ### `image_history` Table
 
-| Column | Type | Description |
-|--------|------|-------------|
-| id | UUID | History ID |
-| image_id | UUID | Associated image |
-| user_id | UUID | Owner |
-| action | TEXT | Operation type |
-| prompt | TEXT | Edit prompt |
-| input_image_url | TEXT | Before edit |
-| output_image_url | TEXT | After edit |
+| Column           | Type | Description      |
+| ---------------- | ---- | ---------------- |
+| id               | UUID | History ID       |
+| image_id         | UUID | Associated image |
+| user_id          | UUID | Owner            |
+| action           | TEXT | Operation type   |
+| prompt           | TEXT | Edit prompt      |
+| input_image_url  | TEXT | Before edit      |
+| output_image_url | TEXT | After edit       |
 
 ---
 
@@ -228,13 +239,13 @@ import { signUp, signIn, signOut, getCurrentUser } from './services/supabase';
 await signUp({
   email: 'user@example.com',
   password: 'password123',
-  fullName: 'John Doe'
+  fullName: 'John Doe',
 });
 
 // Sign in
 await signIn({
   email: 'user@example.com',
-  password: 'password123'
+  password: 'password123',
 });
 
 // Sign out
@@ -267,6 +278,7 @@ await deleteImage(publicUrl);
 ### Row Level Security (RLS)
 
 All tables have RLS enabled with policies that ensure:
+
 - ✅ Users can only view their own data
 - ✅ Users can only create data for themselves
 - ✅ Users can only update their own data
@@ -275,6 +287,7 @@ All tables have RLS enabled with policies that ensure:
 ### Storage Security
 
 Storage policies ensure:
+
 - ✅ Users can only upload to their own folder (`{user_id}/`)
 - ✅ Users can only delete from their own folder
 - ✅ Everyone can view images (public sharing)
@@ -285,6 +298,7 @@ Storage policies ensure:
 ## Monitoring & Maintenance
 
 ### Check Usage:
+
 1. Go to **Settings** → **Usage**
 2. Monitor:
    - Database size
@@ -293,12 +307,14 @@ Storage policies ensure:
    - Auth users
 
 ### Free Tier Limits:
+
 - 500 MB database
 - 1 GB storage
 - 2 GB bandwidth/month
 - Unlimited auth users
 
 ### View Logs:
+
 1. Go to **Logs** in Supabase
 2. Filter by:
    - API calls
@@ -311,21 +327,25 @@ Storage policies ensure:
 ## Troubleshooting
 
 ### "User not found" after signup
+
 - Check **Authentication** → **Users** in dashboard
 - Verify email confirmation is disabled (for testing)
 - Check console for errors
 
 ### "Permission denied" on upload
+
 - Verify storage bucket exists
 - Check RLS policies are applied
 - Confirm user is authenticated
 
 ### "Profile not created"
+
 - Check **Table Editor** → `profiles`
 - Verify trigger `on_auth_user_created` exists
 - Run schema.sql again if needed
 
 ### Images not showing in Storage
+
 - Verify bucket is public
 - Check file actually uploaded (Network tab)
 - Confirm path: `generated-images/{user_id}/{filename}`

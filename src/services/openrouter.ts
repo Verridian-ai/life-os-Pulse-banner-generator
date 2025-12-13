@@ -46,7 +46,7 @@ export const fetchOpenRouterModels = async (apiKey: string): Promise<OpenRouterM
   try {
     const response = await fetch('https://openrouter.ai/api/v1/models', {
       headers: {
-        'Authorization': `Bearer ${apiKey}`,
+        Authorization: `Bearer ${apiKey}`,
         'HTTP-Referer': window.location.origin,
         'X-Title': 'NanoBanna Pro',
       },
@@ -60,10 +60,13 @@ export const fetchOpenRouterModels = async (apiKey: string): Promise<OpenRouterM
     const models = data.data;
 
     // Cache results
-    localStorage.setItem(MODEL_CACHE_KEY, JSON.stringify({
-      models,
-      timestamp: Date.now(),
-    }));
+    localStorage.setItem(
+      MODEL_CACHE_KEY,
+      JSON.stringify({
+        models,
+        timestamp: Date.now(),
+      }),
+    );
 
     return models;
   } catch (error) {
@@ -99,9 +102,9 @@ export const getLatestModels = () => {
  */
 export const filterModelsByCapability = (
   models: OpenRouterModel[],
-  capability: 'vision' | 'text' | 'multimodal'
+  capability: 'vision' | 'text' | 'multimodal',
 ): OpenRouterModel[] => {
-  return models.filter(model => {
+  return models.filter((model) => {
     const modality = model.architecture?.modality?.toLowerCase() || '';
 
     switch (capability) {
@@ -139,23 +142,20 @@ export const sortModelsByContext = (models: OpenRouterModel[]): OpenRouterModel[
  */
 export const getModelById = async (
   modelId: string,
-  apiKey: string
+  apiKey: string,
 ): Promise<OpenRouterModel | null> => {
   const models = await fetchOpenRouterModels(apiKey);
-  return models.find(m => m.id === modelId) || null;
+  return models.find((m) => m.id === modelId) || null;
 };
 
 /**
  * Search models by name or provider
  */
-export const searchModels = (
-  models: OpenRouterModel[],
-  query: string
-): OpenRouterModel[] => {
+export const searchModels = (models: OpenRouterModel[], query: string): OpenRouterModel[] => {
   const lowerQuery = query.toLowerCase();
-  return models.filter(model =>
-    model.id.toLowerCase().includes(lowerQuery) ||
-    model.name.toLowerCase().includes(lowerQuery)
+  return models.filter(
+    (model) =>
+      model.id.toLowerCase().includes(lowerQuery) || model.name.toLowerCase().includes(lowerQuery),
   );
 };
 

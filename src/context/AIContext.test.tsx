@@ -5,14 +5,14 @@ import { AIProvider, useAI } from './AIContext';
 // Mock services
 vi.mock('../services/brandEngine', () => ({
   loadBrandProfile: vi.fn(() => null),
-  saveBrandProfile: vi.fn()
+  saveBrandProfile: vi.fn(),
 }));
 
 vi.mock('../services/modelRouter', () => ({
   getModelMetadata: vi.fn(() => ({
     'gemini-pro': { id: 'gemini-pro', name: 'Gemini Pro', provider: 'gemini' },
-    'gpt-4': { id: 'gpt-4', name: 'GPT-4', provider: 'openrouter' }
-  }))
+    'gpt-4': { id: 'gpt-4', name: 'GPT-4', provider: 'openrouter' },
+  })),
 }));
 
 // Mock localStorage
@@ -57,58 +57,88 @@ const TestComponent = () => {
     editHistory,
     addEditTurn,
     replicateOperation,
-    setReplicateOperation
+    setReplicateOperation,
   } = useAI();
 
   return (
     <div>
-      <div data-testid="selectedProvider">{selectedProvider}</div>
-      <div data-testid="selectedModel">{selectedModel || 'none'}</div>
-      <div data-testid="availableModels">{availableModels.length}</div>
-      <div data-testid="modelOverride">{modelOverride || 'none'}</div>
-      <div data-testid="performanceMetrics">{performanceMetrics.length}</div>
-      <div data-testid="activeChain">{activeChain ? 'active' : 'none'}</div>
-      <div data-testid="chainProgress">{chainProgress}</div>
-      <div data-testid="brandProfile">{brandProfile ? 'set' : 'none'}</div>
-      <div data-testid="editHistory">{editHistory.length}</div>
-      <div data-testid="replicateOperation">{replicateOperation ? 'active' : 'none'}</div>
+      <div data-testid='selectedProvider'>{selectedProvider}</div>
+      <div data-testid='selectedModel'>{selectedModel || 'none'}</div>
+      <div data-testid='availableModels'>{availableModels.length}</div>
+      <div data-testid='modelOverride'>{modelOverride || 'none'}</div>
+      <div data-testid='performanceMetrics'>{performanceMetrics.length}</div>
+      <div data-testid='activeChain'>{activeChain ? 'active' : 'none'}</div>
+      <div data-testid='chainProgress'>{chainProgress}</div>
+      <div data-testid='brandProfile'>{brandProfile ? 'set' : 'none'}</div>
+      <div data-testid='editHistory'>{editHistory.length}</div>
+      <div data-testid='replicateOperation'>{replicateOperation ? 'active' : 'none'}</div>
       <button onClick={() => setSelectedProvider('openrouter')}>Set OpenRouter</button>
       <button onClick={() => setSelectedModel('gpt-4')}>Set Model</button>
       <button onClick={() => setModelOverride('claude-3')}>Set Override</button>
-      <button onClick={() => addMetric({
-        id: 'metric1',
-        modelId: 'test',
-        provider: 'gemini',
-        operation: 'text_gen',
-        timestamp: Date.now(),
-        responseTime: 100,
-        cost: 0.001,
-        success: true
-      })}>Add Metric</button>
-      <button onClick={() => setActiveChain({
-        id: 'chain1',
-        steps: [],
-        currentStep: 0,
-        status: 'pending'
-      })}>Set Chain</button>
-      <button onClick={() => updateBrandProfile({
-        colors: [],
-        fonts: [],
-        logoUrl: '',
-      })}>Update Profile</button>
-      <button onClick={() => addEditTurn({
-        id: 'turn1',
-        inputImage: 'test.png',
-        outputImage: 'result.png',
-        prompt: 'test prompt',
-        timestamp: Date.now()
-      })}>Add Turn</button>
-      <button onClick={() => setReplicateOperation({
-        id: 'op1',
-        type: 'upscale',
-        status: 'processing',
-        progress: 50
-      })}>Set Operation</button>
+      <button
+        onClick={() =>
+          addMetric({
+            id: 'metric1',
+            modelId: 'test',
+            provider: 'gemini',
+            operation: 'text_gen',
+            timestamp: Date.now(),
+            responseTime: 100,
+            cost: 0.001,
+            success: true,
+          })
+        }
+      >
+        Add Metric
+      </button>
+      <button
+        onClick={() =>
+          setActiveChain({
+            id: 'chain1',
+            steps: [],
+            currentStep: 0,
+            status: 'pending',
+          })
+        }
+      >
+        Set Chain
+      </button>
+      <button
+        onClick={() =>
+          updateBrandProfile({
+            colors: [],
+            fonts: [],
+            logoUrl: '',
+          })
+        }
+      >
+        Update Profile
+      </button>
+      <button
+        onClick={() =>
+          addEditTurn({
+            id: 'turn1',
+            inputImage: 'test.png',
+            outputImage: 'result.png',
+            prompt: 'test prompt',
+            timestamp: Date.now(),
+          })
+        }
+      >
+        Add Turn
+      </button>
+      <button
+        onClick={() =>
+          setReplicateOperation({
+            id: 'op1',
+            type: 'upscale',
+            status: 'processing',
+            progress: 50,
+          })
+        }
+      >
+        Set Operation
+      </button>
     </div>
   );
 };
@@ -122,7 +152,7 @@ describe('AIContext', () => {
     render(
       <AIProvider>
         <TestComponent />
-      </AIProvider>
+      </AIProvider>,
     );
 
     expect(screen.getByTestId('selectedProvider')).toHaveTextContent('gemini');
@@ -132,7 +162,7 @@ describe('AIContext', () => {
     render(
       <AIProvider>
         <TestComponent />
-      </AIProvider>
+      </AIProvider>,
     );
 
     const button = screen.getByText('Set OpenRouter');
@@ -147,7 +177,7 @@ describe('AIContext', () => {
     render(
       <AIProvider>
         <TestComponent />
-      </AIProvider>
+      </AIProvider>,
     );
 
     const button = screen.getByText('Set Model');
@@ -162,7 +192,7 @@ describe('AIContext', () => {
     render(
       <AIProvider>
         <TestComponent />
-      </AIProvider>
+      </AIProvider>,
     );
 
     const button = screen.getByText('Set Override');
@@ -177,7 +207,7 @@ describe('AIContext', () => {
     render(
       <AIProvider>
         <TestComponent />
-      </AIProvider>
+      </AIProvider>,
     );
 
     await waitFor(() => {
@@ -189,7 +219,7 @@ describe('AIContext', () => {
     render(
       <AIProvider>
         <TestComponent />
-      </AIProvider>
+      </AIProvider>,
     );
 
     expect(screen.getByTestId('performanceMetrics')).toHaveTextContent('0');
@@ -206,7 +236,7 @@ describe('AIContext', () => {
     render(
       <AIProvider>
         <TestComponent />
-      </AIProvider>
+      </AIProvider>,
     );
 
     expect(screen.getByTestId('activeChain')).toHaveTextContent('none');
@@ -223,7 +253,7 @@ describe('AIContext', () => {
     render(
       <AIProvider>
         <TestComponent />
-      </AIProvider>
+      </AIProvider>,
     );
 
     const button = screen.getByText('Update Profile');
@@ -238,7 +268,7 @@ describe('AIContext', () => {
     render(
       <AIProvider>
         <TestComponent />
-      </AIProvider>
+      </AIProvider>,
     );
 
     expect(screen.getByTestId('editHistory')).toHaveTextContent('0');
@@ -255,7 +285,7 @@ describe('AIContext', () => {
     render(
       <AIProvider>
         <TestComponent />
-      </AIProvider>
+      </AIProvider>,
     );
 
     expect(screen.getByTestId('replicateOperation')).toHaveTextContent('none');
@@ -272,7 +302,7 @@ describe('AIContext', () => {
     render(
       <AIProvider>
         <TestComponent />
-      </AIProvider>
+      </AIProvider>,
     );
 
     expect(screen.getByTestId('chainProgress')).toHaveTextContent('0');
@@ -282,7 +312,7 @@ describe('AIContext', () => {
     render(
       <AIProvider>
         <TestComponent />
-      </AIProvider>
+      </AIProvider>,
     );
 
     const button = screen.getByText('Set OpenRouter');
@@ -304,7 +334,9 @@ describe('AIContext', () => {
       // If we get here, the test should fail
       expect(true).toBe(false);
     } catch (error: unknown) {
-      expect(error instanceof Error ? error.message : '').toContain('useAI must be used within AIProvider');
+      expect(error instanceof Error ? error.message : '').toContain(
+        'useAI must be used within AIProvider',
+      );
     } finally {
       console.error = consoleError;
     }

@@ -25,12 +25,14 @@ We are committed to providing a welcoming and inspiring community for all.
 ### Our Standards
 
 **Positive behavior includes:**
+
 - Using welcoming and inclusive language
 - Being respectful of differing viewpoints
 - Gracefully accepting constructive criticism
 - Focusing on what is best for the community
 
 **Unacceptable behavior includes:**
+
 - Harassment, trolling, or discriminatory comments
 - Publishing others' private information
 - Other conduct considered inappropriate
@@ -49,27 +51,32 @@ We are committed to providing a welcoming and inspiring community for all.
 ### Initial Setup
 
 1. **Fork the repository**
+
    ```bash
    # Click "Fork" button on GitHub
    ```
 
 2. **Clone your fork**
+
    ```bash
    git clone https://github.com/YOUR_USERNAME/nanobanna-pro.git
    cd nanobanna-pro
    ```
 
 3. **Add upstream remote**
+
    ```bash
    git remote add upstream https://github.com/ORIGINAL_OWNER/nanobanna-pro.git
    ```
 
 4. **Install dependencies**
+
    ```bash
    npm install
    ```
 
 5. **Copy environment file**
+
    ```bash
    cp .env .env.local
    # Edit .env.local with your credentials
@@ -114,6 +121,7 @@ git checkout -b feature/your-feature-name
 - `chore/` - Maintenance tasks
 
 **Examples:**
+
 - `feature/voice-agent-improvements`
 - `fix/canvas-export-bug`
 - `docs/update-deployment-guide`
@@ -130,6 +138,7 @@ git checkout -b feature/your-feature-name
 - Use interfaces for object shapes
 
 **Example:**
+
 ```typescript
 // Good
 interface User {
@@ -155,6 +164,7 @@ function getUser(id: any): any {
 - Use proper prop typing
 
 **Example:**
+
 ```typescript
 interface ButtonProps {
   label: string;
@@ -207,6 +217,7 @@ src/
 - Use descriptive test names
 
 **Example:**
+
 ```typescript
 describe('generateImage', () => {
   it('should generate image with valid prompt', async () => {
@@ -309,6 +320,7 @@ Fixes #456
 ### Before Creating a PR
 
 1. **Update your branch**
+
    ```bash
    git checkout develop
    git pull upstream develop
@@ -317,6 +329,7 @@ Fixes #456
    ```
 
 2. **Run checks locally**
+
    ```bash
    npm run lint
    npm run format
@@ -332,6 +345,7 @@ Fixes #456
 ### Creating a PR
 
 1. **Push your branch**
+
    ```bash
    git push origin your-feature-branch
    ```
@@ -393,6 +407,7 @@ A clear description of the bug.
 
 **To Reproduce**
 Steps to reproduce:
+
 1. Go to '...'
 2. Click on '...'
 3. See error
@@ -404,6 +419,7 @@ What you expected to happen.
 If applicable, add screenshots.
 
 **Environment:**
+
 - OS: [e.g. Windows 11]
 - Browser: [e.g. Chrome 120]
 - Version: [e.g. 1.0.0]
@@ -453,12 +469,14 @@ Any other context, screenshots, or examples.
 ### Debugging
 
 **React DevTools:**
+
 ```bash
 # Install browser extension
 # Chrome: https://chrome.google.com/webstore/detail/react-developer-tools/
 ```
 
 **Console Logging:**
+
 ```typescript
 // Use tagged console logs
 console.log('[ComponentName] Data:', data);
@@ -491,6 +509,7 @@ console.error('[ServiceName] Error:', error);
 ## Recognition
 
 Contributors will be:
+
 - Listed in CONTRIBUTORS.md
 - Mentioned in release notes
 - Credited in significant feature announcements

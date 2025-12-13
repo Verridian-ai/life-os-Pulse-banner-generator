@@ -28,6 +28,7 @@
 Nanobanna Pro is an AI-powered LinkedIn banner designer built for the **Careersy Community**. It leverages multiple cutting-edge AI models (Gemini 3 Pro Image, OpenRouter, Replicate) to provide professional-grade design capabilities with voice control.
 
 ### Key Features
+
 - 🎨 **4K Image Generation** with Gemini 3 Pro Image
 - 🤖 **Multi-LLM Support** (10+ models via OpenRouter)
 - 🖼️ **Professional Image Processing** (upscaling, background removal, restoration)
@@ -69,6 +70,7 @@ Nanobanna Pro is an AI-powered LinkedIn banner designer built for the **Careersy
 ### Technology Stack
 
 **Frontend:**
+
 - React 19
 - TypeScript
 - Vite
@@ -76,16 +78,19 @@ Nanobanna Pro is an AI-powered LinkedIn banner designer built for the **Careersy
 - Fabric.js (Canvas)
 
 **Backend:**
+
 - Supabase (Auth, DB, Storage)
 - PostgreSQL
 - Row Level Security (RLS)
 
 **AI Services:**
+
 - Google Gemini (Image gen, voice)
 - OpenRouter (Multi-model access)
 - Replicate (Image processing)
 
 **Deployment:**
+
 - Vercel (Hosting)
 - GitHub Actions (CI/CD)
 
@@ -94,17 +99,20 @@ Nanobanna Pro is an AI-powered LinkedIn banner designer built for the **Careersy
 ## Prerequisites
 
 ### Required
+
 - **Node.js** 18+ (LTS recommended)
 - **npm** or **pnpm** or **yarn**
 - **Git**
 - **Supabase Account** (free tier works)
 
 ### For Pilot Mode (Pre-configured API Keys)
+
 - **Gemini API Key** - [Get here](https://aistudio.google.com/app/apikey)
 - **OpenRouter API Key** - [Get here](https://openrouter.ai/keys)
 - **Replicate API Key** - [Get here](https://replicate.com/account/api-tokens)
 
 ### For Development
+
 - **Code Editor** (VS Code recommended)
 - **Supabase CLI** (optional but helpful)
 
@@ -136,6 +144,7 @@ nano .env.local
 ```
 
 Minimum required for local development:
+
 ```env
 VITE_SUPABASE_URL=https://your-project.supabase.co
 VITE_SUPABASE_ANON_KEY=your-anon-key
@@ -173,6 +182,7 @@ Open http://localhost:5173 in your browser.
    - **anon public** key
 
 Add to `.env.local`:
+
 ```env
 VITE_SUPABASE_URL=https://xxx.supabase.co
 VITE_SUPABASE_ANON_KEY=eyJhbGci...
@@ -188,12 +198,14 @@ VITE_SUPABASE_ANON_KEY=eyJhbGci...
 6. Click **"Run"**
 
 **Verify Success:**
+
 ```sql
 -- Run this query to check tables were created
 SELECT tablename FROM pg_tables WHERE schemaname = 'public';
 ```
 
 You should see:
+
 - users
 - designs
 - brand_profiles
@@ -204,6 +216,7 @@ You should see:
 ### Step 4: Configure Authentication
 
 #### Email/Password (Already Enabled)
+
 1. Go to **Authentication** → **Providers**
 2. **Email** should be enabled by default
 
@@ -253,6 +266,7 @@ Storage buckets should be auto-created by the schema, but verify:
    - `logos` (public)
 
 If missing, create manually:
+
 ```sql
 INSERT INTO storage.buckets (id, name, public)
 VALUES
@@ -329,6 +343,7 @@ VITE_PILOT_MAX_STORAGE_MB=100
 ### Getting AI API Keys
 
 #### Gemini API Key (Google)
+
 1. Go to https://aistudio.google.com/app/apikey
 2. Click **"Create API Key"**
 3. Select existing GCP project or create new
@@ -336,6 +351,7 @@ VITE_PILOT_MAX_STORAGE_MB=100
 5. **Free tier:** 60 requests/minute
 
 #### OpenRouter API Key
+
 1. Go to https://openrouter.ai/keys
 2. Sign in with Google/GitHub
 3. Click **"Create Key"**
@@ -344,6 +360,7 @@ VITE_PILOT_MAX_STORAGE_MB=100
 6. **Free tier:** Available for some models
 
 #### Replicate API Key
+
 1. Go to https://replicate.com/account/api-tokens
 2. Sign in
 3. Click **"Create token"**
@@ -390,12 +407,14 @@ In Vercel project settings:
 2. Add each variable:
 
 **Required:**
+
 ```
 VITE_SUPABASE_URL = https://xxx.supabase.co
 VITE_SUPABASE_ANON_KEY = eyJhbGci...
 ```
 
 **For Pilot Mode:**
+
 ```
 VITE_GEMINI_API_KEY = AIzaSy...
 VITE_OPENROUTER_API_KEY = sk-or-v1-...
@@ -440,6 +459,7 @@ VITE_PILOT_MODE = true
 **Use Case:** Public release where users provide their own API keys
 
 **Configuration:**
+
 ```env
 # .env.local (or Vercel env vars)
 VITE_PILOT_MODE=false
@@ -450,6 +470,7 @@ VITE_REPLICATE_API_KEY=
 ```
 
 **User Experience:**
+
 1. User signs up
 2. Goes to Settings
 3. Enters their own API keys
@@ -457,11 +478,13 @@ VITE_REPLICATE_API_KEY=
 5. User pays for their own AI usage
 
 **Pros:**
+
 - ✅ Scalable - no shared quota limits
 - ✅ Users control their own costs
 - ✅ No admin API key management
 
 **Cons:**
+
 - ❌ Friction - users need to get API keys
 - ❌ Technical barrier for non-developers
 
@@ -472,6 +495,7 @@ VITE_REPLICATE_API_KEY=
 **Use Case:** Private pilot for Careersy community with pre-configured API keys
 
 **Configuration:**
+
 ```env
 # Vercel Environment Variables
 VITE_PILOT_MODE=true
@@ -483,6 +507,7 @@ VITE_PILOT_MAX_GENERATIONS_PER_DAY=20
 ```
 
 **User Experience:**
+
 1. User signs up (invite-only)
 2. Instant access - no API key setup
 3. Shared API quota across all pilot users
@@ -490,11 +515,13 @@ VITE_PILOT_MAX_GENERATIONS_PER_DAY=20
 5. Admin pays for all AI usage
 
 **Pros:**
+
 - ✅ Zero friction - works immediately
 - ✅ Perfect for non-technical users
 - ✅ Controlled pilot environment
 
 **Cons:**
+
 - ❌ Shared quota can be exhausted
 - ❌ Admin bears all costs
 - ❌ Need usage monitoring
@@ -508,16 +535,19 @@ VITE_PILOT_MAX_GENERATIONS_PER_DAY=20
 ### Gemini API (Google)
 
 **Models Available:**
+
 - `gemini-2.5-flash` - Fast text/vision
 - `gemini-3-pro-image-preview` - 4K image generation
 - `gemini-2.5-flash-native-audio-preview` - Voice agent
 
 **Pricing:**
+
 - Free tier: 60 RPM, 1500 RPD
 - Imagen 3: $0.04 per image (1K)
 - Gemini 3 Pro Image: $0.24 per image (4K)
 
 **Rate Limits:**
+
 - Free: 60 requests/min
 - Paid: 1000 requests/min
 
@@ -529,6 +559,7 @@ https://aistudio.google.com/app/apikey
 ### OpenRouter API
 
 **Models Available:**
+
 - GLM 4.6 Plus - Top reasoning
 - MiniMax M2 Plus - Coding/agentic
 - GPT-5.1 - Latest OpenAI
@@ -536,6 +567,7 @@ https://aistudio.google.com/app/apikey
 - 100+ more models
 
 **Pricing:**
+
 - Varies by model
 - GLM 4.6: ~$0.001/1K tokens
 - GPT-5.1: ~$0.01/1K tokens
@@ -548,6 +580,7 @@ https://openrouter.ai/keys
 ### Replicate API
 
 **Models Used:**
+
 - Real-ESRGAN - Fast upscaling
 - Recraft Crisp - Professional upscaling
 - Magic Refiner - Best quality upscaling
@@ -555,6 +588,7 @@ https://openrouter.ai/keys
 - CodeFormer - Face restoration
 
 **Pricing:**
+
 - Pay per prediction
 - Upscaling: ~$0.002-$0.02 per image
 - Background removal: ~$0.001 per image
@@ -569,9 +603,10 @@ https://replicate.com/account/api-tokens
 ### Issue: "Not authenticated" error
 
 **Solution:**
+
 1. Check Supabase connection:
    ```javascript
-   console.log(await supabase.auth.getSession())
+   console.log(await supabase.auth.getSession());
    ```
 2. Verify environment variables are set
 3. Clear browser localStorage
@@ -582,6 +617,7 @@ https://replicate.com/account/api-tokens
 ### Issue: Image generation fails
 
 **Solution:**
+
 1. Check API key is valid:
    ```bash
    curl -H "Authorization: Bearer YOUR_KEY" \
@@ -596,6 +632,7 @@ https://replicate.com/account/api-tokens
 ### Issue: Storage upload fails
 
 **Solution:**
+
 1. Check storage bucket exists in Supabase
 2. Verify RLS policies allow upload:
    ```sql
@@ -609,6 +646,7 @@ https://replicate.com/account/api-tokens
 ### Issue: Build fails on Vercel
 
 **Solution:**
+
 1. Check all dependencies in `package.json`
 2. Verify TypeScript has no errors:
    ```bash
@@ -622,6 +660,7 @@ https://replicate.com/account/api-tokens
 ### Issue: CORS errors
 
 **Solution:**
+
 1. Add allowed origins in Supabase:
    - Go to **Settings** → **API**
    - Add Vercel URL to allowed origins
@@ -669,6 +708,7 @@ nanobanna-pro/
 ### Adding a New Feature
 
 1. **Define Types**
+
    ```typescript
    // src/types/feature.ts
    export interface MyFeature {
@@ -678,6 +718,7 @@ nanobanna-pro/
    ```
 
 2. **Create Service**
+
    ```typescript
    // src/services/myFeature.ts
    export const createFeature = async (data: MyFeature) => {
@@ -686,6 +727,7 @@ nanobanna-pro/
    ```
 
 3. **Build Component**
+
    ```typescript
    // src/components/features/MyFeature.tsx
    export const MyFeature: React.FC = () => {
@@ -694,6 +736,7 @@ nanobanna-pro/
    ```
 
 4. **Add to Context** (if needed)
+
    ```typescript
    // src/context/FeatureContext.tsx
    export const FeatureProvider: React.FC = ({ children }) => {
@@ -758,6 +801,7 @@ nanobanna-pro/
 ```
 
 **Types:**
+
 - `feat`: New feature
 - `fix`: Bug fix
 - `docs`: Documentation
@@ -767,6 +811,7 @@ nanobanna-pro/
 - `chore`: Maintenance
 
 **Example:**
+
 ```
 feat(canvas): add multi-select for elements
 

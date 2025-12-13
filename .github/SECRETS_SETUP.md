@@ -139,6 +139,7 @@ Create a separate Supabase project for staging:
 ### Required Secrets Checklist
 
 Production secrets:
+
 - [ ] `VERCEL_TOKEN`
 - [ ] `VERCEL_ORG_ID`
 - [ ] `VERCEL_PROJECT_ID`
@@ -146,10 +147,12 @@ Production secrets:
 - [ ] `VITE_SUPABASE_ANON_KEY`
 
 Staging secrets (recommended):
+
 - [ ] `STAGING_SUPABASE_URL`
 - [ ] `STAGING_SUPABASE_ANON_KEY`
 
 Optional secrets:
+
 - [ ] `CODECOV_TOKEN`
 - [ ] `SNYK_TOKEN`
 
@@ -188,6 +191,7 @@ For better security, create environment-specific secrets:
 ### Test CI Pipeline
 
 1. **Trigger Workflow**
+
    ```bash
    git commit --allow-empty -m "test: verify CI pipeline"
    git push origin develop
@@ -201,6 +205,7 @@ For better security, create environment-specific secrets:
 ### Test Deployment
 
 1. **Trigger Staging Deployment**
+
    ```bash
    git push origin develop
    ```
@@ -250,6 +255,7 @@ For better security, create environment-specific secrets:
 **Error:** `Secret VERCEL_TOKEN not found`
 
 **Solution:**
+
 1. Check secret name matches exactly (case-sensitive)
 2. Ensure secret is added to repository (not user account)
 3. Re-add secret if needed
@@ -259,6 +265,7 @@ For better security, create environment-specific secrets:
 **Error:** `Authentication failed` or `Invalid token`
 
 **Solution:**
+
 1. Verify token is copied completely (no spaces)
 2. Check token hasn't expired
 3. Generate new token
@@ -269,6 +276,7 @@ For better security, create environment-specific secrets:
 **Error:** Deployment works in staging but fails in production
 
 **Solution:**
+
 1. Check environment-specific secrets
 2. Verify production secrets are configured
 3. Ensure environment names match in workflows
@@ -331,6 +339,7 @@ echo "✅ Secrets configured successfully!"
 ```
 
 Usage:
+
 ```bash
 chmod +x setup-secrets.sh
 ./setup-secrets.sh
@@ -349,4 +358,4 @@ If you encounter issues:
 
 ---
 
-*Last Updated: 2025-12-13*
+_Last Updated: 2025-12-13_

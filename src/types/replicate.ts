@@ -98,7 +98,7 @@ export class ReplicateError extends Error {
     message: string,
     public predictionId?: string,
     public status?: string,
-    public detail?: unknown
+    public detail?: unknown,
   ) {
     super(message);
     this.name = 'ReplicateError';

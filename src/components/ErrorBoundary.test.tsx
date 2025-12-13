@@ -25,7 +25,7 @@ describe('ErrorBoundary', () => {
     render(
       <ErrorBoundary>
         <NoError />
-      </ErrorBoundary>
+      </ErrorBoundary>,
     );
 
     expect(screen.getByText('No error')).toBeInTheDocument();
@@ -35,7 +35,7 @@ describe('ErrorBoundary', () => {
     render(
       <ErrorBoundary>
         <ThrowError />
-      </ErrorBoundary>
+      </ErrorBoundary>,
     );
 
     // Should show error message
@@ -46,7 +46,7 @@ describe('ErrorBoundary', () => {
     render(
       <ErrorBoundary>
         <ThrowError />
-      </ErrorBoundary>
+      </ErrorBoundary>,
     );
 
     // Should show error details or reload button

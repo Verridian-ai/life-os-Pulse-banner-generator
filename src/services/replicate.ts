@@ -1,9 +1,6 @@
 // Replicate API Service - Complete implementation for all image processing operations
 
-import type {
-  ReplicatePrediction,
-  ReplicateQuality,
-} from '../types/replicate';
+import type { ReplicatePrediction, ReplicateQuality } from '../types/replicate';
 import { MODELS } from '../constants';
 
 export class ReplicateError extends Error {
@@ -11,7 +8,7 @@ export class ReplicateError extends Error {
     message: string,
     public predictionId?: string,
     public status?: string,
-    public detail?: unknown
+    public detail?: unknown,
   ) {
     super(message);
     this.name = 'ReplicateError';
@@ -57,7 +54,7 @@ export class ReplicateService {
         `Replicate API Error: ${error.detail || response.statusText}`,
         undefined,
         response.status.toString(),
-        error
+        error,
       );
     }
 
@@ -84,7 +81,7 @@ export class ReplicateService {
         const error = await response.json().catch(() => ({}));
         throw new ReplicateError(
           `Failed to fetch prediction: ${error.detail || response.statusText}`,
-          predictionId
+          predictionId,
         );
       }
 
@@ -93,19 +90,20 @@ export class ReplicateService {
       // Update progress callback
       if (this.onProgress) {
         const progress =
-          prediction.status === 'starting' ? 10 :
-          prediction.status === 'processing' ? 50 :
-          prediction.status === 'succeeded' ? 100 :
-          0;
+          prediction.status === 'starting'
+            ? 10
+            : prediction.status === 'processing'
+              ? 50
+              : prediction.status === 'succeeded'
+                ? 100
+                : 0;
         this.onProgress(progress);
       }
 
       // Check if completed
       if (prediction.status === 'succeeded') {
         // Extract output (can be string or array)
-        const output = Array.isArray(prediction.output)
-          ? prediction.output[0]
-          : prediction.output;
+        const output = Array.isArray(prediction.output) ? prediction.output[0] : prediction.output;
 
         if (!output) {
           throw new ReplicateError('Prediction succeeded but no output returned', predictionId);
@@ -118,12 +116,12 @@ export class ReplicateService {
         throw new ReplicateError(
           `Prediction ${prediction.status}: ${prediction.error || 'Unknown error'}`,
           predictionId,
-          prediction.status
+          prediction.status,
         );
       }
 
       // Wait before next poll
-      await new Promise(r => setTimeout(r, 1000));
+      await new Promise((r) => setTimeout(r, 1000));
       attempts++;
     }
 
@@ -169,7 +167,7 @@ export class ReplicateService {
     imageUrl: string,
     prompt: string,
     mask?: string,
-    model: 'flux' | 'ideogram' = 'flux'
+    model: 'flux' | 'ideogram' = 'flux',
   ): Promise<string> {
     const version = MODELS.replicate.inpaint[model];
     const input: Record<string, unknown> = {
@@ -191,7 +189,7 @@ export class ReplicateService {
   async outpaint(
     imageUrl: string,
     prompt: string,
-    direction: 'left' | 'right' | 'up' | 'down' = 'right'
+    direction: 'left' | 'right' | 'up' | 'down' = 'right',
   ): Promise<string> {
     const version = MODELS.replicate.outpaint;
     const input = {
@@ -241,7 +239,7 @@ export class ReplicateService {
     const response = await fetch(`${this.baseUrl}/predictions/${predictionId}/cancel`, {
       method: 'POST',
       headers: {
-        'Authorization': `Token ${this.apiKey}`,
+        Authorization: `Token ${this.apiKey}`,
         'Content-Type': 'application/json',
       },
     });
@@ -257,7 +255,7 @@ export class ReplicateService {
   async getPredictionStatus(predictionId: string): Promise<ReplicatePrediction> {
     const response = await fetch(`${this.baseUrl}/predictions/${predictionId}`, {
       headers: {
-        'Authorization': `Token ${this.apiKey}`,
+        Authorization: `Token ${this.apiKey}`,
         'Content-Type': 'application/json',
       },
     });
@@ -272,6 +270,7 @@ export class ReplicateService {
 
 // Helper function to get Replicate service instance
 export const getReplicateService = (onProgress?: (progress: number) => void): ReplicateService => {
-  const apiKey = localStorage.getItem('replicate_api_key') || import.meta.env.VITE_REPLICATE_API_KEY || '';
+  const apiKey =
+    localStorage.getItem('replicate_api_key') || import.meta.env.VITE_REPLICATE_API_KEY || '';
   return new ReplicateService(apiKey, onProgress);
 };

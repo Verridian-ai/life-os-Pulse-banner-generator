@@ -11,6 +11,7 @@ Nanobanna Pro is an AI-powered LinkedIn banner design tool built for the Careers
 ## Essential Commands
 
 ### Development
+
 ```bash
 npm run dev          # Start Vite dev server on port 5173
 npm run build        # TypeScript compilation + Vite production build
@@ -20,6 +21,7 @@ npm run format       # Prettier code formatting
 ```
 
 ### Testing
+
 ```bash
 npx vitest           # Run tests (configured in vite.config.ts)
 npx vitest run       # Run tests once
@@ -40,6 +42,7 @@ The application uses a **model routing system** that intelligently selects betwe
 **Critical File**: `src/services/modelRouter.ts` - Contains the routing logic and model metadata. This is the source of truth for which models handle which operations.
 
 **API Key Management**:
+
 - Keys stored in Supabase per-user (encrypted) via `src/services/apiKeyStorage.ts`
 - Fallback to localStorage for backward compatibility
 - Migration logic runs on app mount (`App.tsx:244-248`)
@@ -68,19 +71,28 @@ Three main React contexts manage global state:
 ### Live Voice Agent System
 
 **Two Providers Supported**:
+
 - **Gemini Live** (`src/services/liveClient.ts`) - WebSocket-based audio streaming
 - **OpenAI Realtime** (`src/services/openaiRealtimeClient.ts`) - WebRTC audio streaming
 
 **Action Execution Flow**:
+
 1. User speaks → Voice provider transcribes + generates tool calls
 2. `ActionExecutor` (`src/services/actionExecutor.ts`) executes tool calls in **preview mode**
 3. Pending action shown in `LiveActionPanel` for user approval
 4. User approves → Action applied to canvas
 
 **Tool Call Format**:
+
 ```typescript
 interface ToolCall {
-  name: 'generate_background' | 'magic_edit' | 'remove_background' | 'upscale_image' | 'restore_image' | 'enhance_face';
+  name:
+    | 'generate_background'
+    | 'magic_edit'
+    | 'remove_background'
+    | 'upscale_image'
+    | 'restore_image'
+    | 'enhance_face';
   args: Record<string, any>;
 }
 ```
@@ -90,12 +102,14 @@ interface ToolCall {
 **Path**: User prompt → `generateImage()` in `src/services/llm.ts` → Model Router → Provider API
 
 **Critical Logic**:
+
 - Reference images (up to 14) can be passed for style matching
 - Size options: '1K' (1024x1024), '2K' (2048x2048), '4K' (4096x4096)
 - Automatic fallback if Gemini 3 Pro unavailable (checks model availability and downgrades to 2.5 Flash)
 - Results saved to Supabase Storage + PostgreSQL database
 
 **Multi-Turn Editing**:
+
 - Edit history stored in `AIContext.editHistory`
 - Each turn includes: prompt, input image, output image, timestamp, reference images
 - Enables AI to "remember" previous edits when making iterative changes
@@ -103,6 +117,7 @@ interface ToolCall {
 ### Database Schema (Supabase)
 
 **Key Tables**:
+
 - `users` - User profiles, onboarding status, subscription tier
 - `designs` - Saved canvas states (JSON), metadata, public/private flag
 - `generated_images` - AI-generated images with prompts, models used, metadata
@@ -113,6 +128,7 @@ interface ToolCall {
 **Row Level Security (RLS)**: Enabled on all tables. Users can only access their own data via `auth.uid()` policies.
 
 **Storage Buckets**:
+
 - `generated-images` - AI outputs
 - `reference-images` - User uploads
 - `design-exports` - Canvas exports
@@ -140,6 +156,7 @@ interface ToolCall {
 ### Tab System
 
 Three main tabs (`src/constants.ts:Tab` enum):
+
 - **STUDIO**: Canvas editor + generative sidebar
 - **GALLERY**: Saved designs browser
 - **BRAINSTORM**: Chat interface for prompt ideation
@@ -159,11 +176,13 @@ Three main tabs (`src/constants.ts:Tab` enum):
 ## Configuration Files
 
 ### TypeScript
+
 - Path aliases: `@/*` → `./src/*` (configured in `tsconfig.json:23-26`)
 - React JSX: `react-jsx` transform (line 22)
 - Experimental decorators enabled for future features (line 4)
 
 ### Vite
+
 - Dev server: Port 5173, HMR enabled
 - **Replicate Proxy**: `/api/replicate` proxied to `https://api.replicate.com` with token injection (lines 15-47)
   - Handles `x-replicate-token` header → `Authorization: Token` conversion
@@ -171,6 +190,7 @@ Three main tabs (`src/constants.ts:Tab` enum):
 - Test config embedded (no separate vitest.config.ts)
 
 ### ESLint
+
 - TypeScript + React rules
 - Max warnings: 0 (strict mode)
 - Plugins: `@typescript-eslint`, `react`, `react-hooks`, `react-refresh`
@@ -178,16 +198,19 @@ Three main tabs (`src/constants.ts:Tab` enum):
 ## Environment Variables
 
 **Required**:
+
 - `VITE_SUPABASE_URL` - Supabase project URL
 - `VITE_SUPABASE_ANON_KEY` - Supabase anonymous key
 
 **Optional** (users can provide in Settings):
+
 - `VITE_GEMINI_API_KEY`
 - `VITE_OPENROUTER_API_KEY`
 - `VITE_REPLICATE_API_KEY`
 - `VITE_OPENAI_API_KEY`
 
 **Deployment Modes**:
+
 1. **User-Hosted**: Users provide their own API keys
 2. **Pilot Mode**: Admin keys in .env for shared usage (Careersy Community)
 
@@ -212,6 +235,7 @@ Three main tabs (`src/constants.ts:Tab` enum):
 **Canvas Library**: Fabric.js (not directly imported, accessed via refs)
 
 **State Management**:
+
 - Background image: `CanvasContext.bgImage` (string URL or data URI)
 - Canvas objects: Managed in `CanvasEditor` component state
 - Reference images: `CanvasContext.refImages` (array of strings)
@@ -223,6 +247,7 @@ Three main tabs (`src/constants.ts:Tab` enum):
 **Pattern**: Always use service functions from `database.ts`, never raw Supabase calls.
 
 **Example**:
+
 ```typescript
 import { createDesign, getUserDesigns } from '@/services/database';
 
@@ -231,7 +256,7 @@ const design = await createDesign({
   name: 'My Banner',
   canvas_data: canvasJSON,
   thumbnail_url: thumbnailDataUri,
-  is_public: false
+  is_public: false,
 });
 
 // Fetch user designs
@@ -251,6 +276,7 @@ const designs = await getUserDesigns();
 ### Logging Patterns
 
 Services use tagged console logs:
+
 ```typescript
 console.log('[ServiceName] Message', data);
 console.error('[ServiceName] Error:', error);
