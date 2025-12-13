@@ -10,8 +10,8 @@ vi.mock('../services/brandEngine', () => ({
 
 vi.mock('../services/modelRouter', () => ({
   getModelMetadata: vi.fn(() => ({
-    'gemini-pro': { id: 'gemini-pro', name: 'Gemini Pro', provider: 'gemini' },
-    'gpt-4': { id: 'gpt-4', name: 'GPT-4', provider: 'openrouter' },
+    'gpt-5.2': { id: 'gpt-5.2', name: 'GPT 5.2', provider: 'openrouter' },
+    'anthropic/claude-sonnet-4.5': { id: 'anthropic/claude-sonnet-4.5', name: 'Claude 4.5 Sonnet', provider: 'openrouter' },
   })),
 }));
 
@@ -73,8 +73,8 @@ const TestComponent = () => {
       <div data-testid='editHistory'>{editHistory.length}</div>
       <div data-testid='replicateOperation'>{replicateOperation ? 'active' : 'none'}</div>
       <button onClick={() => setSelectedProvider('openrouter')}>Set OpenRouter</button>
-      <button onClick={() => setSelectedModel('gpt-4')}>Set Model</button>
-      <button onClick={() => setModelOverride('claude-3')}>Set Override</button>
+      <button onClick={() => setSelectedModel('gpt-5.2')}>Set Model</button>
+      <button onClick={() => setModelOverride('anthropic/claude-sonnet-4.5')}>Set Override</button>
       <button
         onClick={() =>
           addMetric({
@@ -184,7 +184,7 @@ describe('AIContext', () => {
     button.click();
 
     await waitFor(() => {
-      expect(screen.getByTestId('selectedModel')).toHaveTextContent('gpt-4');
+      expect(screen.getByTestId('selectedModel')).toHaveTextContent('gpt-5.2');
     });
   });
 
@@ -199,7 +199,7 @@ describe('AIContext', () => {
     button.click();
 
     await waitFor(() => {
-      expect(screen.getByTestId('modelOverride')).toHaveTextContent('claude-3');
+      expect(screen.getByTestId('modelOverride')).toHaveTextContent('anthropic/claude-sonnet-4.5');
     });
   });
 

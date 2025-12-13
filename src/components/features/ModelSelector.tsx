@@ -73,14 +73,14 @@ export const ModelSelector: React.FC<ModelSelectorProps> = ({ onModelChange }) =
       ];
     } else {
       return [
-        { id: MODELS.openrouter.glm46, name: 'GLM 4.6 Plus', description: 'Top-ranked reasoning' },
+        { id: MODELS.openrouter.gpt52, name: 'GPT-5.2', description: 'Latest from OpenAI (Dec 2025)' },
+        { id: MODELS.openrouter.gpt52Pro, name: 'GPT-5.2 Pro', description: 'High-performance reasoning' },
+        { id: MODELS.openrouter.claude45Sonnet, name: 'Claude 4.5 Sonnet', description: 'Advanced reasoning & coding' },
         {
           id: MODELS.openrouter.minimaxM2,
           name: 'MiniMax M2 Plus',
           description: 'Coding & agentic tasks',
         },
-        { id: MODELS.openrouter.gpt51, name: 'GPT-5.1', description: 'Latest from OpenAI' },
-        { id: MODELS.openrouter.gpt5Mini, name: 'GPT-5 Mini', description: 'Fast & affordable' },
       ];
     }
   };
@@ -124,11 +124,10 @@ export const ModelSelector: React.FC<ModelSelectorProps> = ({ onModelChange }) =
                 <button
                   key={p}
                   onClick={() => handleProviderChange(p as 'gemini' | 'openrouter')}
-                  className={`flex-1 py-2 px-4 rounded-lg text-sm font-bold transition ${
-                    provider === p
-                      ? 'bg-blue-600 text-white'
-                      : 'bg-zinc-800 text-zinc-400 hover:bg-zinc-700'
-                  }`}
+                  className={`flex-1 py-2 px-4 rounded-lg text-sm font-bold transition ${provider === p
+                    ? 'bg-blue-600 text-white'
+                    : 'bg-zinc-800 text-zinc-400 hover:bg-zinc-700'
+                    }`}
                 >
                   {p === 'gemini' ? 'Google Gemini' : 'OpenRouter'}
                 </button>
@@ -150,11 +149,10 @@ export const ModelSelector: React.FC<ModelSelectorProps> = ({ onModelChange }) =
                   <button
                     key={model.id}
                     onClick={() => handleModelSelect(model.id)}
-                    className={`w-full text-left p-3 rounded-lg transition ${
-                      modelOverride === model.id
-                        ? 'bg-blue-600 border border-blue-500'
-                        : 'bg-zinc-800 border border-white/10 hover:bg-zinc-700'
-                    }`}
+                    className={`w-full text-left p-3 rounded-lg transition ${modelOverride === model.id
+                      ? 'bg-blue-600 border border-blue-500'
+                      : 'bg-zinc-800 border border-white/10 hover:bg-zinc-700'
+                      }`}
                   >
                     <div className='flex items-center justify-between'>
                       <div className='flex-1'>
@@ -179,11 +177,10 @@ export const ModelSelector: React.FC<ModelSelectorProps> = ({ onModelChange }) =
                         <button
                           key={model.id}
                           onClick={() => handleModelSelect(model.id)}
-                          className={`w-full text-left p-2 rounded text-xs transition ${
-                            modelOverride === model.id
-                              ? 'bg-blue-600 text-white'
-                              : 'bg-zinc-800 text-zinc-300 hover:bg-zinc-700'
-                          }`}
+                          className={`w-full text-left p-2 rounded text-xs transition ${modelOverride === model.id
+                            ? 'bg-blue-600 text-white'
+                            : 'bg-zinc-800 text-zinc-300 hover:bg-zinc-700'
+                            }`}
                         >
                           {model.name}
                         </button>

@@ -18,10 +18,12 @@ export const MODELS = {
 
   // OpenRouter Models (Latest 2025)
   openrouter: {
-    glm46: 'zhipu/glm-4.6-plus', // Best reasoning, 200K context
-    minimaxM2: 'minimax/minimax-m2-plus', // Coding & agentic workflows
-    gpt51: 'openai/gpt-5.1', // Latest from OpenAI
-    gpt5Mini: 'openai/gpt-5-mini', // Fast & cost-effective
+    gpt52: 'openai/gpt-5.2', // Released Dec 11, 2025
+    gpt52Pro: 'openai/gpt-5.2-pro',
+    claude45Opus: 'anthropic/claude-opus-4.5', // Released late 2025
+    claude45Sonnet: 'anthropic/claude-sonnet-4.5',
+    gemini3DeepThink: 'google/gemini-3-deep-think',
+    minimaxM2: 'minimax/minimax-m2-plus',
     fluxSchnell: 'black-forest-labs/flux-1-schnell', // Image generation
   },
 

@@ -27,20 +27,20 @@ export const selectModelForTask = (
   // Intelligent auto-selection based on operation type
   switch (operation) {
     case 'reasoning':
-      // Use GPT-5.1 or Gemini 3 Pro for complex reasoning
-      return MODELS.openrouter.gpt51;
+      // Use GPT-5.2 or Gemini 3 Pro for complex reasoning
+      return MODELS.openrouter.gpt52;
 
     case 'vision':
-      // Use GLM 4.6 for image understanding
-      return MODELS.openrouter.glm46;
+      // Use Claude 4.5 Sonnet for image understanding
+      return MODELS.openrouter.claude45Sonnet;
 
     case 'coding':
       // Use MiniMax M2 optimized for coding
       return MODELS.openrouter.minimaxM2;
 
     case 'text':
-      // Use GPT-5 Mini for fast, cost-effective text generation
-      return MODELS.openrouter.gpt5Mini;
+      // Use GPT-5.2 for text generation
+      return MODELS.openrouter.gpt52;
 
     case 'image_gen':
       // Use Gemini 3 Pro Image
@@ -89,14 +89,14 @@ export const getModelMetadata = (): Record<string, ModelMetadata> => {
       avgResponseTime: 8000,
       qualityScore: 96,
     },
-    [MODELS.openrouter.glm46]: {
-      id: MODELS.openrouter.glm46,
+    [MODELS.openrouter.claude45Sonnet]: {
+      id: MODELS.openrouter.claude45Sonnet,
       provider: 'openrouter',
-      name: 'GLM 4.6 Plus',
+      name: 'Claude 4.5 Sonnet',
       capabilities: ['text', 'vision', 'thinking'],
       costPerCall: 0.003,
       avgResponseTime: 1200,
-      qualityScore: 92,
+      qualityScore: 94,
       contextWindow: 200000,
     },
     [MODELS.openrouter.minimaxM2]: {
@@ -108,25 +108,35 @@ export const getModelMetadata = (): Record<string, ModelMetadata> => {
       avgResponseTime: 900,
       qualityScore: 88,
     },
-    [MODELS.openrouter.gpt51]: {
-      id: MODELS.openrouter.gpt51,
+    [MODELS.openrouter.gpt52]: {
+      id: MODELS.openrouter.gpt52,
       provider: 'openrouter',
-      name: 'GPT-5.1',
+      name: 'GPT-5.2',
       capabilities: ['text', 'vision', 'thinking'],
       costPerCall: 0.015,
       avgResponseTime: 2000,
-      qualityScore: 95,
+      qualityScore: 97,
       contextWindow: 128000,
     },
-    [MODELS.openrouter.gpt5Mini]: {
-      id: MODELS.openrouter.gpt5Mini,
+    [MODELS.openrouter.gpt52Pro]: {
+      id: MODELS.openrouter.gpt52Pro,
       provider: 'openrouter',
-      name: 'GPT-5 Mini',
-      capabilities: ['text'],
-      costPerCall: 0.0005,
-      avgResponseTime: 600,
-      qualityScore: 80,
+      name: 'GPT-5.2 Pro',
+      capabilities: ['text', 'vision', 'thinking'],
+      costPerCall: 0.03,
+      avgResponseTime: 2500,
+      qualityScore: 99,
       contextWindow: 128000,
+    },
+    [MODELS.openrouter.gemini3DeepThink]: {
+      id: MODELS.openrouter.gemini3DeepThink,
+      provider: 'openrouter',
+      name: 'Gemini 3 Deep Think',
+      capabilities: ['text', 'thinking'],
+      costPerCall: 0.02,
+      avgResponseTime: 3000,
+      qualityScore: 98,
+      contextWindow: 1000000,
     },
   };
 };
