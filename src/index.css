@@ -6,12 +6,28 @@ body {
   font-family: 'Inter', sans-serif;
 }
 
-/* Custom scrollbar for chat */
-.scrollbar-hide::-webkit-scrollbar {
-  display: none;
+/* Custom scrollbar hiding with cross-browser support */
+/*
+ * Fallback strategy:
+ * 1. Webkit (Chrome, Safari, Edge 79+): ::-webkit-scrollbar
+ * 2. IE/Old Edge: -ms-overflow-style
+ * 3. Firefox 64+: scrollbar-width (Baseline 2024)
+ *
+ * Note: scrollbar-width warning is expected - we have webkit fallback
+ * for older Chrome/Safari versions. All modern browsers are supported.
+ */
+.scrollbar-hide {
+  /* IE and Edge (legacy) */
+  -ms-overflow-style: none;
+
+  /* Firefox 64+ (Baseline 2024) */
+  /* stylelint-disable-next-line property-no-unknown */
+  scrollbar-width: none;
 }
 
-.scrollbar-hide {
-  -ms-overflow-style: none;
-  scrollbar-width: none;
+/* Webkit browsers (Chrome, Safari, Edge 79+, Opera) */
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+  width: 0;
+  height: 0;
 }
