@@ -84,6 +84,77 @@ const callOpenRouter = async (apiKey: string, model: string, messages: OpenRoute
   return data.choices?.[0]?.message?.content || '';
 };
 
+// --- OpenRouter Image Generation Client ---
+const callOpenRouterImageGen = async (
+  apiKey: string,
+  model: string,
+  prompt: string,
+  aspectRatio: string = '16:9',
+): Promise<string> => {
+  console.log('[OpenRouter Image] Starting generation with:', {
+    model,
+    aspectRatio,
+    hasApiKey: !!apiKey,
+  });
+
+  if (!apiKey) {
+    throw new Error('OpenRouter API Key not found. Please add it in Settings.');
+  }
+
+  const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
+    method: 'POST',
+    headers: {
+      Authorization: `Bearer ${apiKey}`,
+      'HTTP-Referer': window.location.origin,
+      'X-Title': 'NanoBanna Pro',
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+      model: model,
+      messages: [
+        {
+          role: 'user',
+          content: prompt,
+        },
+      ],
+      modalities: ['image', 'text'],
+      image_config: {
+        aspect_ratio: aspectRatio,
+      },
+    }),
+  });
+
+  console.log('[OpenRouter Image] Response status:', response.status);
+
+  if (!response.ok) {
+    const errorData = await response.json().catch(() => ({}));
+    console.error('[OpenRouter Image] API Error:', errorData);
+    throw new Error(
+      `OpenRouter Image Error: ${errorData.error?.message || response.statusText}`,
+    );
+  }
+
+  const data = await response.json();
+
+  // Extract image from response
+  const images = data.choices?.[0]?.message?.images;
+
+  if (!images || images.length === 0) {
+    console.error('[OpenRouter Image] No images in response:', data);
+    throw new Error('OpenRouter returned no images in response');
+  }
+
+  // Get the first image (base64 data URL)
+  const imageDataUrl = images[0]?.image_url?.url;
+
+  if (!imageDataUrl) {
+    throw new Error('OpenRouter image data URL is missing');
+  }
+
+  console.log('[OpenRouter Image] ✅ Image generated successfully');
+  return imageDataUrl; // Returns data:image/png;base64,...
+};
+
 // --- Replicate Client ---
 const callReplicate = async (apiKey: string, version: string, input: Record<string, unknown>) => {
   console.log('[Replicate] Starting prediction with:', { version, hasApiKey: !!apiKey });
@@ -699,343 +770,108 @@ export const generateImage = async (
   const { provider, geminiKey, openRouterKey, imageModel } = getSettings();
   const modelToUse = imageModel;
 
-  // Auto-fallback: If using Nano Banana Pro and this is first attempt, try it
-  // If model not found, we'll retry with Nano Banana automatically
-  const isNanoBananaPro = modelToUse === 'gemini-3-pro-image-preview';
-  const fallbackModel = 'gemini-2.5-flash-image'; // Nano Banana (publicly available)
-
   console.log('[Image Gen] Starting generation with:', {
     provider,
     model: modelToUse,
     size,
     refImagesCount: referenceImages.length,
     editHistoryCount: editHistory.length,
-    hasApiKey: provider === 'gemini' ? !!geminiKey : !!openRouterKey,
+    hasGeminiKey: !!geminiKey,
+    hasOpenRouterKey: !!openRouterKey,
     isRetry: _isRetry,
-    willFallback: isNanoBananaPro && !_isRetry,
   });
 
-  if (provider === 'openrouter') {
-    // OpenRouter Image Gen via Chat Completion
-    try {
-      const messages = [
-        {
-          role: 'user',
-          content: `Generate a high-quality professional LinkedIn banner image. Dimensions strictly 16:9 ratio. Prompt: ${prompt} ${PROFILE_ZONE_CONSTRAINT}`,
-        },
-      ];
-
-      const content = await callOpenRouter(openRouterKey, modelToUse, messages);
-
-      // Extract URL from markdown or raw text
-      const urlMatch =
-        content.match(/\((https?:\/\/.*?)\)/) || content.match(/(https?:\/\/[^\s]+)/);
-      if (urlMatch) {
-        return urlMatch[1];
-      }
-
-      if (!content) throw new Error('OpenRouter returned empty response for image');
-      console.warn('OpenRouter Image Response (Text):', content);
-      return content;
-    } catch (error) {
-      console.error('OpenRouter Image Gen Error:', error);
-      throw new Error(
-        `OpenRouter image generation failed: ${error instanceof Error ? error.message : String(error)}`,
-      );
-    }
-  }
-
-  // Gemini 3 Pro Image Path with multi-turn and multi-reference support
-  if (!geminiKey) {
-    throw new Error('Gemini API key not found. Please add your API key in Settings.');
-  }
-
-  const ai = getGoogleClient(geminiKey);
+  // PRIMARY: Try OpenRouter Gemini image generation first (bypasses billing issues!)
+  console.log('[Image Gen] 🎯 Using OpenRouter Gemini as primary method');
 
   try {
-    // Build multi-turn conversation for iterative editing
-    const contents: Array<{ role: string; parts: Part[] }> = [];
+    if (!openRouterKey) {
+      throw new Error('OpenRouter API key not found. Falling back to Replicate.');
+    }
 
-    // Add edit history for multi-turn editing
-    editHistory.forEach((turn) => {
-      const inputBase64 = turn.inputImage.includes(',')
-        ? turn.inputImage.split(',')[1]
-        : turn.inputImage;
-      const outputBase64 = turn.outputImage.includes(',')
-        ? turn.outputImage.split(',')[1]
-        : turn.outputImage;
-
-      contents.push({
-        role: 'user',
-        parts: [
-          { inlineData: { mimeType: 'image/png', data: inputBase64 } },
-          { text: turn.prompt },
-        ],
-      });
-      contents.push({
-        role: 'model',
-        parts: [{ inlineData: { mimeType: 'image/png', data: outputBase64 } }],
-      });
-    });
-
-    // Add current request with up to 14 reference images
-    const currentParts: Part[] = [];
-
-    // Add reference images (max 14) with improved MIME type detection
-    referenceImages.slice(0, 14).forEach((img, index) => {
-      try {
-        let base64Data: string;
-        let mimeType: string;
-
-        if (img.startsWith('data:')) {
-          // Extract MIME type from data URI
-          const matches = img.match(/^data:([^;]+);base64,(.+)$/);
-          if (matches) {
-            mimeType = matches[1];
-            base64Data = matches[2];
-          } else {
-            console.warn(`[Image Gen] Invalid data URI format for ref image ${index}`);
-            base64Data = img.split(',')[1] || img;
-            mimeType = 'image/png';
-          }
-        } else {
-          // Assume raw base64
-          base64Data = img;
-          mimeType = 'image/png';
-        }
-
-        currentParts.push({
-          inlineData: { mimeType, data: base64Data },
-        });
-        console.log(
-          `[Image Gen] Added ref image ${index + 1}/${referenceImages.length} (${mimeType})`,
-        );
-      } catch (err) {
-        console.warn(`[Image Gen] Skipping invalid ref image ${index}:`, err);
-      }
-    });
-
-    // Add text prompt
+    // Use Google's Gemini via OpenRouter
+    const openRouterModel = 'google/gemini-2.5-flash-image-preview';
     const safePrompt = `Professional LinkedIn Banner, 1584x396 pixels ratio (approx 4:1 aspect), high quality. ${prompt} ${PROFILE_ZONE_CONSTRAINT}`;
-    currentParts.push({ text: safePrompt });
 
-    contents.push({ role: 'user', parts: currentParts });
+    const imageDataUrl = await callOpenRouterImageGen(
+      openRouterKey,
+      openRouterModel,
+      safePrompt,
+      '16:9',
+    );
 
-    console.log(`[Image Gen] Calling Gemini API with model: ${modelToUse}, size: ${size}`);
+    console.log('[Image Gen] ✅ OpenRouter Gemini successful!');
 
-    // Call Gemini API with the model from settings (NOT hardcoded MODELS.imageGen)
-    const response = await ai.models.generateContent({
-      model: modelToUse, // USE THE MODEL FROM SETTINGS!
-      contents,
-      config: {
-        imageConfig: {
-          imageSize: size,
-          aspectRatio: '16:9',
-        },
-      },
-    });
+    // Upload to Supabase
+    try {
+      console.log('[Image Gen] Uploading OpenRouter image to Supabase...');
+      const fileName = `generated_${Date.now()}.png`;
+      const publicUrl = await uploadImage(imageDataUrl, fileName);
+      console.log('[Image Gen] ✅ Saved to Supabase:', publicUrl);
 
-    console.log('[Image Gen] API response received, extracting image...');
+      // Save to database
+      try {
+        await createImage({
+          storage_url: publicUrl,
+          file_name: fileName,
+          prompt: prompt,
+          model_used: 'gemini-2.5-flash-image (via OpenRouter)',
+          quality: size,
+          generation_type: 'generate',
+        });
+        console.log('[Image Gen] ✅ Saved to database and gallery');
+      } catch (dbError) {
+        console.warn('[Image Gen] Database save failed (non-fatal):', dbError);
+      }
 
-    // Extract generated image with detailed logging
-    const candidates = response.candidates || [];
-    if (candidates.length === 0) {
+      return publicUrl;
+    } catch (uploadError) {
+      console.warn('[Image Gen] Supabase upload failed, returning base64:', uploadError);
+      return imageDataUrl;
+    }
+  } catch (openRouterError) {
+    console.error('[Image Gen] ❌ OpenRouter Gemini failed:', openRouterError);
+    console.log('[Image Gen] 🔄 Falling back to Replicate FLUX...');
+
+    // FALLBACK: Use Replicate FLUX.1-schnell
+    try {
+      const { replicateKey } = getSettings();
+      if (!replicateKey) {
+        throw new Error('Replicate API key not found. Please add it in Settings.');
+      }
+
+      const fluxVersion = 'black-forest-labs/flux-schnell';
+      console.log('[Image Gen] Calling Replicate FLUX.1-schnell...');
+
+      const fluxPrompt = `Professional LinkedIn banner, 1584x396 pixels, 16:9 aspect ratio. ${prompt}`;
+
+      const output = await callReplicate(replicateKey, fluxVersion, {
+        prompt: fluxPrompt,
+        width: 1584,
+        height: 396,
+        num_outputs: 1,
+        guidance_scale: 3.5,
+        num_inference_steps: 4,
+      });
+
+      const imageUrl = Array.isArray(output) ? output[0] : output;
+      console.log('[Image Gen] ✅ Replicate FLUX fallback successful!');
+      console.log('[Image Gen] 💡 Using Replicate because OpenRouter failed');
+
+      return imageUrl;
+    } catch (replicateError) {
+      console.error('[Image Gen] ❌ Replicate also failed:', replicateError);
       throw new Error(
-        'API returned no candidates. Response may have been blocked by safety filters.',
+        'All image generation methods failed. Please check your API keys in Settings.',
       );
     }
-
-    for (let i = 0; i < candidates.length; i++) {
-      const candidate = candidates[i];
-      const parts = candidate.content?.parts || [];
-
-      for (let j = 0; j < parts.length; j++) {
-        const part = parts[j];
-        if (part.inlineData) {
-          console.log(`[Image Gen] ✓ Image found in candidate ${i}, part ${j}`);
-          const base64Image = `data:image/png;base64,${part.inlineData.data}`;
-
-          // Upload to Supabase Storage
-          try {
-            console.log('[Image Gen] Uploading to Supabase Storage...');
-            const fileName = `generated_${Date.now()}.png`;
-            const publicUrl = await uploadImage(base64Image, fileName);
-            console.log('[Image Gen] ✅ Saved to Supabase:', publicUrl);
-
-            // Save to database
-            try {
-              const saved = await createImage({
-                storage_url: publicUrl,
-                file_name: fileName,
-                prompt: prompt,
-                model_used: modelToUse,
-                quality: size,
-                generation_type: 'generate',
-              });
-
-              if (saved) {
-                console.log('[Image Gen] ✅ Saved to database and gallery');
-              } else {
-                console.warn('[Image Gen] ⚠️ Image generated but NOT saved to gallery');
-                console.warn('[Image Gen] 💡 Sign in to save images to your gallery!');
-              }
-            } catch (dbError) {
-              console.error('[Image Gen] Database save failed (non-fatal):', dbError);
-              console.warn(
-                '[Image Gen] 💡 To save images to gallery: 1) Sign in, 2) Run database schema in Supabase',
-              );
-              // Don't throw - image generation succeeded even if DB save failed
-            }
-
-            return publicUrl; // Return Supabase URL instead of base64
-          } catch (uploadError) {
-            console.error('[Image Gen] Supabase upload failed, returning base64:', uploadError);
-            return base64Image; // Fallback to base64 if upload fails
-          }
-        }
-      }
-    }
-
-    // If we get here, no image was found
-    throw new Error(
-      `No image data in API response. Candidates: ${candidates.length}, Response: ${JSON.stringify(response).slice(0, 200)}`,
-    );
-  } catch (error) {
-    console.error('[Image Gen] FAILED:', error);
-
-    // Classify error for better handling
-    const networkError = classifyError(error);
-    console.log(
-      '[Image Gen] Error type:',
-      networkError.type,
-      '- Retryable:',
-      networkError.retryable,
-    );
-
-    // AUTO-FALLBACK CHAIN:
-    // 1. Try Nano Banana Pro (gemini-3-pro-image-preview)
-    // 2. If fails, try Nano Banana (gemini-2.5-flash-image)
-    // 3. If both fail, try Replicate FLUX.1-schnell
-
-    if (error instanceof Error && !_isRetry) {
-      const shouldRetry =
-        error.message.toLowerCase().includes('model') ||
-        error.message.toLowerCase().includes('not found') ||
-        error.message.toLowerCase().includes('404') ||
-        error.message.toLowerCase().includes('quota') ||
-        error.message.toLowerCase().includes('api key') ||
-        error.message.toLowerCase().includes('fetch') ||
-        error.message.toLowerCase().includes('failed to fetch') ||
-        error.message.toLowerCase().includes('network') ||
-        error.message.toLowerCase().includes('cors') ||
-        error.message.toLowerCase().includes('timeout');
-
-      if (shouldRetry) {
-        // First fallback: Nano Banana Pro → Nano Banana (Gemini)
-        if (isNanoBananaPro) {
-          console.warn(`[Image Gen] ⚠️ Nano Banana Pro (${modelToUse}) not available`);
-          console.log(`[Image Gen] 🔄 Auto-fallback to Nano Banana (${fallbackModel})`);
-
-          localStorage.setItem('llm_image_model', fallbackModel);
-
-          try {
-            const result: string = await generateImage(
-              prompt,
-              referenceImages,
-              size === '4K' ? '2K' : size,
-              editHistory,
-              true,
-            );
-            console.log('[Image Gen] ✅ Fallback to Nano Banana successful!');
-            return result;
-          } catch (retryError) {
-            console.error('[Image Gen] ❌ Nano Banana also failed:', retryError);
-            // Continue to Replicate fallback below
-          }
-        }
-
-        // Second fallback: All Gemini models → Replicate FLUX
-        console.warn('[Image Gen] ⚠️ All Gemini models failed');
-        console.log('[Image Gen] 🔄 Final fallback to Replicate FLUX.1-schnell');
-
-        try {
-          const { replicateKey } = getSettings();
-          if (!replicateKey) {
-            throw new Error('Replicate API key not found. Please add it in Settings.');
-          }
-
-          // Use FLUX.1-schnell for fast, high-quality generation
-          const fluxVersion = 'black-forest-labs/flux-schnell';
-
-          console.log('[Image Gen] Calling Replicate FLUX.1-schnell...');
-
-          const fluxPrompt = `Professional LinkedIn banner, 1584x396 pixels, 16:9 aspect ratio. ${prompt}`;
-
-          const output = await callReplicate(replicateKey, fluxVersion, {
-            prompt: fluxPrompt,
-            width: 1584,
-            height: 396,
-            num_outputs: 1,
-            guidance_scale: 3.5,
-            num_inference_steps: 4,
-          });
-
-          const imageUrl = Array.isArray(output) ? output[0] : output;
-          console.log('[Image Gen] ✅ Replicate FLUX fallback successful!');
-          console.log(
-            '[Image Gen] 💡 Using Replicate as fallback. To use Gemini, check your API key and quota.',
-          );
-
-          // Mark that we're using Replicate fallback
-          localStorage.setItem('llm_image_fallback', 'replicate');
-
-          return imageUrl;
-        } catch (replicateError) {
-          console.error('[Image Gen] ❌ Replicate fallback also failed:', replicateError);
-          localStorage.setItem('llm_image_model', modelToUse); // Restore original
-          throw new Error(
-            'All image generation providers failed. Please check your API keys and quotas.',
-          );
-        }
-      }
-    }
-
-    // Provide more helpful error messages
-    if (error instanceof Error) {
-      const friendlyMessage = getUserFriendlyMessage(error);
-
-      if (error.message.includes('API key')) {
-        throw new Error('Invalid Gemini API key. Please check your API key in Settings.');
-      } else if (error.message.includes('quota')) {
-        throw new Error('API quota exceeded. Please check your Gemini API usage.');
-      } else if (error.message.includes('safety')) {
-        throw new Error('Content blocked by safety filters. Try a different prompt.');
-      } else if (error.message.includes('model')) {
-        throw new Error(
-          `Model '${modelToUse}' not found or not available. Try using '${fallbackModel}' instead.`,
-        );
-      } else if (
-        error.message.toLowerCase().includes('fetch') ||
-        error.message.toLowerCase().includes('failed to fetch')
-      ) {
-        throw new Error(
-          friendlyMessage + ' - All image generation services are currently unavailable.',
-        );
-      } else if (error.message.toLowerCase().includes('cors')) {
-        throw new Error(
-          friendlyMessage + ' - Try switching to a different image model in Settings.',
-        );
-      } else if (
-        error.message.toLowerCase().includes('network') ||
-        error.message.toLowerCase().includes('timeout')
-      ) {
-        throw new Error(friendlyMessage + ' - Please check your connection and try again.');
-      }
-    }
-
-    throw error;
   }
 };
+
+// OLD GEMINI-DIRECT CODE REMOVED - NOW USING OPENROUTER-FIRST APPROACH
+// Image generation now uses OpenRouter Gemini as primary, with Replicate as fallback
+
+// ======================================================================
 
 export const editImage = async (base64Image: string, prompt: string) => {
   const { geminiKey } = getSettings();
