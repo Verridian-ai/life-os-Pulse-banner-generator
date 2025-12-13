@@ -56,6 +56,35 @@ export default defineConfig(({ mode }) => {
         '@': path.resolve(__dirname, './src'),
       }
     },
+    build: {
+      rollupOptions: {
+        output: {
+          manualChunks: (id) => {
+            // Split large vendor libraries into separate chunks
+            if (id.includes('node_modules')) {
+              // React libraries in one chunk
+              if (id.includes('react') || id.includes('react-dom')) {
+                return 'react-vendor';
+              }
+              // Supabase in separate chunk
+              if (id.includes('@supabase')) {
+                return 'supabase-vendor';
+              }
+              // Google AI in separate chunk
+              if (id.includes('@google/genai')) {
+                return 'google-vendor';
+              }
+              // All other node_modules into vendor chunk
+              return 'vendor';
+            }
+          },
+        },
+      },
+      chunkSizeWarningLimit: 1000, // Increase limit to 1000 kB for main chunk
+      sourcemap: false, // Disable sourcemaps for smaller builds
+      minify: 'esbuild', // Use esbuild for faster minification
+      target: 'esnext',
+    },
     test: {
       globals: true,
       environment: 'jsdom',
