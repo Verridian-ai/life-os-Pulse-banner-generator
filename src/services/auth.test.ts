@@ -30,12 +30,12 @@ describe('Auth Service', () => {
 
   describe('signUp', () => {
     it('should handle successful sign up', async () => {
-      const result = await signUp('test@example.com', 'password123', 'Test User');
+      const result = await signUp('test@example.com', 'password123', { name: 'Test User' });
       expect(result).toBeDefined();
     });
 
     it('should handle sign up with missing credentials', async () => {
-      const result = await signUp('', '', '');
+      const result = await signUp('', '', { name: '' });
       expect(result.error).toBeDefined();
     });
   });

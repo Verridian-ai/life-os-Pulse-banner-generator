@@ -102,11 +102,10 @@ export const PerformanceMetricsPanel: React.FC<PerformanceMetricsPanelProps> = (
             <button
               key={range}
               onClick={() => setTimeRange(range)}
-              className={`py-2 px-3 rounded-lg text-xs font-bold transition ${
-                timeRange === range
-                  ? 'bg-blue-600 text-white'
-                  : 'bg-zinc-800 text-zinc-400 hover:bg-zinc-700'
-              }`}
+              className={`py-2 px-3 rounded-lg text-xs font-bold transition ${timeRange === range
+                ? 'bg-blue-600 text-white'
+                : 'bg-zinc-800 text-zinc-400 hover:bg-zinc-700'
+                }`}
             >
               {range === 'all' ? 'All Time' : range.toUpperCase()}
             </button>
@@ -164,7 +163,7 @@ export const PerformanceMetricsPanel: React.FC<PerformanceMetricsPanelProps> = (
               .sort(([, a], [, b]) => b - a)
               .slice(0, 5)
               .map(([model, cost]) => {
-                const percentage = (cost / stats.totalCost) * 100;
+                const percentage = stats.totalCost > 0 ? (cost / stats.totalCost) * 100 : 0;
                 return (
                   <div key={model}>
                     <div className="flex justify-between items-center mb-1">
@@ -173,8 +172,7 @@ export const PerformanceMetricsPanel: React.FC<PerformanceMetricsPanelProps> = (
                     </div>
                     <div className="w-full bg-zinc-800 rounded-full h-1.5 overflow-hidden">
                       <div
-                        className="h-full bg-gradient-to-r from-blue-500 to-purple-500"
-                        style={{ width: `${percentage}%` }}
+                        className={`h-full bg-gradient-to-r from-blue-500 to-purple-500 w-[${percentage || 0}%]`}
                       ></div>
                     </div>
                   </div>
@@ -224,9 +222,8 @@ export const PerformanceMetricsPanel: React.FC<PerformanceMetricsPanelProps> = (
                   <div className="flex justify-between items-start mb-1">
                     <span className="text-white font-bold">{metric.operation}</span>
                     <span
-                      className={`text-[10px] font-bold ${
-                        metric.success ? 'text-green-400' : 'text-red-400'
-                      }`}
+                      className={`text-[10px] font-bold ${metric.success ? 'text-green-400' : 'text-red-400'
+                        }`}
                     >
                       {metric.success ? '✓ Success' : '✗ Failed'}
                     </span>

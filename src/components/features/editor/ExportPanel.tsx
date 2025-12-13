@@ -27,6 +27,7 @@ const ExportPanel: React.FC = () => {
                     Export your design as a high-fidelity PNG. <br />(Profile picture and guides are excluded automatically).
                 </p>
                 <button
+                    type="button"
                     onClick={handleDownload}
                     className={`${BTN_BASE} w-full bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-500 hover:to-emerald-500 text-white shadow-lg shadow-green-900/30`}
                 >

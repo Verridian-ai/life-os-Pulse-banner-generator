@@ -125,6 +125,7 @@ export const BrandConsistencyPanel: React.FC<BrandConsistencyPanelProps> = ({
             Extract brand colors, style, and identity from your reference images using AI
           </p>
           <button
+            type="button"
             onClick={handleExtractBrand}
             disabled={isExtracting || refImages.length === 0}
             className="w-full bg-gradient-to-br from-purple-600 to-purple-700 hover:from-purple-500 hover:to-purple-600 disabled:from-zinc-800 disabled:to-zinc-800 disabled:text-zinc-600 text-white font-bold py-3 px-4 rounded-xl transition flex items-center justify-center gap-2 text-sm"
@@ -157,8 +158,7 @@ export const BrandConsistencyPanel: React.FC<BrandConsistencyPanelProps> = ({
                   className="flex items-center gap-2 bg-zinc-800 rounded-lg p-2 border border-white/10"
                 >
                   <div
-                    className="w-8 h-8 rounded border border-white/20"
-                    style={{ backgroundColor: color.hex }}
+                    className={`w-8 h-8 rounded border border-white/20 bg-[${color.hex || '#000000'}]`}
                   ></div>
                   <div>
                     <p className="text-xs text-white font-bold">{color.name}</p>
@@ -211,6 +211,7 @@ export const BrandConsistencyPanel: React.FC<BrandConsistencyPanelProps> = ({
               CONSISTENCY CHECK
             </label>
             <button
+              type="button"
               onClick={handleCheckConsistency}
               disabled={isChecking || !currentImage}
               className="w-full bg-gradient-to-br from-green-600 to-green-700 hover:from-green-500 hover:to-green-600 disabled:from-zinc-800 disabled:to-zinc-800 disabled:text-zinc-600 text-white font-bold py-3 px-4 rounded-xl transition flex items-center justify-center gap-2 text-sm mb-3"
@@ -231,24 +232,21 @@ export const BrandConsistencyPanel: React.FC<BrandConsistencyPanelProps> = ({
             {/* Consistency Result */}
             {consistencyResult && (
               <div
-                className={`rounded-lg p-3 border ${
-                  consistencyResult.consistent
-                    ? 'bg-green-900/20 border-green-500/30'
-                    : 'bg-orange-900/20 border-orange-500/30'
-                }`}
+                className={`rounded-lg p-3 border ${consistencyResult.consistent
+                  ? 'bg-green-900/20 border-green-500/30'
+                  : 'bg-orange-900/20 border-orange-500/30'
+                  }`}
               >
                 <div className="flex items-center justify-between mb-2">
                   <span
-                    className={`text-sm font-bold ${
-                      consistencyResult.consistent ? 'text-green-300' : 'text-orange-300'
-                    }`}
+                    className={`text-sm font-bold ${consistencyResult.consistent ? 'text-green-300' : 'text-orange-300'
+                      }`}
                   >
                     {consistencyResult.consistent ? 'Brand Consistent ✓' : 'Needs Improvement'}
                   </span>
                   <span
-                    className={`text-lg font-black ${
-                      consistencyResult.consistent ? 'text-green-400' : 'text-orange-400'
-                    }`}
+                    className={`text-lg font-black ${consistencyResult.consistent ? 'text-green-400' : 'text-orange-400'
+                      }`}
                   >
                     {consistencyResult.score}/100
                   </span>
@@ -274,6 +272,7 @@ export const BrandConsistencyPanel: React.FC<BrandConsistencyPanelProps> = ({
           {/* Import/Export/Clear */}
           <div className="grid grid-cols-3 gap-2">
             <button
+              type="button"
               onClick={handleExport}
               className="bg-zinc-800 hover:bg-zinc-700 text-white font-bold py-2 px-3 rounded-lg transition flex flex-col items-center gap-1 text-xs border border-white/10"
             >
@@ -281,6 +280,7 @@ export const BrandConsistencyPanel: React.FC<BrandConsistencyPanelProps> = ({
               Export
             </button>
             <button
+              type="button"
               onClick={() => setShowImport(!showImport)}
               className="bg-zinc-800 hover:bg-zinc-700 text-white font-bold py-2 px-3 rounded-lg transition flex flex-col items-center gap-1 text-xs border border-white/10"
             >
@@ -288,6 +288,7 @@ export const BrandConsistencyPanel: React.FC<BrandConsistencyPanelProps> = ({
               Import
             </button>
             <button
+              type="button"
               onClick={handleClear}
               className="bg-red-900/50 hover:bg-red-900/70 text-red-300 font-bold py-2 px-3 rounded-lg transition flex flex-col items-center gap-1 text-xs border border-red-500/30"
             >
@@ -310,12 +311,14 @@ export const BrandConsistencyPanel: React.FC<BrandConsistencyPanelProps> = ({
               />
               <div className="flex gap-2">
                 <button
+                  type="button"
                   onClick={handleImport}
                   className="flex-1 bg-blue-600 hover:bg-blue-500 text-white font-bold py-2 px-4 rounded-lg transition text-xs"
                 >
                   Import
                 </button>
                 <button
+                  type="button"
                   onClick={() => setShowImport(false)}
                   className="flex-1 bg-zinc-800 hover:bg-zinc-700 text-white font-bold py-2 px-4 rounded-lg transition text-xs"
                 >

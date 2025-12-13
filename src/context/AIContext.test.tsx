@@ -48,7 +48,7 @@ const TestComponent = () => {
     modelOverride,
     setModelOverride,
     performanceMetrics,
-    addPerformanceMetric,
+    addMetric,
     activeChain,
     setActiveChain,
     chainProgress,
@@ -75,32 +75,36 @@ const TestComponent = () => {
       <button onClick={() => setSelectedProvider('openrouter')}>Set OpenRouter</button>
       <button onClick={() => setSelectedModel('gpt-4')}>Set Model</button>
       <button onClick={() => setModelOverride('claude-3')}>Set Override</button>
-      <button onClick={() => addPerformanceMetric({
+      <button onClick={() => addMetric({
+        id: 'metric1',
         modelId: 'test',
         provider: 'gemini',
+        operation: 'text_gen',
         timestamp: Date.now(),
-        latency: 100,
-        tokensUsed: 50,
+        responseTime: 100,
         cost: 0.001,
         success: true
       })}>Add Metric</button>
       <button onClick={() => setActiveChain({
         id: 'chain1',
         steps: [],
-        currentStep: 0
+        currentStep: 0,
+        status: 'pending'
       })}>Set Chain</button>
       <button onClick={() => updateBrandProfile({
-        colorPalette: ['#000000'],
+        colors: [],
         fonts: [],
         logoUrl: '',
-        tone: 'professional'
       })}>Update Profile</button>
       <button onClick={() => addEditTurn({
-        imageUrl: 'test.png',
+        id: 'turn1',
+        inputImage: 'test.png',
+        outputImage: 'result.png',
         prompt: 'test prompt',
         timestamp: Date.now()
       })}>Add Turn</button>
       <button onClick={() => setReplicateOperation({
+        id: 'op1',
         type: 'upscale',
         status: 'processing',
         progress: 50

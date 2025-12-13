@@ -1,4 +1,4 @@
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect, vi } from 'vitest';
 import {
   classifyError,
   getUserFriendlyMessage,
@@ -84,7 +84,7 @@ describe('Error Handler', () => {
   describe('retry', () => {
     it('should succeed on first try', async () => {
       const fn = vi.fn().mockResolvedValue('success');
-      const result = await retry(fn, 3, 100);
+      const result = await retry(fn, { maxAttempts: 3, delay: 100 });
       expect(result).toBe('success');
       expect(fn).toHaveBeenCalledTimes(1);
     });
@@ -95,7 +95,7 @@ describe('Error Handler', () => {
         .mockRejectedValueOnce(new Error('fail'))
         .mockResolvedValue('success');
 
-      const result = await retry(fn, 3, 10);
+      const result = await retry(fn, { maxAttempts: 3, delay: 10 });
       expect(result).toBe('success');
       expect(fn).toHaveBeenCalledTimes(3);
     });
@@ -103,7 +103,7 @@ describe('Error Handler', () => {
     it('should fail after max retries', async () => {
       const fn = vi.fn().mockRejectedValue(new Error('fail'));
 
-      await expect(retry(fn, 3, 10)).rejects.toThrow('fail');
+      await expect(retry(fn, { maxAttempts: 3, delay: 10 })).rejects.toThrow('fail');
       expect(fn).toHaveBeenCalledTimes(3);
     });
   });

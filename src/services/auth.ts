@@ -1,7 +1,7 @@
 // Supabase Auth Service
 
 import { createClient, type User as SupabaseUser, type Session } from '@supabase/supabase-js';
-import { upsertUser, getCurrentUser } from './neon';
+import { upsertUser, getCurrentUser } from './db-api';
 import type { User } from '../types/database';
 
 // Initialize Supabase client
@@ -226,7 +226,7 @@ export const onAuthStateChange = (
   callback: (event: string, session: Session | null) => void
 ) => {
   if (!supabase) {
-    return { data: { subscription: { unsubscribe: () => {} } } };
+    return { data: { subscription: { unsubscribe: () => { } } } };
   }
   return supabase.auth.onAuthStateChange(callback);
 };

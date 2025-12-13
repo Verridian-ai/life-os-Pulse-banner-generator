@@ -201,8 +201,7 @@ export const ImageToolsPanel: React.FC<ImageToolsPanelProps> = ({ bgImage, onIma
                 </p>
                 <div className="w-48 bg-zinc-800 rounded-full h-2 overflow-hidden mt-3">
                   <div
-                    className="h-full bg-gradient-to-r from-blue-500 to-purple-500 transition-all duration-300"
-                    style={{ width: `${progress}%` }}
+                    className={`h-full bg-gradient-to-r from-blue-500 to-purple-500 transition-all duration-300 w-[${progress || 0}%]`}
                   />
                 </div>
               </div>
@@ -219,8 +218,9 @@ export const ImageToolsPanel: React.FC<ImageToolsPanelProps> = ({ bgImage, onIma
 
       {/* Quality Selector */}
       <div className="bg-zinc-900/50 rounded-xl p-3 mb-4">
-        <label className="text-[10px] text-zinc-500 mb-2 block font-bold">QUALITY</label>
+        <label htmlFor="quality-select" className="text-[10px] text-zinc-500 mb-2 block font-bold">QUALITY</label>
         <select
+          id="quality-select"
           className="w-full bg-zinc-800 border border-white/10 rounded-lg p-2 text-sm text-white focus:border-blue-500 focus:outline-none transition"
           value={quality}
           onChange={(e) => setQuality(e.target.value as ReplicateQuality)}
@@ -352,22 +352,19 @@ export const ImageToolsPanel: React.FC<ImageToolsPanelProps> = ({ bgImage, onIma
 
               {/* Before Image (Clipped) */}
               <div
-                className="absolute inset-0 overflow-hidden"
-                style={{ width: `${sliderPosition}%` }}
+                className={`absolute inset-0 overflow-hidden w-[${sliderPosition || 50}%]`}
               >
                 <img
                   src={beforeImage}
                   alt="Before"
-                  className="absolute inset-0 w-full h-full object-cover"
-                  style={{ width: `${(100 / sliderPosition) * 100}%` }}
+                  className={`absolute inset-0 w-full h-full object-cover w-[${(100 / (sliderPosition || 1)) * 100}%]`}
                   draggable={false}
                 />
               </div>
 
               {/* Slider Line */}
               <div
-                className="absolute top-0 bottom-0 w-1 bg-white shadow-lg"
-                style={{ left: `${sliderPosition}%` }}
+                className={`absolute top-0 bottom-0 w-1 bg-white shadow-lg left-[${sliderPosition || 50}%]`}
               >
                 {/* Slider Handle */}
                 <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-12 h-12 bg-white rounded-full shadow-xl flex items-center justify-center cursor-ew-resize">

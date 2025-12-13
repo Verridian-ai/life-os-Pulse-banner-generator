@@ -84,7 +84,7 @@ export const upsertUser = async (supabaseUserId: string, email: string, name?: s
     DO UPDATE SET email = $2, full_name = COALESCE($3, users.full_name)
     RETURNING *;
   `;
-  const result = await executeQuery<{ rows: User[] }>(query, [supabaseUserId, email, name]);
+  const result = await executeQuery<{ rows: User[] }>(query, [supabaseUserId, email, name || null]);
   return result.rows[0];
 };
 
@@ -449,7 +449,8 @@ export const updateUserPreferences = async (
   preferences: Partial<Omit<UserPreferences, 'user_id' | 'updated_at'>>
 ): Promise<UserPreferences> => {
   const fields: string[] = [];
-  const values: (string | number | boolean | null)[] = [userId];
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const values: any[] = [userId];
   let paramIndex = 2;
 
   Object.entries(preferences).forEach(([key, value]) => {

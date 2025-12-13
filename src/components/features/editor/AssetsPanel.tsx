@@ -53,6 +53,8 @@ const AssetsPanel: React.FC = () => {
                             <span className="text-xs font-bold text-zinc-400 group-hover/bg:text-white transition uppercase tracking-wider">Upload Background</span>
                             <input
                                 type="file"
+                                id="bg-upload"
+                                aria-label="Upload background image"
                                 accept="image/*"
                                 className="hidden"
                                 onChange={(e) => {
@@ -80,6 +82,7 @@ const AssetsPanel: React.FC = () => {
                                 <img src={img} alt="logo" className="w-full h-full object-cover" />
                                 <div className="absolute inset-0 bg-black/80 opacity-0 group-hover/item:opacity-100 flex flex-col gap-1 items-center justify-center transition-all">
                                     <button
+                                        type="button"
                                         onClick={() => addElement({
                                             id: Date.now().toString(),
                                             type: 'image',
@@ -99,7 +102,15 @@ const AssetsPanel: React.FC = () => {
                         ))}
                         <label className={`flex flex-col items-center justify-center h-full min-h-[60px] rounded-xl cursor-pointer transition aspect-square group/add ${BTN_NEU_SOLID}`}>
                             <span className="material-icons text-zinc-500 group-hover/add:text-white transition">add</span>
-                            <input type="file" multiple onChange={onRefUpload} className="hidden" accept="image/*" />
+                            <input
+                                type="file"
+                                id="ref-upload-1"
+                                aria-label="Upload reference logos"
+                                multiple
+                                onChange={onRefUpload}
+                                className="hidden"
+                                accept="image/*"
+                            />
                         </label>
                     </div>
                 </div>
@@ -124,6 +135,7 @@ const AssetsPanel: React.FC = () => {
                                     })}
                                 >
                                     <button
+                                        type="button"
                                         className="text-[9px] font-black uppercase tracking-wide bg-purple-600 text-white px-3 py-2 rounded-lg hover:scale-105 transition shadow-lg"
                                     >
                                         Place
@@ -133,7 +145,15 @@ const AssetsPanel: React.FC = () => {
                         ))}
                         <label className={`flex flex-col items-center justify-center h-full min-h-[60px] rounded-xl cursor-pointer transition aspect-square group/add ${BTN_NEU_SOLID}`}>
                             <span className="material-icons text-zinc-500 group-hover/add:text-white transition">add</span>
-                            <input type="file" multiple onChange={onRefUpload} className="hidden" accept="image/*" />
+                            <input
+                                type="file"
+                                id="ref-upload-2"
+                                aria-label="Upload image overlays"
+                                multiple
+                                onChange={onRefUpload}
+                                className="hidden"
+                                accept="image/*"
+                            />
                         </label>
                     </div>
                 </div>
@@ -150,7 +170,14 @@ const AssetsPanel: React.FC = () => {
                                 )}
                                 <label className="absolute inset-0 bg-black/60 opacity-0 group-hover/profile:opacity-100 flex items-center justify-center cursor-pointer transition">
                                     <span className="material-icons text-white text-xs">edit</span>
-                                    <input type="file" onChange={onProfileUpload} className="hidden" accept="image/*" />
+                                    <input
+                                        type="file"
+                                        id="profile-upload"
+                                        aria-label="Upload profile picture"
+                                        onChange={onProfileUpload}
+                                        className="hidden"
+                                        accept="image/*"
+                                    />
                                 </label>
                             </div>
                             <div className="text-[10px] font-medium text-zinc-400 leading-tight">
@@ -165,6 +192,7 @@ const AssetsPanel: React.FC = () => {
                                     <span className="text-[9px] text-zinc-500 w-8 font-bold">ZOOM</span>
                                     <input
                                         type="range" min="0.5" max="5" step="0.1"
+                                        aria-label="Profile Zoom"
                                         value={profileTransform?.scale || 1}
                                         onChange={(e) => setProfileTransform({ ...profileTransform, scale: parseFloat(e.target.value) })}
                                         className="flex-1 accent-purple-500 h-1 bg-zinc-700 rounded-lg appearance-none cursor-pointer"
@@ -174,6 +202,7 @@ const AssetsPanel: React.FC = () => {
                                     <span className="text-[9px] text-zinc-500 w-8 font-bold">X-POS</span>
                                     <input
                                         type="range" min="-100" max="100" step="1"
+                                        aria-label="Profile X Position"
                                         value={profileTransform?.x || 0}
                                         onChange={(e) => setProfileTransform({ ...profileTransform, x: parseInt(e.target.value) })}
                                         className="flex-1 accent-blue-500 h-1 bg-zinc-700 rounded-lg appearance-none cursor-pointer"
@@ -183,6 +212,7 @@ const AssetsPanel: React.FC = () => {
                                     <span className="text-[9px] text-zinc-500 w-8 font-bold">Y-POS</span>
                                     <input
                                         type="range" min="-100" max="100" step="1"
+                                        aria-label="Profile Y Position"
                                         value={profileTransform?.y || 0}
                                         onChange={(e) => setProfileTransform({ ...profileTransform, y: parseInt(e.target.value) })}
                                         className="flex-1 accent-blue-500 h-1 bg-zinc-700 rounded-lg appearance-none cursor-pointer"

@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { ActionExecutor } from './actionExecutor';
-import type { ToolCall } from './actionExecutor';
+import type { ToolCall, OnUpdateCallback } from './actionExecutor';
 
 // Mock services
 vi.mock('./llm', () => ({
@@ -26,7 +26,7 @@ describe('ActionExecutor', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     onUpdate = vi.fn();
-    executor = new ActionExecutor(onUpdate);
+    executor = new ActionExecutor(onUpdate as unknown as OnUpdateCallback);
   });
 
   describe('initialization', () => {
@@ -35,7 +35,7 @@ describe('ActionExecutor', () => {
     });
 
     it('should create executor in preview mode', () => {
-      const previewExecutor = new ActionExecutor(onUpdate, true);
+      const previewExecutor = new ActionExecutor(onUpdate as unknown as OnUpdateCallback, true);
       expect(previewExecutor).toBeDefined();
     });
   });
@@ -90,7 +90,7 @@ describe('ActionExecutor', () => {
     });
 
     it('should handle null image generation', async () => {
-      vi.mocked(generateImage).mockResolvedValueOnce(null);
+      vi.mocked(generateImage).mockResolvedValueOnce(null as unknown as string);
 
       const result = await executor.executeToolCall(toolCall);
 
@@ -156,7 +156,8 @@ describe('ActionExecutor', () => {
       const mockService = {
         upscale: vi.fn().mockResolvedValue('https://example.com/upscaled.png')
       };
-      vi.mocked(getReplicateService).mockReturnValueOnce(mockService as ReturnType<typeof getReplicateService>);
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      vi.mocked(getReplicateService).mockReturnValueOnce(mockService as any);
 
       const result = await executor.executeToolCall(toolCall);
 
@@ -169,7 +170,8 @@ describe('ActionExecutor', () => {
       const mockService = {
         upscale: vi.fn().mockRejectedValue(new Error('Upscale failed'))
       };
-      vi.mocked(getReplicateService).mockReturnValueOnce(mockService as ReturnType<typeof getReplicateService>);
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      vi.mocked(getReplicateService).mockReturnValueOnce(mockService as any);
 
       const result = await executor.executeToolCall(toolCall);
 
@@ -181,7 +183,8 @@ describe('ActionExecutor', () => {
       const mockService = {
         upscale: vi.fn().mockResolvedValue('https://example.com/upscaled.png')
       };
-      vi.mocked(getReplicateService).mockReturnValueOnce(mockService as ReturnType<typeof getReplicateService>);
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      vi.mocked(getReplicateService).mockReturnValueOnce(mockService as any);
 
       await executor.executeToolCall({
         name: 'upscale_image',
@@ -200,7 +203,8 @@ describe('ActionExecutor', () => {
       const mockService = {
         restore: vi.fn().mockResolvedValue('https://example.com/restored.png')
       };
-      vi.mocked(getReplicateService).mockReturnValueOnce(mockService as ReturnType<typeof getReplicateService>);
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      vi.mocked(getReplicateService).mockReturnValueOnce(mockService as any);
 
       const result = await executor.executeToolCall({
         name: 'restore_image',
@@ -215,7 +219,8 @@ describe('ActionExecutor', () => {
       const mockService = {
         restore: vi.fn().mockRejectedValue(new Error('Restore failed'))
       };
-      vi.mocked(getReplicateService).mockReturnValueOnce(mockService as ReturnType<typeof getReplicateService>);
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      vi.mocked(getReplicateService).mockReturnValueOnce(mockService as any);
 
       const result = await executor.executeToolCall({
         name: 'restore_image',
@@ -232,7 +237,8 @@ describe('ActionExecutor', () => {
       const mockService = {
         faceEnhance: vi.fn().mockResolvedValue('https://example.com/enhanced.png')
       };
-      vi.mocked(getReplicateService).mockReturnValueOnce(mockService as ReturnType<typeof getReplicateService>);
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      vi.mocked(getReplicateService).mockReturnValueOnce(mockService as any);
 
       const result = await executor.executeToolCall({
         name: 'enhance_face',
@@ -248,7 +254,8 @@ describe('ActionExecutor', () => {
       const mockService = {
         faceEnhance: vi.fn().mockRejectedValue(new Error('Enhance failed'))
       };
-      vi.mocked(getReplicateService).mockReturnValueOnce(mockService as ReturnType<typeof getReplicateService>);
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      vi.mocked(getReplicateService).mockReturnValueOnce(mockService as any);
 
       const result = await executor.executeToolCall({
         name: 'enhance_face',

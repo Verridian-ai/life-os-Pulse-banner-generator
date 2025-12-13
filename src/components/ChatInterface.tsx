@@ -223,8 +223,8 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({ onGenerateFromPrompt }) =
                     <div className="flex justify-start">
                         <div className="bg-white/5 border border-white/5 rounded-2xl rounded-bl-sm p-4 flex items-center gap-2 shadow-lg">
                             <div className="w-2 h-2 bg-purple-500 rounded-full animate-bounce"></div>
-                            <div className="w-2 h-2 bg-purple-500 rounded-full animate-bounce" style={{ animationDelay: '0.2s' }}></div>
-                            <div className="w-2 h-2 bg-purple-500 rounded-full animate-bounce" style={{ animationDelay: '0.4s' }}></div>
+                            <div className="w-2 h-2 bg-purple-500 rounded-full animate-bounce [animation-delay:0.2s]"></div>
+                            <div className="w-2 h-2 bg-purple-500 rounded-full animate-bounce [animation-delay:0.4s]"></div>
                         </div>
                     </div>
                 )}
@@ -256,6 +256,8 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({ onGenerateFromPrompt }) =
                     </button>
                     <input
                         type="file"
+                        id="chat-file-upload" // Added ID
+                        aria-label="Upload images" // Added accessible name
                         multiple
                         ref={fileInputRef}
                         className="hidden"
@@ -267,6 +269,7 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({ onGenerateFromPrompt }) =
                         <textarea
                             className="w-full bg-black/40 border border-white/10 rounded-3xl px-6 py-3.5 text-white font-bold placeholder-zinc-500 focus:outline-none focus:border-white/20 focus:bg-black/60 resize-none h-[52px] max-h-[120px] shadow-[inset_0_2px_6px_rgba(0,0,0,0.5)] transition-all"
                             placeholder={mode === 'design' ? "CHAT WITH NANO..." : "SEARCH TRENDS..."}
+                            aria-label="Chat message"
                             value={input}
                             onChange={(e) => setInput(e.target.value)}
                             onKeyDown={(e) => {

@@ -100,11 +100,10 @@ const LiveActionPanel: React.FC<LiveActionPanelProps> = ({
                                     className={`flex gap-3 ${entry.role === 'user' ? 'flex-row-reverse' : 'flex-row'}`}
                                 >
                                     {/* Avatar */}
-                                    <div className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold shrink-0 ${
-                                        entry.role === 'user'
+                                    <div className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold shrink-0 ${entry.role === 'user'
                                             ? 'bg-blue-600 text-white'
                                             : 'bg-purple-600 text-white'
-                                    }`}>
+                                        }`}>
                                         <span className="material-icons text-sm">
                                             {entry.role === 'user' ? 'person' : 'smart_toy'}
                                         </span>
@@ -112,11 +111,10 @@ const LiveActionPanel: React.FC<LiveActionPanelProps> = ({
 
                                     {/* Message Content */}
                                     <div className={`flex-1 ${entry.role === 'user' ? 'text-right' : 'text-left'}`}>
-                                        <div className={`inline-block max-w-[80%] rounded-lg px-3 py-2 ${
-                                            entry.role === 'user'
+                                        <div className={`inline-block max-w-[80%] rounded-lg px-3 py-2 ${entry.role === 'user'
                                                 ? 'bg-blue-600/20 border border-blue-500/30 text-blue-100'
                                                 : 'bg-purple-600/20 border border-purple-500/30 text-purple-100'
-                                        }`}>
+                                            }`}>
                                             <p className="text-xs font-medium">{entry.text}</p>
 
                                             {/* Tool Calls */}
@@ -167,9 +165,9 @@ const LiveActionPanel: React.FC<LiveActionPanelProps> = ({
                             <p className="text-[10px] font-bold uppercase text-zinc-400 mb-1">
                                 {getToolDisplayName(pendingAction.toolCall.name)}
                             </p>
-                            {pendingAction.toolCall.args.prompt && (
+                            {(pendingAction.toolCall.args.prompt as string) && (
                                 <p className="text-[9px] text-zinc-500 line-clamp-2">
-                                    {pendingAction.toolCall.args.prompt}
+                                    {(pendingAction.toolCall.args.prompt as string)}
                                 </p>
                             )}
                         </div>

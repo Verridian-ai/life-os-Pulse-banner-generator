@@ -121,6 +121,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4">
             <div className="bg-zinc-900 border border-white/10 rounded-3xl p-6 w-full max-w-md shadow-2xl relative">
                 <button
+                    type="button"
                     onClick={onClose}
                     className="absolute top-4 right-4 text-zinc-500 hover:text-white transition"
                 >
@@ -140,12 +141,14 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
                         </label>
                         <div className="flex bg-zinc-950 p-1 rounded-xl border border-white/5">
                             <button
+                                type="button"
                                 onClick={() => setProvider('gemini')}
                                 className={`flex-1 py-2 rounded-lg text-xs font-bold uppercase tracking-wider transition ${provider === 'gemini' ? 'bg-zinc-800 text-white shadow-md' : 'text-zinc-500 hover:text-zinc-300'}`}
                             >
                                 Google Gemini
                             </button>
                             <button
+                                type="button"
                                 onClick={() => setProvider('openrouter')}
                                 className={`flex-1 py-2 rounded-lg text-xs font-bold uppercase tracking-wider transition ${provider === 'openrouter' ? 'bg-zinc-800 text-white shadow-md' : 'text-zinc-500 hover:text-zinc-300'}`}
                             >
@@ -157,10 +160,11 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
                     {/* Gemini Configuration */}
                     {provider === 'gemini' && (
                         <div className="animate-fade-in">
-                            <label className="block text-[10px] font-bold text-zinc-500 uppercase tracking-widest mb-2">
+                            <label htmlFor="gemini-key" className="block text-[10px] font-bold text-zinc-500 uppercase tracking-widest mb-2">
                                 Gemini API Key
                             </label>
                             <input
+                                id="gemini-key"
                                 type="password"
                                 value={geminiKey}
                                 onChange={(e) => setGeminiKey(e.target.value)}
@@ -187,10 +191,11 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
                     {provider === 'openrouter' && (
                         <div className="space-y-4 animate-fade-in">
                             <div>
-                                <label className="block text-[10px] font-bold text-zinc-500 uppercase tracking-widest mb-2">
+                                <label htmlFor="openrouter-key" className="block text-[10px] font-bold text-zinc-500 uppercase tracking-widest mb-2">
                                     OpenRouter API Key
                                 </label>
                                 <input
+                                    id="openrouter-key"
                                     type="password"
                                     value={openRouterKey}
                                     onChange={(e) => setOpenRouterKey(e.target.value)}
@@ -220,10 +225,11 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
                             </div>
 
                             <div>
-                                <label className="block text-[10px] font-bold text-zinc-500 uppercase tracking-widest mb-2">
+                                <label htmlFor="model-select" className="block text-[10px] font-bold text-zinc-500 uppercase tracking-widest mb-2">
                                     Model Selection
                                 </label>
                                 <select
+                                    id="model-select"
                                     value={model}
                                     onChange={(e) => setModel(e.target.value)}
                                     className="w-full bg-zinc-950 border border-white/10 rounded-xl px-4 py-3 text-white text-xs font-medium focus:outline-none focus:border-purple-500/50 transition appearance-none mb-2"
@@ -250,11 +256,12 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
 
                     {/* Replicate Configuration */}
                     <div className="animate-fade-in border-t border-white/10 pt-4 mt-4">
-                        <label className="block text-[10px] font-bold text-zinc-500 uppercase tracking-widest mb-2 flex justify-between items-center">
+                        <label htmlFor="replicate-key" className="block text-[10px] font-bold text-zinc-500 uppercase tracking-widest mb-2 flex justify-between items-center">
                             <span>Replicate API (Upscaling, Rembg)</span>
                             <span className="text-[9px] text-zinc-600 bg-zinc-900 px-2 py-0.5 rounded">Optional</span>
                         </label>
                         <input
+                            id="replicate-key"
                             type="password"
                             value={replicateKey}
                             onChange={(e) => setReplicateKey(e.target.value)}
@@ -285,10 +292,11 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
 
                     {/* Replicate Upscale Model Selection */}
                     <div className="animate-fade-in mt-4">
-                        <label className="block text-[10px] font-bold text-zinc-500 uppercase tracking-widest mb-2">
+                        <label htmlFor="upscale-model-select" className="block text-[10px] font-bold text-zinc-500 uppercase tracking-widest mb-2">
                             Upscale Model
                         </label>
                         <select
+                            id="upscale-model-select"
                             value={upscaleModel}
                             onChange={(e) => setUpscaleModel(e.target.value)}
                             className="w-full bg-zinc-950 border border-white/10 rounded-xl px-4 py-3 text-white text-xs font-medium focus:outline-none focus:border-purple-500/50 transition appearance-none"
@@ -301,10 +309,11 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
 
                     {/* Image Generation Model Selection */}
                     <div className="animate-fade-in mt-4">
-                        <label className="block text-[10px] font-bold text-zinc-500 uppercase tracking-widest mb-2">
+                        <label htmlFor="image-model-select" className="block text-[10px] font-bold text-zinc-500 uppercase tracking-widest mb-2">
                             Image Generation Model
                         </label>
                         <select
+                            id="image-model-select"
                             value={imageModel}
                             onChange={(e) => setImageModel(e.target.value)}
                             className="w-full bg-zinc-950 border border-white/10 rounded-xl px-4 py-3 text-white text-xs font-medium focus:outline-none focus:border-purple-500/50 transition appearance-none"
@@ -319,6 +328,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
                     </div>
 
                     <button
+                        type="button"
                         onClick={handleSave}
                         className="w-full h-12 rounded-xl font-bold uppercase tracking-wider text-xs transition-all flex items-center justify-center gap-2 bg-white text-black hover:bg-zinc-200 active:scale-[0.98]"
                     >

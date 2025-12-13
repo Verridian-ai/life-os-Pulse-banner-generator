@@ -30,12 +30,10 @@ interface AIProviderProps {
 
 export const AIProvider: React.FC<AIProviderProps> = ({ children }) => {
   // Model Selection
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const [selectedProvider, _setSelectedProvider] = useState<'gemini' | 'openrouter' | 'replicate'>(
+  const [selectedProvider, setSelectedProvider] = useState<'gemini' | 'openrouter' | 'replicate'>(
     () => (localStorage.getItem('llm_provider') as 'gemini' | 'openrouter' | 'replicate') || 'gemini'
   );
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const [selectedModel, _setSelectedModel] = useState<string>(
+  const [selectedModel, setSelectedModel] = useState<string>(
     () => localStorage.getItem('llm_model') || ''
   );
   const [availableModels, setAvailableModels] = useState<ModelMetadata[]>([]);
@@ -137,13 +135,13 @@ export const AIProvider: React.FC<AIProviderProps> = ({ children }) => {
     const updated = brandProfile
       ? { ...brandProfile, ...updates, lastUpdated: Date.now() }
       : ({
-          ...updates,
-          colors: updates.colors || [],
-          fonts: updates.fonts || [],
-          styleKeywords: updates.styleKeywords || [],
-          lastUpdated: Date.now(),
-          version: 1,
-        } as BrandProfile);
+        ...updates,
+        colors: updates.colors || [],
+        fonts: updates.fonts || [],
+        styleKeywords: updates.styleKeywords || [],
+        lastUpdated: Date.now(),
+        version: 1,
+      } as BrandProfile);
 
     setBrandProfile(updated);
     saveBrandProfile(updated);
@@ -162,7 +160,9 @@ export const AIProvider: React.FC<AIProviderProps> = ({ children }) => {
 
   const value: AIContextType = {
     selectedProvider,
+    setSelectedProvider,
     selectedModel,
+    setSelectedModel,
     availableModels,
     modelOverride,
     setModelOverride,

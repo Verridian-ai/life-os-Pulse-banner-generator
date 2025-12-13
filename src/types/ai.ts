@@ -107,7 +107,9 @@ export interface MetricsSummary {
 export interface AIContextType {
   // Model Selection
   selectedProvider: 'gemini' | 'openrouter' | 'replicate';
+  setSelectedProvider: (provider: 'gemini' | 'openrouter' | 'replicate') => void;
   selectedModel: string;
+  setSelectedModel: (model: string) => void;
   availableModels: ModelMetadata[];
   modelOverride: string | null;
   setModelOverride: (model: string | null) => void;

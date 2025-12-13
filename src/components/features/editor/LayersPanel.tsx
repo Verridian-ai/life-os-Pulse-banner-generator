@@ -35,7 +35,7 @@ const LayersPanel: React.FC = () => {
                     <span className="material-icons text-purple-400">layers</span>
                     Layers
                 </h3>
-                <button onClick={handleAddText} className={`h-8 px-4 text-[9px] rounded-full ${BTN_NEU_SOLID}`}>
+                <button type="button" onClick={handleAddText} className={`h-8 px-4 text-[9px] rounded-full ${BTN_NEU_SOLID}`}>
                     + Add Text
                 </button>
             </div>
@@ -66,7 +66,7 @@ const LayersPanel: React.FC = () => {
                                     placeholder="ENTER TEXT..."
                                 />
                             )}
-                            <button onClick={(e) => {
+                            <button type="button" onClick={(e) => {
                                 e.stopPropagation();
                                 deleteElement(el.id);
                             }} className="text-zinc-600 hover:text-red-500 transition">
@@ -83,7 +83,7 @@ const LayersPanel: React.FC = () => {
                                         className="w-full bg-white/5 text-[10px] font-bold text-zinc-300 rounded-lg px-2 py-1.5 focus:outline-none appearance-none cursor-pointer uppercase"
                                     >
                                         {FONT_OPTIONS.map(font => (
-                                            <option key={font} value={font} className="bg-zinc-900 text-zinc-300" style={{ fontFamily: font }}>{font}</option>
+                                            <option key={font} value={font} className={`bg-zinc-900 text-zinc-300 font-[${font.replace(/\s/g, '_')}]`}>{font}</option>
                                         ))}
                                     </select>
                                 </div>
@@ -115,6 +115,7 @@ const LayersPanel: React.FC = () => {
                                 <div className="col-span-2 flex bg-white/5 rounded-lg p-0.5">
                                     {(['left', 'center', 'right'] as const).map(align => (
                                         <button
+                                            type="button"
                                             key={align}
                                             onClick={() => updateElement(el.id, { textAlign: align })}
                                             className={`flex-1 py-1 rounded-md transition-all flex items-center justify-center ${(el.textAlign || 'left') === align
@@ -131,6 +132,7 @@ const LayersPanel: React.FC = () => {
                                     <span className="text-[9px] font-bold text-zinc-500 uppercase tracking-wider">Snap to Center</span>
                                     <div className="flex gap-2">
                                         <button
+                                            type="button"
                                             onClick={() => centerElement(el.id, 'horizontal')}
                                             className="p-1 hover:text-white text-zinc-400 transition"
                                             title="Center Horizontally"
@@ -139,6 +141,7 @@ const LayersPanel: React.FC = () => {
                                         </button>
                                         <div className="w-px bg-white/10 h-4 self-center"></div>
                                         <button
+                                            type="button"
                                             onClick={() => centerElement(el.id, 'vertical')}
                                             className="p-1 hover:text-white text-zinc-400 transition"
                                             title="Center Vertically"
@@ -156,6 +159,7 @@ const LayersPanel: React.FC = () => {
                                     <span className="text-[9px] font-bold text-zinc-500 uppercase tracking-wider">Snap to Center</span>
                                     <div className="flex gap-2">
                                         <button
+                                            type="button"
                                             onClick={() => centerElement(el.id, 'horizontal')}
                                             className="p-1 hover:text-white text-zinc-400 transition"
                                             title="Center Horizontally"
@@ -164,6 +168,7 @@ const LayersPanel: React.FC = () => {
                                         </button>
                                         <div className="w-px bg-white/10 h-4 self-center"></div>
                                         <button
+                                            type="button"
                                             onClick={() => centerElement(el.id, 'vertical')}
                                             className="p-1 hover:text-white text-zinc-400 transition"
                                             title="Center Vertically"

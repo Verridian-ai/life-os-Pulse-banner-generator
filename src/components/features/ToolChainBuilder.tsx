@@ -63,32 +63,32 @@ const CHAIN_TEMPLATES: Array<{
   description: string;
   steps: Array<{ tool: ToolType; params: Record<string, string | number | boolean> }>;
 }> = [
-  {
-    name: 'Professional Polish',
-    description: 'Upscale, restore, and enhance',
-    steps: [
-      { tool: 'upscale' as ToolType, params: { quality: 'balanced' } },
-      { tool: 'restore' as ToolType, params: {} as Record<string, string | number | boolean> },
-      { tool: 'faceenhance' as ToolType, params: {} as Record<string, string | number | boolean> },
-    ],
-  },
-  {
-    name: 'Clean Background',
-    description: 'Remove BG and upscale',
-    steps: [
-      { tool: 'removebg' as ToolType, params: {} as Record<string, string | number | boolean> },
-      { tool: 'upscale' as ToolType, params: { quality: 'best' } },
-    ],
-  },
-  {
-    name: 'Quick Enhance',
-    description: 'Fast upscale and restore',
-    steps: [
-      { tool: 'upscale' as ToolType, params: { quality: 'fast' } },
-      { tool: 'restore' as ToolType, params: {} as Record<string, string | number | boolean> },
-    ],
-  },
-];
+    {
+      name: 'Professional Polish',
+      description: 'Upscale, restore, and enhance',
+      steps: [
+        { tool: 'upscale' as ToolType, params: { quality: 'balanced' } },
+        { tool: 'restore' as ToolType, params: {} as Record<string, string | number | boolean> },
+        { tool: 'faceenhance' as ToolType, params: {} as Record<string, string | number | boolean> },
+      ],
+    },
+    {
+      name: 'Clean Background',
+      description: 'Remove BG and upscale',
+      steps: [
+        { tool: 'removebg' as ToolType, params: {} as Record<string, string | number | boolean> },
+        { tool: 'upscale' as ToolType, params: { quality: 'best' } },
+      ],
+    },
+    {
+      name: 'Quick Enhance',
+      description: 'Fast upscale and restore',
+      steps: [
+        { tool: 'upscale' as ToolType, params: { quality: 'fast' } },
+        { tool: 'restore' as ToolType, params: {} as Record<string, string | number | boolean> },
+      ],
+    },
+  ];
 
 export const ToolChainBuilder: React.FC<ToolChainBuilderProps> = ({
   currentImage,
@@ -228,8 +228,9 @@ export const ToolChainBuilder: React.FC<ToolChainBuilderProps> = ({
 
       {/* Chain Name */}
       <div className="bg-zinc-900/50 rounded-xl p-3 mb-4">
-        <label className="text-[10px] text-zinc-500 mb-2 block font-bold">CHAIN NAME</label>
+        <label htmlFor="chain-name-input" className="text-[10px] text-zinc-500 mb-2 block font-bold">CHAIN NAME</label>
         <input
+          id="chain-name-input"
           type="text"
           value={chainName}
           onChange={(e) => setChainName(e.target.value)}
@@ -327,6 +328,8 @@ export const ToolChainBuilder: React.FC<ToolChainBuilderProps> = ({
                   {/* Step Parameters */}
                   {step.tool === 'upscale' && (
                     <select
+                      aria-label="Upscale Quality"
+                      title="Upscale Quality"
                       value={String(step.params.quality ?? '')}
                       onChange={(e) => updateStepParam(idx, 'quality', e.target.value)}
                       className="w-full bg-zinc-900 border border-white/10 rounded p-2 text-xs text-white"
@@ -339,6 +342,8 @@ export const ToolChainBuilder: React.FC<ToolChainBuilderProps> = ({
 
                   {(step.tool === 'edit' || step.tool === 'generate') && (
                     <input
+                      aria-label="Step Prompt"
+                      title="Step Prompt"
                       type="text"
                       value={String(step.params.prompt ?? '')}
                       onChange={(e) => updateStepParam(idx, 'prompt', e.target.value)}
@@ -416,8 +421,7 @@ export const ToolChainBuilder: React.FC<ToolChainBuilderProps> = ({
           </div>
           <div className="w-full bg-zinc-800 rounded-full h-2 overflow-hidden mb-2">
             <div
-              className="h-full bg-gradient-to-r from-blue-500 to-purple-500 transition-all duration-300"
-              style={{ width: `${chainProgress}%` }}
+              className={`h-full bg-gradient-to-r from-blue-500 to-purple-500 transition-all duration-300 w-[${chainProgress || 0}%]`}
             ></div>
           </div>
           <p className="text-[10px] text-blue-200">

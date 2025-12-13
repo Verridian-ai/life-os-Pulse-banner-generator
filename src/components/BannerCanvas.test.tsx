@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render } from '@testing-library/react';
-import BannerCanvas from './BannerCanvas';
+import BannerCanvas, { BannerCanvasHandle } from './BannerCanvas';
 import type { BannerElement } from '../types';
 
 // Comprehensive canvas mock
@@ -41,7 +41,10 @@ const createMockCanvas = () => {
 
 // Mock HTMLCanvasElement
 const mockCanvas = createMockCanvas();
-HTMLCanvasElement.prototype.getContext = vi.fn(() => mockCanvas as unknown as CanvasRenderingContext2D);
+HTMLCanvasElement.prototype.getContext = vi.fn((contextId: string) => {
+  if (contextId === '2d') return mockCanvas as unknown as CanvasRenderingContext2D;
+  return null;
+}) as unknown as typeof HTMLCanvasElement.prototype.getContext;
 
 // Mock Image
 class MockImage {
@@ -109,7 +112,7 @@ describe('BannerCanvas', () => {
       type: 'text',
       x: 100,
       y: 100,
-      text: 'Hello World',
+      content: 'Hello World',
       fontSize: 24,
       fontFamily: 'Arial',
       color: '#000000',
@@ -135,7 +138,7 @@ describe('BannerCanvas', () => {
       y: 50,
       width: 200,
       height: 200,
-      src: 'https://example.com/image.png',
+      content: 'https://example.com/image.png',
       rotation: 0
     };
 
@@ -193,7 +196,7 @@ describe('BannerCanvas', () => {
       type: 'text',
       x: 100,
       y: 100,
-      text: 'Selected',
+      content: 'Selected',
       fontSize: 24,
       fontFamily: 'Arial',
       color: '#000000',
@@ -219,7 +222,7 @@ describe('BannerCanvas', () => {
         type: 'text',
         x: 100,
         y: 100,
-        text: 'Text 1',
+        content: 'Text 1',
         fontSize: 24,
         fontFamily: 'Arial',
         color: '#000000',
@@ -230,7 +233,7 @@ describe('BannerCanvas', () => {
         type: 'text',
         x: 200,
         y: 200,
-        text: 'Text 2',
+        content: 'Text 2',
         fontSize: 32,
         fontFamily: 'Helvetica',
         color: '#FF0000',
@@ -255,7 +258,7 @@ describe('BannerCanvas', () => {
       type: 'text',
       x: 100,
       y: 100,
-      text: 'Rotated',
+      content: 'Rotated',
       fontSize: 24,
       fontFamily: 'Arial',
       color: '#000000',
@@ -283,7 +286,7 @@ describe('BannerCanvas', () => {
 
   it('should expose generateStageImage method via ref', () => {
     const ref = { current: null } as React.MutableRefObject<{ generateStageImage?: () => string } | null>;
-    render(<BannerCanvas ref={ref as React.Ref<unknown>} {...defaultProps} />);
+    render(<BannerCanvas ref={ref as unknown as React.Ref<BannerCanvasHandle>} {...defaultProps} />);
 
     expect(ref.current).toBeTruthy();
     if (ref.current && 'generateStageImage' in ref.current) {
@@ -298,7 +301,7 @@ describe('BannerCanvas', () => {
         type: 'text',
         x: 100,
         y: 100,
-        text: 'Title',
+        content: 'Title',
         fontSize: 48,
         fontFamily: 'Arial',
         color: '#000000',
@@ -311,7 +314,7 @@ describe('BannerCanvas', () => {
         y: 100,
         width: 300,
         height: 200,
-        src: 'https://example.com/graphic.png',
+        content: 'https://example.com/graphic.png',
         rotation: 0
       }
     ];

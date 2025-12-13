@@ -218,3 +218,15 @@ export const getUserFriendlyMessage = (error: unknown): string => {
       return classified.message || 'An error occurred. Please try again.';
   }
 };
+
+/**
+ * Generic error handler that logs and returns a user-friendly message
+ */
+export const handleError = (error: unknown, context?: string): string => {
+  if (context) {
+    console.error(`[${context}] Error:`, error);
+  } else {
+    console.error('Error:', error);
+  }
+  return getUserFriendlyMessage(error);
+};

@@ -688,8 +688,7 @@ const BannerCanvas = forwardRef<BannerCanvasHandle, BannerCanvasProps>(({
 
     return (
         <div
-            className="w-full relative shadow-2xl rounded-lg bg-slate-800 mb-20 group"
-            style={{ aspectRatio: '1584 / 396' }}
+            className="w-full relative shadow-2xl rounded-lg bg-slate-800 mb-20 group aspect-[1584/396]"
             onWheel={handleCanvasWheel}
             onMouseMove={(e) => {
                 if (profileDrag) handleProfileMouseMove(e);
@@ -702,10 +701,24 @@ const BannerCanvas = forwardRef<BannerCanvasHandle, BannerCanvasProps>(({
                 ref={canvasRef}
                 width={BANNER_WIDTH}
                 height={BANNER_HEIGHT}
-                className="w-full h-full absolute top-0 left-0 origin-top-left touch-none"
-                style={{
-                    cursor: dragState ? (dragState.mode === 'move' ? 'grabbing' : dragState.mode === 'rotate' ? 'grabbing' : 'crosshair') : cursor
-                }}
+                className={`w-full h-full absolute top-0 left-0 origin-top-left touch-none ${dragState
+                    ? (dragState.mode === 'move' || dragState.mode === 'rotate' ? 'cursor-grabbing' : 'cursor-crosshair')
+                    : (
+                        cursor === 'move' ? 'cursor-move' :
+                            cursor === 'nw-resize' ? 'cursor-nw-resize' :
+                                cursor === 'ne-resize' ? 'cursor-ne-resize' :
+                                    cursor === 'sw-resize' ? 'cursor-sw-resize' :
+                                        cursor === 'se-resize' ? 'cursor-se-resize' :
+                                            cursor === 'n-resize' ? 'cursor-n-resize' :
+                                                cursor === 's-resize' ? 'cursor-s-resize' :
+                                                    cursor === 'e-resize' ? 'cursor-e-resize' :
+                                                        cursor === 'w-resize' ? 'cursor-w-resize' :
+                                                            cursor === 'rotate' ? 'cursor-alias' :
+                                                                cursor === 'grab' ? 'cursor-grab' :
+                                                                    cursor === 'grabbing' ? 'cursor-grabbing' :
+                                                                        'cursor-default'
+                    )
+                    }`}
                 onMouseDown={handleMouseDown}
                 // Mouse move/up handled by parent for robustness
                 onTouchStart={handleMouseDown}
@@ -716,34 +729,23 @@ const BannerCanvas = forwardRef<BannerCanvasHandle, BannerCanvasProps>(({
             {/* Profile Picture Overlay - Floating above canvas to allow overlap - Round Circle */}
             {showSafeZones && (
                 <div
-                    className="absolute rounded-full border-4 border-white overflow-hidden shadow-lg z-10 flex items-center justify-center bg-slate-100 group"
+                    className={`absolute rounded-full border-4 border-white overflow-hidden shadow-lg z-10 bg-slate-100 group w-[20.83%] aspect-square left-[19.31%] top-full -translate-x-1/2 -translate-y-1/2 pointer-events-auto ${profileDrag ? 'cursor-grabbing' : 'cursor-grab'}`}
                     onMouseDown={handleProfileMouseDown}
                     onWheel={handleProfileWheel}
-                    style={{
-                        width: '20.83%', // 330px / 1584px
-                        aspectRatio: '1/1',
-                        left: '19.31%', // 306px / 1584px
-                        top: '100%',
-                        transform: 'translate(-50%, -50%)',
-                        pointerEvents: 'auto',
-                        cursor: profileDrag ? 'grabbing' : 'grab'
-                    }}
+
                 >
                     {profilePic ? (
                         <div className="w-full h-full relative pointer-events-none">
                             <img
                                 src={profilePic}
                                 alt="Profile"
-                                className="w-full h-full object-cover select-none"
-                                style={{
-                                    transform: `scale(${profileTransform?.scale || 1}) translate(${profileTransform?.x || 0}px, ${profileTransform?.y || 0}px)`,
-                                    transformOrigin: 'center',
-                                    transition: profileDrag ? 'none' : 'transform 0.1s ease-out'
-                                }}
+                                className={`w-full h-full object-cover select-none ${profileDrag ? 'transition-none' : 'transition-transform duration-100 ease-out'} [transform:scale(${profileTransform?.scale || 1})_translate(${profileTransform?.x || 0}px,${profileTransform?.y || 0}px)]`}
+
                             />
                             {/* Face Enhance Button - Appears on hover */}
                             <div className="absolute inset-0 bg-black/60 backdrop-blur-sm opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center pointer-events-auto">
                                 <button
+                                    type="button"
                                     onClick={async (e) => {
                                         e.stopPropagation();
                                         if (onProfileFaceEnhance && !isEnhancingProfile) {

@@ -203,8 +203,9 @@ export const generateDesignChatResponse = async (
                 if (p.text) return { type: "text", text: p.text };
                 if (p.inlineData) return { type: "image_url", image_url: { url: `data:${p.inlineData.mimeType};base64,${p.inlineData.data}` } };
                 return null;
-            }).filter(Boolean);
-            return { role: h.role === 'model' ? 'assistant' : 'user', content };
+            }).filter((p): p is NonNullable<typeof p> => Boolean(p));
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            return { role: h.role === 'model' ? 'assistant' : 'user', content: content as any };
         });
 
         // Add current user message
@@ -214,12 +215,15 @@ export const generateDesignChatResponse = async (
             const base64 = img; // Usually implies full data URI in this context based on app flow
             currentContent.push({ type: "image_url", image_url: { url: base64 } });
         });
-        messages.push({ role: 'user', content: currentContent });
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        messages.push({ role: 'user', content: currentContent as any });
 
         // Add system instruction if supported (usually accepted as 'system' role)
-        messages.unshift({ role: 'system', content: [{ type: 'text', text: DESIGN_SYSTEM_INSTRUCTION + PROFILE_ZONE_CONSTRAINT }] });
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        messages.unshift({ role: 'system', content: [{ type: 'text', text: DESIGN_SYSTEM_INSTRUCTION + PROFILE_ZONE_CONSTRAINT }] as any });
 
-        const text = await callOpenRouter(openRouterKey, model, messages);
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const text = await callOpenRouter(openRouterKey, model, messages as any);
         return { text, groundingMetadata: null }; // OpenRouter generic doesn't return grounding usually
     }
 
@@ -265,19 +269,23 @@ export const generateDesignChatResponse = async (
                         if (p.text) return { type: "text", text: p.text };
                         if (p.inlineData) return { type: "image_url", image_url: { url: `data:${p.inlineData.mimeType};base64,${p.inlineData.data}` } };
                         return null;
-                    }).filter(Boolean);
-                    return { role: h.role === 'model' ? 'assistant' : 'user', content };
+                    }).filter((p): p is NonNullable<typeof p> => Boolean(p));
+                    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                    return { role: h.role === 'model' ? 'assistant' : 'user', content: content as any };
                 });
 
                 const currentContent: Array<{ type: string; text?: string; image_url?: { url: string } }> = [{ type: "text", text: prompt }];
                 images.forEach(img => {
                     currentContent.push({ type: "image_url", image_url: { url: img } });
                 });
-                messages.push({ role: 'user', content: currentContent });
-                messages.unshift({ role: 'system', content: [{ type: 'text', text: DESIGN_SYSTEM_INSTRUCTION + PROFILE_ZONE_CONSTRAINT }] });
+                // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                messages.push({ role: 'user', content: currentContent as any });
+                // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                messages.unshift({ role: 'system', content: [{ type: 'text', text: DESIGN_SYSTEM_INSTRUCTION + PROFILE_ZONE_CONSTRAINT }] as any });
 
                 const fallbackModel = model || 'google/gemini-3-pro-preview';
-                const text = await callOpenRouter(openRouterKey, fallbackModel, messages);
+                // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                const text = await callOpenRouter(openRouterKey, fallbackModel, messages as any);
 
                 console.log('[Chat] ✅ OpenRouter fallback successful!');
                 return { text, groundingMetadata: null };
@@ -374,7 +382,8 @@ export const generateAgentResponse = async (
             model: "gemini-2.0-flash-exp",
             config: {
                 systemInstruction: "You are Nano, an expert design partner. You are helpful, enthusiastic, and concise. You have access to tools to control the canvas. When a user asks to change the background or edit something, USE THE TOOLS. Do not just describe what you would do.",
-                tools: [{ functionDeclarations: AGENT_TOOLS }]
+                // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                tools: [{ functionDeclarations: AGENT_TOOLS as any }]
             },
             contents: [
                 ...history, // Previous history
@@ -817,15 +826,15 @@ export const generateImage = async (
 
         if (error instanceof Error && !_isRetry) {
             const shouldRetry = error.message.toLowerCase().includes('model') ||
-                               error.message.toLowerCase().includes('not found') ||
-                               error.message.toLowerCase().includes('404') ||
-                               error.message.toLowerCase().includes('quota') ||
-                               error.message.toLowerCase().includes('api key') ||
-                               error.message.toLowerCase().includes('fetch') ||
-                               error.message.toLowerCase().includes('failed to fetch') ||
-                               error.message.toLowerCase().includes('network') ||
-                               error.message.toLowerCase().includes('cors') ||
-                               error.message.toLowerCase().includes('timeout');
+                error.message.toLowerCase().includes('not found') ||
+                error.message.toLowerCase().includes('404') ||
+                error.message.toLowerCase().includes('quota') ||
+                error.message.toLowerCase().includes('api key') ||
+                error.message.toLowerCase().includes('fetch') ||
+                error.message.toLowerCase().includes('failed to fetch') ||
+                error.message.toLowerCase().includes('network') ||
+                error.message.toLowerCase().includes('cors') ||
+                error.message.toLowerCase().includes('timeout');
 
             if (shouldRetry) {
                 // First fallback: Nano Banana Pro → Nano Banana (Gemini)
