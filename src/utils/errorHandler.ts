@@ -77,6 +77,16 @@ export const classifyError = (error: unknown): NetworkError => {
     };
   }
 
+  if (message.includes('403') || message.includes('forbidden')) {
+    return {
+      name: 'PermissionError',
+      message: 'Access forbidden. Your API key may not have the required permissions or billing may not be enabled.',
+      type: 'api',
+      retryable: false,
+      originalError: error,
+    };
+  }
+
   if (message.includes('429') || message.includes('rate limit') || message.includes('quota')) {
     return {
       name: 'RateLimitError',
@@ -210,6 +220,9 @@ export const getUserFriendlyMessage = (error: unknown): string => {
       }
       if (classified.message.includes('API key') || classified.message.includes('authentication')) {
         return 'Invalid API key. Please check your settings.';
+      }
+      if (classified.message.includes('403') || classified.message.includes('forbidden')) {
+        return 'Access denied. Enable billing in Google AI Studio or use a different model.';
       }
       return classified.message;
 

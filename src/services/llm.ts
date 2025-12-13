@@ -92,12 +92,18 @@ const callReplicate = async (apiKey: string, version: string, input: Record<stri
     throw new Error('Replicate API Key not found. Please add it in Settings.');
   }
 
+  // Use proxy in development to avoid CORS issues
+  const isDev = import.meta.env.DEV;
+  const baseUrl = isDev ? '/api/replicate' : 'https://api.replicate.com';
+
+  console.log(`[Replicate] Using ${isDev ? 'proxy' : 'direct'} endpoint:`, baseUrl);
+
   try {
     // 1. Start Prediction
-    const startResponse = await fetch('https://api.replicate.com/v1/predictions', {
+    const startResponse = await fetch(`${baseUrl}/v1/predictions`, {
       method: 'POST',
       headers: {
-        Authorization: `Token ${apiKey}`,
+        ...(isDev ? { 'x-replicate-token': apiKey } : { Authorization: `Token ${apiKey}` }),
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({ version, input }),
@@ -149,9 +155,9 @@ const callReplicate = async (apiKey: string, version: string, input: Record<stri
       }
 
       await new Promise((r) => setTimeout(r, 1000)); // Poll every 1s
-      const pollResponse = await fetch(`https://api.replicate.com/v1/predictions/${predictionId}`, {
+      const pollResponse = await fetch(`${baseUrl}/v1/predictions/${predictionId}`, {
         headers: {
-          Authorization: `Token ${apiKey}`,
+          ...(isDev ? { 'x-replicate-token': apiKey } : { Authorization: `Token ${apiKey}` }),
           'Content-Type': 'application/json',
         },
       });
