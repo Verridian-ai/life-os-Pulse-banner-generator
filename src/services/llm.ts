@@ -9,6 +9,11 @@ import { classifyError, getUserFriendlyMessage } from '../utils/errorHandler';
 // Types
 type LLMProvider = 'gemini' | 'openrouter';
 
+type OpenRouterMessage = {
+  role: string;
+  content: string | Array<{ type: string; text?: string; image_url?: { url: string } }>;
+};
+
 const getSettings = () => {
   const provider = (localStorage.getItem('llm_provider') as LLMProvider) || 'gemini';
 
@@ -49,10 +54,7 @@ const getGoogleClient = (key: string) => {
 const callOpenRouter = async (
   apiKey: string,
   model: string,
-  messages: {
-    role: string;
-    content: string | Array<{ type: string; text?: string; image_url?: { url: string } }>;
-  }[],
+  messages: OpenRouterMessage[],
 ) => {
   if (!apiKey) throw new Error('OpenRouter API Key not found');
 
@@ -236,8 +238,7 @@ export const generateDesignChatResponse = async (
           return null;
         })
         .filter((p): p is NonNullable<typeof p> => Boolean(p));
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      return { role: h.role === 'model' ? 'assistant' : 'user', content: content as any };
+      return { role: h.role === 'model' ? 'assistant' : 'user', content };
     });
 
     // Add current user message
@@ -249,18 +250,15 @@ export const generateDesignChatResponse = async (
       const base64 = img; // Usually implies full data URI in this context based on app flow
       currentContent.push({ type: 'image_url', image_url: { url: base64 } });
     });
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    messages.push({ role: 'user', content: currentContent as any });
+    messages.push({ role: 'user', content: currentContent });
 
     // Add system instruction if supported (usually accepted as 'system' role)
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     messages.unshift({
       role: 'system',
-      content: [{ type: 'text', text: DESIGN_SYSTEM_INSTRUCTION + PROFILE_ZONE_CONSTRAINT }] as any,
+      content: [{ type: 'text', text: DESIGN_SYSTEM_INSTRUCTION + PROFILE_ZONE_CONSTRAINT }],
     });
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const text = await callOpenRouter(openRouterKey, model, messages as any);
+    const text = await callOpenRouter(openRouterKey, model, messages);
     return { text, groundingMetadata: null }; // OpenRouter generic doesn't return grounding usually
   }
 
@@ -310,8 +308,7 @@ export const generateDesignChatResponse = async (
               return null;
             })
             .filter((p): p is NonNullable<typeof p> => Boolean(p));
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          return { role: h.role === 'model' ? 'assistant' : 'user', content: content as any };
+          return { role: h.role === 'model' ? 'assistant' : 'user', content };
         });
 
         const currentContent: Array<{ type: string; text?: string; image_url?: { url: string } }> =
@@ -319,19 +316,14 @@ export const generateDesignChatResponse = async (
         images.forEach((img) => {
           currentContent.push({ type: 'image_url', image_url: { url: img } });
         });
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        messages.push({ role: 'user', content: currentContent as any });
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        messages.push({ role: 'user', content: currentContent });
         messages.unshift({
           role: 'system',
-          content: [
-            { type: 'text', text: DESIGN_SYSTEM_INSTRUCTION + PROFILE_ZONE_CONSTRAINT },
-          ] as any,
+          content: [{ type: 'text', text: DESIGN_SYSTEM_INSTRUCTION + PROFILE_ZONE_CONSTRAINT }],
         });
 
         const fallbackModel = model || 'google/gemini-3-pro-preview';
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        const text = await callOpenRouter(openRouterKey, fallbackModel, messages as any);
+        const text = await callOpenRouter(openRouterKey, fallbackModel, messages);
 
         console.log('[Chat] ✅ OpenRouter fallback successful!');
         return { text, groundingMetadata: null };

@@ -29,6 +29,10 @@ const createMockCanvas = () => {
     textBaseline: '',
     measureText: vi.fn(() => ({ width: 100 })),
     getImageData: vi.fn(() => ({ data: new Uint8ClampedArray(4) })),
+    moveTo: vi.fn(),
+    lineTo: vi.fn(),
+    closePath: vi.fn(),
+    fill: vi.fn(),
     canvas: {
       toDataURL: vi.fn(() => 'data:image/png;base64,test'),
       width: 1584,
@@ -63,6 +67,15 @@ class MockImage {
 }
 
 global.Image = MockImage as unknown as typeof Image;
+
+// Mock document.fonts
+Object.defineProperty(document, 'fonts', {
+  value: {
+    ready: Promise.resolve(),
+  },
+  writable: true,
+  configurable: true,
+});
 
 describe('BannerCanvas', () => {
   const mockOnElementsChange = vi.fn();
