@@ -1,6 +1,4 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import "tailwindcss";
 
 body {
   font-family: 'Inter', sans-serif;
@@ -22,6 +20,7 @@ body {
 
   /* Firefox 64+ (Baseline 2024) */
   /* stylelint-disable-next-line property-no-unknown */
+  /* doiuse-disable */
   scrollbar-width: none;
 }
 
