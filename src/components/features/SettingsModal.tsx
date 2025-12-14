@@ -49,7 +49,7 @@ interface SettingsModalProps {
 
 export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose }) => {
   // State for form fields
-  const [provider, setProvider] = useState<'gemini' | 'openrouter'>('gemini');
+  const [provider, setProvider] = useState<'gemini' | 'openrouter'>('openrouter');
   const [geminiKey, setGeminiKey] = useState(
     localStorage.getItem('gemini_api_key') || import.meta.env.VITE_GEMINI_API_KEY || '',
   );

@@ -27,20 +27,20 @@ export const selectModelForTask = (
   // Intelligent auto-selection based on operation type
   switch (operation) {
     case 'reasoning':
-      // Use GPT-5.2 or Gemini 3 Pro for complex reasoning
-      return MODELS.openrouter.gpt52;
+      // Use Gemini 2.0 Flash Thinking for complex reasoning
+      return MODELS.textThinking;
 
     case 'vision':
-      // Use Claude 4.5 Sonnet for image understanding
-      return MODELS.openrouter.claude45Sonnet;
+      // Use Gemini 2.0 Flash for image understanding
+      return MODELS.textBasic;
 
     case 'coding':
       // Use MiniMax M2 optimized for coding
       return MODELS.openrouter.minimaxM2;
 
     case 'text':
-      // Use GPT-5.2 for text generation
-      return MODELS.openrouter.gpt52;
+      // Use Gemini 2.0 Flash for text generation
+      return MODELS.textBasic;
 
     case 'image_gen':
       // Use Gemini 3 Pro Image
@@ -62,22 +62,22 @@ export const getModelMetadata = (): Record<string, ModelMetadata> => {
   return {
     [MODELS.textBasic]: {
       id: MODELS.textBasic,
-      provider: 'gemini',
-      name: 'Gemini 2.5 Flash',
+      provider: 'openrouter',
+      name: 'Gemini 2.0 Flash Exp',
       capabilities: ['text', 'vision'],
-      costPerCall: 0.001,
-      avgResponseTime: 800,
-      qualityScore: 85,
+      costPerCall: 0,
+      avgResponseTime: 500,
+      qualityScore: 90,
       contextWindow: 1000000,
     },
     [MODELS.textThinking]: {
       id: MODELS.textThinking,
-      provider: 'gemini',
-      name: 'Gemini 3 Pro Preview',
+      provider: 'openrouter',
+      name: 'Gemini 2.0 Flash Thinking',
       capabilities: ['text', 'vision', 'thinking'],
-      costPerCall: 0.02,
-      avgResponseTime: 3000,
-      qualityScore: 98,
+      costPerCall: 0,
+      avgResponseTime: 2000,
+      qualityScore: 95,
       contextWindow: 1000000,
     },
     [MODELS.imageGen]: {

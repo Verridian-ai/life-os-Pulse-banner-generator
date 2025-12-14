@@ -4,7 +4,7 @@ import { Part } from '../types';
 import type { ImageEditTurn, BrandProfile } from '../types/ai';
 import { uploadImage } from './supabase';
 import { createImage } from './database';
-import { classifyError, getUserFriendlyMessage } from '../utils/errorHandler';
+// classifyError, getUserFriendlyMessage removed
 
 // Types
 type LLMProvider = 'gemini' | 'openrouter';
@@ -19,7 +19,7 @@ type OpenRouterMessage = {
 };
 
 const getSettings = () => {
-  const provider = (localStorage.getItem('llm_provider') as LLMProvider) || 'gemini';
+  const provider = (localStorage.getItem('llm_provider') as LLMProvider) || 'openrouter';
 
   // Get API keys from localStorage or environment variables only
   // Users must configure their own API keys via Settings or environment

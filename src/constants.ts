@@ -9,8 +9,8 @@ export const PROFILE_ZONE_HEIGHT = 264;
 
 export const MODELS = {
   // Gemini Models
-  textBasic: 'gemini-2.5-flash',
-  textThinking: 'google/gemini-3-pro-preview',
+  textBasic: 'google/gemini-2.0-flash-exp:free',
+  textThinking: 'google/gemini-2.0-flash-thinking-exp:free',
   imageGen: 'gemini-3-pro-image-preview', // UPDATED - Gemini 3 Pro Image with 4K, 14 refs
   geminiImageGen: 'imagen-3.0-generate-001', // Fallback model
   imageEdit: 'gemini-2.5-flash-image',

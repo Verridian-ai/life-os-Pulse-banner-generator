@@ -113,7 +113,7 @@ export async function saveUserAPIKeys(
       gemini_api_key: keys.gemini_api_key || null,
       openrouter_api_key: keys.openrouter_api_key || null,
       replicate_api_key: keys.replicate_api_key || null,
-      llm_provider: keys.llm_provider || 'gemini',
+      llm_provider: keys.llm_provider || 'openrouter',
       llm_model: keys.llm_model || null,
       llm_image_model: keys.llm_image_model || null,
       llm_upscale_model: keys.llm_upscale_model || null,
@@ -193,7 +193,7 @@ function getEnvFallbackKeys(): UserAPIKeys {
     gemini_api_key: import.meta.env.VITE_GEMINI_API_KEY,
     openrouter_api_key: import.meta.env.VITE_OPENROUTER_API_KEY,
     replicate_api_key: import.meta.env.VITE_REPLICATE_API_KEY,
-    llm_provider: 'gemini',
+    llm_provider: 'openrouter',
   };
 }
 
@@ -219,7 +219,7 @@ export async function migrateLocalStorageToSupabase(): Promise<void> {
     gemini_api_key: localStorage.getItem('gemini_api_key') || undefined,
     openrouter_api_key: localStorage.getItem('openrouter_api_key') || undefined,
     replicate_api_key: localStorage.getItem('replicate_api_key') || undefined,
-    llm_provider: (localStorage.getItem('llm_provider') as 'gemini' | 'openrouter') || 'gemini',
+    llm_provider: (localStorage.getItem('llm_provider') as 'gemini' | 'openrouter') || 'openrouter',
     llm_model: localStorage.getItem('llm_model') || undefined,
     llm_image_model: localStorage.getItem('llm_image_model') || undefined,
     llm_upscale_model: localStorage.getItem('llm_upscale_model') || undefined,
