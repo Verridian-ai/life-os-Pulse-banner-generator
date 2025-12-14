@@ -54,24 +54,9 @@ export default defineConfig(({ mode }) => {
     plugins: [react()],
     define: {
       // Expose all VITE_* environment variables from both .env files and process.env (Vercel)
-      'import.meta.env.VITE_SUPABASE_URL': JSON.stringify(
-        env.VITE_SUPABASE_URL || processEnv.VITE_SUPABASE_URL,
-      ),
-      'import.meta.env.VITE_SUPABASE_ANON_KEY': JSON.stringify(
-        env.VITE_SUPABASE_ANON_KEY || processEnv.VITE_SUPABASE_ANON_KEY,
-      ),
-      'import.meta.env.VITE_GEMINI_API_KEY': JSON.stringify(
-        env.VITE_GEMINI_API_KEY || processEnv.VITE_GEMINI_API_KEY,
-      ),
-      'import.meta.env.VITE_OPENROUTER_API_KEY': JSON.stringify(
-        env.VITE_OPENROUTER_API_KEY || processEnv.VITE_OPENROUTER_API_KEY,
-      ),
-      'import.meta.env.VITE_REPLICATE_API_KEY': JSON.stringify(
-        env.VITE_REPLICATE_API_KEY || processEnv.VITE_REPLICATE_API_KEY,
-      ),
-      'import.meta.env.VITE_OPENAI_API_KEY': JSON.stringify(
-        env.VITE_OPENAI_API_KEY || processEnv.VITE_OPENAI_API_KEY,
-      ),
+      // Note: Vite automatically exposes VITE_* variables.
+      // Removing manual defines for keys to let Vite handle it automatically.
+
     },
     resolve: {
       alias: {
