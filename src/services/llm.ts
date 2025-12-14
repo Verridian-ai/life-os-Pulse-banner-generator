@@ -28,6 +28,15 @@ const getSettings = () => {
   const openRouterKey =
     localStorage.getItem('openrouter_api_key') || import.meta.env.VITE_OPENROUTER_API_KEY || '';
 
+  // Debug logging - Final Check
+  console.log('[DEBUG] API Config Check v2:', {
+    provider,
+    model: modelToUse,
+    hasOpenRouterKey: !!openRouterKey,
+    openRouterKeyLength: openRouterKey?.length,
+    openRouterKeyStart: openRouterKey ? openRouterKey.substring(0, 15) : 'N/A'
+  });
+
   const replicateKey =
     localStorage.getItem('replicate_api_key') || import.meta.env.VITE_REPLICATE_API_KEY || '';
   const stackKey =
