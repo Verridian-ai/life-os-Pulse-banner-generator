@@ -9,7 +9,7 @@ export const PROFILE_ZONE_HEIGHT = 264;
 
 export const MODELS = {
   // Gemini Models (via OpenRouter)
-  textBasic: 'google/gemini-2.5-flash', // Using 2.5 Flash as basic (fast)
+  textBasic: 'google/gemini-3-pro', // Using 3 Pro for basic as well per user request
   textThinking: 'google/gemini-3-pro', // Using 3 Pro for Thinking/Reasoning
   imageGen: 'google/nano-banana-pro', // Explicitly using "google/nano-banana-pro" for image gen based on search result [2] description.
   geminiImageGen: 'imagen-3.0-generate-001', // Fallback model

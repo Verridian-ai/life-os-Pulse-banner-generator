@@ -31,7 +31,7 @@ export const selectModelForTask = (
       return MODELS.textThinking;
 
     case 'vision':
-      // Use Gemini 2.0 Flash for image understanding
+      // Use Gemini 3.0 Pro for image understanding
       return MODELS.textBasic;
 
     case 'coding':
@@ -39,7 +39,7 @@ export const selectModelForTask = (
       return MODELS.openrouter.minimaxM2;
 
     case 'text':
-      // Use Gemini 2.0 Flash for text generation
+      // Use Gemini 3.0 Pro for text generation
       return MODELS.textBasic;
 
     case 'image_gen':
@@ -63,7 +63,7 @@ export const getModelMetadata = (): Record<string, ModelMetadata> => {
     [MODELS.textBasic]: {
       id: MODELS.textBasic,
       provider: 'openrouter',
-      name: 'Gemini 2.5 Flash',
+      name: 'Gemini 3.0 Pro',
       capabilities: ['text', 'vision'],
       costPerCall: 0,
       avgResponseTime: 500,
