@@ -8,10 +8,10 @@ export const PROFILE_ZONE_WIDTH = 568;
 export const PROFILE_ZONE_HEIGHT = 264;
 
 export const MODELS = {
-  // Gemini Models
-  textBasic: 'google/gemini-2.0-flash-exp:free',
-  textThinking: 'google/gemini-2.0-flash-thinking-exp:free',
-  imageGen: 'gemini-3-pro-image-preview', // UPDATED - Gemini 3 Pro Image with 4K, 14 refs
+  // Gemini Models (via OpenRouter)
+  textBasic: 'google/gemini-2.5-flash', // Using 2.5 Flash as basic (fast)
+  textThinking: 'google/gemini-3-pro', // Using 3 Pro for Thinking/Reasoning
+  imageGen: 'google/nano-banana-pro', // Explicitly using "google/nano-banana-pro" for image gen based on search result [2] description.
   geminiImageGen: 'imagen-3.0-generate-001', // Fallback model
   imageEdit: 'gemini-2.5-flash-image',
   liveAudio: 'gemini-2.5-flash-native-audio-preview-09-2025',

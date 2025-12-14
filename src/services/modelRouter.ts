@@ -63,7 +63,7 @@ export const getModelMetadata = (): Record<string, ModelMetadata> => {
     [MODELS.textBasic]: {
       id: MODELS.textBasic,
       provider: 'openrouter',
-      name: 'Gemini 2.0 Flash Exp',
+      name: 'Gemini 2.5 Flash',
       capabilities: ['text', 'vision'],
       costPerCall: 0,
       avgResponseTime: 500,
@@ -73,17 +73,17 @@ export const getModelMetadata = (): Record<string, ModelMetadata> => {
     [MODELS.textThinking]: {
       id: MODELS.textThinking,
       provider: 'openrouter',
-      name: 'Gemini 2.0 Flash Thinking',
+      name: 'Gemini 3 Pro',
       capabilities: ['text', 'vision', 'thinking'],
       costPerCall: 0,
       avgResponseTime: 2000,
-      qualityScore: 95,
+      qualityScore: 98,
       contextWindow: 1000000,
     },
     [MODELS.imageGen]: {
       id: MODELS.imageGen,
       provider: 'gemini',
-      name: 'Gemini 3 Pro Image',
+      name: 'Gemini 3 Pro Image (Nano Banana Pro)',
       capabilities: ['image_gen'],
       costPerCall: 0.24, // 4K image
       avgResponseTime: 8000,
