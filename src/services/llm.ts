@@ -790,7 +790,8 @@ export const generateImage = async (
     }
 
     // Use Google's Gemini via OpenRouter
-    const openRouterModel = 'google/gemini-2.5-flash-image-preview';
+    // Use the selected model from settings, or fallback to the constant
+    const openRouterModel = modelToUse || MODELS.imageGen;
     const safePrompt = `Professional LinkedIn Banner, 1584x396 pixels ratio (approx 4:1 aspect), high quality. ${prompt} ${PROFILE_ZONE_CONSTRAINT}`;
 
     const imageDataUrl = await callOpenRouterImageGen(
