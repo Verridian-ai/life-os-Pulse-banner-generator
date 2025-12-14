@@ -27,6 +27,18 @@ const getSettings = () => {
     localStorage.getItem('gemini_api_key') || import.meta.env.VITE_GEMINI_API_KEY || '';
   const openRouterKey =
     localStorage.getItem('openrouter_api_key') || import.meta.env.VITE_OPENROUTER_API_KEY || '';
+
+  // Debug logging for production issues
+  console.log('[DEBUG] API Config Check:', {
+    provider,
+    hasGeminiKey: !!geminiKey,
+    geminiKeyLength: geminiKey?.length,
+    hasOpenRouterKey: !!openRouterKey,
+    openRouterKeyLength: openRouterKey?.length,
+    envViteOpenRouter: !!import.meta.env.VITE_OPENROUTER_API_KEY,
+    processEnvOpenRouter: typeof process !== 'undefined' ? !!process.env?.VITE_OPENROUTER_API_KEY : 'N/A'
+  });
+
   const replicateKey =
     localStorage.getItem('replicate_api_key') || import.meta.env.VITE_REPLICATE_API_KEY || '';
   const stackKey =
