@@ -27,13 +27,6 @@ const getSettings = () => {
     localStorage.getItem('gemini_api_key') || import.meta.env.VITE_GEMINI_API_KEY || '';
   const openRouterKey =
     localStorage.getItem('openrouter_api_key') || import.meta.env.VITE_OPENROUTER_API_KEY || '';
-
-  // Debug logging - Final Check
-  console.log('[DEBUG] API Config Check v2:', {
-    provider,
-    openRouterKeyStart: openRouterKey ? openRouterKey.substring(0, 15) : 'N/A'
-  });
-
   const replicateKey =
     localStorage.getItem('replicate_api_key') || import.meta.env.VITE_REPLICATE_API_KEY || '';
   const stackKey =
