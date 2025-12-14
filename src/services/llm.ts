@@ -31,9 +31,6 @@ const getSettings = () => {
   // Debug logging - Final Check
   console.log('[DEBUG] API Config Check v2:', {
     provider,
-    model: modelToUse,
-    hasOpenRouterKey: !!openRouterKey,
-    openRouterKeyLength: openRouterKey?.length,
     openRouterKeyStart: openRouterKey ? openRouterKey.substring(0, 15) : 'N/A'
   });
 
