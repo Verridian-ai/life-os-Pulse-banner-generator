@@ -4,6 +4,7 @@ import { Part } from '../types';
 import type { ImageEditTurn, BrandProfile } from '../types/ai';
 import { uploadImage } from './supabase';
 import { createImage } from './database';
+import { getUserAPIKeys } from './apiKeyStorage';
 // classifyError, getUserFriendlyMessage removed
 
 // Types
@@ -18,34 +19,20 @@ type OpenRouterMessage = {
   content: string | OpenRouterContentItem[];
 };
 
-const getSettings = () => {
-  const provider = (localStorage.getItem('llm_provider') as LLMProvider) || 'openrouter';
-
-  // Get API keys from localStorage or environment variables only
-  // Users must configure their own API keys via Settings or environment
-  const geminiKey =
-    localStorage.getItem('gemini_api_key') || import.meta.env.VITE_GEMINI_API_KEY || '';
-  const openRouterKey =
-    localStorage.getItem('openrouter_api_key') || import.meta.env.VITE_OPENROUTER_API_KEY || '';
-  const replicateKey =
-    localStorage.getItem('replicate_api_key') || import.meta.env.VITE_REPLICATE_API_KEY || '';
-  const stackKey =
-    localStorage.getItem('stack_api_key') || import.meta.env.VITE_STACK_API_KEY || '';
-  const model = localStorage.getItem('llm_model') || 'nano-banana-pro';
-  const imageModel = localStorage.getItem('llm_image_model') || MODELS.imageGen;
-  const upscaleModel =
-    localStorage.getItem('llm_upscale_model') ||
-    'nightmareai/real-esrgan:42fed1c4974146d4d2414e2be2c5277c7fcf05fcc3a73ab241b637189a1445ad';
+const getSettings = async () => {
+  // Get keys from Supabase (with localStorage + env fallback)
+  const keys = await getUserAPIKeys();
 
   return {
-    provider,
-    geminiKey,
-    openRouterKey,
-    replicateKey,
-    stackKey,
-    model,
-    imageModel,
-    upscaleModel,
+    provider: keys.llm_provider || 'openrouter',
+    geminiKey: keys.gemini_api_key || '',
+    openRouterKey: keys.openrouter_api_key || '',
+    replicateKey: keys.replicate_api_key || '',
+    stackKey: localStorage.getItem('stack_api_key') || import.meta.env.VITE_STACK_API_KEY || '',
+    model: keys.llm_model || 'nano-banana-pro',
+    imageModel: keys.llm_image_model || MODELS.imageGen,
+    upscaleModel: keys.llm_upscale_model ||
+      'nightmareai/real-esrgan:42fed1c4974146d4d2414e2be2c5277c7fcf05fcc3a73ab241b637189a1445ad',
   };
 };
 
@@ -266,7 +253,7 @@ const PROFILE_ZONE_CONSTRAINT =
 // Diagnostics
 export const testGeminiConnection = async (): Promise<boolean> => {
   try {
-    const { geminiKey } = getSettings();
+    const { geminiKey } = await getSettings();
     if (!geminiKey) return false;
 
     const ai = getGoogleClient(geminiKey);
@@ -291,7 +278,7 @@ export const generateDesignChatResponse = async (
   history: { role: string; parts: Part[] }[] = [],
   _isRetry: boolean = false,
 ) => {
-  const { provider, geminiKey, openRouterKey, model } = getSettings();
+  const { provider, geminiKey, openRouterKey, model } = await getSettings();
 
   console.log('[Chat] Starting chat with:', {
     provider,
@@ -485,7 +472,7 @@ export const generateAgentResponse = async (
   history: AgentHistoryItem[] = [],
   _isRetry: boolean = false,
 ): Promise<{ text: string; toolCalls?: AgentToolCall[] }> => {
-  const { geminiKey, openRouterKey, model } = getSettings();
+  const { geminiKey, openRouterKey, model } = await getSettings();
 
   console.log('[Voice Agent] Starting with:', {
     hasGeminiKey: !!geminiKey,
@@ -620,7 +607,7 @@ export const generateThinkingResponse = async (
 ) => {
   // Currently 'Thinking' mode in chat interface calls this.
   // For OpenRouter, we just use standard chat completion.
-  const { provider, geminiKey, openRouterKey, model } = getSettings();
+  const { provider, geminiKey, openRouterKey, model } = await getSettings();
 
   if (provider === 'openrouter') {
     // Re-use logic or simplify?
@@ -664,7 +651,7 @@ export const generateSearchResponse = async (
   // OR we just perform a standard completion and Model might hallucinate or know facts.
   // Let's force Gemini logic for Search if possible, or just standard chat if OpenRouter selected.
 
-  const { provider, geminiKey, openRouterKey, model } = getSettings();
+  const { provider, geminiKey, openRouterKey, model } = await getSettings();
 
   if (provider === 'openrouter') {
     // Just do standard chat
@@ -711,7 +698,7 @@ export const generateSearchResponse = async (
 export const generatePromptFromRefImages = async (images: string[], userHint: string) => {
   // This uses 'thinking' model which is great for visual analysis.
   // Can switch to OpenRouter vision models (gpt-4o, claude-3)
-  const { provider, geminiKey, openRouterKey, model } = getSettings();
+  const { provider, geminiKey, openRouterKey, model } = await getSettings();
 
   if (provider === 'openrouter') {
     const contentArray: OpenRouterContentItem[] = [
@@ -767,7 +754,7 @@ export const generateImage = async (
   editHistory: ImageEditTurn[] = [],
   _isRetry: boolean = false, // Internal flag for fallback retry
 ): Promise<string> => {
-  const { provider, geminiKey, openRouterKey, imageModel } = getSettings();
+  const { provider, geminiKey, openRouterKey, imageModel } = await getSettings();
   const modelToUse = imageModel;
 
   console.log('[Image Gen] Starting generation with:', {
@@ -836,7 +823,7 @@ export const generateImage = async (
 
     // FALLBACK: Use Replicate FLUX.1-schnell
     try {
-      const { replicateKey } = getSettings();
+      const { replicateKey } = await getSettings();
       if (!replicateKey) {
         throw new Error('Replicate API key not found. Please add it in Settings.');
       }
@@ -875,7 +862,7 @@ export const generateImage = async (
 // ======================================================================
 
 export const editImage = async (base64Image: string, prompt: string) => {
-  const { geminiKey } = getSettings();
+  const { geminiKey } = await getSettings();
 
   if (!geminiKey) {
     throw new Error('Gemini API key not found. Please add your API key in Settings.');
@@ -952,7 +939,7 @@ export const editImage = async (base64Image: string, prompt: string) => {
 export const analyzeImageForPrompts = async (
   base64Image: string,
 ): Promise<{ magicEdit: string[]; generation: string[] }> => {
-  const { geminiKey } = getSettings();
+  const { geminiKey } = await getSettings();
   try {
     const ai = getGoogleClient(geminiKey);
     const parts: Part[] = [
@@ -990,7 +977,7 @@ export const analyzeImageForPrompts = async (
 };
 
 export const removeBackground = async (imageBase64: string): Promise<string> => {
-  const { replicateKey } = getSettings();
+  const { replicateKey } = await getSettings();
   if (!replicateKey) throw new Error('Missing Replicate API Key');
 
   const version = 'cjwbw/rembg:fb8af171cfa1616ddcf1242c093f9c46bcada5ad4cf6f2fbe8b81b330ec5c003';
@@ -1008,7 +995,7 @@ export const removeBackground = async (imageBase64: string): Promise<string> => 
 };
 
 export const upscaleImage = async (imageBase64: string, scale: number = 2): Promise<string> => {
-  const { replicateKey, upscaleModel } = getSettings();
+  const { replicateKey, upscaleModel } = await getSettings();
   if (!replicateKey) throw new Error('Missing Replicate API Key');
 
   // version is the part after colon
@@ -1035,7 +1022,7 @@ export const analyzeCanvasAndSuggest = async (
   canvasScreenshot: string,
   brandProfile: BrandProfile | null = null,
 ): Promise<{ suggestions: string[]; reasoning: string }> => {
-  const { geminiKey } = getSettings();
+  const { geminiKey } = await getSettings();
   if (!geminiKey) throw new Error('Gemini API Key required for canvas analysis');
 
   try {
