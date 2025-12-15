@@ -168,7 +168,7 @@ export class ActionExecutor {
     console.log('[ActionExecutor] Upscaling image:', { image_url, mode });
 
     try {
-      const service = getReplicateService();
+      const service = await getReplicateService();
       const resultUrl = await service.upscale(image_url, mode as 'fast' | 'balanced' | 'best');
 
       if (this.previewMode) {
@@ -202,7 +202,7 @@ export class ActionExecutor {
     console.log('[ActionExecutor] Restoring image:', image_url);
 
     try {
-      const service = getReplicateService();
+      const service = await getReplicateService();
       const resultUrl = await service.restore(image_url);
 
       if (this.previewMode) {
@@ -236,7 +236,7 @@ export class ActionExecutor {
     console.log('[ActionExecutor] Enhancing face:', image_url);
 
     try {
-      const service = getReplicateService();
+      const service = await getReplicateService();
       const resultUrl = await service.faceEnhance(image_url);
 
       if (this.previewMode) {

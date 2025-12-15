@@ -27,7 +27,7 @@ const CanvasEditor: React.FC = () => {
     if (!profilePic) return;
 
     console.log('[Profile] Starting face enhance...');
-    const service = getReplicateService();
+    const service = await getReplicateService();
 
     try {
       const enhancedImage = await service.faceEnhance(profilePic);

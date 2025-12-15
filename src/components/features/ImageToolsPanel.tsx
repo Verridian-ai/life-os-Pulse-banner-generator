@@ -111,7 +111,7 @@ export const ImageToolsPanel: React.FC<ImageToolsPanelProps> = ({ bgImage, onIma
   // Upscale handler
   const handleUpscale = async () => {
     await handleOperation('upscale', async () => {
-      const service = getReplicateService(handleProgress);
+      const service = await getReplicateService(handleProgress);
       return await service.upscale(bgImage!, quality);
     });
   };
@@ -119,7 +119,7 @@ export const ImageToolsPanel: React.FC<ImageToolsPanelProps> = ({ bgImage, onIma
   // Remove background handler
   const handleRemoveBg = async () => {
     await handleOperation('removebg', async () => {
-      const service = getReplicateService(handleProgress);
+      const service = await getReplicateService(handleProgress);
       return await service.removeBg(bgImage!);
     });
   };
@@ -127,7 +127,7 @@ export const ImageToolsPanel: React.FC<ImageToolsPanelProps> = ({ bgImage, onIma
   // Restore handler
   const handleRestore = async () => {
     await handleOperation('restore', async () => {
-      const service = getReplicateService(handleProgress);
+      const service = await getReplicateService(handleProgress);
       return await service.restore(bgImage!);
     });
   };
@@ -135,7 +135,7 @@ export const ImageToolsPanel: React.FC<ImageToolsPanelProps> = ({ bgImage, onIma
   // Face enhance handler
   const handleFaceEnhance = async () => {
     await handleOperation('faceenhance', async () => {
-      const service = getReplicateService(handleProgress);
+      const service = await getReplicateService(handleProgress);
       return await service.faceEnhance(bgImage!);
     });
   };

@@ -269,8 +269,10 @@ export class ReplicateService {
 }
 
 // Helper function to get Replicate service instance
-export const getReplicateService = (onProgress?: (progress: number) => void): ReplicateService => {
-  const apiKey =
-    localStorage.getItem('replicate_api_key') || import.meta.env.VITE_REPLICATE_API_KEY || '';
+export const getReplicateService = async (onProgress?: (progress: number) => void): Promise<ReplicateService> => {
+  // Import here to avoid circular dependency
+  const { getUserAPIKeys } = await import('./apiKeyStorage');
+  const keys = await getUserAPIKeys();
+  const apiKey = keys.replicate_api_key || '';
   return new ReplicateService(apiKey, onProgress);
 };
