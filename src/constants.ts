@@ -13,7 +13,7 @@ export const MODELS = {
   textThinking: 'google/gemini-3-pro', // Using 3 Pro for Thinking/Reasoning
   imageGen: 'google/gemini-3-pro-image-preview', // Nano Banana Pro (Gemini 3 Pro Image Preview) - verified on OpenRouter
   geminiImageGen: 'imagen-3.0-generate-001', // Fallback model
-  imageEdit: 'gemini-2.5-flash-image',
+  imageEdit: 'google/gemini-3-pro-image-preview', // Same as imageGen - Gemini 3 Pro Image Preview
   liveAudio: 'gemini-2.5-flash-native-audio-preview-09-2025',
 
   // OpenRouter Models (Latest 2025)
