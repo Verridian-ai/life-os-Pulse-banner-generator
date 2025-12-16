@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { getUserAPIKeys, saveUserAPIKeys } from '../../services/apiKeyStorage';
+import { testOpenRouterKey, testReplicateKey } from '../../services/apiKeyValidator';
 
 // Common OpenRouter Models (Text) - Updated with Latest Models (Dec 2025)
 // Moved outside component to avoid useEffect dependency issues
@@ -42,90 +43,182 @@ const IMAGE_MODELS = [
   { id: 'stabilityai/stable-diffusion-xl-base-1.0', name: 'SDXL 1.0' },
 ];
 
+// Magic Edit Models (same as image generation for now)
+const MAGIC_EDIT_MODELS = IMAGE_MODELS;
+
+// Connection Status Component
+const ConnectionStatus = ({
+  status,
+}: {
+  status: 'untested' | 'testing' | 'valid' | 'invalid';
+}) => {
+  const statusConfig = {
+    untested: { icon: 'help_outline', color: 'text-zinc-500', text: 'Not tested' },
+    testing: { icon: 'sync', color: 'text-yellow-500 animate-spin', text: 'Testing...' },
+    valid: { icon: 'check_circle', color: 'text-green-500', text: '✓ Connected' },
+    invalid: { icon: 'error', color: 'text-red-500', text: '✗ Invalid' },
+  };
+
+  const config = statusConfig[status];
+
+  return (
+    <span className={`flex items-center gap-1 text-xs ${config.color}`}>
+      <span className='material-icons text-sm'>{config.icon}</span>
+      {config.text}
+    </span>
+  );
+};
+
 interface SettingsModalProps {
   isOpen: boolean;
   onClose: () => void;
 }
 
 export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose }) => {
-  // State for form fields
-  const [provider, setProvider] = useState<'gemini' | 'openrouter'>('openrouter');
-  const [geminiKey, setGeminiKey] = useState(
-    localStorage.getItem('gemini_api_key') || import.meta.env.VITE_GEMINI_API_KEY || '',
-  );
-  const [openRouterKey, setOpenRouterKey] = useState(
-    localStorage.getItem('openrouter_api_key') || import.meta.env.VITE_OPENROUTER_API_KEY || '',
-  );
-  const [replicateKey, setReplicateKey] = useState(
-    localStorage.getItem('replicate_api_key') || import.meta.env.VITE_REPLICATE_API_KEY || '',
-  );
-  const [model, setModel] = useState('');
-  const [imageModel, setImageModel] = useState('');
-  const [upscaleModel, setUpscaleModel] = useState(''); // Replicate Upscale Model
-  const [customModel, setCustomModel] = useState('');
+  // API Keys
+  const [openRouterKey, setOpenRouterKey] = useState('');
+  const [replicateKey, setReplicateKey] = useState('');
 
-  // Status
+  // Model selections
+  const [chatModel, setChatModel] = useState('nano-banana-pro');
+  const [imageGenModel, setImageGenModel] = useState('gemini-3-pro-image-preview');
+  const [magicEditModel, setMagicEditModel] = useState('gemini-3-pro-image-preview');
+  const [upscaleModel, setUpscaleModel] = useState('');
+  const [customChatModel, setCustomChatModel] = useState('');
+
+  // Validation states
+  const [openRouterStatus, setOpenRouterStatus] = useState<
+    'untested' | 'testing' | 'valid' | 'invalid'
+  >('untested');
+  const [replicateStatus, setReplicateStatus] = useState<
+    'untested' | 'testing' | 'valid' | 'invalid'
+  >('untested');
+  const [testError, setTestError] = useState<string>('');
+  const [isSaving, setIsSaving] = useState(false);
   const [saved, setSaved] = useState(false);
 
   // Load settings on mount
   useEffect(() => {
     if (!isOpen) return;
 
-    // Load settings from Supabase (with .env fallback)
     const loadSettings = async () => {
-      const keys = await getUserAPIKeys();
+      try {
+        const keys = await getUserAPIKeys();
 
-      // Batch state updates to avoid cascading renders
-      if (keys.llm_provider) setProvider(keys.llm_provider);
+        // Set API keys
+        setOpenRouterKey(keys.openrouter_api_key || '');
+        setReplicateKey(keys.replicate_api_key || '');
 
-      setGeminiKey(keys.gemini_api_key || '');
-      setOpenRouterKey(keys.openrouter_api_key || '');
-      setReplicateKey(keys.replicate_api_key || '');
+        // Set models with defaults
+        const chatModelValue = keys.llm_model || 'nano-banana-pro';
+        const imageGenValue = keys.llm_image_model || 'gemini-3-pro-image-preview';
+        const magicEditValue = keys.llm_magic_edit_model || 'gemini-3-pro-image-preview';
+        const upscaleValue = keys.llm_upscale_model || UPSCALE_MODELS[0].id;
 
-      const storedModel = keys.llm_model || 'google/gemini-2.0-flash-exp:free';
-      const storedImageModel = keys.llm_image_model || 'black-forest-labs/flux-1-schnell';
-      const storedUpscaleModel = keys.llm_upscale_model || UPSCALE_MODELS[0].id;
+        // Handle custom chat model
+        if (COMMON_MODELS.find((m) => m.id === chatModelValue)) {
+          setChatModel(chatModelValue);
+        } else {
+          setChatModel('custom');
+          setCustomChatModel(chatModelValue);
+        }
 
-      if (COMMON_MODELS.find((m) => m.id === storedModel)) {
-        setModel(storedModel);
-      } else {
-        setModel('custom');
-        setCustomModel(storedModel);
+        setImageGenModel(imageGenValue);
+        setMagicEditModel(magicEditValue);
+        setUpscaleModel(upscaleValue);
+
+        // Reset validation status
+        setOpenRouterStatus('untested');
+        setReplicateStatus('untested');
+        setTestError('');
+        setSaved(false);
+      } catch (error) {
+        console.error('[Settings] Failed to load:', error);
+        setTestError('Failed to load saved settings');
       }
-      setImageModel(storedImageModel);
-      setUpscaleModel(storedUpscaleModel);
-      setSaved(false);
     };
 
     loadSettings();
   }, [isOpen]);
 
-  const handleSave = async () => {
-    const finalModel = model === 'custom' ? customModel : model;
+  const handleTestOpenRouter = async () => {
+    setOpenRouterStatus('testing');
+    setTestError('');
 
-    // Save to Supabase
-    const result = await saveUserAPIKeys({
-      gemini_api_key: geminiKey,
-      openrouter_api_key: openRouterKey,
-      replicate_api_key: replicateKey,
-      llm_provider: provider,
-      llm_model: finalModel,
-      llm_image_model: imageModel,
-      llm_upscale_model: upscaleModel,
-    });
+    const result = await testOpenRouterKey(openRouterKey);
 
-    if (result.success) {
-      console.log('[Settings] ✓ API keys saved to Supabase');
-      setSaved(true);
-      setTimeout(() => {
-        setSaved(false);
-        onClose();
-        // Reload to apply new settings
-        window.location.reload();
-      }, 1000);
+    if (result.valid) {
+      setOpenRouterStatus('valid');
+      console.log(`[Settings] ✓ OpenRouter connected (${result.modelCount} models)`);
     } else {
-      console.error('[Settings] Failed to save:', result.error);
-      alert(`Failed to save settings: ${result.error}\n\nTip: Check your Supabase connection.`);
+      setOpenRouterStatus('invalid');
+      setTestError(result.error || 'Connection failed');
+    }
+  };
+
+  const handleTestReplicate = async () => {
+    if (!replicateKey) return;
+
+    setReplicateStatus('testing');
+    setTestError('');
+
+    const result = await testReplicateKey(replicateKey);
+
+    if (result.valid) {
+      setReplicateStatus('valid');
+      console.log('[Settings] ✓ Replicate connected');
+    } else {
+      setReplicateStatus('invalid');
+      setTestError(result.error || 'Connection failed');
+    }
+  };
+
+  const handleSave = async () => {
+    setIsSaving(true);
+    setTestError('');
+
+    try {
+      // Validate
+      if (!openRouterKey) {
+        throw new Error('OpenRouter API key is required');
+      }
+
+      if (openRouterStatus === 'invalid') {
+        throw new Error('Please fix invalid OpenRouter key');
+      }
+
+      const finalChatModel = chatModel === 'custom' ? customChatModel : chatModel;
+
+      // Save to Supabase
+      const result = await saveUserAPIKeys({
+        openrouter_api_key: openRouterKey,
+        replicate_api_key: replicateKey || undefined,
+        llm_provider: 'openrouter', // Always OpenRouter now
+        llm_model: finalChatModel,
+        llm_image_model: imageGenModel,
+        llm_magic_edit_model: magicEditModel,
+        llm_upscale_model: upscaleModel,
+      });
+
+      if (result.success) {
+        console.log('[Settings] ✓ Settings saved');
+        setSaved(true);
+
+        // Close after 1 second without reload
+        setTimeout(() => {
+          setSaved(false);
+          onClose();
+          // Dispatch event instead of reload
+          window.dispatchEvent(new CustomEvent('settings-updated'));
+        }, 1000);
+      } else {
+        throw new Error(result.error || 'Failed to save');
+      }
+    } catch (error) {
+      console.error('[Settings] Save failed:', error);
+      setTestError(error instanceof Error ? error.message : 'Failed to save');
+    } finally {
+      setIsSaving(false);
     }
   };
 
@@ -133,7 +226,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
 
   return (
     <div className='fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4'>
-      <div className='bg-zinc-900 border border-white/10 rounded-3xl p-6 w-full max-w-md shadow-2xl relative'>
+      <div className='bg-zinc-900 border border-white/10 rounded-3xl p-6 w-full max-w-md max-h-[90vh] overflow-y-auto shadow-2xl relative'>
         <button
           type='button'
           onClick={onClose}
@@ -148,211 +241,93 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
         </h2>
 
         <div className='space-y-6'>
-          {/* Provider Selection */}
+          {/* OpenRouter Section */}
           <div>
-            <label className='block text-[10px] font-bold text-zinc-500 uppercase tracking-widest mb-2'>
-              AI Provider
-            </label>
-            <div className='flex bg-zinc-950 p-1 rounded-xl border border-white/5'>
-              <button
-                type='button'
-                onClick={() => setProvider('gemini')}
-                className={`flex-1 py-2 rounded-lg text-xs font-bold uppercase tracking-wider transition ${provider === 'gemini' ? 'bg-zinc-800 text-white shadow-md' : 'text-zinc-500 hover:text-zinc-300'}`}
-              >
-                Google Gemini
-              </button>
-              <button
-                type='button'
-                onClick={() => setProvider('openrouter')}
-                className={`flex-1 py-2 rounded-lg text-xs font-bold uppercase tracking-wider transition ${provider === 'openrouter' ? 'bg-zinc-800 text-white shadow-md' : 'text-zinc-500 hover:text-zinc-300'}`}
-              >
-                OpenRouter
-              </button>
-            </div>
-          </div>
-
-          {/* Gemini Configuration */}
-          {provider === 'gemini' && (
-            <div className='animate-fade-in'>
-              <label
-                htmlFor='gemini-key'
-                className='block text-[10px] font-bold text-zinc-500 uppercase tracking-widest mb-2'
-              >
-                Gemini API Key
-              </label>
-              <input
-                id='gemini-key'
-                type='password'
-                value={geminiKey}
-                onChange={(e) => setGeminiKey(e.target.value)}
-                placeholder='AIzaSy...'
-                className='w-full bg-zinc-950 border border-white/10 rounded-xl px-4 py-3 text-white text-xs font-medium focus:outline-none focus:border-purple-500/50 transition placeholder-zinc-700'
-              />
-              <p className='text-[9px] text-zinc-600 mt-2'>
-                Leave blank to use default environment variable if configured.
-                <br />
-                <a
-                  href='https://aistudio.google.com/apikey'
-                  target='_blank'
-                  rel='noopener noreferrer'
-                  className='text-purple-400 hover:text-purple-300 underline inline-flex items-center gap-1'
-                >
-                  Get your Gemini API key
-                  <span className='material-icons text-[10px]'>open_in_new</span>
-                </a>
-              </p>
-            </div>
-          )}
-
-          {/* OpenRouter Configuration */}
-          {provider === 'openrouter' && (
-            <div className='space-y-4 animate-fade-in'>
-              <div>
-                <label
-                  htmlFor='openrouter-key'
-                  className='block text-[10px] font-bold text-zinc-500 uppercase tracking-widest mb-2'
-                >
-                  OpenRouter API Key
-                </label>
-                <input
-                  id='openrouter-key'
-                  type='password'
-                  value={openRouterKey}
-                  onChange={(e) => setOpenRouterKey(e.target.value)}
-                  placeholder='sk-or-...'
-                  className='w-full bg-zinc-950 border border-white/10 rounded-xl px-4 py-3 text-white text-xs font-medium focus:outline-none focus:border-purple-500/50 transition placeholder-zinc-700'
-                />
-                <p className='text-[9px] text-zinc-600 mt-2'>
-                  <a
-                    href='https://openrouter.ai/keys'
-                    target='_blank'
-                    rel='noopener noreferrer'
-                    className='text-purple-400 hover:text-purple-300 underline inline-flex items-center gap-1'
-                  >
-                    Get your OpenRouter API key
-                    <span className='material-icons text-[10px]'>open_in_new</span>
-                  </a>
-                  {' • '}
-                  <a
-                    href='https://openrouter.ai/auth?sign_up=true'
-                    target='_blank'
-                    rel='noopener noreferrer'
-                    className='text-purple-400 hover:text-purple-300 underline'
-                  >
-                    Sign up
-                  </a>
-                </p>
-              </div>
-
-              <div>
-                <label
-                  htmlFor='model-select'
-                  className='block text-[10px] font-bold text-zinc-500 uppercase tracking-widest mb-2'
-                >
-                  Model Selection
-                </label>
-                <select
-                  id='model-select'
-                  value={model}
-                  onChange={(e) => setModel(e.target.value)}
-                  className='w-full bg-zinc-950 border border-white/10 rounded-xl px-4 py-3 text-white text-xs font-medium focus:outline-none focus:border-purple-500/50 transition appearance-none mb-2'
-                >
-                  {COMMON_MODELS.map((m) => (
-                    <option key={m.id} value={m.id}>
-                      {m.name}
-                    </option>
-                  ))}
-                  <option value='custom'>+ Custom Model ID</option>
-                </select>
-
-                {model === 'custom' && (
-                  <input
-                    type='text'
-                    value={customModel}
-                    onChange={(e) => setCustomModel(e.target.value)}
-                    placeholder='e.g. google/gemini-exp-1114'
-                    className='w-full bg-zinc-800 border border-purple-500/30 rounded-xl px-4 py-3 text-white text-xs font-medium focus:outline-none focus:border-purple-500 transition placeholder-zinc-500'
-                  />
-                )}
-              </div>
-            </div>
-          )}
-
-          {/* Replicate Configuration */}
-          <div className='animate-fade-in border-t border-white/10 pt-4 mt-4'>
             <label
-              htmlFor='replicate-key'
-              className='block text-[10px] font-bold text-zinc-500 uppercase tracking-widest mb-2 flex justify-between items-center'
+              htmlFor='openrouter-key'
+              className='block text-[10px] font-bold text-zinc-500 uppercase tracking-widest mb-2'
             >
-              <span>Replicate API (Upscaling, Rembg)</span>
-              <span className='text-[9px] text-zinc-600 bg-zinc-900 px-2 py-0.5 rounded'>
-                Optional
-              </span>
+              OpenRouter API Key
             </label>
             <input
-              id='replicate-key'
+              id='openrouter-key'
               type='password'
-              value={replicateKey}
-              onChange={(e) => setReplicateKey(e.target.value)}
-              placeholder='r8_...'
+              value={openRouterKey}
+              onChange={(e) => {
+                setOpenRouterKey(e.target.value);
+                setOpenRouterStatus('untested');
+              }}
+              placeholder='sk-or-...'
               className='w-full bg-zinc-950 border border-white/10 rounded-xl px-4 py-3 text-white text-xs font-medium focus:outline-none focus:border-purple-500/50 transition placeholder-zinc-700'
             />
+            <div className='flex items-center justify-between mt-2'>
+              <button
+                type='button'
+                onClick={handleTestOpenRouter}
+                disabled={!openRouterKey || openRouterStatus === 'testing'}
+                className='text-xs px-3 py-1 bg-purple-600 hover:bg-purple-700 rounded transition disabled:opacity-50 disabled:cursor-not-allowed'
+              >
+                {openRouterStatus === 'testing' ? 'Testing...' : 'Test Connection'}
+              </button>
+              <ConnectionStatus status={openRouterStatus} />
+            </div>
             <p className='text-[9px] text-zinc-600 mt-2'>
               <a
-                href='https://replicate.com/account/api-tokens'
+                href='https://openrouter.ai/keys'
                 target='_blank'
                 rel='noopener noreferrer'
                 className='text-purple-400 hover:text-purple-300 underline inline-flex items-center gap-1'
               >
-                Get your Replicate API token
+                Get your OpenRouter API key
                 <span className='material-icons text-[10px]'>open_in_new</span>
-              </a>
-              {' • '}
-              <a
-                href='https://replicate.com/signin?next=/account/api-tokens'
-                target='_blank'
-                rel='noopener noreferrer'
-                className='text-purple-400 hover:text-purple-300 underline'
-              >
-                Sign up
               </a>
             </p>
           </div>
 
-          {/* Replicate Upscale Model Selection */}
-          <div className='animate-fade-in mt-4'>
+          {/* Chat Model Dropdown */}
+          <div>
             <label
-              htmlFor='upscale-model-select'
+              htmlFor='chat-model-select'
               className='block text-[10px] font-bold text-zinc-500 uppercase tracking-widest mb-2'
             >
-              Upscale Model
+              Chat/Assistant Model
             </label>
             <select
-              id='upscale-model-select'
-              value={upscaleModel}
-              onChange={(e) => setUpscaleModel(e.target.value)}
+              id='chat-model-select'
+              value={chatModel}
+              onChange={(e) => setChatModel(e.target.value)}
               className='w-full bg-zinc-950 border border-white/10 rounded-xl px-4 py-3 text-white text-xs font-medium focus:outline-none focus:border-purple-500/50 transition appearance-none'
             >
-              {UPSCALE_MODELS.map((m) => (
+              {COMMON_MODELS.map((m) => (
                 <option key={m.id} value={m.id}>
                   {m.name}
                 </option>
               ))}
+              <option value='custom'>+ Custom Model ID</option>
             </select>
+            {chatModel === 'custom' && (
+              <input
+                type='text'
+                value={customChatModel}
+                onChange={(e) => setCustomChatModel(e.target.value)}
+                placeholder='e.g., openai/gpt-4'
+                className='w-full px-4 py-2 mt-2 bg-zinc-800 border border-purple-500/30 rounded-xl text-white text-xs font-medium focus:outline-none focus:border-purple-500 transition placeholder-zinc-500'
+              />
+            )}
           </div>
 
-          {/* Image Generation Model Selection */}
-          <div className='animate-fade-in mt-4'>
+          {/* Image Generation Model Dropdown */}
+          <div>
             <label
-              htmlFor='image-model-select'
+              htmlFor='image-gen-model-select'
               className='block text-[10px] font-bold text-zinc-500 uppercase tracking-widest mb-2'
             >
               Image Generation Model
             </label>
             <select
-              id='image-model-select'
-              value={imageModel}
-              onChange={(e) => setImageModel(e.target.value)}
+              id='image-gen-model-select'
+              value={imageGenModel}
+              onChange={(e) => setImageGenModel(e.target.value)}
               className='w-full bg-zinc-950 border border-white/10 rounded-xl px-4 py-3 text-white text-xs font-medium focus:outline-none focus:border-purple-500/50 transition appearance-none'
             >
               {IMAGE_MODELS.map((m) => (
@@ -366,14 +341,129 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
             </p>
           </div>
 
+          {/* Magic Edit Model Dropdown (NEW) */}
+          <div>
+            <label
+              htmlFor='magic-edit-model-select'
+              className='block text-[10px] font-bold text-zinc-500 uppercase tracking-widest mb-2'
+            >
+              Magic Edit Model
+            </label>
+            <select
+              id='magic-edit-model-select'
+              value={magicEditModel}
+              onChange={(e) => setMagicEditModel(e.target.value)}
+              className='w-full bg-zinc-950 border border-white/10 rounded-xl px-4 py-3 text-white text-xs font-medium focus:outline-none focus:border-purple-500/50 transition appearance-none'
+            >
+              {MAGIC_EDIT_MODELS.map((m) => (
+                <option key={m.id} value={m.id}>
+                  {m.name}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          {/* Divider */}
+          <div className='border-t border-white/10' />
+
+          {/* Replicate Section (Optional) */}
+          <div>
+            <label
+              htmlFor='replicate-key'
+              className='block text-[10px] font-bold text-zinc-500 uppercase tracking-widest mb-2 flex justify-between items-center'
+            >
+              <span>Replicate API (Optional)</span>
+              <span className='text-[9px] text-zinc-600'>For upscaling, background removal</span>
+            </label>
+            <input
+              id='replicate-key'
+              type='password'
+              value={replicateKey}
+              onChange={(e) => {
+                setReplicateKey(e.target.value);
+                setReplicateStatus('untested');
+              }}
+              placeholder='r8_...'
+              className='w-full bg-zinc-950 border border-white/10 rounded-xl px-4 py-3 text-white text-xs font-medium focus:outline-none focus:border-purple-500/50 transition placeholder-zinc-700'
+            />
+            {replicateKey && (
+              <div className='flex items-center justify-between mt-2'>
+                <button
+                  type='button'
+                  onClick={handleTestReplicate}
+                  disabled={replicateStatus === 'testing'}
+                  className='text-xs px-3 py-1 bg-purple-600 hover:bg-purple-700 rounded transition disabled:opacity-50 disabled:cursor-not-allowed'
+                >
+                  {replicateStatus === 'testing' ? 'Testing...' : 'Test Connection'}
+                </button>
+                <ConnectionStatus status={replicateStatus} />
+              </div>
+            )}
+            <p className='text-[9px] text-zinc-600 mt-2'>
+              <a
+                href='https://replicate.com/account/api-tokens'
+                target='_blank'
+                rel='noopener noreferrer'
+                className='text-purple-400 hover:text-purple-300 underline inline-flex items-center gap-1'
+              >
+                Get your Replicate API token
+                <span className='material-icons text-[10px]'>open_in_new</span>
+              </a>
+            </p>
+
+            {/* Upscale Model Selection - shown when Replicate key is provided */}
+            {replicateKey && (
+              <div className='mt-4'>
+                <label
+                  htmlFor='upscale-model-select'
+                  className='block text-[10px] font-bold text-zinc-500 uppercase tracking-widest mb-2'
+                >
+                  Upscale Model (Replicate)
+                </label>
+                <select
+                  id='upscale-model-select'
+                  value={upscaleModel}
+                  onChange={(e) => setUpscaleModel(e.target.value)}
+                  className='w-full bg-zinc-950 border border-white/10 rounded-xl px-4 py-3 text-white text-xs font-medium focus:outline-none focus:border-purple-500/50 transition appearance-none'
+                >
+                  {UPSCALE_MODELS.map((m) => (
+                    <option key={m.id} value={m.id}>
+                      {m.name}
+                    </option>
+                  ))}
+                </select>
+                <p className='text-[9px] text-zinc-600 mt-2'>
+                  Real-ESRGAN for general upscaling, SwinIR for restoration, CodeFormer for faces
+                </p>
+              </div>
+            )}
+          </div>
+
+          {/* Error Display */}
+          {testError && (
+            <div className='p-3 bg-red-500/10 border border-red-500/30 rounded-lg'>
+              <p className='text-xs text-red-400 flex items-center gap-2'>
+                <span className='material-icons text-sm'>error</span>
+                {testError}
+              </p>
+            </div>
+          )}
+
+          {/* Save Button */}
           <button
             type='button'
             onClick={handleSave}
-            className='w-full h-12 rounded-xl font-bold uppercase tracking-wider text-xs transition-all flex items-center justify-center gap-2 bg-white text-black hover:bg-zinc-200 active:scale-[0.98]'
+            disabled={isSaving}
+            className='w-full h-12 rounded-xl font-bold uppercase tracking-wider text-xs transition-all flex items-center justify-center gap-2 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 disabled:opacity-50 disabled:cursor-not-allowed active:scale-[0.98]'
           >
-            {saved ? (
+            {isSaving ? (
               <>
-                <span className='material-icons text-green-600'>check_circle</span>
+                <span className='material-icons animate-spin'>sync</span>
+                Saving...
+              </>
+            ) : saved ? (
+              <>
+                <span className='material-icons text-white'>check_circle</span>
                 Saved!
               </>
             ) : (

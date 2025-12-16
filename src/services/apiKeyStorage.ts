@@ -4,13 +4,14 @@
 import { supabase } from './supabase';
 
 export interface UserAPIKeys {
-  gemini_api_key?: string;
+  gemini_api_key?: string; // Keep for backward compatibility
   openrouter_api_key?: string;
   replicate_api_key?: string;
   llm_provider?: 'gemini' | 'openrouter';
-  llm_model?: string;
-  llm_image_model?: string;
-  llm_upscale_model?: string;
+  llm_model?: string; // Chat/Assistant model
+  llm_image_model?: string; // Image generation model
+  llm_magic_edit_model?: string; // Magic edit model
+  llm_upscale_model?: string; // Upscale model
 }
 
 // Generate or retrieve session ID for anonymous users
@@ -74,6 +75,7 @@ export async function getUserAPIKeys(): Promise<UserAPIKeys> {
       llm_provider: (data.llm_provider as 'gemini' | 'openrouter') || 'gemini',
       llm_model: data.llm_model,
       llm_image_model: data.llm_image_model,
+      llm_magic_edit_model: data.llm_magic_edit_model, // NEW
       llm_upscale_model: data.llm_upscale_model,
     };
   } catch (error) {
@@ -106,6 +108,7 @@ export async function saveUserAPIKeys(
       llm_provider: string;
       llm_model: string | null;
       llm_image_model: string | null;
+      llm_magic_edit_model: string | null; // NEW
       llm_upscale_model: string | null;
       user_id?: string | null;
       session_id?: string | null;
@@ -116,6 +119,7 @@ export async function saveUserAPIKeys(
       llm_provider: keys.llm_provider || 'openrouter',
       llm_model: keys.llm_model || null,
       llm_image_model: keys.llm_image_model || null,
+      llm_magic_edit_model: keys.llm_magic_edit_model || null, // NEW
       llm_upscale_model: keys.llm_upscale_model || null,
     };
 
@@ -222,6 +226,7 @@ export async function migrateLocalStorageToSupabase(): Promise<void> {
     llm_provider: (localStorage.getItem('llm_provider') as 'gemini' | 'openrouter') || 'openrouter',
     llm_model: localStorage.getItem('llm_model') || undefined,
     llm_image_model: localStorage.getItem('llm_image_model') || undefined,
+    llm_magic_edit_model: localStorage.getItem('llm_magic_edit_model') || undefined, // NEW
     llm_upscale_model: localStorage.getItem('llm_upscale_model') || undefined,
   };
 

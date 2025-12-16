@@ -31,6 +31,7 @@ const getSettings = async () => {
     stackKey: localStorage.getItem('stack_api_key') || import.meta.env.VITE_STACK_API_KEY || '',
     model: keys.llm_model || 'nano-banana-pro',
     imageModel: keys.llm_image_model || MODELS.imageGen,
+    magicEditModel: keys.llm_magic_edit_model || MODELS.imageEdit, // NEW
     upscaleModel: keys.llm_upscale_model ||
       'nightmareai/real-esrgan:42fed1c4974146d4d2414e2be2c5277c7fcf05fcc3a73ab241b637189a1445ad',
   };
@@ -862,7 +863,7 @@ export const generateImage = async (
 // ======================================================================
 
 export const editImage = async (base64Image: string, prompt: string) => {
-  const { geminiKey } = await getSettings();
+  const { geminiKey, magicEditModel } = await getSettings();
 
   if (!geminiKey) {
     throw new Error('Gemini API key not found. Please add your API key in Settings.');
@@ -890,11 +891,11 @@ export const editImage = async (base64Image: string, prompt: string) => {
 
   const safePrompt = `${prompt} ${PROFILE_ZONE_CONSTRAINT}`;
 
-  console.log('[Image Edit] Starting edit with model:', MODELS.imageEdit);
+  console.log('[Image Edit] Starting edit with model:', magicEditModel);
 
   try {
     const response = await ai.models.generateContent({
-      model: MODELS.imageEdit,
+      model: magicEditModel,
       contents: {
         parts: [{ inlineData: { mimeType, data: base64Data } }, { text: safePrompt }],
       },
