@@ -96,12 +96,12 @@ See [WIKI.md](./WIKI.md) for detailed setup instructions.
 
 ### Database Setup (For Deployment)
 
-The app uses Neon PostgreSQL for storing user profiles and application data. As the app owner, you need to set up the database schema once.
+The app uses Supabase PostgreSQL for storing user profiles and application data. As the app owner, you need to set up the database schema once.
 
 #### One-Time Setup
 
-1. Go to your Neon dashboard: https://console.neon.tech/
-2. Open SQL Editor
+1. Go to your Supabase dashboard: https://supabase.com/dashboard
+2. Select your project → SQL Editor
 3. Run the schema from `database/schema.sql`
 4. Verify tables created (see `database/README.md`)
 

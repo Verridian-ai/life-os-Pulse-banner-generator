@@ -1,23 +1,24 @@
 # Database Setup Instructions (App Owner Only)
 
-**Note**: This setup is for the app owner (you) to run ONCE in their Neon database. End users will never need to see or follow these instructions. Once you run this schema, all users can sign up and use the app immediately.
+**Note**: This setup is for the app owner (you) to run ONCE in your Supabase database. End users will never need to see or follow these instructions. Once you run this schema, all users can sign up and use the app immediately.
 
 ## Prerequisites
 
-1. **Neon Account**: You already have this set up
-2. **Neon Project**: You already have your Neon project configured
-3. **Environment Variables**: Your Vercel deployment already has `VITE_NEON_API_BASE` configured
+1. **Supabase Account**: You already have this set up
+2. **Supabase Project**: You already have your Supabase project configured
+3. **Environment Variables**: Your Vercel deployment already has `VITE_SUPABASE_URL` and `VITE_SUPABASE_ANON_KEY` configured
 
 ## Setup Steps (One-Time)
 
 ### 1. Run the Schema Migration
 
-1. Go to your Neon project dashboard: https://console.neon.tech/
-2. Click on your project
-3. Click "SQL Editor" in the left sidebar
-4. Copy the contents of `database/schema.sql`
-5. Paste into the SQL Editor
-6. Click "Run" to execute the schema
+1. Go to your Supabase dashboard: https://supabase.com/dashboard
+2. Select your project
+3. Go to "SQL Editor" in the left sidebar
+4. Click "New query"
+5. Copy the contents of `database/schema.sql`
+6. Paste into the SQL Editor
+7. Click "Run" to execute the schema
 
 **That's it!** Once you run this, all users can sign up and use the app.
 

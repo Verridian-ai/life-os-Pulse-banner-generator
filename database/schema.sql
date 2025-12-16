@@ -1,7 +1,7 @@
--- Neon PostgreSQL Database Schema for Nanobanna Pro
--- Run this in your Neon SQL Editor: https://console.neon.tech/
+-- Supabase PostgreSQL Database Schema for Nanobanna Pro
+-- Run this in your Supabase SQL Editor: https://supabase.com/dashboard/project/_/sql
 --
--- IMPORTANT: This is for the app owner to run ONCE in their Neon database.
+-- IMPORTANT: This is for the app owner to run ONCE in their Supabase database.
 -- End users do NOT need to set up any database - they just sign up and use the app.
 
 -- Create users table
