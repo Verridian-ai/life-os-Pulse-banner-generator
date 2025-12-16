@@ -5,6 +5,8 @@ import CanvasEditor from './components/features/CanvasEditor';
 import ChatInterface from './components/ChatInterface';
 import ImageGallery from './components/features/ImageGallery';
 import { SettingsModal } from './components/features/SettingsModal';
+import { AuthModal } from './components/auth/AuthModal';
+import { APIKeyInstructionsModal } from './components/features/APIKeyInstructionsModal';
 import {
   ScreenReaderAnnouncerProvider,
   useAnnouncer,
@@ -14,11 +16,14 @@ import { generateImage, generatePromptFromRefImages as generateMagicPrompt } fro
 import { Tab } from './constants';
 import { CanvasProvider, useCanvas } from './context/CanvasContext';
 import { AIProvider } from './context/AIContext';
+import { AuthProvider } from './context/AuthContext';
 import { migrateLocalStorageToSupabase } from './services/apiKeyStorage';
 
 const AppContent = () => {
   const [activeTab, setActiveTab] = useState<Tab>(Tab.STUDIO);
   const [showSettings, setShowSettings] = useState(false);
+  const [showAuthModal, setShowAuthModal] = useState(false);
+  const [showInstructions, setShowInstructions] = useState(false);
   const [notification, setNotification] = useState<{
     message: string;
     type: 'warning' | 'info';
@@ -269,9 +274,23 @@ const AppContent = () => {
         activeTab={activeTab}
         setActiveTab={setActiveTab}
         onOpenSettings={() => setShowSettings(true)}
+        onOpenAuth={() => setShowAuthModal(true)}
+        onOpenInstructions={() => setShowInstructions(true)}
       />
 
       <SettingsModal isOpen={showSettings} onClose={() => setShowSettings(false)} />
+      <AuthModal
+        isOpen={showAuthModal}
+        onClose={() => setShowAuthModal(false)}
+        onSuccess={() => {
+          setNotification({ message: '✓ SIGNED IN SUCCESSFULLY', type: 'info' });
+          announce('Signed in successfully', 'polite');
+        }}
+      />
+      <APIKeyInstructionsModal
+        isOpen={showInstructions}
+        onClose={() => setShowInstructions(false)}
+      />
 
       <main className='flex-1 relative flex flex-col md:flex-row bg-black w-full'>
         <div className='absolute top-0 left-0 w-full h-[500px] bg-gradient-to-b from-blue-900/10 to-transparent pointer-events-none'></div>
@@ -333,11 +352,13 @@ const AppContent = () => {
 function App() {
   return (
     <ScreenReaderAnnouncerProvider>
-      <AIProvider>
-        <CanvasProvider>
-          <AppContent />
-        </CanvasProvider>
-      </AIProvider>
+      <AuthProvider>
+        <AIProvider>
+          <CanvasProvider>
+            <AppContent />
+          </CanvasProvider>
+        </AIProvider>
+      </AuthProvider>
     </ScreenReaderAnnouncerProvider>
   );
 }
