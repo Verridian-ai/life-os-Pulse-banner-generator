@@ -31,9 +31,14 @@ export const signUp = async (
 
     if (error) throw error;
 
-    // Create user profile in Neon
+    // Create user profile in Neon (non-blocking - don't fail signup if this fails)
     if (data.user) {
-      await upsertUser(data.user.id, email, metadata?.name);
+      try {
+        await upsertUser(data.user.id, email, metadata?.name);
+      } catch (dbError) {
+        console.warn('Failed to create user profile in database (non-critical):', dbError);
+        // Continue with signup even if database save fails
+      }
     }
 
     return { user: data.user, error: null };
@@ -61,9 +66,14 @@ export const signIn = async (
 
     if (error) throw error;
 
-    // Update last login in Neon
+    // Update last login in Neon (non-blocking)
     if (data.user) {
-      await upsertUser(data.user.id, email);
+      try {
+        await upsertUser(data.user.id, email);
+      } catch (dbError) {
+        console.warn('Failed to update user profile in database (non-critical):', dbError);
+        // Continue with signin even if database save fails
+      }
     }
 
     return { user: data.user, session: data.session, error: null };
