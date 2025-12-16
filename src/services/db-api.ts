@@ -39,6 +39,8 @@ export const upsertUser = async (
     throw new Error('Supabase not initialized');
   }
 
+  console.log('[upsertUser] Attempting to upsert user:', { supabaseUserId, email, name });
+
   const { data, error } = await supabase
     .from('users')
     .upsert(
@@ -54,7 +56,17 @@ export const upsertUser = async (
     .select()
     .single();
 
-  if (error) throw new Error(`Database error: ${error.message}`);
+  if (error) {
+    console.error('[upsertUser] Database error:', {
+      code: error.code,
+      message: error.message,
+      details: error.details,
+      hint: error.hint,
+    });
+    throw new Error(`Database error saving new user: ${error.message} (code: ${error.code})`);
+  }
+
+  console.log('[upsertUser] User upserted successfully:', data);
   return data;
 };
 

@@ -31,13 +31,15 @@ export const signUp = async (
 
     if (error) throw error;
 
-    // Create user profile in Neon (non-blocking - don't fail signup if this fails)
+    // Create user profile in database (non-blocking - don't fail signup if this fails)
     if (data.user) {
       try {
+        console.log('[auth.signUp] Calling upsertUser for user:', data.user.id);
         await upsertUser(data.user.id, email, metadata?.name);
+        console.log('[auth.signUp] upsertUser succeeded');
       } catch (dbError) {
-        console.warn('Failed to create user profile in database (non-critical):', dbError);
-        // Continue with signup even if database save fails
+        console.error('[auth.signUp] upsertUser failed (non-critical):', dbError);
+        // Continue with signup even if database save fails - this is NOT blocking
       }
     }
 
