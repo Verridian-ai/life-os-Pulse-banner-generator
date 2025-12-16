@@ -94,6 +94,24 @@ VITE_REPLICATE_API_KEY=your-replicate-key
 
 See [WIKI.md](./WIKI.md) for detailed setup instructions.
 
+### Database Setup (For Deployment)
+
+The app uses Neon PostgreSQL for storing user profiles and application data. As the app owner, you need to set up the database schema once.
+
+#### One-Time Setup
+
+1. Go to your Neon dashboard: https://console.neon.tech/
+2. Open SQL Editor
+3. Run the schema from `database/schema.sql`
+4. Verify tables created (see `database/README.md`)
+
+Once this is done, all users can sign up and use the app with full functionality:
+- User profiles stored per user
+- API keys stored encrypted per user
+- Designs and generation history saved per user
+
+See `database/README.md` for detailed instructions.
+
 ---
 
 ## 📚 Documentation

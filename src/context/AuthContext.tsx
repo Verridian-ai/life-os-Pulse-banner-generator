@@ -125,7 +125,15 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     const { user: newUser, error } = await authSignUp(email, password, metadata);
     if (!error && newUser) {
       setSupabaseUser(newUser);
-      await loadUserProfile(newUser.id);
+
+      // Load user profile from database (optional - won't block signup if DB not ready)
+      try {
+        await loadUserProfile(newUser.id);
+      } catch (profileError) {
+        console.warn('[Auth] Could not load user profile from database:', profileError);
+        // Continue without profile - user can still use the app
+        // Profile will be created on next login or when database is set up
+      }
     }
     return { error };
   };
@@ -136,7 +144,14 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     if (!error && signedInUser) {
       setSupabaseUser(signedInUser);
       setSession(newSession);
-      await loadUserProfile(signedInUser.id);
+
+      // Load user profile from database (optional)
+      try {
+        await loadUserProfile(signedInUser.id);
+      } catch (profileError) {
+        console.warn('[Auth] Could not load user profile from database:', profileError);
+        // Continue without profile
+      }
     }
     return { error };
   };
