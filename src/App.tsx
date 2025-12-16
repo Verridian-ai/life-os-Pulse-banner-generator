@@ -16,7 +16,7 @@ import { generateImage, generatePromptFromRefImages as generateMagicPrompt } fro
 import { Tab } from './constants';
 import { CanvasProvider, useCanvas } from './context/CanvasContext';
 import { AIProvider } from './context/AIContext';
-import { AuthProvider } from './context/AuthContext';
+import { AuthProvider, useAuth } from './context/AuthContext';
 import { migrateLocalStorageToSupabase } from './services/apiKeyStorage';
 
 const AppContent = () => {
@@ -32,6 +32,9 @@ const AppContent = () => {
   // Accessibility states
   const [showChatHistory, setShowChatHistory] = useState(false);
   const { announce } = useAnnouncer();
+
+  // Auth state
+  const { isAuthenticated, isLoading } = useAuth();
 
   // Context hooks for shared state
   const { bgImage, setBgImage, refImages } = useCanvas();
@@ -243,6 +246,14 @@ const AppContent = () => {
     });
   }, []);
 
+  // Show auth modal immediately for unauthenticated users (auth-first flow)
+  useEffect(() => {
+    // Only trigger after auth loading completes
+    if (!isLoading && !isAuthenticated) {
+      setShowAuthModal(true);
+    }
+  }, [isAuthenticated, isLoading]);
+
   // Keyboard shortcuts
   useKeyboardShortcuts({
     shortcuts: getDefaultShortcuts({
@@ -268,6 +279,20 @@ const AppContent = () => {
     }),
   });
 
+  // Show loading screen while checking authentication
+  if (isLoading) {
+    return (
+      <div className='min-h-screen bg-black text-white font-sans flex items-center justify-center'>
+        <div className='text-center'>
+          <div className='inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br from-purple-600 to-blue-600 rounded-2xl mb-4 animate-pulse'>
+            <span className='material-icons text-3xl text-white'>key</span>
+          </div>
+          <p className='text-sm text-zinc-400'>Loading...</p>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className='min-h-screen bg-black text-white font-sans flex flex-col'>
       <Header
@@ -281,10 +306,16 @@ const AppContent = () => {
       <SettingsModal isOpen={showSettings} onClose={() => setShowSettings(false)} />
       <AuthModal
         isOpen={showAuthModal}
-        onClose={() => setShowAuthModal(false)}
+        onClose={() => {
+          // Only allow closing if user is authenticated
+          if (isAuthenticated) {
+            setShowAuthModal(false);
+          }
+        }}
         onSuccess={() => {
           setNotification({ message: '✓ SIGNED IN SUCCESSFULLY', type: 'info' });
           announce('Signed in successfully', 'polite');
+          setShowAuthModal(false); // Close modal after successful auth
         }}
       />
       <APIKeyInstructionsModal

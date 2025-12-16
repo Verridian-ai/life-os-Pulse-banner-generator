@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { signUp, signIn } from '../../services/supabase';
+import { signUp, signIn } from '../../services/auth';
 
 interface AuthModalProps {
   isOpen: boolean;
@@ -22,9 +22,17 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onSuccess
 
     try {
       if (mode === 'signin') {
-        await signIn({ email, password });
+        const { error: signInError } = await signIn(email, password);
+        if (signInError) {
+          setError(signInError.message);
+          return;
+        }
       } else {
-        await signUp({ email, password, fullName });
+        const { error: signUpError } = await signUp(email, password, { name: fullName });
+        if (signUpError) {
+          setError(signUpError.message);
+          return;
+        }
       }
 
       // Success!
