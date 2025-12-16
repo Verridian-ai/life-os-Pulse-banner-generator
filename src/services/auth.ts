@@ -26,6 +26,7 @@ export const signUp = async (
       password,
       options: {
         data: metadata,
+        emailRedirectTo: 'https://life-os-banner.verridian.ai/auth/callback',
       },
     });
 
