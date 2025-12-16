@@ -297,22 +297,22 @@ const AppContent = () => {
 
         {notification && (
           <div
-            className={`fixed top-20 left-1/2 transform -translate-x-1/2 z-[60] px-6 py-3 rounded-full shadow-2xl flex items-center gap-3 transition-all animate-bounce border border-white/10 backdrop-blur-md ${notification.type === 'warning' ? 'bg-yellow-500/90 text-black' : 'bg-blue-600/90 text-white'}`}
+            className={`fixed top-16 md:top-20 left-1/2 transform -translate-x-1/2 z-[60] px-4 md:px-6 py-2 md:py-3 rounded-full shadow-2xl flex items-center gap-2 md:gap-3 transition-all animate-bounce border border-white/10 backdrop-blur-md max-w-[90vw] ${notification.type === 'warning' ? 'bg-yellow-500/90 text-black' : 'bg-blue-600/90 text-white'}`}
           >
-            <span className='material-icons text-sm'>
+            <span className='material-icons text-sm md:text-base'>
               {notification.type === 'warning' ? 'warning' : 'info'}
             </span>
-            <span className='text-xs font-bold uppercase tracking-wider'>
+            <span className='text-[10px] sm:text-xs font-bold uppercase tracking-wider truncate'>
               {notification.message}
             </span>
-            <button onClick={() => setNotification(null)} className='ml-2 hover:opacity-50'>
+            <button onClick={() => setNotification(null)} className='ml-1 md:ml-2 hover:opacity-50 shrink-0'>
               <span className='material-icons text-sm'>close</span>
             </button>
           </div>
         )}
 
         {activeTab === Tab.STUDIO && (
-          <div className='flex-1 flex flex-col xl:flex-row h-auto w-full relative z-10'>
+          <div className='flex-1 flex flex-col lg:flex-row h-auto w-full relative z-10 overflow-hidden'>
             <CanvasEditor />
 
             <GenerativeSidebar
@@ -340,7 +340,7 @@ const AppContent = () => {
         {activeTab === Tab.GALLERY && <ImageGallery />}
 
         {activeTab === Tab.BRAINSTORM && (
-          <div className='flex-1 flex flex-col h-full relative z-10 p-4 md:p-8'>
+          <div className='flex-1 flex flex-col h-full relative z-10 p-3 sm:p-4 md:p-6 lg:p-8 overflow-hidden'>
             <ChatInterface onGenerateFromPrompt={handleGenerate} />
           </div>
         )}

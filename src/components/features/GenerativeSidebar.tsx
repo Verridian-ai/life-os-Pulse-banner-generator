@@ -49,20 +49,21 @@ const GenerativeSidebar: React.FC<GenerativeSidebarProps> = ({
 
   if (!isExpanded) {
     return (
-      <div className='absolute right-0 top-20 z-30'>
+      <div className='fixed lg:absolute bottom-4 lg:bottom-auto right-4 lg:right-0 lg:top-20 z-30'>
         <button
           onClick={() => setIsExpanded(true)}
-          className='bg-zinc-900 border-l border-t border-b border-white/10 text-white p-3 rounded-l-xl shadow-xl hover:bg-zinc-800 transition'
+          className='min-w-[56px] min-h-[56px] bg-zinc-900 border border-white/10 text-white p-3 rounded-full lg:rounded-l-xl lg:rounded-r-none shadow-2xl hover:bg-zinc-800 transition'
           title='Open AI Studio'
+          aria-label='Expand AI Studio sidebar'
         >
-          <span className='material-icons'>auto_fix_high</span>
+          <span className='material-icons text-2xl lg:text-base'>auto_fix_high</span>
         </button>
       </div>
     );
   }
 
   return (
-    <div className='w-full xl:w-[400px] bg-zinc-900 border-t xl:border-t-0 xl:border-l border-white/5 p-6 flex flex-col gap-6 overflow-y-auto shrink-0 z-20 shadow-2xl relative transition-all'>
+    <div className='w-full lg:w-[400px] bg-zinc-900 border-t lg:border-t-0 lg:border-l border-white/5 p-4 md:p-6 flex flex-col gap-4 md:gap-6 overflow-y-auto shrink-0 z-20 shadow-2xl relative transition-all max-h-[70vh] lg:max-h-none'>
       {/* Sticky gradient header for mobile separation */}
       <div className='space-y-6'>
         <div className='flex items-center justify-between'>
@@ -109,8 +110,8 @@ const GenerativeSidebar: React.FC<GenerativeSidebarProps> = ({
           </button>
 
           <textarea
-            className='w-full bg-zinc-900/50 border border-white/10 rounded-2xl p-4 text-sm font-medium text-white focus:border-pink-500 focus:outline-none resize-none h-32 mb-4 placeholder-zinc-600 shadow-[inset_0_2px_4px_rgba(0,0,0,0.5)] transition-all relative z-10'
-            placeholder="Describe your vision (e.g., 'A futuristic city skyline in purple and teal with abstract data streams')..."
+            className='w-full bg-zinc-900/50 border border-white/10 rounded-2xl p-3 md:p-4 text-xs md:text-sm font-medium text-white focus:border-pink-500 focus:outline-none resize-none h-24 md:h-32 mb-4 placeholder-zinc-600 shadow-[inset_0_2px_4px_rgba(0,0,0,0.5)] transition-all relative z-10'
+            placeholder="Describe your vision (e.g., 'A futuristic city skyline in purple and teal')..."
             value={genPrompt}
             onChange={(e) => setGenPrompt(e.target.value)}
           />
@@ -131,16 +132,16 @@ const GenerativeSidebar: React.FC<GenerativeSidebarProps> = ({
             </div>
           )}
 
-          <div className='flex justify-between items-center mb-6 relative z-10'>
-            <span className='text-[10px] text-zinc-500 font-black uppercase tracking-widest'>
+          <div className='flex justify-between items-center mb-4 md:mb-6 relative z-10 gap-2'>
+            <span className='text-[9px] md:text-[10px] text-zinc-500 font-black uppercase tracking-widest shrink-0'>
               Quality
             </span>
-            <div className='flex bg-zinc-900 rounded-xl p-1 border border-white/5 shadow-inner'>
+            <div className='flex bg-zinc-900 rounded-lg md:rounded-xl p-0.5 md:p-1 border border-white/5 shadow-inner'>
               {(['1K', '2K', '4K'] as const).map((s) => (
                 <button
                   key={s}
                   onClick={() => setGenSize(s)}
-                  className={`text-[10px] font-black px-4 py-1.5 rounded-lg transition-all ${genSize === s ? 'bg-zinc-700 text-white shadow-md' : 'text-zinc-500 hover:text-zinc-300'}`}
+                  className={`text-[9px] md:text-[10px] font-black px-2 md:px-4 py-1 md:py-1.5 rounded-md md:rounded-lg transition-all ${genSize === s ? 'bg-zinc-700 text-white shadow-md' : 'text-zinc-500 hover:text-zinc-300'}`}
                 >
                   {s}
                 </button>
