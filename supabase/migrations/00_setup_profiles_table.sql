@@ -233,7 +233,10 @@ CREATE TRIGGER on_auth_user_created
     FOR EACH ROW
     EXECUTE FUNCTION public.handle_new_user();
 
-RAISE NOTICE '✓ Updated handle_new_user() trigger function';
+DO $$
+BEGIN
+  RAISE NOTICE '✓ Updated handle_new_user() trigger function';
+END $$;
 
 -- ============================================================================
 -- PART H: CREATE UPDATED_AT TRIGGER (if needed)
