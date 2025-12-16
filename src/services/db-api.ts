@@ -1,4 +1,4 @@
-// Neon Database Service - REST API Client
+// Supabase Database Service - Direct PostgreSQL Client
 
 import type {
   User,
@@ -12,62 +12,15 @@ import type {
   UpdateDesignRequest,
   CreateBrandProfileRequest,
 } from '../types/database';
-
-const NEON_API_BASE =
-  'https://ep-flat-firefly-a71brgai.apirest.ap-southeast-2.aws.neon.tech/neondb/rest/v1';
+import { supabase } from './supabase';
 
 /**
- * Get authentication token from Supabase
+ * Temporary placeholder for executeQuery - functions using this need migration to Supabase SDK
  */
-const getAuthToken = (): string | null => {
-  const session = localStorage.getItem('supabase.auth.token');
-  if (!session) return null;
-
-  try {
-    const parsed = JSON.parse(session);
-    return parsed.access_token;
-  } catch {
-    return null;
-  }
-};
-
-/**
- * Make authenticated request to Neon Data API
- */
-const neonFetch = async <T>(endpoint: string, options: RequestInit = {}): Promise<T> => {
-  const token = getAuthToken();
-  if (!token) {
-    throw new Error('Not authenticated. Please log in.');
-  }
-
-  const response = await fetch(`${NEON_API_BASE}${endpoint}`, {
-    ...options,
-    headers: {
-      'Content-Type': 'application/json',
-      Authorization: `Bearer ${token}`,
-      ...options.headers,
-    },
-  });
-
-  if (!response.ok) {
-    const error = await response.text();
-    throw new Error(`Neon API Error: ${response.status} - ${error}`);
-  }
-
-  return response.json();
-};
-
-/**
- * Execute raw SQL query
- */
-export const executeQuery = async <T>(
-  query: string,
-  params: (string | number | boolean | null | string[])[] = [],
-): Promise<T> => {
-  return neonFetch<T>('/query', {
-    method: 'POST',
-    body: JSON.stringify({ query, params }),
-  });
+const executeQuery = async <T>(_query: string, _params: any[] = []): Promise<T> => {
+  throw new Error(
+    'This feature requires database migration. Please run the schema in your Supabase SQL Editor. See database/README.md',
+  );
 };
 
 // ============================================================================
@@ -82,24 +35,48 @@ export const upsertUser = async (
   email: string,
   name?: string,
 ): Promise<User> => {
-  const query = `
-    INSERT INTO users (id, email, full_name)
-    VALUES ($1, $2, $3)
-    ON CONFLICT (id)
-    DO UPDATE SET email = $2, full_name = COALESCE($3, users.full_name)
-    RETURNING *;
-  `;
-  const result = await executeQuery<{ rows: User[] }>(query, [supabaseUserId, email, name || null]);
-  return result.rows[0];
+  if (!supabase) {
+    throw new Error('Supabase not initialized');
+  }
+
+  const { data, error } = await supabase
+    .from('users')
+    .upsert(
+      {
+        id: supabaseUserId,
+        email: email,
+        full_name: name || null,
+      },
+      {
+        onConflict: 'id',
+      },
+    )
+    .select()
+    .single();
+
+  if (error) throw new Error(`Database error: ${error.message}`);
+  return data;
 };
 
 /**
  * Get current user profile
  */
 export const getCurrentUser = async (supabaseUserId: string): Promise<User | null> => {
-  const query = 'SELECT * FROM users WHERE id = $1;';
-  const result = await executeQuery<{ rows: User[] }>(query, [supabaseUserId]);
-  return result.rows[0] || null;
+  if (!supabase) {
+    throw new Error('Supabase not initialized');
+  }
+
+  const { data, error } = await supabase.from('users').select('*').eq('id', supabaseUserId).single();
+
+  if (error) {
+    if (error.code === 'PGRST116') {
+      // Row not found
+      return null;
+    }
+    throw new Error(`Database error: ${error.message}`);
+  }
+
+  return data;
 };
 
 /**
