@@ -10,22 +10,119 @@ import { supabase } from './supabase';
 export { supabase };
 
 /**
+ * Validate username format
+ * Rules: 3-30 chars, alphanumeric + underscores + hyphens only
+ */
+export const validateUsernameFormat = (username: string): {
+  isValid: boolean;
+  error?: string;
+} => {
+  if (!username) {
+    return { isValid: false, error: 'Username is required' };
+  }
+
+  if (username.length < 3) {
+    return { isValid: false, error: 'Username must be at least 3 characters' };
+  }
+
+  if (username.length > 30) {
+    return { isValid: false, error: 'Username must be 30 characters or less' };
+  }
+
+  const validFormat = /^[a-zA-Z0-9_-]+$/;
+  if (!validFormat.test(username)) {
+    return {
+      isValid: false,
+      error: 'Username can only contain letters, numbers, underscores, and hyphens',
+    };
+  }
+
+  // Reserved usernames
+  const reserved = ['admin', 'system', 'support', 'help', 'api', 'root', 'null', 'undefined'];
+  if (reserved.includes(username.toLowerCase())) {
+    return { isValid: false, error: 'This username is reserved' };
+  }
+
+  return { isValid: true };
+};
+
+/**
+ * Check if username is available (not taken)
+ */
+export const checkUsernameAvailability = async (username: string): Promise<boolean> => {
+  if (!supabase) {
+    throw new Error('Supabase not configured');
+  }
+
+  try {
+    const { data, error } = await supabase
+      .from('profiles')
+      .select('username')
+      .ilike('username', username.toLowerCase())
+      .maybeSingle();
+
+    if (error && error.code !== 'PGRST116') {
+      // PGRST116 = no rows found (username available)
+      console.error('Username availability check error:', error);
+      throw error;
+    }
+
+    // If data exists, username is taken
+    return !data;
+  } catch (error) {
+    console.error('Error checking username availability:', error);
+    throw error;
+  }
+};
+
+/**
  * Sign up with email and password
  */
 export const signUp = async (
   email: string,
   password: string,
-  metadata?: { name?: string },
+  metadata?: {
+    first_name?: string;
+    last_name?: string;
+    username?: string;
+  },
 ): Promise<{ user: SupabaseUser | null; error: Error | null }> => {
   if (!supabase) {
     return { user: null, error: new Error('Supabase not configured') };
   }
+
   try {
+    // Validate username format before attempting signup
+    if (metadata?.username) {
+      const usernameValidation = validateUsernameFormat(metadata.username);
+      if (!usernameValidation.isValid) {
+        return {
+          user: null,
+          error: new Error(usernameValidation.error || 'Invalid username format'),
+        };
+      }
+
+      // Check username availability
+      const isAvailable = await checkUsernameAvailability(metadata.username);
+      if (!isAvailable) {
+        return {
+          user: null,
+          error: new Error('Username already taken. Please choose another.'),
+        };
+      }
+    }
+
     const { data, error } = await supabase.auth.signUp({
       email,
       password,
       options: {
-        data: metadata,
+        data: {
+          first_name: metadata?.first_name,
+          last_name: metadata?.last_name,
+          username: metadata?.username?.toLowerCase(),
+          // For backward compatibility
+          full_name: `${metadata?.first_name || ''} ${metadata?.last_name || ''}`.trim(),
+        },
         emailRedirectTo: 'https://life-os-banner.verridian.ai/auth/callback',
       },
     });
@@ -36,7 +133,13 @@ export const signUp = async (
     if (data.user) {
       try {
         console.log('[auth.signUp] Calling upsertUser for user:', data.user.id);
-        await upsertUser(data.user.id, email, metadata?.name);
+        await upsertUser(
+          data.user.id,
+          email,
+          metadata?.first_name,
+          metadata?.last_name,
+          metadata?.username
+        );
         console.log('[auth.signUp] upsertUser succeeded');
       } catch (dbError) {
         console.error('[auth.signUp] upsertUser failed (non-critical):', dbError);

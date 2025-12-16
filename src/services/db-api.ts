@@ -33,21 +33,36 @@ const executeQuery = async <T>(_query: string, _params: any[] = []): Promise<T> 
 export const upsertUser = async (
   supabaseUserId: string,
   email: string,
-  name?: string,
+  firstName?: string,
+  lastName?: string,
+  username?: string,
 ): Promise<User> => {
   if (!supabase) {
     throw new Error('Supabase not initialized');
   }
 
-  console.log('[upsertUser] Attempting to upsert user:', { supabaseUserId, email, name });
+  console.log('[upsertUser] Attempting to upsert user:', {
+    supabaseUserId,
+    email,
+    firstName,
+    lastName,
+    username,
+  });
+
+  // Build full_name for backward compatibility
+  const fullName =
+    firstName || lastName ? `${firstName || ''} ${lastName || ''}`.trim() : null;
 
   const { data, error } = await supabase
-    .from('users')
+    .from('profiles')
     .upsert(
       {
         id: supabaseUserId,
         email: email,
-        full_name: name || null,
+        first_name: firstName || null,
+        last_name: lastName || null,
+        username: username?.toLowerCase() || null,
+        full_name: fullName, // Keep for backward compatibility
       },
       {
         onConflict: 'id',
@@ -63,7 +78,7 @@ export const upsertUser = async (
       details: error.details,
       hint: error.hint,
     });
-    throw new Error(`Database error saving new user: ${error.message} (code: ${error.code})`);
+    throw new Error(`Database error saving user: ${error.message} (code: ${error.code})`);
   }
 
   console.log('[upsertUser] User upserted successfully:', data);
@@ -78,7 +93,11 @@ export const getCurrentUser = async (supabaseUserId: string): Promise<User | nul
     throw new Error('Supabase not initialized');
   }
 
-  const { data, error } = await supabase.from('users').select('*').eq('id', supabaseUserId).single();
+  const { data, error } = await supabase
+    .from('profiles')
+    .select('*')
+    .eq('id', supabaseUserId)
+    .single();
 
   if (error) {
     if (error.code === 'PGRST116') {

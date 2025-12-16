@@ -27,7 +27,11 @@ interface AuthContextType {
   signUp: (
     email: string,
     password: string,
-    metadata?: { name?: string },
+    metadata?: {
+      first_name?: string;
+      last_name?: string;
+      username?: string;
+    },
   ) => Promise<{ error: Error | null }>;
   signIn: (email: string, password: string) => Promise<{ error: Error | null }>;
   signInWithGoogle: () => Promise<{ error: Error | null }>;
@@ -120,7 +124,11 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const signUp = async (
     email: string,
     password: string,
-    metadata?: { name?: string },
+    metadata?: {
+      first_name?: string;
+      last_name?: string;
+      username?: string;
+    },
   ): Promise<{ error: Error | null }> => {
     const { user: newUser, error } = await authSignUp(email, password, metadata);
     if (!error && newUser) {

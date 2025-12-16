@@ -3,7 +3,12 @@
 export interface User {
   id: string; // This matches auth.users.id
   email: string;
+  // Keep for backward compatibility
   full_name?: string;
+  // NEW FIELDS - split name
+  first_name?: string;
+  last_name?: string;
+  username?: string; // Unique handle, displayed as @username
   avatar_url?: string;
   credits: number;
   is_pro: boolean;
@@ -144,4 +149,24 @@ export interface UploadImageResponse {
   file_size: number;
   width?: number;
   height?: number;
+}
+
+/**
+ * Metadata passed during sign up
+ */
+export interface SignUpMetadata {
+  first_name?: string;
+  last_name?: string;
+  username?: string;
+  // Deprecated - kept for backward compatibility
+  name?: string;
+}
+
+/**
+ * Username validation result
+ */
+export interface UsernameValidation {
+  isValid: boolean;
+  isAvailable?: boolean;
+  error?: string;
 }
