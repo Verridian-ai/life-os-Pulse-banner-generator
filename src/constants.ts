@@ -30,11 +30,29 @@ export const MODELS = {
 
   // Replicate Models
   replicate: {
+    // Image Generation Models (REFERENCE ONLY)
+    // For actual image generation, use OpenRouter (better pricing).
+    // These are documented in REPLICATE_MODELS.md for users who want direct Replicate access.
+    imageGen: {
+      nanoBananaPro: 'google/nano-banana-pro', // $0.134 per 2K (use OpenRouter instead: ~$0.02-0.05)
+      flux2Pro: 'black-forest-labs/flux-2-pro', // $0.10 per image, 8 ref images
+      flux11Pro: 'black-forest-labs/flux-1.1-pro', // $0.05 per image, most popular
+      flux1Dev: 'black-forest-labs/flux-1-dev', // $0.02 per image, dev model
+      imagen4: 'google/imagen-4', // $0.08 per image, Google flagship
+      imagen4Fast: 'google/imagen-4-fast', // $0.02 per image, speed optimized
+    },
+
+    // Image Upscaling (3 Quality Tiers)
+    // Updated: December 2025 - Latest model versions
     upscale: {
-      fast: 'nightmareai/real-esrgan:42fed1c4974146d4d2414e2be2c5277c7fcf05fcc3a73ab241b637189a1445ad',
+      fast: 'nightmareai/real-esrgan:b3ef194191d13140337468c916c2c5b96dd0cb06dffc032a022a31807f6a5ea8',
       balanced:
-        'philz1337x/recraft-clarity-upscaler:6e46f7d0e77c95b98bc4d7d89be58ef7ff43c2fe7d2d7ffe07ca1c12e1e6b2f3',
-      best: 'batouresearch/magic-image-refiner:507ddf6f977a7e30e46c0daefd30de7d563c72322f9e4cf7cbac52ef0f667b13',
+        'recraft-ai/recraft-crisp-upscale:31c70d9026bbd25ee2b751825e19101e0321b8814c33863c88fe5d0d63c00c82',
+      best: 'fermatresearch/magic-image-refiner:507ddf6f977a7e30e46c0daefd30de7d563c72322f9e4cf7cbac52ef0f667b13',
+
+      // Additional upscale options (for reference)
+      crystal: 'philz1337x/crystal-upscaler', // Optimized for portraits
+      topaz: 'topazlabs/image-upscale', // Professional-grade commercial
     },
     removebg: 'cjwbw/rembg:fb8af171cfa1616ddcf1242c093f9c46bcada5ad4cf6f2fbe8b81b330ec5c003',
     inpaint: {
@@ -42,9 +60,9 @@ export const MODELS = {
       ideogram: 'ideogram-ai/ideogram-v3-inpainting',
     },
     outpaint: 'stability-ai/stable-diffusion-outpainting',
-    restore: 'sczhou/codeformer:7de2ea26c616d5bf2245ad0d5e24f0ff9a6204578a5c876db53142edd9d2cd56',
+    restore: 'sczhou/codeformer:cc4956dd26fa5a7185d5660cc9100fab1b8070a1d1654a8bb5eb6d443b020bb2',
     faceenhance:
-      'tencentarc/gfpgan:9283608cc6b7be6b65a8e44983db012355fde4132009bf99d976b2f0896856a3',
+      'tencentarc/gfpgan:0fbacf7afc6c144e5be9767cff80f25aff23e52b0708f17e20f9879b2f21516c',
   },
 };
 

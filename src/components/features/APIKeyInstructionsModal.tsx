@@ -3,13 +3,17 @@ import React, { useState } from 'react';
 interface APIKeyInstructionsModalProps {
   isOpen: boolean;
   onClose: () => void;
+  defaultTab?: 'openrouter' | 'replicate';
 }
 
 export const APIKeyInstructionsModal: React.FC<APIKeyInstructionsModalProps> = ({
   isOpen,
   onClose,
+  defaultTab,
 }) => {
-  const [activeService, setActiveService] = useState<'openrouter' | 'replicate'>('openrouter');
+  const [activeService, setActiveService] = useState<'openrouter' | 'replicate'>(
+    defaultTab || 'openrouter'
+  );
 
   if (!isOpen) return null;
 

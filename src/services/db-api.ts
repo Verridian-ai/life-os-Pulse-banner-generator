@@ -17,6 +17,7 @@ import { supabase } from './supabase';
 /**
  * Temporary placeholder for executeQuery - functions using this need migration to Supabase SDK
  */
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 const executeQuery = async <T>(_query: string, _params: any[] = []): Promise<T> => {
   throw new Error(
     'This feature requires database migration. Please run the schema in your Supabase SQL Editor. See database/README.md',

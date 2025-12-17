@@ -1,6 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { BTN_BASE, BTN_NEU_SOLID } from '../../styles';
 import { ImageToolsPanel } from './ImageToolsPanel';
+import { useCanvas } from '../../context/CanvasContext';
 
 interface GenerativeSidebarProps {
   refImages: string[];
@@ -46,44 +47,78 @@ const GenerativeSidebar: React.FC<GenerativeSidebarProps> = ({
   generationSuggestions = [],
 }) => {
   const [isExpanded, setIsExpanded] = useState(true);
+  const [isMobile, setIsMobile] = useState(window.innerWidth < 1024);
+  const { setElements } = useCanvas();
 
-  if (!isExpanded) {
+  useEffect(() => {
+    const handleResize = () => {
+      setIsMobile(window.innerWidth < 1024);
+    };
+
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
+  // Handler for updating layer images
+  const handleLayerImageUpdate = (layerId: string, newImage: string) => {
+    setElements((prevElements) =>
+      prevElements.map((el) => (el.id === layerId ? { ...el, content: newImage } : el)),
+    );
+    console.log('[GenerativeSidebar] Updated layer image:', layerId);
+  };
+
+  // Mobile collapsed: FAB button
+  if (!isExpanded && isMobile) {
     return (
-      <div className='fixed lg:absolute bottom-4 lg:bottom-auto right-4 lg:right-0 lg:top-20 z-30'>
+      <button
+        onClick={() => setIsExpanded(true)}
+        className='fixed bottom-6 right-6 z-50 w-16 h-16 bg-gradient-to-br from-pink-600 to-purple-600 text-white rounded-full shadow-2xl hover:shadow-pink-500/50 hover:scale-110 transition-all duration-200 flex items-center justify-center'
+        title='Open AI Studio'
+        aria-label='Expand AI Studio'
+      >
+        <span className='material-icons text-3xl'>auto_fix_high</span>
+      </button>
+    );
+  }
+
+  // Desktop collapsed: Side button
+  if (!isExpanded && !isMobile) {
+    return (
+      <div className='absolute right-0 top-20 z-30'>
         <button
           onClick={() => setIsExpanded(true)}
-          className='min-w-[56px] min-h-[56px] bg-zinc-900 border border-white/10 text-white p-3 rounded-full lg:rounded-l-xl lg:rounded-r-none shadow-2xl hover:bg-zinc-800 transition'
+          className='min-w-[56px] min-h-[56px] bg-zinc-900 border border-white/10 text-white p-3 rounded-l-xl shadow-2xl hover:bg-zinc-800 transition'
           title='Open AI Studio'
           aria-label='Expand AI Studio sidebar'
         >
-          <span className='material-icons text-2xl lg:text-base'>auto_fix_high</span>
+          <span className='material-icons text-base'>auto_fix_high</span>
         </button>
       </div>
     );
   }
 
-  return (
-    <div className='w-full lg:w-[400px] bg-zinc-900 border-t lg:border-t-0 lg:border-l border-white/5 p-4 md:p-6 flex flex-col gap-4 md:gap-6 overflow-y-auto shrink-0 z-20 shadow-2xl relative transition-all max-h-[70vh] lg:max-h-none'>
-      {/* Sticky gradient header for mobile separation */}
-      <div className='space-y-6'>
-        <div className='flex items-center justify-between'>
-          <h3 className='font-black text-sm uppercase tracking-wider flex items-center gap-2 text-white drop-shadow-sm'>
-            <span className='material-icons text-pink-500'>auto_fix_high</span>
-            AI Studio
-          </h3>
-          <div className='flex items-center gap-2'>
-            <div className='text-[9px] bg-pink-500/10 text-pink-400 px-2 py-1 rounded-full border border-pink-500/20 font-black tracking-widest uppercase shadow-[0_0_10px_rgba(236,72,153,0.2)]'>
-              Gemini 3 Pro
-            </div>
-            <button
-              onClick={() => setIsExpanded(false)}
-              className='text-zinc-500 hover:text-white transition'
-              title='Collapse Sidebar'
-            >
-              <span className='material-icons'>chevron_right</span>
-            </button>
+  // Shared content for both mobile and desktop
+  const content = (
+    <div className='space-y-6'>
+      <div className='flex items-center justify-between'>
+        <h3 className='font-black text-sm uppercase tracking-wider flex items-center gap-2 text-white drop-shadow-sm'>
+          <span className='material-icons text-pink-500'>auto_fix_high</span>
+          AI Studio
+        </h3>
+        <div className='flex items-center gap-2'>
+          <div className='text-[9px] bg-pink-500/10 text-pink-400 px-2 py-1 rounded-full border border-pink-500/20 font-black tracking-widest uppercase shadow-[0_0_10px_rgba(236,72,153,0.2)]'>
+            Gemini 3 Pro
           </div>
+          <button
+            onClick={() => setIsExpanded(false)}
+            className='text-zinc-500 hover:text-white transition'
+            title='Collapse'
+            aria-label={isMobile ? 'Close AI Studio' : 'Collapse Sidebar'}
+          >
+            <span className='material-icons'>{isMobile ? 'expand_more' : 'chevron_right'}</span>
+          </button>
         </div>
+      </div>
 
         {/* Generation Card */}
         <div className='bg-black/40 p-5 rounded-3xl border border-white/5 hover:border-pink-500/30 transition-colors group relative overflow-hidden'>
@@ -218,9 +253,34 @@ const GenerativeSidebar: React.FC<GenerativeSidebarProps> = ({
           </button>
         </div>
 
-        {/* Advanced Image Tools Panel */}
-        <ImageToolsPanel bgImage={bgImage} onImageUpdate={onImageUpdate} />
+      {/* Advanced Image Tools Panel */}
+      <ImageToolsPanel
+        bgImage={bgImage}
+        onImageUpdate={onImageUpdate}
+        onLayerImageUpdate={handleLayerImageUpdate}
+      />
+    </div>
+  );
+
+  // Mobile expanded: Bottom sheet
+  if (isMobile) {
+    return (
+      <div className='fixed inset-x-0 bottom-0 z-40 bg-zinc-900 rounded-t-3xl border-t border-white/10 shadow-2xl'>
+        {/* Drag handle indicator */}
+        <div className='flex justify-center pt-3 pb-2'>
+          <div className='w-12 h-1 bg-zinc-700 rounded-full'></div>
+        </div>
+        <div className='max-h-[60vh] overflow-y-auto p-4'>
+          {content}
+        </div>
       </div>
+    );
+  }
+
+  // Desktop expanded: Sidebar
+  return (
+    <div className='w-full lg:w-[400px] bg-zinc-900 border-l border-white/5 p-6 flex flex-col gap-6 overflow-y-auto shrink-0 z-20 shadow-2xl relative'>
+      {content}
     </div>
   );
 };

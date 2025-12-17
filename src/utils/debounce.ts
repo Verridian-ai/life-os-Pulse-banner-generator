@@ -10,6 +10,7 @@
  * const debouncedSearch = debounce(searchAPI, 500);
  * input.addEventListener('input', (e) => debouncedSearch(e.target.value));
  */
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function debounce<T extends (...args: any[]) => any>(
   func: T,
   wait: number

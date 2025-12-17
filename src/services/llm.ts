@@ -8,8 +8,6 @@ import { getUserAPIKeys } from './apiKeyStorage';
 // classifyError, getUserFriendlyMessage removed
 
 // Types
-type LLMProvider = 'gemini' | 'openrouter';
-
 type OpenRouterContentItem =
   | { type: 'text'; text: string }
   | { type: 'image_url'; image_url: { url: string } };
@@ -795,22 +793,35 @@ export const generateImage = async (
     try {
       console.log('[Image Gen] Uploading OpenRouter image to Supabase...');
       const fileName = `generated_${Date.now()}.png`;
+
+      // Calculate file size from data URL (base64 encoded size * 0.75 for actual bytes)
+      const base64Data = imageDataUrl.split(',')[1] || '';
+      const fileSizeBytes = Math.ceil((base64Data.length * 3) / 4);
+
       const publicUrl = await uploadImage(imageDataUrl, fileName);
       console.log('[Image Gen] ✅ Saved to Supabase:', publicUrl);
 
-      // Save to database
+      // Save to database with all fields including file size
       try {
-        await createImage({
+        const savedImage = await createImage({
           storage_url: publicUrl,
           file_name: fileName,
           prompt: prompt,
           model_used: 'gemini-2.5-flash-image (via OpenRouter)',
           quality: size,
           generation_type: 'generate',
+          file_size_bytes: fileSizeBytes,
         });
-        console.log('[Image Gen] ✅ Saved to database and gallery');
+
+        if (savedImage) {
+          console.log('[Image Gen] ✅ Saved to database and gallery');
+        } else {
+          console.error('[Image Gen] ⚠️ Failed to save to database - check Supabase configuration');
+          throw new Error('Database save failed - image not added to Gallery');
+        }
       } catch (dbError) {
-        console.warn('[Image Gen] Database save failed (non-fatal):', dbError);
+        console.error('[Image Gen] ❌ Database save error:', dbError);
+        throw new Error(`Failed to save image to Gallery: ${dbError instanceof Error ? dbError.message : 'Unknown error'}`);
       }
 
       return publicUrl;

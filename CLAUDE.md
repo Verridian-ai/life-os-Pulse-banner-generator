@@ -114,6 +114,34 @@ interface ToolCall {
 - Each turn includes: prompt, input image, output image, timestamp, reference images
 - Enables AI to "remember" previous edits when making iterative changes
 
+### Replicate Integration
+
+See [REPLICATE_MODELS.md](./REPLICATE_MODELS.md) for comprehensive documentation on:
+- Available models and features
+- Pricing and cost optimization
+- API usage examples
+- Troubleshooting guide
+
+**Current Implementation**:
+- ReplicateService class with polling mechanism (`src/services/replicate.ts`)
+- 4 core features: upscale, removeBg, restore, faceEnhance
+- 3 quality tiers for upscaling: fast (Real-ESRGAN), balanced (Recraft Clarity), best (Magic Refiner)
+- API key stored per-user in Supabase (`user_api_keys` table)
+- Error handling with actionable messages and links to documentation
+- Progress tracking with callback support
+- Integrated with ImageToolsPanel UI and ActionExecutor for voice commands
+
+**Key Files**:
+- `src/services/replicate.ts` - Service implementation
+- `src/components/features/ImageToolsPanel.tsx` - UI component with API key check
+- `src/constants.ts` - Model version hashes and configurations
+- `src/services/modelRouter.ts` - Model metadata (cost, speed, quality scores)
+
+**Why Replicate for Enhancement vs OpenRouter for Generation?**
+- OpenRouter: ~$0.02-0.05 per image (Nano Banana Pro) - better for image generation
+- Replicate: $0.134-0.24 per image - expensive for generation but excellent for specialized enhancement
+- Replicate offers industry-leading upscaling and restoration models not available elsewhere
+
 ### Database Schema (Supabase)
 
 **Key Tables**:
@@ -140,7 +168,7 @@ interface ToolCall {
 - `llm.ts` - Main orchestrator for all AI operations (image gen, edit, upscale, etc.)
 - `gemini.ts` - DEPRECATED (now re-exports from llm.ts)
 - `openrouter.ts` - OpenRouter API client
-- `replicate.ts` - Replicate API client with polling logic
+- `replicate.ts` - Replicate API client with polling logic (see [REPLICATE_MODELS.md](./REPLICATE_MODELS.md) for details)
 - `modelRouter.ts` - Model selection and routing
 - `brandEngine.ts` - Brand extraction and consistency checking
 - `actionExecutor.ts` - Voice agent tool call execution

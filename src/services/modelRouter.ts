@@ -138,6 +138,62 @@ export const getModelMetadata = (): Record<string, ModelMetadata> => {
       qualityScore: 98,
       contextWindow: 1000000,
     },
+
+    // Replicate Models - Image Enhancement
+    'nightmareai/real-esrgan': {
+      id: 'nightmareai/real-esrgan',
+      provider: 'replicate',
+      name: 'Real-ESRGAN (Fast Upscale)',
+      capabilities: ['image_upscale'],
+      costPerCall: 0.0025,
+      avgResponseTime: 5000,
+      qualityScore: 85,
+    },
+    'recraft-ai/recraft-crisp-upscale': {
+      id: 'recraft-ai/recraft-crisp-upscale',
+      provider: 'replicate',
+      name: 'Recraft Crisp (Balanced Upscale)',
+      capabilities: ['image_upscale'],
+      costPerCall: 0.01,
+      avgResponseTime: 10000,
+      qualityScore: 92,
+    },
+    'fermatresearch/magic-image-refiner': {
+      id: 'fermatresearch/magic-image-refiner',
+      provider: 'replicate',
+      name: 'Magic Refiner (Best Upscale)',
+      capabilities: ['image_upscale'],
+      costPerCall: 0.12,
+      avgResponseTime: 15000,
+      qualityScore: 96,
+    },
+    'cjwbw/rembg': {
+      id: 'cjwbw/rembg',
+      provider: 'replicate',
+      name: 'Background Removal',
+      capabilities: ['background_removal'],
+      costPerCall: 0.002,
+      avgResponseTime: 3000,
+      qualityScore: 90,
+    },
+    'sczhou/codeformer': {
+      id: 'sczhou/codeformer',
+      provider: 'replicate',
+      name: 'CodeFormer (Restoration)',
+      capabilities: ['image_restoration'],
+      costPerCall: 0.01,
+      avgResponseTime: 10000,
+      qualityScore: 88,
+    },
+    'tencentarc/gfpgan': {
+      id: 'tencentarc/gfpgan',
+      provider: 'replicate',
+      name: 'GFPGAN (Face Enhancement)',
+      capabilities: ['face_enhancement'],
+      costPerCall: 0.008,
+      avgResponseTime: 8000,
+      qualityScore: 90,
+    },
   };
 };
 
@@ -154,7 +210,16 @@ export const estimateCost = (operation: OperationType, modelId?: string): number
  * Compare models by capability
  */
 export const filterModelsByCapability = (
-  capability: 'text' | 'vision' | 'thinking' | 'image_gen' | 'image_edit',
+  capability:
+    | 'text'
+    | 'vision'
+    | 'thinking'
+    | 'image_gen'
+    | 'image_edit'
+    | 'image_upscale'
+    | 'background_removal'
+    | 'image_restoration'
+    | 'face_enhancement',
 ): ModelMetadata[] => {
   const allModels = getModelMetadata();
   return Object.values(allModels).filter((model) => model.capabilities.includes(capability));

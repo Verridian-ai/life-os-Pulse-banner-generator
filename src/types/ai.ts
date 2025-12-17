@@ -4,7 +4,17 @@ export interface ModelMetadata {
   id: string;
   provider: 'gemini' | 'openrouter' | 'replicate';
   name: string;
-  capabilities: ('text' | 'vision' | 'thinking' | 'image_gen' | 'image_edit')[];
+  capabilities: (
+    | 'text'
+    | 'vision'
+    | 'thinking'
+    | 'image_gen'
+    | 'image_edit'
+    | 'image_upscale'
+    | 'background_removal'
+    | 'image_restoration'
+    | 'face_enhancement'
+  )[];
   costPerCall: number;
   avgResponseTime: number;
   qualityScore: number;

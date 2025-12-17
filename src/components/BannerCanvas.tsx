@@ -19,7 +19,7 @@ interface BannerCanvasProps {
   onProfileFaceEnhance?: () => Promise<void>;
 }
 
-const HANDLE_SIZE = 10;
+const HANDLE_SIZE = 20; // Increased from 10 to 20 for better touch interaction
 const HANDLE_OFFSET = HANDLE_SIZE / 2;
 const ROTATION_HANDLE_DIST = 30;
 

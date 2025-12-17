@@ -113,6 +113,17 @@ const Header: React.FC<HeaderProps> = ({ activeTab, setActiveTab, onOpenSettings
         {/* Profile/Login Button */}
         {isAuthenticated ? (
           <div className='relative'>
+            {/* Mobile Profile Button */}
+            <button
+              onClick={() => setShowProfileMenu(!showProfileMenu)}
+              className='flex md:hidden min-w-[44px] min-h-[44px] w-11 h-11 rounded-full bg-gradient-to-br from-purple-600 to-blue-600 border border-white/10 items-center justify-center text-white active:scale-95 transition shrink-0'
+              title={user?.email || supabaseUser?.email || 'Profile'}
+              aria-label='User profile menu'
+            >
+              <span className='material-icons text-lg'>account_circle</span>
+            </button>
+
+            {/* Desktop Profile Button */}
             <button
               onClick={() => setShowProfileMenu(!showProfileMenu)}
               className='hidden md:flex min-w-[44px] min-h-[44px] w-12 h-12 rounded-full bg-gradient-to-br from-purple-600 to-blue-600 border border-white/10 items-center justify-center text-white hover:shadow-lg transition shrink-0'
@@ -123,7 +134,7 @@ const Header: React.FC<HeaderProps> = ({ activeTab, setActiveTab, onOpenSettings
             </button>
 
             {showProfileMenu && (
-              <div className='absolute right-0 mt-2 w-64 bg-zinc-900 border border-white/10 rounded-2xl shadow-2xl overflow-hidden z-50'>
+              <div className='absolute right-0 mt-2 w-64 sm:w-72 md:w-80 max-w-[90vw] bg-zinc-900 border border-white/10 rounded-2xl shadow-2xl overflow-hidden z-50'>
                 <div className='bg-gradient-to-br from-purple-600/20 to-blue-600/20 border-b border-white/5 p-4'>
                   <div className='flex items-center gap-3'>
                     <div className='w-12 h-12 rounded-full bg-gradient-to-br from-purple-600 to-blue-600 flex items-center justify-center'>

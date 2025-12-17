@@ -30,7 +30,11 @@ export class ReplicateService {
    */
   private async startPrediction(version: string, input: Record<string, unknown>): Promise<string> {
     if (!this.apiKey) {
-      throw new ReplicateError('Replicate API key not found. Please add it in Settings.');
+      throw new ReplicateError(
+        'Replicate API key required. Click Settings (⚙️) to add your key, or visit https://replicate.com/account/api-tokens to get one.',
+        undefined,
+        'MISSING_API_KEY',
+      );
     }
 
     console.log('[Replicate] Starting prediction with version:', version);
@@ -50,12 +54,23 @@ export class ReplicateService {
 
     if (!response.ok) {
       const error = await response.json().catch(() => ({}));
-      throw new ReplicateError(
-        `Replicate API Error: ${error.detail || response.statusText}`,
-        undefined,
-        response.status.toString(),
-        error,
-      );
+
+      let message = `Replicate API Error: ${error.detail || response.statusText}`;
+
+      if (response.status === 401) {
+        message =
+          'Invalid Replicate API key. Get a new key at https://replicate.com/account/api-tokens and update it in Settings.';
+      } else if (response.status === 402) {
+        message =
+          'Replicate quota exceeded. Visit https://replicate.com/billing to add credits or upgrade your plan.';
+      } else if (response.status === 404) {
+        message =
+          'Replicate model not found. This may be due to an outdated model version. Please report this issue.';
+      } else if (response.status === 429) {
+        message = 'Replicate rate limit exceeded. Please wait a few minutes and try again.';
+      }
+
+      throw new ReplicateError(message, undefined, response.status.toString(), error);
     }
 
     const data: ReplicatePrediction = await response.json();

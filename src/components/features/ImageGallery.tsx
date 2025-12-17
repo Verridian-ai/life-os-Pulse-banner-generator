@@ -22,6 +22,7 @@ const ImageGallery: React.FC = () => {
   // State
   const [images, setImages] = useState<ImageData[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
   const [filterType, setFilterType] = useState<string>('all');
   const [showFavoritesOnly, setShowFavoritesOnly] = useState(false);
@@ -30,6 +31,7 @@ const ImageGallery: React.FC = () => {
   // Load images - wrapped in useCallback to satisfy exhaustive-deps
   const loadImages = useCallback(async () => {
     setLoading(true);
+    setError(null); // Clear previous errors
     try {
       const filters: {
         searchQuery?: string;
@@ -54,6 +56,12 @@ const ImageGallery: React.FC = () => {
       console.log('[Gallery] Loaded', data.length, 'images');
     } catch (error) {
       console.error('[Gallery] Failed to load images:', error);
+      const errorMessage =
+        error instanceof Error
+          ? error.message
+          : 'Failed to load images. Please check your database connection and try again.';
+      setError(errorMessage);
+      setImages([]); // Clear images on error
     } finally {
       setLoading(false);
     }
@@ -217,8 +225,40 @@ const ImageGallery: React.FC = () => {
           </div>
         )}
 
+        {/* Error State */}
+        {!loading && error && (
+          <div className='flex items-center justify-center py-20'>
+            <div className='flex flex-col items-center gap-4 max-w-md text-center'>
+              <span className='material-icons text-6xl text-red-500'>error_outline</span>
+              <h3 className='text-white text-sm font-black uppercase tracking-wider'>
+                Failed to Load Gallery
+              </h3>
+              <p className='text-zinc-400 text-xs leading-relaxed'>{error}</p>
+              <div className='flex gap-3 mt-2'>
+                <button onClick={loadImages} className={`${BTN_NEU_SOLID} px-6 py-3`}>
+                  <span className='material-icons text-sm mr-2'>refresh</span>
+                  Retry
+                </button>
+                <button
+                  onClick={() => {
+                    setError(null);
+                    setImages([]);
+                  }}
+                  className='px-6 py-3 rounded-xl bg-zinc-800/50 text-white text-xs font-bold uppercase tracking-wider hover:bg-zinc-700/50 transition-colors duration-200'
+                >
+                  Dismiss
+                </button>
+              </div>
+              <p className='text-zinc-600 text-[10px] mt-4'>
+                Tip: Make sure the database migration has been run. Check the Supabase console for
+                the 'images' table.
+              </p>
+            </div>
+          </div>
+        )}
+
         {/* Empty State */}
-        {!loading && images.length === 0 && (
+        {!loading && !error && images.length === 0 && (
           <div className='flex items-center justify-center py-20'>
             <div className='flex flex-col items-center gap-3 max-w-md text-center'>
               <span className='material-icons text-6xl text-zinc-600'>photo_library</span>

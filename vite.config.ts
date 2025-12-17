@@ -3,11 +3,8 @@ import { defineConfig, loadEnv } from 'vite';
 import react from '@vitejs/plugin-react';
 
 export default defineConfig(({ mode }) => {
-  // Load env vars from .env files
-  const env = loadEnv(mode, '.', '');
-
-  // Also load from process.env (Vercel provides them here)
-  const processEnv = process.env;
+  // Load env vars from .env files (Vite automatically exposes VITE_* variables)
+  loadEnv(mode, '.', '');
 
   return {
     server: {

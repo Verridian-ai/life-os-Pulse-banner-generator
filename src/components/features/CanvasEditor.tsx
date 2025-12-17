@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import BannerCanvas from '../BannerCanvas';
 import { useCanvas } from '../../context/CanvasContext';
 import { BANNER_WIDTH, BANNER_HEIGHT } from '../../constants';
@@ -22,6 +22,28 @@ const CanvasEditor: React.FC = () => {
     setSelectedElementId,
   } = useCanvas();
 
+  // Responsive canvas scaling
+  const containerRef = useRef<HTMLDivElement>(null);
+  const [canvasScale, setCanvasScale] = useState(1);
+
+  useEffect(() => {
+    const updateScale = () => {
+      if (!containerRef.current) return;
+
+      const containerWidth = containerRef.current.offsetWidth;
+      const padding = window.innerWidth < 768 ? 32 : 64; // Responsive padding
+      const availableWidth = containerWidth - padding;
+      const scale = Math.min(availableWidth / BANNER_WIDTH, 1);
+
+      setCanvasScale(scale);
+      console.log('[Canvas] Scale updated:', scale, 'for viewport width:', window.innerWidth);
+    };
+
+    updateScale();
+    window.addEventListener('resize', updateScale);
+    return () => window.removeEventListener('resize', updateScale);
+  }, []);
+
   // Handle profile face enhance
   const handleProfileFaceEnhance = async () => {
     if (!profilePic) return;
@@ -41,7 +63,7 @@ const CanvasEditor: React.FC = () => {
 
   return (
     <div className='flex-1 p-4 md:p-6 lg:p-8 flex flex-col items-center justify-start'>
-      <div className='w-full max-w-[1400px]'>
+      <div ref={containerRef} className='w-full max-w-[1400px]'>
         {/* Canvas Header */}
         <div className='mb-6 flex flex-wrap justify-between items-center gap-4'>
           <div className='flex items-center gap-3'>
@@ -52,8 +74,8 @@ const CanvasEditor: React.FC = () => {
               <h2 className='text-white text-sm font-black uppercase tracking-wider drop-shadow-sm'>
                 Canvas View
               </h2>
-              <p className='text-[10px] text-zinc-500 font-bold uppercase tracking-widest'>
-                {BANNER_WIDTH} x {BANNER_HEIGHT} PX
+              <p className='text-[10px] md:text-xs text-zinc-500 font-bold uppercase tracking-widest'>
+                {BANNER_WIDTH} x {BANNER_HEIGHT} PX {canvasScale < 1 && `(${Math.round(canvasScale * 100)}% scale)`}
               </p>
             </div>
           </div>
@@ -69,20 +91,30 @@ const CanvasEditor: React.FC = () => {
           </button>
         </div>
 
-        {/* The Canvas */}
-        <BannerCanvas
-          ref={canvasRef}
-          backgroundImage={bgImage}
-          elements={elements}
-          showSafeZones={showSafeZones}
-          profilePic={profilePic}
-          profileTransform={useCanvas().profileTransform} // Access directly or via destructure
-          setProfileTransform={useCanvas().setProfileTransform}
-          onElementsChange={setElements}
-          selectedElementId={selectedElementId}
-          onSelectElement={setSelectedElementId}
-          onProfileFaceEnhance={handleProfileFaceEnhance}
-        />
+        {/* The Canvas - Scaled Container */}
+        <div className='w-full flex justify-center overflow-x-auto'>
+          <div
+            style={{
+              transform: `scale(${canvasScale})`,
+              transformOrigin: 'top center',
+              transition: 'transform 0.2s ease-out',
+            }}
+          >
+            <BannerCanvas
+              ref={canvasRef}
+              backgroundImage={bgImage}
+              elements={elements}
+              showSafeZones={showSafeZones}
+              profilePic={profilePic}
+              profileTransform={useCanvas().profileTransform} // Access directly or via destructure
+              setProfileTransform={useCanvas().setProfileTransform}
+              onElementsChange={setElements}
+              selectedElementId={selectedElementId}
+              onSelectElement={setSelectedElementId}
+              onProfileFaceEnhance={handleProfileFaceEnhance}
+            />
+          </div>
+        </div>
 
         {/* Tools Grid - Stacks on mobile */}
         <div className='mt-8 grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6 pb-20'>

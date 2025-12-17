@@ -3,6 +3,7 @@ import { generateDesignChatResponse, generateSearchResponse } from '../services/
 import { ChatMessage, Part } from '../types';
 import { optimizeImage } from '../utils';
 import { SettingsModal } from './features/SettingsModal';
+import { getUserAPIKeys } from '../services/apiKeyStorage';
 
 interface ChatInterfaceProps {
   onGenerateFromPrompt: (prompt: string) => void;
@@ -81,6 +82,20 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({ onGenerateFromPrompt }) =
     setLoading(true);
 
     try {
+      // Pre-flight API key validation
+      const keys = await getUserAPIKeys();
+      if (!keys.openrouter_api_key && !keys.gemini_api_key) {
+        setMessages((prev) => [
+          ...prev,
+          {
+            role: 'model',
+            text: '⚠️ NO API KEYS CONFIGURED\n\nI need an OpenRouter or Gemini API key to respond to your message.\n\nPlease add at least one API key in Settings (gear icon in the top-right corner).',
+          },
+        ]);
+        setLoading(false);
+        return;
+      }
+
       // Build history
       const history = messages.map((m) => {
         const parts: Part[] = [{ text: m.text }];
@@ -123,12 +138,33 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({ onGenerateFromPrompt }) =
         },
       ]);
     } catch (e) {
-      console.error(e);
+      console.error('[Chat] Error:', e);
+
+      // Parse error type and provide specific messages
+      let errorMessage = 'SORRY, I ENCOUNTERED AN ERROR. PLEASE TRY AGAIN.';
+
+      if (e instanceof Error) {
+        const errorText = e.message.toLowerCase();
+
+        if (errorText.includes('api key') || errorText.includes('unauthorized') || errorText.includes('401')) {
+          errorMessage =
+            '⚠️ API KEY ERROR\n\nYour API key is invalid or expired. Please check your API keys in Settings (gear icon in the top-right corner).';
+        } else if (errorText.includes('quota') || errorText.includes('rate limit') || errorText.includes('429')) {
+          errorMessage =
+            '⚠️ QUOTA EXCEEDED\n\nYour API quota has been exceeded or rate limit reached. Please try again later or check your API provider dashboard.';
+        } else if (errorText.includes('network') || errorText.includes('fetch') || errorText.includes('connection')) {
+          errorMessage =
+            '⚠️ NETWORK ERROR\n\nFailed to connect to the AI service. Please check your internet connection and try again.';
+        } else {
+          errorMessage = `⚠️ ERROR\n\n${e.message}\n\nPlease try again or contact support if the issue persists.`;
+        }
+      }
+
       setMessages((prev) => [
         ...prev,
         {
           role: 'model',
-          text: 'SORRY, I ENCOUNTERED AN ERROR ANALYSING YOUR REQUEST. PLEASE TRY AGAIN.',
+          text: errorMessage,
         },
       ]);
     } finally {

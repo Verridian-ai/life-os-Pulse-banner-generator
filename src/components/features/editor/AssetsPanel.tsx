@@ -210,11 +210,11 @@ const AssetsPanel: React.FC = () => {
           </label>
           <div className='flex flex-col gap-3'>
             <div className='flex items-center gap-4'>
-              <div className='w-14 h-14 shrink-0 aspect-square rounded-full bg-zinc-800 overflow-hidden border-2 border-zinc-700 relative group/profile shadow-inner'>
+              <div className='w-14 h-14 shrink-0 aspect-square rounded-full bg-zinc-800 overflow-hidden border-2 border-zinc-700 relative group/profile shadow-inner flex items-center justify-center'>
                 {profilePic ? (
                   <img src={profilePic} alt='profile' className='w-full h-full object-cover' />
                 ) : (
-                  <span className='material-icons text-zinc-600 absolute inset-0 flex items-center justify-center'>
+                  <span className='material-icons text-zinc-600 text-3xl'>
                     person
                   </span>
                 )}

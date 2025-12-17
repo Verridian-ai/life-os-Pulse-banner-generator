@@ -5,20 +5,31 @@ import { getReplicateService } from '../../services/replicate';
 import type { ReplicateQuality } from '../../types/replicate';
 import { useAI } from '../../context/AIContext';
 import { useCanvas } from '../../context/CanvasContext';
+import { getUserAPIKeys } from '../../services/apiKeyStorage';
+import { APIKeyInstructionsModal } from './APIKeyInstructionsModal';
 
 interface ImageToolsPanelProps {
   bgImage: string | null;
   onImageUpdate: (newImage: string) => void;
+  onLayerImageUpdate?: (layerId: string, newImage: string) => void; // NEW
 }
 
-export const ImageToolsPanel: React.FC<ImageToolsPanelProps> = ({ bgImage, onImageUpdate }) => {
+export const ImageToolsPanel: React.FC<ImageToolsPanelProps> = ({
+  bgImage,
+  onImageUpdate,
+  onLayerImageUpdate,
+}) => {
   const { setReplicateOperation } = useAI();
-  const { addToHistory, canUndo, canRedo, undo, redo } = useCanvas();
+  const { addToHistory, canUndo, canRedo, undo, redo, selectedElementId, elements } = useCanvas();
   const [quality, setQuality] = useState<ReplicateQuality>('balanced');
   const [isProcessing, setIsProcessing] = useState(false);
   const [currentOperation, setCurrentOperation] = useState<string | null>(null);
   const [progress, setProgress] = useState(0);
   const [error, setError] = useState<string | null>(null);
+
+  // Layer selection state
+  const [imageSource, setImageSource] = useState<'background' | 'layer'>('background');
+  const [selectedLayerImage, setSelectedLayerImage] = useState<string | null>(null);
 
   // Before/After comparison state
   const [showComparison, setShowComparison] = useState(false);
@@ -26,6 +37,27 @@ export const ImageToolsPanel: React.FC<ImageToolsPanelProps> = ({ bgImage, onIma
   const [afterImage, setAfterImage] = useState<string | null>(null);
   const [sliderPosition, setSliderPosition] = useState(50);
   const [isDragging, setIsDragging] = useState(false);
+
+  // API Key modal state
+  const [showAPIKeyModal, setShowAPIKeyModal] = useState(false);
+
+  // Auto-detect selected layer image
+  React.useEffect(() => {
+    if (selectedElementId) {
+      const element = elements.find((el) => el.id === selectedElementId);
+      if (element?.type === 'image') {
+        setSelectedLayerImage(element.content);
+        setImageSource('layer');
+        console.log('[ImageTools] Layer image selected:', element.id);
+      } else {
+        setImageSource('background');
+        setSelectedLayerImage(null);
+      }
+    } else {
+      setImageSource('background');
+      setSelectedLayerImage(null);
+    }
+  }, [selectedElementId, elements]);
 
   // Handle progress updates
   const handleProgress = (progressValue: number) => {
@@ -35,15 +67,28 @@ export const ImageToolsPanel: React.FC<ImageToolsPanelProps> = ({ bgImage, onIma
     }
   };
 
+  // Check if Replicate API key is configured
+  const checkReplicateKey = async (): Promise<boolean> => {
+    const keys = await getUserAPIKeys();
+    return !!keys.replicate_api_key;
+  };
+
   // Generic operation handler
   const handleOperation = async (operation: string, operationFn: () => Promise<string>) => {
-    if (!bgImage) {
-      setError('No image selected. Please generate or upload a background image first.');
+    // Determine which image to process
+    const sourceImage = imageSource === 'layer' ? selectedLayerImage : bgImage;
+
+    if (!sourceImage) {
+      setError(
+        imageSource === 'layer'
+          ? 'No layer image selected. Please select a layer with an image.'
+          : 'No image selected. Please generate or upload a background image first.',
+      );
       return;
     }
 
     // Save original image for comparison
-    setBeforeImage(bgImage);
+    setBeforeImage(sourceImage);
 
     setIsProcessing(true);
     setCurrentOperation(operation);
@@ -57,13 +102,21 @@ export const ImageToolsPanel: React.FC<ImageToolsPanelProps> = ({ bgImage, onIma
         type: operation as 'upscale' | 'removebg' | 'restore' | 'faceenhance',
         status: 'starting',
         progress: 0,
-        inputImage: bgImage,
+        inputImage: sourceImage,
       });
     }
 
     try {
       const result = await operationFn();
-      onImageUpdate(result);
+
+      // Update the appropriate image (layer or background)
+      if (imageSource === 'layer' && onLayerImageUpdate && selectedElementId) {
+        onLayerImageUpdate(selectedElementId, result);
+        console.log('[ImageTools] Updated layer image:', selectedElementId);
+      } else {
+        onImageUpdate(result);
+        console.log('[ImageTools] Updated background image');
+      }
 
       // Add to history
       addToHistory(result);
@@ -110,6 +163,13 @@ export const ImageToolsPanel: React.FC<ImageToolsPanelProps> = ({ bgImage, onIma
 
   // Upscale handler
   const handleUpscale = async () => {
+    // Check API key first
+    const hasKey = await checkReplicateKey();
+    if (!hasKey) {
+      setShowAPIKeyModal(true);
+      return;
+    }
+
     await handleOperation('upscale', async () => {
       const service = await getReplicateService(handleProgress);
       return await service.upscale(bgImage!, quality);
@@ -118,6 +178,13 @@ export const ImageToolsPanel: React.FC<ImageToolsPanelProps> = ({ bgImage, onIma
 
   // Remove background handler
   const handleRemoveBg = async () => {
+    // Check API key first
+    const hasKey = await checkReplicateKey();
+    if (!hasKey) {
+      setShowAPIKeyModal(true);
+      return;
+    }
+
     await handleOperation('removebg', async () => {
       const service = await getReplicateService(handleProgress);
       return await service.removeBg(bgImage!);
@@ -126,6 +193,13 @@ export const ImageToolsPanel: React.FC<ImageToolsPanelProps> = ({ bgImage, onIma
 
   // Restore handler
   const handleRestore = async () => {
+    // Check API key first
+    const hasKey = await checkReplicateKey();
+    if (!hasKey) {
+      setShowAPIKeyModal(true);
+      return;
+    }
+
     await handleOperation('restore', async () => {
       const service = await getReplicateService(handleProgress);
       return await service.restore(bgImage!);
@@ -134,6 +208,13 @@ export const ImageToolsPanel: React.FC<ImageToolsPanelProps> = ({ bgImage, onIma
 
   // Face enhance handler
   const handleFaceEnhance = async () => {
+    // Check API key first
+    const hasKey = await checkReplicateKey();
+    if (!hasKey) {
+      setShowAPIKeyModal(true);
+      return;
+    }
+
     await handleOperation('faceenhance', async () => {
       const service = await getReplicateService(handleProgress);
       return await service.faceEnhance(bgImage!);
@@ -169,15 +250,40 @@ export const ImageToolsPanel: React.FC<ImageToolsPanelProps> = ({ bgImage, onIma
         Advanced Tools
       </h4>
 
+      {/* Image Source Indicator */}
+      <div className='mb-4 p-3 bg-zinc-900/50 rounded-xl'>
+        <span
+          className={`text-xs font-bold px-2 py-1 rounded-full ${
+            imageSource === 'layer'
+              ? 'bg-purple-500/20 text-purple-400 border border-purple-500/30'
+              : 'bg-blue-500/20 text-blue-400 border border-blue-500/30'
+          }`}
+        >
+          <span className='material-icons text-xs align-middle mr-1'>
+            {imageSource === 'layer' ? 'layers' : 'image'}
+          </span>
+          {imageSource === 'layer' ? 'Selected Layer' : 'Background Image'}
+        </span>
+        {imageSource === 'layer' && selectedLayerImage && (
+          <p className='text-[10px] text-zinc-500 mt-2'>
+            Tools will process the selected layer image
+          </p>
+        )}
+      </div>
+
       {/* Image Preview */}
       <div className='mb-4'>
         <label className='block text-[10px] font-bold text-zinc-500 uppercase tracking-widest mb-2'>
           <span className='material-icons text-sm align-middle mr-1'>image</span>
           Current Image
         </label>
-        {bgImage ? (
+        {(imageSource === 'layer' ? selectedLayerImage : bgImage) ? (
           <div className='relative aspect-[1584/396] bg-zinc-900/50 rounded-xl overflow-hidden border border-white/10'>
-            <img src={bgImage} alt='Current background' className='w-full h-full object-cover' />
+            <img
+              src={imageSource === 'layer' ? selectedLayerImage || '' : bgImage || ''}
+              alt={imageSource === 'layer' ? 'Selected layer' : 'Current background'}
+              className='w-full h-full object-cover'
+            />
             {isProcessing && (
               <div className='absolute inset-0 bg-black/90 backdrop-blur-sm flex flex-col items-center justify-center'>
                 <div className='w-12 h-12 border-4 border-blue-500 border-t-transparent rounded-full animate-spin mb-3' />
@@ -342,18 +448,20 @@ export const ImageToolsPanel: React.FC<ImageToolsPanelProps> = ({ bgImage, onIma
               />
 
               {/* Before Image (Clipped) */}
-              <div className={`absolute inset-0 overflow-hidden w-[${sliderPosition || 50}%]`}>
+              <div className='absolute inset-0 overflow-hidden' style={{ width: `${sliderPosition}%` }}>
                 <img
                   src={beforeImage}
                   alt='Before'
-                  className={`absolute inset-0 w-full h-full object-cover w-[${(100 / (sliderPosition || 1)) * 100}%]`}
+                  className='absolute inset-0 h-full object-cover'
+                  style={{ width: `${(100 / sliderPosition) * 100}%` }}
                   draggable={false}
                 />
               </div>
 
               {/* Slider Line */}
               <div
-                className={`absolute top-0 bottom-0 w-1 bg-white shadow-lg left-[${sliderPosition || 50}%]`}
+                className='absolute top-0 bottom-0 w-1 bg-white shadow-lg'
+                style={{ left: `${sliderPosition}%` }}
               >
                 {/* Slider Handle */}
                 <div className='absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-12 h-12 bg-white rounded-full shadow-xl flex items-center justify-center cursor-ew-resize'>
@@ -383,6 +491,15 @@ export const ImageToolsPanel: React.FC<ImageToolsPanelProps> = ({ bgImage, onIma
             </div>
           </div>
         </div>
+      )}
+
+      {/* API Key Instructions Modal */}
+      {showAPIKeyModal && (
+        <APIKeyInstructionsModal
+          isOpen={showAPIKeyModal}
+          onClose={() => setShowAPIKeyModal(false)}
+          defaultTab='replicate'
+        />
       )}
     </div>
   );

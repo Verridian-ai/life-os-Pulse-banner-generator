@@ -323,7 +323,7 @@ const AppContent = () => {
         onClose={() => setShowInstructions(false)}
       />
 
-      <main className='flex-1 relative flex flex-col md:flex-row bg-black w-full'>
+      <main className='flex-1 relative flex flex-col lg:flex-row bg-black w-full'>
         <div className='absolute top-0 left-0 w-full h-[500px] bg-gradient-to-b from-blue-900/10 to-transparent pointer-events-none'></div>
 
         {notification && (

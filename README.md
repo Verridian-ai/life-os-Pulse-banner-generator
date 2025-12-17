@@ -37,11 +37,14 @@ Nanobanna Pro is the ultimate AI-powered design tool for creating professional L
 
 #### 🖼️ Professional Image Processing
 
-- **AI Upscaling** - 3 quality tiers (Fast/Balanced/Best)
-- **Background Removal** - One-click clean backgrounds
-- **Face Enhancement** - Improve portrait quality
-- **Image Restoration** - Fix low-quality/blurry images
-- **Inpainting & Outpainting** - Add/remove objects, extend canvases
+Powered by [Replicate](https://replicate.com):
+
+- **AI Upscaling** - 3 quality tiers (Fast/Balanced/Best) with 2x resolution enhancement
+- **Background Removal** - AI-powered foreground extraction with transparent PNG output
+- **Image Restoration** - Repair degraded or damaged photos, fix compression artifacts
+- **Face Enhancement** - Professional portrait enhancement with improved detail
+
+📖 **[Complete Replicate Integration Guide →](./REPLICATE_MODELS.md)**
 
 #### 📊 Smart Features
 
@@ -117,6 +120,7 @@ See `database/README.md` for detailed instructions.
 ## 📚 Documentation
 
 - **[WIKI](./WIKI.md)** - Complete setup guide, architecture, and deployment
+- **[Replicate Models Guide](./REPLICATE_MODELS.md)** - Comprehensive Replicate integration documentation
 - **[Contributing Guide](./CONTRIBUTING.md)** - How to contribute
 
 ---

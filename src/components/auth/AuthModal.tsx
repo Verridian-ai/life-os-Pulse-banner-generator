@@ -25,6 +25,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onSuccess
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
 
   // Debounced username availability check
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   const checkUsername = useCallback(
     debounce(async (value: string) => {
       if (!value || value.length < 3) return;

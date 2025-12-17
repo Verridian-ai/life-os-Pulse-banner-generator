@@ -2,7 +2,11 @@
   "mcpServers": {
     "supabase": {
       "type": "http",
-      "url": "https://mcp.supabase.com/mcp?project_ref=bkergrdlytwvdzszmuos&features=database,storage,functions,docs"
+      "url": "https://mcp.supabase.com/mcp?project_ref=bkergrdlytwvdzszmuos&features=database,storage,functions,docs",
+      "headers": {
+        "X-Supabase-Url": "https://bkergrdlytwvdzszmuos.supabase.co",
+        "X-Supabase-Key": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJrZXJncmRseXR3dmR6c3ptdW9zIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjU0ODc4NzEsImV4cCI6MjA4MTA2Mzg3MX0.Q_eMosreLp5EBO8mUOJKSrvPDvdTJFhqh2AVI776JtI"
+      }
     }
   }
 }
