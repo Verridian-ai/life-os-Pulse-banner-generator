@@ -784,7 +784,7 @@ export const generateImage = async (
       openRouterKey,
       openRouterModel,
       safePrompt,
-      '16:9',
+      '21:9',
     );
 
     console.log('[Image Gen] ✅ OpenRouter Gemini successful!');
