@@ -97,11 +97,16 @@ export async function saveUserAPIKeys(
   }
 
   try {
-    // Check if user is authenticated (use getSession for instant local check)
+    // Check if user is authenticated (use getSession with timeout)
     console.log('[API Keys] Checking auth session...');
+    const sessionPromise = supabase.auth.getSession();
+    const timeoutPromise = new Promise<never>((_, reject) =>
+      setTimeout(() => reject(new Error('Session check timeout - please refresh the page')), 3000)
+    );
+
     const {
       data: { session },
-    } = await supabase.auth.getSession();
+    } = await Promise.race([sessionPromise, timeoutPromise]);
     const user = session?.user || null;
     console.log('[API Keys] Session check:', user ? 'authenticated' : 'anonymous');
 
