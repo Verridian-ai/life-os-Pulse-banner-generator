@@ -36,10 +36,15 @@ export async function getUserAPIKeys(): Promise<UserAPIKeys> {
   }
 
   try {
-    // Check if user is authenticated
+    // Check if user is authenticated with timeout
+    const authPromise = supabase.auth.getUser();
+    const timeoutPromise = new Promise<never>((_, reject) =>
+      setTimeout(() => reject(new Error('Auth timeout after 5s')), 5000)
+    );
+
     const {
       data: { user },
-    } = await supabase.auth.getUser();
+    } = await Promise.race([authPromise, timeoutPromise]);
 
     let query = supabase.from('user_api_keys').select('*');
 
@@ -96,10 +101,17 @@ export async function saveUserAPIKeys(
   }
 
   try {
-    // Check if user is authenticated
+    // Check if user is authenticated with timeout
+    console.log('[API Keys] Calling supabase.auth.getUser()...');
+    const authPromise = supabase.auth.getUser();
+    const timeoutPromise = new Promise<never>((_, reject) =>
+      setTimeout(() => reject(new Error('Auth timeout after 5s')), 5000)
+    );
+
     const {
       data: { user },
-    } = await supabase.auth.getUser();
+    } = await Promise.race([authPromise, timeoutPromise]);
+    console.log('[API Keys] getUser() returned:', user ? 'authenticated' : 'anonymous');
 
     const payload: {
       gemini_api_key: string | null;
@@ -163,9 +175,15 @@ export async function deleteUserAPIKeys(): Promise<{ success: boolean; error?: s
   }
 
   try {
+    // Check if user is authenticated with timeout
+    const authPromise = supabase.auth.getUser();
+    const timeoutPromise = new Promise<never>((_, reject) =>
+      setTimeout(() => reject(new Error('Auth timeout after 5s')), 5000)
+    );
+
     const {
       data: { user },
-    } = await supabase.auth.getUser();
+    } = await Promise.race([authPromise, timeoutPromise]);
 
     let query = supabase.from('user_api_keys').delete();
 
