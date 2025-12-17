@@ -9,8 +9,8 @@ export const PROFILE_ZONE_HEIGHT = 264;
 
 export const MODELS = {
   // Gemini Models (via OpenRouter)
-  textBasic: 'google/gemini-3-pro-preview', // Using 3 Pro Preview for basic as well per user request
-  textThinking: 'google/gemini-3-pro-preview', // Using 3 Pro Preview for Thinking/Reasoning
+  textBasic: 'google/gemini-2.5-pro', // Using 2.5 Pro for reliable availability
+  textThinking: 'google/gemini-2.5-pro', // Using 2.5 Pro for Thinking/Reasoning
   imageGen: 'google/gemini-3-pro-image-preview', // Nano Banana Pro (Gemini 3 Pro Image Preview) - verified on OpenRouter
   geminiImageGen: 'google/gemini-2.5-flash-image', // Fallback model (OpenRouter compatible)
   imageEdit: 'google/gemini-3-pro-image-preview', // Same as imageGen - Gemini 3 Pro Image Preview

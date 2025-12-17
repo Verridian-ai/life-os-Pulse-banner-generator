@@ -89,7 +89,13 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       }
     };
 
-    initAuth();
+    // Add timeout to prevent infinite loading
+    const timeoutId = setTimeout(() => {
+      console.warn('[Auth] Initialization timeout - forcing loading to complete');
+      setIsLoading(false);
+    }, 10000); // 10 second timeout
+
+    initAuth().finally(() => clearTimeout(timeoutId));
 
     // Listen to auth state changes
     const {
