@@ -134,9 +134,9 @@ export async function saveUserAPIKeys(
     }
 
     // Upsert (insert or update)
-    // The unique constraint is on (user_id, session_id) composite, so we specify both
+    // Use the appropriate unique constraint based on user type
     const { error } = await supabase.from('user_api_keys').upsert(payload, {
-      onConflict: 'user_id,session_id',
+      onConflict: user ? 'user_id' : 'session_id',
       ignoreDuplicates: false,
     });
 
