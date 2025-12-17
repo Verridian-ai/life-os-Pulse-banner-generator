@@ -751,8 +751,7 @@ const BannerCanvas = forwardRef<BannerCanvasHandle, BannerCanvasProps>(
           ref={canvasRef}
           width={BANNER_WIDTH}
           height={BANNER_HEIGHT}
-          className={`w-full h-full absolute top-0 left-0 origin-top-left touch-none ${
-            dragState
+          className={`w-full h-full absolute top-0 left-0 origin-top-left touch-none ${dragState
               ? dragState.mode === 'move' || dragState.mode === 'rotate'
                 ? 'cursor-grabbing'
                 : 'cursor-crosshair'
@@ -781,7 +780,7 @@ const BannerCanvas = forwardRef<BannerCanvasHandle, BannerCanvasProps>(
                                     : cursor === 'grabbing'
                                       ? 'cursor-grabbing'
                                       : 'cursor-default'
-          }`}
+            }`}
           onMouseDown={handleMouseDown}
           // Mouse move/up handled by parent for robustness
           onTouchStart={handleMouseDown}
@@ -801,7 +800,10 @@ const BannerCanvas = forwardRef<BannerCanvasHandle, BannerCanvasProps>(
                 <img
                   src={profilePic}
                   alt='Profile'
-                  className={`w-full h-full object-cover select-none ${profileDrag ? 'transition-none' : 'transition-transform duration-100 ease-out'} [transform:scale(${profileTransform?.scale || 1})_translate(${profileTransform?.x || 0}px,${profileTransform?.y || 0}px)]`}
+                  className={`w-full h-full object-cover select-none ${profileDrag ? 'transition-none' : 'transition-transform duration-100 ease-out'}`}
+                  style={{
+                    transform: `scale(${profileTransform?.scale || 1}) translate(${profileTransform?.x || 0}px, ${profileTransform?.y || 0}px)`,
+                  }}
                 />
                 {/* Face Enhance Button - Appears on hover */}
                 <div className='absolute inset-0 bg-black/60 backdrop-blur-sm opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center pointer-events-auto'>
