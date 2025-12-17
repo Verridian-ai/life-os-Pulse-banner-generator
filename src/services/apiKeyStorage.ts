@@ -67,16 +67,16 @@ export async function getUserAPIKeys(): Promise<UserAPIKeys> {
 
     console.log('[API Keys] ✓ Loaded keys from Supabase');
 
-    // Merge database keys with .env fallback
+    // Return database keys directly (no env fallback to avoid conflicts)
     return {
-      gemini_api_key: data.gemini_api_key || import.meta.env.VITE_GEMINI_API_KEY,
-      openrouter_api_key: data.openrouter_api_key || import.meta.env.VITE_OPENROUTER_API_KEY,
-      replicate_api_key: data.replicate_api_key || import.meta.env.VITE_REPLICATE_API_KEY,
-      llm_provider: (data.llm_provider as 'gemini' | 'openrouter') || 'gemini',
-      llm_model: data.llm_model,
-      llm_image_model: data.llm_image_model,
-      llm_magic_edit_model: data.llm_magic_edit_model, // NEW
-      llm_upscale_model: data.llm_upscale_model,
+      gemini_api_key: data.gemini_api_key || undefined,
+      openrouter_api_key: data.openrouter_api_key || undefined,
+      replicate_api_key: data.replicate_api_key || undefined,
+      llm_provider: (data.llm_provider as 'gemini' | 'openrouter') || 'openrouter',
+      llm_model: data.llm_model || undefined,
+      llm_image_model: data.llm_image_model || undefined,
+      llm_magic_edit_model: data.llm_magic_edit_model || undefined,
+      llm_upscale_model: data.llm_upscale_model || undefined,
     };
   } catch (error) {
     console.error('[API Keys] Unexpected error:', error);
@@ -134,8 +134,10 @@ export async function saveUserAPIKeys(
     }
 
     // Upsert (insert or update)
+    // The unique constraint is on (user_id, session_id) composite, so we specify both
     const { error } = await supabase.from('user_api_keys').upsert(payload, {
-      onConflict: user ? 'user_id' : 'session_id',
+      onConflict: 'user_id,session_id',
+      ignoreDuplicates: false,
     });
 
     if (error) {
