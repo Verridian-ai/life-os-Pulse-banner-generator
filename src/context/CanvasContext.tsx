@@ -59,6 +59,9 @@ interface CanvasContextType {
 
 const CanvasContext = createContext<CanvasContextType | undefined>(undefined);
 
+// Export for testing purposes
+export { CanvasContext };
+
 export const CanvasProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const canvasRef = useRef<BannerCanvasHandle | null>(null);
 

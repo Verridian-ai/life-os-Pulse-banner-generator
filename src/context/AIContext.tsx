@@ -15,6 +15,9 @@ import { getModelMetadata } from '../services/modelRouter';
 
 const AIContext = createContext<AIContextType | undefined>(undefined);
 
+// Export for testing purposes
+export { AIContext };
+
 // eslint-disable-next-line react-refresh/only-export-components
 export const useAI = () => {
   const context = useContext(AIContext);
