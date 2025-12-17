@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React from 'react';
 import BannerCanvas from '../BannerCanvas';
 import { useCanvas } from '../../context/CanvasContext';
 import { BANNER_WIDTH, BANNER_HEIGHT } from '../../constants';
@@ -22,27 +22,8 @@ const CanvasEditor: React.FC = () => {
     setSelectedElementId,
   } = useCanvas();
 
-  // Responsive canvas scaling
-  const containerRef = useRef<HTMLDivElement>(null);
-  const [canvasScale, setCanvasScale] = useState(1);
+  // Responsive canvas scaling handling is now done via CSS in BannerCanvas
 
-  useEffect(() => {
-    const updateScale = () => {
-      if (!containerRef.current) return;
-
-      const containerWidth = containerRef.current.offsetWidth;
-      const padding = window.innerWidth < 768 ? 32 : 64; // Responsive padding
-      const availableWidth = containerWidth - padding;
-      const scale = Math.min(availableWidth / BANNER_WIDTH, 1);
-
-      setCanvasScale(scale);
-      console.log('[Canvas] Scale updated:', scale, 'for viewport width:', window.innerWidth);
-    };
-
-    updateScale();
-    window.addEventListener('resize', updateScale);
-    return () => window.removeEventListener('resize', updateScale);
-  }, []);
 
   // Handle profile face enhance
   const handleProfileFaceEnhance = async () => {
@@ -63,7 +44,7 @@ const CanvasEditor: React.FC = () => {
 
   return (
     <div className='flex-1 p-4 md:p-6 lg:p-8 flex flex-col items-center justify-start'>
-      <div ref={containerRef} className='w-full max-w-[1400px]'>
+      <div className='w-full max-w-[1400px]'>
         {/* Canvas Header */}
         <div className='mb-6 flex flex-wrap justify-between items-center gap-4'>
           <div className='flex items-center gap-3'>
@@ -75,7 +56,7 @@ const CanvasEditor: React.FC = () => {
                 Canvas View
               </h2>
               <p className='text-[10px] md:text-xs text-zinc-500 font-bold uppercase tracking-widest'>
-                {BANNER_WIDTH} x {BANNER_HEIGHT} PX {canvasScale < 1 && `(${Math.round(canvasScale * 100)}% scale)`}
+                {BANNER_WIDTH} x {BANNER_HEIGHT} PX
               </p>
             </div>
           </div>
@@ -91,29 +72,21 @@ const CanvasEditor: React.FC = () => {
           </button>
         </div>
 
-        {/* The Canvas - Scaled Container */}
-        <div className='w-full flex justify-center overflow-x-auto'>
-          <div
-            style={{
-              transform: `scale(${canvasScale})`,
-              transformOrigin: 'top center',
-              transition: 'transform 0.2s ease-out',
-            }}
-          >
-            <BannerCanvas
-              ref={canvasRef}
-              backgroundImage={bgImage}
-              elements={elements}
-              showSafeZones={showSafeZones}
-              profilePic={profilePic}
-              profileTransform={useCanvas().profileTransform} // Access directly or via destructure
-              setProfileTransform={useCanvas().setProfileTransform}
-              onElementsChange={setElements}
-              selectedElementId={selectedElementId}
-              onSelectElement={setSelectedElementId}
-              onProfileFaceEnhance={handleProfileFaceEnhance}
-            />
-          </div>
+        {/* The Canvas - Responsive Container */}
+        <div className='w-full'>
+          <BannerCanvas
+            ref={canvasRef}
+            backgroundImage={bgImage}
+            elements={elements}
+            showSafeZones={showSafeZones}
+            profilePic={profilePic}
+            profileTransform={useCanvas().profileTransform}
+            setProfileTransform={useCanvas().setProfileTransform}
+            onElementsChange={setElements}
+            selectedElementId={selectedElementId}
+            onSelectElement={setSelectedElementId}
+            onProfileFaceEnhance={handleProfileFaceEnhance}
+          />
         </div>
 
         {/* Tools Grid - Stacks on mobile */}
