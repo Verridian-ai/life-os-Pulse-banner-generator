@@ -68,11 +68,11 @@ export async function getUserAPIKeys(): Promise<UserAPIKeys> {
 
     console.log('[API Keys] ✓ Loaded keys from Supabase');
 
-    // Return database keys directly (no env fallback to avoid conflicts)
+    // Return database keys with ENV fallback if they are missing in DB
     return {
-      gemini_api_key: data.gemini_api_key || undefined,
-      openrouter_api_key: data.openrouter_api_key || undefined,
-      replicate_api_key: data.replicate_api_key || undefined,
+      gemini_api_key: data.gemini_api_key || import.meta.env.VITE_GEMINI_API_KEY,
+      openrouter_api_key: data.openrouter_api_key || import.meta.env.VITE_OPENROUTER_API_KEY,
+      replicate_api_key: data.replicate_api_key || import.meta.env.VITE_REPLICATE_API_KEY,
       llm_provider: (data.llm_provider as 'gemini' | 'openrouter') || 'openrouter',
       llm_model: data.llm_model || undefined,
       llm_image_model: data.llm_image_model || undefined,
