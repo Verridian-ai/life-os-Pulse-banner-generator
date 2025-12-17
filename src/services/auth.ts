@@ -247,15 +247,24 @@ export const signOut = async (): Promise<{ error: Error | null }> => {
     return { error: new Error('Supabase not configured') };
   }
   try {
-    const { error } = await supabase.auth.signOut();
+    console.log('[Auth] Signing out...');
+
+    // Add timeout protection to prevent infinite hang
+    const signOutPromise = supabase.auth.signOut();
+    const timeoutPromise = new Promise<never>((_, reject) =>
+      setTimeout(() => reject(new Error('Sign out timeout - please refresh the page and try again')), 3000)
+    );
+
+    const { error } = await Promise.race([signOutPromise, timeoutPromise]);
     if (error) throw error;
 
     // Clear local storage
     localStorage.removeItem('supabase.auth.token');
 
+    console.log('[Auth] ✓ Signed out successfully');
     return { error: null };
   } catch (error: unknown) {
-    console.error('Sign out error:', error);
+    console.error('[Auth] Sign out error:', error);
     return { error: error instanceof Error ? error : new Error('Sign out failed') };
   }
 };

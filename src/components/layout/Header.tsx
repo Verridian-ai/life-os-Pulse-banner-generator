@@ -131,7 +131,10 @@ const Header: React.FC<HeaderProps> = ({ activeTab, setActiveTab, onOpenSettings
                     </div>
                     <div className='flex-1 min-w-0'>
                       <p className='text-xs font-bold text-white uppercase tracking-wide truncate'>
-                        {user?.full_name || 'User'}
+                        {user?.full_name ||
+                         user?.username ||
+                         (user?.email || supabaseUser?.email)?.split('@')[0] ||
+                         'User'}
                       </p>
                       <p className='text-[10px] text-zinc-400 truncate'>
                         {user?.email || supabaseUser?.email}
