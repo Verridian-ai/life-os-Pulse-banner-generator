@@ -35,8 +35,8 @@ const UPSCALE_MODELS = [
 
 // Common Image Models - Moved outside component for consistency
 const IMAGE_MODELS = [
-  { id: 'gemini-3-pro-image-preview', name: 'Nano Banana Pro (4K, Best Quality)' },
-  { id: 'gemini-2.5-flash-image', name: 'Nano Banana (2K, Fast)' },
+  { id: 'google/gemini-3-pro-image-preview', name: 'Nano Banana Pro (4K, Best Quality)' },
+  { id: 'google/gemini-2.5-flash-image', name: 'Nano Banana (2K, Fast)' },
   { id: 'black-forest-labs/flux-1-schnell', name: 'Flux 1 Schnell (Fast/Cheap)' },
   { id: 'black-forest-labs/flux-1-dev', name: 'Flux 1 Dev (High Quality)' },
   { id: 'recraft-ai/recraft-v3', name: 'Recraft V3 (vector-like)' },
@@ -111,8 +111,8 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
 
         // Set models with defaults
         const chatModelValue = keys.llm_model || 'nano-banana-pro';
-        const imageGenValue = keys.llm_image_model || 'gemini-3-pro-image-preview';
-        const magicEditValue = keys.llm_magic_edit_model || 'gemini-3-pro-image-preview';
+        const imageGenValue = keys.llm_image_model || 'google/gemini-3-pro-image-preview';
+        const magicEditValue = keys.llm_magic_edit_model || 'google/gemini-3-pro-image-preview';
         const upscaleValue = keys.llm_upscale_model || UPSCALE_MODELS[0].id;
 
         // Handle custom chat model
