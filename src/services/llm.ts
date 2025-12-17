@@ -873,79 +873,99 @@ export const generateImage = async (
 
 // ======================================================================
 
+// Fallback mechanism moved inside main function flow below
+
 export const editImage = async (base64Image: string, prompt: string) => {
-  const { geminiKey, magicEditModel } = await getSettings();
+  const { geminiKey, magicEditModel, replicateKey } = await getSettings();
 
-  if (!geminiKey) {
-    throw new Error('Gemini API key not found. Please add your API key in Settings.');
-  }
-
-  const ai = getGoogleClient(geminiKey);
-
-  // Improved base64 extraction
-  let base64Data: string;
-  let mimeType: string;
-
-  if (base64Image.startsWith('data:')) {
-    const matches = base64Image.match(/^data:([^;]+);base64,(.+)$/);
-    if (matches) {
-      mimeType = matches[1];
-      base64Data = matches[2];
-    } else {
-      base64Data = base64Image.split(',')[1] || base64Image;
-      mimeType = 'image/png';
-    }
-  } else {
-    base64Data = base64Image;
-    mimeType = 'image/png';
-  }
+  // Helper to ensure correct data URI format
+  const formatImageForService = (raw: string) => {
+    return raw.startsWith('data:') ? raw : `data:image/png;base64,${raw}`;
+  };
 
   const safePrompt = `${prompt} ${PROFILE_ZONE_CONSTRAINT}`;
 
-  console.log('[Image Edit] Starting edit with model:', magicEditModel);
+  // 1. Try Google Gemini (Primary)
+  if (geminiKey) {
+    try {
+      console.log('[Image Edit] Attempting Gemini Magic Edit...');
+      const ai = getGoogleClient(geminiKey);
 
-  try {
-    const response = await ai.models.generateContent({
-      model: magicEditModel,
-      contents: {
-        parts: [{ inlineData: { mimeType, data: base64Data } }, { text: safePrompt }],
-      },
-      config: { imageConfig: { aspectRatio: '16:9' } },
-    });
+      // Clean base64 for Gemini (needs raw base64, no header)
+      let base64Data: string;
+      let mimeType: string;
 
-    console.log('[Image Edit] API response received, extracting image...');
+      if (base64Image.startsWith('data:')) {
+        const matches = base64Image.match(/^data:([^;]+);base64,(.+)$/);
+        if (matches) {
+          mimeType = matches[1];
+          base64Data = matches[2];
+        } else {
+          base64Data = base64Image.split(',')[1] || base64Image;
+          mimeType = 'image/png';
+        }
+      } else {
+        base64Data = base64Image;
+        mimeType = 'image/png';
+      }
 
-    const candidates = response.candidates || [];
-    if (candidates.length === 0) {
+      const response = await ai.models.generateContent({
+        model: magicEditModel || 'google/gemini-3-pro-image-preview',
+        contents: {
+          parts: [{ inlineData: { mimeType, data: base64Data } }, { text: safePrompt }],
+        },
+        config: { imageConfig: { aspectRatio: '16:9' } },
+      });
+
+      console.log('[Image Edit] Gemini response received...');
+      const candidates = response.candidates || [];
+      for (const part of candidates[0]?.content?.parts || []) {
+        if (part.inlineData) {
+          console.log('[Image Edit] ✅ Gemini edit successful');
+          return `data:image/png;base64,${part.inlineData.data}`;
+        }
+      }
+      throw new Error('Gemini returned no image content');
+    } catch (geminiError) {
+      console.warn('[Image Edit] Gemini failed, checking fallback...', geminiError);
+      // Fall through to Replicate if key exists
+    }
+  } else {
+    console.log('[Image Edit] No Gemini key found. Skipping to fallback.');
+  }
+
+  // 2. Fallback: Replicate (Instruct-Pix2Pix)
+  if (replicateKey) {
+    try {
+      console.log('[Image Edit] Attempting Replicate Fallback (Instruct-Pix2Pix)...');
+      // Pix2Pix requires full data URI
+      const imageUri = formatImageForService(base64Image);
+
+      // Instruct-Pix2Pix v1.1
+      const version = '30c1d0b916a6f8efce20493f5d61ee27491ab2a60437c13c588468b9810ec23f';
+
+      const output = await callReplicate(replicateKey, version, {
+        image: imageUri,
+        prompt: prompt, // Pix2Pix takes instructions directly
+        num_inference_steps: 20,
+        image_guidance_scale: 1.5,
+        guidance_scale: 7.5,
+      });
+
+      console.log('[Image Edit] ✅ Replicate fallback successful');
+      // Output is usually a URL
+      return Array.isArray(output) ? output[0] : output;
+    } catch (replicateError) {
+      console.error('[Image Edit] ❌ Replicate fallback failed:', replicateError);
       throw new Error(
-        'API returned no candidates. Response may have been blocked by safety filters.',
+        `Magic Edit failed on both Gemini and Replicate. Details: ${replicateError instanceof Error ? replicateError.message : 'Unknown error'}`
       );
     }
-
-    for (const part of candidates[0].content?.parts || []) {
-      if (part.inlineData) {
-        console.log('[Image Edit] ✓ Edited image extracted successfully');
-        return `data:image/png;base64,${part.inlineData.data}`;
-      }
-    }
-
-    throw new Error(`No edited image in API response. Candidates: ${candidates.length}`);
-  } catch (error) {
-    console.error('[Image Edit] FAILED:', error);
-
-    // Provide more helpful error messages
-    if (error instanceof Error) {
-      if (error.message.includes('API key')) {
-        throw new Error('Invalid Gemini API key. Please check your API key in Settings.');
-      } else if (error.message.includes('quota')) {
-        throw new Error('API quota exceeded. Please check your Gemini API usage.');
-      } else if (error.message.includes('safety')) {
-        throw new Error('Content blocked by safety filters. Try a different edit prompt.');
-      }
-    }
-
-    throw error;
   }
+
+  throw new Error(
+    'Magic Edit requires an API key. Please add a valid Gemini or Replicate API key in Settings.'
+  );
 };
 
 export const analyzeImageForPrompts = async (
