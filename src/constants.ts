@@ -2,6 +2,7 @@ export const BANNER_WIDTH = 1584;
 export const BANNER_HEIGHT = 396;
 
 // Safety zone calculations based on provided docs
+// Build: 2025-12-17 (force deployment)
 export const SAFE_ZONE_MARGIN_LEFT = 400;
 // The bottom-left 568x264px area is covered by profile pic on some views
 export const PROFILE_ZONE_WIDTH = 568;
