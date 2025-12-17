@@ -27,7 +27,7 @@ const getSettings = async () => {
     openRouterKey: keys.openrouter_api_key || '',
     replicateKey: keys.replicate_api_key || '',
     stackKey: localStorage.getItem('stack_api_key') || import.meta.env.VITE_STACK_API_KEY || '',
-    model: keys.llm_model || 'nano-banana-pro',
+    model: keys.llm_model || MODELS.textThinking,
     imageModel: keys.llm_image_model || MODELS.imageGen,
     magicEditModel: keys.llm_magic_edit_model || MODELS.imageEdit, // NEW
     upscaleModel: keys.llm_upscale_model ||
