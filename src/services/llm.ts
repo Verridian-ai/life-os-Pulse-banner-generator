@@ -772,7 +772,8 @@ export const generateImage = async (
 
   try {
     if (!openRouterKey) {
-      throw new Error('OpenRouter API key not found. Falling back to Replicate.');
+      console.error('[Image Gen] ❌ OpenRouter API key is empty/missing!');
+      throw new Error('OpenRouter API key not found. Please check Settings and ensure you are logged in.');
     }
 
     // Use Google's Gemini via OpenRouter

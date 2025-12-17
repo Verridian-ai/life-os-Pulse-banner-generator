@@ -29,6 +29,8 @@ function getSessionId(): string {
  * Falls back to .env variables if not found in database
  */
 export async function getUserAPIKeys(): Promise<UserAPIKeys> {
+  console.log('[API Keys] getUserAPIKeys() called');
+
   // Use imported supabase client
   if (!supabase) {
     console.warn('[API Keys] Supabase not configured, using .env fallback');
@@ -36,24 +38,56 @@ export async function getUserAPIKeys(): Promise<UserAPIKeys> {
   }
 
   try {
-    // Check if user is authenticated (use getSession for instant local check)
+    // Try getSession first (fast, local check)
+    let user = null;
     const {
       data: { session },
     } = await supabase.auth.getSession();
-    const user = session?.user || null;
+    user = session?.user || null;
+
+    console.log('[API Keys] Session check (local):', {
+      hasSession: !!session,
+      userId: user?.id || 'none',
+    });
+
+    // If no session found locally, try getUser() which makes a network call
+    // This handles cases where auth state hasn't synced yet
+    if (!user) {
+      console.log('[API Keys] No local session, trying getUser()...');
+      const { data: userData, error: userError } = await supabase.auth.getUser();
+      if (!userError && userData?.user) {
+        user = userData.user;
+        console.log('[API Keys] ✓ Got user from getUser():', user.id);
+      } else {
+        console.log('[API Keys] getUser() also returned no user:', userError?.message);
+      }
+    }
+
+    console.log('[API Keys] Final auth state:', {
+      isAuthenticated: !!user,
+      userId: user?.id || 'none',
+    });
 
     let query = supabase.from('user_api_keys').select('*');
 
     if (user) {
       // Authenticated user
+      console.log('[API Keys] Querying with user_id:', user.id);
       query = query.eq('user_id', user.id);
     } else {
       // Anonymous user with session
       const sessionId = getSessionId();
+      console.log('[API Keys] Querying with session_id:', sessionId);
       query = query.eq('session_id', sessionId);
     }
 
     const { data, error } = await query.limit(1).single();
+
+    console.log('[API Keys] Query result:', {
+      hasData: !!data,
+      errorCode: error?.code,
+      errorMessage: error?.message,
+    });
 
     if (error && error.code !== 'PGRST116') {
       // PGRST116 = not found
@@ -62,11 +96,19 @@ export async function getUserAPIKeys(): Promise<UserAPIKeys> {
     }
 
     if (!data) {
-      console.log('[API Keys] No keys in database, using .env fallback');
-      return getEnvFallbackKeys();
+      console.error('[API Keys] No keys found in database for user:', user?.id || 'anonymous');
+      const fallback = getEnvFallbackKeys();
+      if (!fallback.openrouter_api_key) {
+        console.error('[API Keys] ⚠️ No keys in database AND no env fallback! Image generation will fail.');
+      }
+      return fallback;
     }
 
-    console.log('[API Keys] ✓ Loaded keys from Supabase');
+    console.log('[API Keys] ✓ Loaded keys from Supabase:', {
+      hasOpenRouterKey: !!data.openrouter_api_key,
+      hasReplicateKey: !!data.replicate_api_key,
+      imageModel: data.llm_image_model,
+    });
 
     // Return database keys with ENV fallback if they are missing in DB
     return {
