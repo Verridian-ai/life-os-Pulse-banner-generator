@@ -221,31 +221,6 @@ export const ImageToolsPanel: React.FC<ImageToolsPanelProps> = ({
     });
   };
 
-  // Inpaint state
-  const [inpaintPrompt, setInpaintPrompt] = useState('');
-  const [showInpaintInput, setShowInpaintInput] = useState(false);
-
-  // Inpaint handler
-  const handleInpaint = async () => {
-    if (!inpaintPrompt.trim()) {
-      setError('Please enter a prompt describing what to add/change');
-      return;
-    }
-
-    const hasKey = await checkReplicateKey();
-    if (!hasKey) {
-      setShowAPIKeyModal(true);
-      return;
-    }
-
-    await handleOperation('inpaint', async () => {
-      const service = await getReplicateService(handleProgress);
-      return await service.inpaint(bgImage!, inpaintPrompt);
-    });
-    setShowInpaintInput(false);
-    setInpaintPrompt('');
-  };
-
   // Outpaint state
   const [outpaintPrompt, setOutpaintPrompt] = useState('');
   const [outpaintDirection, setOutpaintDirection] = useState<'left' | 'right' | 'up' | 'down'>('right');
@@ -446,15 +421,6 @@ export const ImageToolsPanel: React.FC<ImageToolsPanelProps> = ({
         </button>
 
         <button
-          onClick={() => setShowInpaintInput(!showInpaintInput)}
-          disabled={!bgImage || isProcessing}
-          className='bg-gradient-to-br from-amber-600 to-amber-700 hover:from-amber-500 hover:to-amber-600 disabled:from-zinc-800 disabled:to-zinc-800 disabled:text-zinc-600 text-white font-bold py-3 px-4 rounded-xl transition flex items-center justify-center gap-2 text-sm'
-        >
-          <span className='material-icons text-base'>brush</span>
-          Magic Edit
-        </button>
-
-        <button
           onClick={() => setShowOutpaintInput(!showOutpaintInput)}
           disabled={!bgImage || isProcessing}
           className='bg-gradient-to-br from-cyan-600 to-cyan-700 hover:from-cyan-500 hover:to-cyan-600 disabled:from-zinc-800 disabled:to-zinc-800 disabled:text-zinc-600 text-white font-bold py-3 px-4 rounded-xl transition flex items-center justify-center gap-2 text-sm'
@@ -463,41 +429,6 @@ export const ImageToolsPanel: React.FC<ImageToolsPanelProps> = ({
           Extend
         </button>
       </div>
-
-      {/* Inpaint Input */}
-      {showInpaintInput && (
-        <div className='bg-amber-900/20 border border-amber-500/30 rounded-xl p-3 mb-4'>
-          <label className='text-[10px] font-bold text-amber-400 uppercase mb-2 block'>
-            Magic Edit - Describe the change
-          </label>
-          <input
-            type='text'
-            value={inpaintPrompt}
-            onChange={(e) => setInpaintPrompt(e.target.value)}
-            placeholder='e.g., Add a sunset sky, Remove the person, Add mountains...'
-            className='w-full bg-black/30 border border-white/10 rounded-lg px-3 py-2 text-sm text-white placeholder-zinc-500 focus:border-amber-500 focus:outline-none mb-2'
-            onKeyDown={(e) => e.key === 'Enter' && handleInpaint()}
-          />
-          <div className='flex gap-2'>
-            <button
-              onClick={handleInpaint}
-              disabled={!inpaintPrompt.trim() || isProcessing}
-              className='flex-1 bg-amber-600 hover:bg-amber-500 disabled:bg-zinc-700 text-white font-bold py-2 px-4 rounded-lg text-xs transition'
-            >
-              Apply Edit
-            </button>
-            <button
-              onClick={() => {
-                setShowInpaintInput(false);
-                setInpaintPrompt('');
-              }}
-              className='bg-zinc-700 hover:bg-zinc-600 text-white font-bold py-2 px-4 rounded-lg text-xs transition'
-            >
-              Cancel
-            </button>
-          </div>
-        </div>
-      )}
 
       {/* Outpaint Input */}
       {showOutpaintInput && (
