@@ -12,6 +12,8 @@ export interface ActionResult {
   result?: string;
   error?: string;
   preview?: string; // Image URL for preview
+  imageUrl?: string; // Image URL for action result
+  action?: string; // Action type identifier
 }
 
 export type OnUpdateCallback = (imageUrl: string, type: 'background' | 'profile') => void;
@@ -22,6 +24,7 @@ export type OnUpdateCallback = (imageUrl: string, type: 'background' | 'profile'
 export class ActionExecutor {
   private onUpdate: OnUpdateCallback;
   private previewMode: boolean;
+  private getCanvasImage?: () => string | undefined;
 
   constructor(onUpdate: OnUpdateCallback, previewMode = false) {
     this.onUpdate = onUpdate;
@@ -55,7 +58,7 @@ export class ActionExecutor {
           );
 
         case 'remove_background':
-          return await this.removeBackground(toolCall.args as { image_url: string });
+          return await this.removeBackground(toolCall.args as { image_url?: string });
 
         case 'upscale_image':
           return await this.upscaleImage(toolCall.args as { image_url: string; mode?: string });
@@ -147,16 +150,34 @@ export class ActionExecutor {
   /**
    * Remove background from image
    */
-  private async removeBackground(args: { image_url: string }): Promise<ActionResult> {
-    const { image_url } = args;
+  private async removeBackground(args: { image_url?: string }): Promise<ActionResult> {
+    const imageUrl = args.image_url || this.getCanvasImage?.();
+    
+    if (!imageUrl) {
+      return {
+        success: false,
+        error: 'No image available. Please generate or upload an image first.',
+      };
+    }
 
-    console.log('[ActionExecutor] Removing background from:', image_url);
+    console.log('[ActionExecutor] Removing background from image');
 
-    // TODO: Implement removeBackground in replicate service
-    return {
-      success: false,
-      error: 'Remove background feature is not yet implemented',
-    };
+    try {
+      const replicateService = await getReplicateService();
+      const resultUrl = await replicateService.removeBg(imageUrl);
+
+      return {
+        success: true,
+        imageUrl: resultUrl,
+        action: 'remove_background',
+      };
+    } catch (error) {
+      console.error('[ActionExecutor] Remove background failed:', error);
+      return {
+        success: false,
+        error: `Remove background failed: ${error instanceof Error ? error.message : 'Unknown error'}`,
+      };
+    }
   }
 
   /**

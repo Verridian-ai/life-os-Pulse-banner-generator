@@ -8,8 +8,24 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
-  // Enable CORS
-  res.setHeader('Access-Control-Allow-Origin', '*');
+  // Enable CORS with specific allowed origins
+  const allowedOrigins = [
+    'https://life-os-banner.verridian.ai',
+    'https://nanobanna-pro.vercel.app',
+    'https://nanobanna-pro-237245874937.us-central1.run.app',
+    'https://nanobanna-pro-237245874937.australia-southeast1.run.app',
+    'http://localhost:5173',
+    'http://localhost:3000'
+  ];
+
+  const origin = (req.headers['origin'] || req.headers['Origin']) as string | undefined;
+  if (origin && allowedOrigins.includes(origin)) {
+    res.setHeader('Access-Control-Allow-Origin', origin);
+  } else if (!origin) {
+    // Allow requests without origin (same-origin, curl, etc)
+    res.setHeader('Access-Control-Allow-Origin', allowedOrigins[0]);
+  }
+
   res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type, X-Replicate-Token');
 
@@ -24,7 +40,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
     if (!token) {
       return res.status(401).json({
-        error: 'Missing X-Replicate-Token header'
+        error: 'Missing API key',
+        message: 'Please configure your Replicate API key in Settings'
       });
     }
 

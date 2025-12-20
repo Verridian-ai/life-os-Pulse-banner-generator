@@ -82,7 +82,7 @@ export class ReplicateService {
    */
   private async pollPrediction(predictionId: string): Promise<string> {
     let attempts = 0;
-    const maxAttempts = 300; // 5 minutes max (1s polling interval)
+    const maxAttempts = 600; // 10 minutes max (1s polling interval)
 
     while (attempts < maxAttempts) {
       const response = await fetch(`${this.baseUrl}/predictions/${predictionId}`, {
@@ -140,7 +140,7 @@ export class ReplicateService {
       attempts++;
     }
 
-    throw new ReplicateError('Prediction timeout after 5 minutes', predictionId, 'timeout');
+    throw new ReplicateError('Prediction timeout after 10 minutes', predictionId, 'timeout');
   }
 
   /**
@@ -254,7 +254,7 @@ export class ReplicateService {
     const response = await fetch(`${this.baseUrl}/predictions/${predictionId}/cancel`, {
       method: 'POST',
       headers: {
-        Authorization: `Token ${this.apiKey}`,
+        'X-Replicate-Token': this.apiKey,
         'Content-Type': 'application/json',
       },
     });
@@ -270,7 +270,7 @@ export class ReplicateService {
   async getPredictionStatus(predictionId: string): Promise<ReplicatePrediction> {
     const response = await fetch(`${this.baseUrl}/predictions/${predictionId}`, {
       headers: {
-        Authorization: `Token ${this.apiKey}`,
+        'X-Replicate-Token': this.apiKey,
         'Content-Type': 'application/json',
       },
     });

@@ -7,6 +7,7 @@ import ImageGallery from './components/features/ImageGallery';
 import { SettingsModal } from './components/features/SettingsModal';
 import { AuthModal } from './components/auth/AuthModal';
 import { APIKeyInstructionsModal } from './components/features/APIKeyInstructionsModal';
+import LiveActionPanel from './components/features/LiveActionPanel';
 import {
   ScreenReaderAnnouncerProvider,
   useAnnouncer,
@@ -18,6 +19,8 @@ import { CanvasProvider, useCanvas } from './context/CanvasContext';
 import { AIProvider } from './context/AIContext';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import { migrateLocalStorageToSupabase } from './services/apiKeyStorage';
+// TODO: Import VoiceAgentProvider once created at src/context/VoiceAgentContext.tsx
+// import { VoiceAgentProvider, useVoiceAgent } from './context/VoiceAgentContext';
 
 const AppContent = () => {
   const [activeTab, setActiveTab] = useState<Tab>(Tab.STUDIO);
@@ -29,9 +32,29 @@ const AppContent = () => {
     type: 'warning' | 'info';
   } | null>(null);
 
+  // Voice Agent state
+  const [isVoiceActive, setIsVoiceActive] = useState(false);
+  // TODO: Replace with actual hook once VoiceAgentContext is created
+  // const voiceAgent = useVoiceAgent();
+
   // Accessibility states
   const [showChatHistory, setShowChatHistory] = useState(false);
   const { announce } = useAnnouncer();
+
+  // Voice Agent toggle handler
+  const toggleVoiceMode = async () => {
+    if (isVoiceActive) {
+      // TODO: Replace with actual voiceAgent.disconnect() once context exists
+      // voiceAgent.disconnect();
+      setIsVoiceActive(false);
+      announce('Voice mode disconnected', 'polite');
+    } else {
+      // TODO: Replace with actual voiceAgent.connect() once context exists
+      // await voiceAgent.connect();
+      setIsVoiceActive(true);
+      announce('Voice mode connected', 'polite');
+    }
+  };
 
   // Auth state
   const { isAuthenticated, isLoading } = useAuth();
@@ -301,6 +324,8 @@ const AppContent = () => {
         onOpenSettings={() => setShowSettings(true)}
         onOpenAuth={() => setShowAuthModal(true)}
         onOpenInstructions={() => setShowInstructions(true)}
+        isVoiceActive={isVoiceActive}
+        onToggleVoice={toggleVoiceMode}
       />
 
       <SettingsModal isOpen={showSettings} onClose={() => setShowSettings(false)} />
@@ -376,6 +401,24 @@ const AppContent = () => {
           </div>
         )}
       </main>
+
+      {/* Live Action Panel - Voice Agent UI */}
+      {isVoiceActive && (
+        <LiveActionPanel
+          isConnected={false} // TODO: Replace with voiceAgent.isConnected
+          transcript={[]} // TODO: Replace with voiceAgent.transcript
+          pendingAction={null} // TODO: Replace with voiceAgent.pendingAction
+          executingAction={false} // TODO: Replace with voiceAgent.executingAction
+          onApproveAction={() => {
+            // TODO: Replace with voiceAgent.approveAction()
+            console.log('[App] Action approved (placeholder)');
+          }}
+          onRejectAction={() => {
+            // TODO: Replace with voiceAgent.rejectAction()
+            console.log('[App] Action rejected (placeholder)');
+          }}
+        />
+      )}
     </div>
   );
 };
@@ -385,9 +428,12 @@ function App() {
     <ScreenReaderAnnouncerProvider>
       <AuthProvider>
         <AIProvider>
+          {/* TODO: Add VoiceAgentProvider here once created */}
+          {/* <VoiceAgentProvider> */}
           <CanvasProvider>
             <AppContent />
           </CanvasProvider>
+          {/* </VoiceAgentProvider> */}
         </AIProvider>
       </AuthProvider>
     </ScreenReaderAnnouncerProvider>

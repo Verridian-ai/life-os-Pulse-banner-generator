@@ -3,7 +3,7 @@
 import { supabase as supabaseClient } from './auth';
 import type { UploadImageRequest, UploadImageResponse } from '../types/database';
 
-type BucketName = 'designs' | 'references' | 'avatars' | 'logos';
+type BucketName = 'designs' | 'references' | 'avatars' | 'logos' | 'user-data' | 'chat-exports';
 
 /**
  * Get Supabase client or return null if not configured

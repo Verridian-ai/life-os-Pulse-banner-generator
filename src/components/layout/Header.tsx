@@ -17,9 +17,19 @@ interface HeaderProps {
   onOpenSettings: () => void;
   onOpenAuth: () => void;
   onOpenInstructions: () => void;
+  isVoiceActive?: boolean;
+  onToggleVoice?: () => void;
 }
 
-const Header: React.FC<HeaderProps> = ({ activeTab, setActiveTab, onOpenSettings, onOpenAuth, onOpenInstructions }) => {
+const Header: React.FC<HeaderProps> = ({ 
+  activeTab, 
+  setActiveTab, 
+  onOpenSettings, 
+  onOpenAuth, 
+  onOpenInstructions,
+  isVoiceActive = false,
+  onToggleVoice,
+}) => {
   const { isAuthenticated, user, supabaseUser, signOut } = useAuth();
   const [showProfileMenu, setShowProfileMenu] = useState(false);
 
@@ -99,6 +109,22 @@ const Header: React.FC<HeaderProps> = ({ activeTab, setActiveTab, onOpenSettings
             <span className='hidden sm:inline'>Partner</span>
           </button>
         </nav>
+
+        {/* Voice Agent Toggle Button */}
+        {onToggleVoice && (
+          <button
+            onClick={onToggleVoice}
+            className={`min-w-[44px] min-h-[44px] w-12 h-12 rounded-full border flex items-center justify-center transition-all shadow-lg shrink-0 ${
+              isVoiceActive
+                ? 'bg-gradient-to-br from-green-600 to-emerald-600 border-green-400/50 text-white animate-pulse shadow-green-500/50'
+                : 'bg-gradient-to-br from-blue-600/20 to-cyan-600/20 border-blue-500/30 text-blue-400 hover:text-blue-300 hover:from-blue-600/30 hover:to-cyan-600/30'
+            }`}
+            title={isVoiceActive ? 'Stop Benno' : 'Talk to Benno'}
+            aria-label={isVoiceActive ? 'Stop voice agent' : 'Start voice agent'}
+          >
+            <span className='material-icons text-xl'>{isVoiceActive ? 'mic' : 'mic_none'}</span>
+          </button>
+        )}
 
         {/* Help/Instructions Button - Desktop Only */}
         <button

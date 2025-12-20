@@ -1,0 +1,88 @@
+.email-container {
+    font-family: 'Inter', sans-serif;
+    background-color: #f3f4f6;
+    padding: 40px 20px;
+    color: #1f2937;
+}
+
+.email-preview-text {
+    display: none;
+    max-height: 0;
+    overflow: hidden;
+}
+
+.email-card {
+    max-width: 600px;
+    margin: 0 auto;
+    background-color: #ffffff;
+    border-radius: 16px;
+    overflow: hidden;
+    box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
+}
+
+.email-header {
+    background-color: #0f172a;
+    padding: 30px;
+    text-align: center;
+}
+
+.email-logo-text {
+    color: #ffffff;
+    font-size: 24px;
+    font-weight: 800;
+    letter-spacing: 1px;
+    margin: 0;
+    background: linear-gradient(to right, #60a5fa, #3b82f6);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+.email-body {
+    padding: 40px 30px;
+    font-size: 16px;
+    line-height: 1.6;
+}
+
+.email-title {
+    font-size: 22px;
+    font-weight: 700;
+    margin-bottom: 20px;
+    color: #111827;
+}
+
+.email-button-container {
+    text-align: center;
+    margin-top: 30px;
+    margin-bottom: 30px;
+}
+
+.email-button {
+    background-color: #2563eb;
+    color: #ffffff;
+    padding: 12px 28px;
+    border-radius: 8px;
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 16px;
+    display: inline-block;
+    box-shadow: 0 4px 6px -1px rgba(37, 99, 235, 0.3);
+}
+
+.email-footer {
+    background-color: #f8fafc;
+    padding: 20px;
+    text-align: center;
+    font-size: 12px;
+    color: #64748b;
+    border-top: 1px solid #e2e8f0;
+}
+
+.email-footer-links {
+    margin-top: 8px;
+}
+
+.email-footer-link {
+    color: #94a3b8;
+    text-decoration: none;
+    margin: 0 10px;
+}

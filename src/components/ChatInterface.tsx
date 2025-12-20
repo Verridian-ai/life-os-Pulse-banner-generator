@@ -1,9 +1,14 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect, useMemo, useCallback } from 'react';
 import { generateDesignChatResponse, generateSearchResponse } from '../services/llm';
 import { ChatMessage, Part } from '../types';
 import { optimizeImage } from '../utils';
 import { SettingsModal } from './features/SettingsModal';
 import { getUserAPIKeys } from '../services/apiKeyStorage';
+import { ChatAgent } from '../services/chatAgent';
+import { ActionExecutor } from '../services/actionExecutor';
+import { useCanvas } from '../context/CanvasContext';
+import { useAuth } from '../context/AuthContext';
+import * as chatPersistence from '../services/chatPersistence';
 
 interface ChatInterfaceProps {
   onGenerateFromPrompt: (prompt: string) => void;
@@ -21,13 +26,16 @@ const BTN_BLUE_ACTIVE =
 const BTN_NEU_WHITE =
   'bg-white text-black shadow-[0_0_15px_rgba(255,255,255,0.2)] hover:bg-zinc-200 active:scale-[0.98]';
 
+const INITIAL_MESSAGE: ChatMessage = {
+  role: 'model',
+  text: 'HELLO! I AM NANO, YOUR PRO LINKEDIN BANNER STRATEGIST. \n\nUPLOAD YOUR LOGO, PROFILE PICTURE, OR ANY REFERENCE IMAGES, AND WE CAN DISCUSS A DESIGN THAT PERFECTLY MATCHES YOUR BRAND COLORS AND STYLE.',
+};
+
 const ChatInterface: React.FC<ChatInterfaceProps> = ({ onGenerateFromPrompt }) => {
-  const [messages, setMessages] = useState<ChatMessage[]>([
-    {
-      role: 'model',
-      text: 'HELLO! I AM NANO, YOUR PRO LINKEDIN BANNER STRATEGIST. \n\nUPLOAD YOUR LOGO, PROFILE PICTURE, OR ANY REFERENCE IMAGES, AND WE CAN DISCUSS A DESIGN THAT PERFECTLY MATCHES YOUR BRAND COLORS AND STYLE.',
-    },
-  ]);
+  // Get canvas context for ActionExecutor
+  const { bgImage, setBgImage } = useCanvas();
+  const { user } = useAuth();
+
   const [input, setInput] = useState('');
   const [attachedImages, setAttachedImages] = useState<string[]>([]);
   const [mode, setMode] = useState<'design' | 'search'>('design');
@@ -37,9 +45,270 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({ onGenerateFromPrompt }) =
   const bottomRef = useRef<HTMLDivElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
+  // Persistence state
+  const [conversationId, setConversationId] = useState<string | null>(null);
+  const [conversations, setConversations] = useState<chatPersistence.ChatConversation[]>([]);
+  const [showHistory, setShowHistory] = useState(false);
+  const [loadingHistory, setLoadingHistory] = useState(false);
+
+  // State for chat agent and pending actions
+  const [messages, setMessages] = useState<ChatMessage[]>([INITIAL_MESSAGE]);
+  const [pendingAction, setPendingAction] = useState<{
+    name: string;
+    args: Record<string, unknown>;
+    preview?: string;
+  } | null>(null);
+  const [isExecuting, setIsExecuting] = useState(false);
+  const [executingTool, setExecutingTool] = useState<string | null>(null);
+
+  // Create action executor
+  const actionExecutor = useMemo(
+    () =>
+      new ActionExecutor(
+        (imageUrl, type) => {
+          console.log('[ChatInterface] Applying action result:', { imageUrl, type });
+          if (type === 'background') {
+            setBgImage(imageUrl);
+          }
+          // TODO: Handle profile updates if needed
+        },
+        false, // Not in preview mode - apply directly
+      ),
+    [setBgImage],
+  );
+
+  // Handle tool calls from chat agent
+  const handleToolCall = async (
+    name: string,
+    args: Record<string, unknown>,
+  ): Promise<unknown> => {
+    console.log('[ChatInterface] Tool call:', name, args);
+
+    // Show executing indicator
+    setExecutingTool(name);
+    setIsExecuting(true);
+
+    try {
+      // Execute the tool call
+      const result = await actionExecutor.executeToolCall({ name, args });
+
+      // Show success/failure in chat
+      if (result.success) {
+        setMessages((prev) => [
+          ...prev,
+          {
+            role: 'model',
+            text: `✓ EXECUTED: ${name.toUpperCase().replace(/_/g, ' ')}\n\nResult: ${result.result || 'Success'}`,
+          },
+        ]);
+      } else {
+        setMessages((prev) => [
+          ...prev,
+          {
+            role: 'model',
+            text: `✗ FAILED: ${name.toUpperCase().replace(/_/g, ' ')}\n\nError: ${result.error || 'Unknown error'}`,
+          },
+        ]);
+      }
+
+      return result;
+    } catch (error) {
+      console.error('[ChatInterface] Tool execution error:', error);
+      return {
+        success: false,
+        error: error instanceof Error ? error.message : 'Unknown error',
+      };
+    } finally {
+      setIsExecuting(false);
+      setExecutingTool(null);
+      setPendingAction(null);
+    }
+  };
+
+  // Handle conversation updates from chat agent
+  const handleConversationUpdate = (updatedMessages: ChatMessage[]) => {
+    // ChatAgent already returns the correct display format
+    setMessages(updatedMessages);
+  };
+
+  // Create chat agent (only once)
+  const chatAgent = useMemo(
+    () =>
+      new ChatAgent({
+        onToolCall: handleToolCall,
+        onUpdate: handleConversationUpdate,
+      }),
+    [], // Empty deps - we want this to persist
+  );
+
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages, loading]);
+
+  // ============================================================================
+  // CHAT PERSISTENCE
+  // ============================================================================
+
+  // Load conversations list when user is authenticated
+  useEffect(() => {
+    if (!user) return;
+
+    const loadConversations = async () => {
+      setLoadingHistory(true);
+      try {
+        const convos = await chatPersistence.getConversations({ mode, limit: 20 });
+        setConversations(convos);
+        console.log('[ChatInterface] Loaded', convos.length, 'conversations');
+      } catch (error) {
+        console.error('[ChatInterface] Failed to load conversations:', error);
+      } finally {
+        setLoadingHistory(false);
+      }
+    };
+
+    loadConversations();
+  }, [user, mode]);
+
+  // Create or load conversation when starting a chat
+  const ensureConversation = useCallback(async (): Promise<string | null> => {
+    if (!user) return null;
+
+    // If we already have a conversation, return its ID
+    if (conversationId) return conversationId;
+
+    // Create new conversation
+    try {
+      const conversation = await chatPersistence.createConversation(mode);
+      if (conversation) {
+        setConversationId(conversation.id);
+        console.log('[ChatInterface] Created conversation:', conversation.id);
+        return conversation.id;
+      }
+    } catch (error) {
+      console.error('[ChatInterface] Failed to create conversation:', error);
+    }
+    return null;
+  }, [user, conversationId, mode]);
+
+  // Save a message to the database
+  const saveMessage = useCallback(
+    async (
+      convId: string,
+      role: 'user' | 'assistant' | 'system',
+      content: string,
+      extra?: {
+        images?: string[];
+        generated_images?: string[];
+        model_used?: string;
+        tokens_used?: number;
+        response_time_ms?: number;
+      },
+    ) => {
+      if (!user || !convId) return;
+
+      try {
+        await chatPersistence.addMessage(convId, {
+          role,
+          content,
+          images: extra?.images,
+          generated_images: extra?.generated_images,
+          model_used: extra?.model_used,
+          tokens_used: extra?.tokens_used,
+          response_time_ms: extra?.response_time_ms,
+        });
+        console.log('[ChatInterface] Saved message to conversation:', convId);
+      } catch (error) {
+        console.error('[ChatInterface] Failed to save message:', error);
+      }
+    },
+    [user],
+  );
+
+  // Start a new conversation
+  const startNewConversation = useCallback(() => {
+    setConversationId(null);
+    setMessages([INITIAL_MESSAGE]);
+    chatAgent.clearHistory(); // Clear chat agent history
+    console.log('[ChatInterface] Started new conversation');
+  }, [chatAgent]);
+
+  // Load an existing conversation
+  const loadConversation = useCallback(
+    async (convId: string) => {
+      if (!user) return;
+
+      setLoadingHistory(true);
+      try {
+        const result = await chatPersistence.getConversationWithMessages(convId);
+        if (result) {
+          setConversationId(result.conversation.id);
+          setMode(result.conversation.mode as 'design' | 'search');
+
+          // Convert saved messages to ChatMessage format
+          // Filter out system messages and map roles
+          const loadedMessages: ChatMessage[] = result.messages
+            .filter((msg) => msg.role !== 'system')
+            .map((msg) => ({
+              role: (msg.role === 'assistant' ? 'model' : 'user') as 'model' | 'user',
+              text: msg.content,
+              images: msg.images?.length ? msg.images : undefined,
+            }));
+
+          // Prepend initial message if not present
+          if (loadedMessages.length === 0 || loadedMessages[0].role !== 'model') {
+            loadedMessages.unshift(INITIAL_MESSAGE);
+          }
+
+          setMessages(loadedMessages);
+          console.log('[ChatInterface] Loaded conversation:', convId, 'with', result.messages.length, 'messages');
+        }
+      } catch (error) {
+        console.error('[ChatInterface] Failed to load conversation:', error);
+      } finally {
+        setLoadingHistory(false);
+        setShowHistory(false);
+      }
+    },
+    [user],
+  );
+
+  // Delete a conversation
+  const deleteConversation = useCallback(
+    async (convId: string) => {
+      if (!user) return;
+
+      try {
+        await chatPersistence.deleteConversation(convId);
+        setConversations((prev) => prev.filter((c) => c.id !== convId));
+
+        // If we deleted the current conversation, start fresh
+        if (convId === conversationId) {
+          startNewConversation();
+        }
+
+        console.log('[ChatInterface] Deleted conversation:', convId);
+      } catch (error) {
+        console.error('[ChatInterface] Failed to delete conversation:', error);
+      }
+    },
+    [user, conversationId, startNewConversation],
+  );
+
+  // Refresh conversations list
+  const refreshConversations = useCallback(async () => {
+    if (!user) return;
+
+    try {
+      const convos = await chatPersistence.getConversations({ mode, limit: 20 });
+      setConversations(convos);
+    } catch (error) {
+      console.error('[ChatInterface] Failed to refresh conversations:', error);
+    }
+  }, [user, mode]);
+
+  // ============================================================================
+  // FILE HANDLING
+  // ============================================================================
 
   const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files) {
@@ -69,6 +338,7 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({ onGenerateFromPrompt }) =
 
     const userMsg = input;
     const currentImages = [...attachedImages];
+    const startTime = Date.now();
 
     // Clear inputs immediately
     setInput('');
@@ -80,6 +350,18 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({ onGenerateFromPrompt }) =
       { role: 'user', text: userMsg, images: currentImages.length > 0 ? currentImages : undefined },
     ]);
     setLoading(true);
+
+    // Ensure conversation exists and save user message (async, don't block)
+    let activeConvId: string | null = null;
+    if (user) {
+      activeConvId = await ensureConversation();
+      if (activeConvId) {
+        // Save user message in background
+        saveMessage(activeConvId, 'user', userMsg, {
+          images: currentImages.length > 0 ? currentImages : undefined,
+        });
+      }
+    }
 
     try {
       // Pre-flight API key validation
@@ -96,47 +378,68 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({ onGenerateFromPrompt }) =
         return;
       }
 
-      // Build history
-      const history = messages.map((m) => {
-        const parts: Part[] = [{ text: m.text }];
-        if (m.images) {
-          m.images.forEach((img) => {
-            const base64Data = img.split(',')[1] || img;
-            const mimeType = img.substring(img.indexOf(':') + 1, img.indexOf(';')) || 'image/png';
-            parts.push({ inlineData: { mimeType, data: base64Data } });
-          });
-        }
-        return { role: m.role, parts };
-      });
-
-      let response;
       if (mode === 'design') {
-        response = await generateDesignChatResponse(userMsg, currentImages, history);
+        // Use new ChatAgent for design mode
+        const response = await chatAgent.chat(userMsg, currentImages.length > 0 ? currentImages : undefined);
+
+        // Save assistant message if we have a conversation
+        if (activeConvId && response) {
+          const responseTime = Date.now() - startTime;
+          saveMessage(activeConvId, 'assistant', response, {
+            model_used: 'openrouter/gemini-2.5-pro',
+            response_time_ms: responseTime,
+          });
+          // Refresh conversation list to update last_message_at
+          refreshConversations();
+        }
       } else {
-        response = await generateSearchResponse(userMsg, history);
-      }
+        // Keep existing search mode implementation
+        // Build history
+        const history = messages.map((m) => {
+          const parts: Part[] = [{ text: m.text }];
+          if (m.images) {
+            m.images.forEach((img) => {
+              const base64Data = img.split(',')[1] || img;
+              const mimeType = img.substring(img.indexOf(':') + 1, img.indexOf(';')) || 'image/png';
+              parts.push({ inlineData: { mimeType, data: base64Data } });
+            });
+          }
+          return { role: m.role, parts };
+        });
 
-      // Extract URLs if search
-      const groundings: { title: string; url: string }[] = [];
-      if (mode === 'search' && response.groundingMetadata?.groundingChunks) {
-        response.groundingMetadata.groundingChunks.forEach(
-          (chunk: { web?: { uri?: string; title?: string } }) => {
-            if (chunk.web?.uri) {
-              groundings.push({ title: chunk.web.title || 'Source', url: chunk.web.uri });
-            }
+        const response = await generateSearchResponse(userMsg, history);
+
+        // Extract URLs if search
+        const groundings: { title: string; url: string }[] = [];
+        if (response.groundingMetadata?.groundingChunks) {
+          response.groundingMetadata.groundingChunks.forEach(
+            (chunk: { web?: { uri?: string; title?: string } }) => {
+              if (chunk.web?.uri) {
+                groundings.push({ title: chunk.web.title || 'Source', url: chunk.web.uri });
+              }
+            },
+          );
+        }
+
+        setMessages((prev) => [
+          ...prev,
+          {
+            role: 'model',
+            text: response.text,
+            groundingUrls: groundings.length > 0 ? groundings : undefined,
           },
-        );
-      }
+        ]);
 
-      setMessages((prev) => [
-        ...prev,
-        {
-          role: 'model',
-          text: response.text,
-          isThinking: mode === 'design',
-          groundingUrls: groundings.length > 0 ? groundings : undefined,
-        },
-      ]);
+        // Save search response if we have a conversation
+        if (activeConvId && response.text) {
+          const responseTime = Date.now() - startTime;
+          saveMessage(activeConvId, 'assistant', response.text, {
+            model_used: 'gemini-search',
+            response_time_ms: responseTime,
+          });
+          refreshConversations();
+        }
+      }
     } catch (e) {
       console.error('[Chat] Error:', e);
 
@@ -205,13 +508,97 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({ onGenerateFromPrompt }) =
           </button>
         </div>
 
-        <button
-          onClick={() => setShowSettings(true)}
-          className='h-10 w-10 md:h-12 md:w-12 rounded-full bg-zinc-800 border border-white/5 text-zinc-400 hover:text-white transition flex items-center justify-center hover:bg-zinc-700'
-          title='AI Settings'
-        >
-          <span className='material-icons'>settings</span>
-        </button>
+        <div className='flex items-center gap-2'>
+          {/* New Chat Button */}
+          {user && (
+            <button
+              onClick={startNewConversation}
+              className='h-10 w-10 md:h-12 md:w-12 rounded-full bg-zinc-800 border border-white/5 text-zinc-400 hover:text-white transition flex items-center justify-center hover:bg-zinc-700'
+              title='New Conversation'
+            >
+              <span className='material-icons'>add</span>
+            </button>
+          )}
+
+          {/* History Button */}
+          {user && (
+            <div className='relative'>
+              <button
+                onClick={() => setShowHistory(!showHistory)}
+                className={`h-10 w-10 md:h-12 md:w-12 rounded-full border border-white/5 text-zinc-400 hover:text-white transition flex items-center justify-center ${showHistory ? 'bg-blue-600 text-white' : 'bg-zinc-800 hover:bg-zinc-700'}`}
+                title='Chat History'
+              >
+                <span className='material-icons'>history</span>
+              </button>
+
+              {/* History Dropdown */}
+              {showHistory && (
+                <div className='absolute right-0 top-14 w-80 max-h-96 overflow-y-auto bg-zinc-900 border border-white/10 rounded-2xl shadow-2xl z-50'>
+                  <div className='p-3 border-b border-white/10 flex items-center justify-between'>
+                    <span className='text-sm font-bold text-zinc-300 uppercase tracking-wider'>Chat History</span>
+                    <button
+                      onClick={() => setShowHistory(false)}
+                      className='text-zinc-500 hover:text-white'
+                    >
+                      <span className='material-icons text-sm'>close</span>
+                    </button>
+                  </div>
+
+                  {loadingHistory ? (
+                    <div className='p-4 text-center'>
+                      <span className='material-icons animate-spin text-blue-400'>refresh</span>
+                    </div>
+                  ) : conversations.length === 0 ? (
+                    <div className='p-4 text-center text-zinc-500 text-sm'>
+                      No conversations yet
+                    </div>
+                  ) : (
+                    <div className='p-2 space-y-1'>
+                      {conversations.map((conv) => (
+                        <div
+                          key={conv.id}
+                          className={`p-3 rounded-xl cursor-pointer transition group flex items-center justify-between ${conversationId === conv.id ? 'bg-blue-600/20 border border-blue-500/30' : 'hover:bg-white/5'}`}
+                        >
+                          <div
+                            onClick={() => loadConversation(conv.id)}
+                            className='flex-1 min-w-0'
+                          >
+                            <div className='text-sm font-medium text-white truncate'>
+                              {conv.title}
+                            </div>
+                            <div className='text-xs text-zinc-500'>
+                              {new Date(conv.last_message_at).toLocaleDateString()}
+                            </div>
+                          </div>
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              if (confirm('Delete this conversation?')) {
+                                deleteConversation(conv.id);
+                              }
+                            }}
+                            className='opacity-0 group-hover:opacity-100 transition text-zinc-500 hover:text-red-400 ml-2'
+                          >
+                            <span className='material-icons text-sm'>delete</span>
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* Settings Button */}
+          <button
+            onClick={() => setShowSettings(true)}
+            className='h-10 w-10 md:h-12 md:w-12 rounded-full bg-zinc-800 border border-white/5 text-zinc-400 hover:text-white transition flex items-center justify-center hover:bg-zinc-700'
+            title='AI Settings'
+          >
+            <span className='material-icons'>settings</span>
+          </button>
+        </div>
       </div>
 
       <SettingsModal isOpen={showSettings} onClose={() => setShowSettings(false)} />
@@ -312,6 +699,16 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({ onGenerateFromPrompt }) =
               <div className='w-2 h-2 bg-purple-500 rounded-full animate-bounce'></div>
               <div className='w-2 h-2 bg-purple-500 rounded-full animate-bounce [animation-delay:0.2s]'></div>
               <div className='w-2 h-2 bg-purple-500 rounded-full animate-bounce [animation-delay:0.4s]'></div>
+            </div>
+          </div>
+        )}
+        {isExecuting && executingTool && (
+          <div className='flex justify-start'>
+            <div className='bg-blue-500/10 border border-blue-500/30 rounded-2xl rounded-bl-sm p-4 flex items-center gap-3 shadow-lg'>
+              <span className='material-icons text-blue-400 animate-spin'>settings</span>
+              <div className='text-sm font-bold text-blue-300 uppercase tracking-wider'>
+                Executing: {executingTool.replace(/_/g, ' ')}
+              </div>
             </div>
           </div>
         )}

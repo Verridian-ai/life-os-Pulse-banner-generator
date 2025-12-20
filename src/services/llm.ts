@@ -149,18 +149,18 @@ const callReplicate = async (apiKey: string, version: string, input: Record<stri
     throw new Error('Replicate API Key not found. Please add it in Settings.');
   }
 
-  // Use proxy in development to avoid CORS issues
-  const isDev = import.meta.env.DEV;
-  const baseUrl = isDev ? '/api/replicate' : 'https://api.replicate.com';
+  // ALWAYS use the nginx proxy to avoid CORS issues
+  // The proxy at /api/replicate converts X-Replicate-Token to Authorization header
+  const baseUrl = '/api/replicate';
 
-  console.log(`[Replicate] Using ${isDev ? 'proxy' : 'direct'} endpoint:`, baseUrl);
+  console.log('[Replicate] Using proxy endpoint:', baseUrl);
 
   try {
     // 1. Start Prediction
     const startResponse = await fetch(`${baseUrl}/v1/predictions`, {
       method: 'POST',
       headers: {
-        ...(isDev ? { 'x-replicate-token': apiKey } : { Authorization: `Token ${apiKey}` }),
+        'X-Replicate-Token': apiKey,
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({ version, input }),
@@ -214,7 +214,7 @@ const callReplicate = async (apiKey: string, version: string, input: Record<stri
       await new Promise((r) => setTimeout(r, 1000)); // Poll every 1s
       const pollResponse = await fetch(`${baseUrl}/v1/predictions/${predictionId}`, {
         headers: {
-          ...(isDev ? { 'x-replicate-token': apiKey } : { Authorization: `Token ${apiKey}` }),
+          'X-Replicate-Token': apiKey,
           'Content-Type': 'application/json',
         },
       });
@@ -877,7 +877,7 @@ export const generateImage = async (
 // Fallback mechanism moved inside main function flow below
 
 export const editImage = async (base64Image: string, prompt: string) => {
-  const { geminiKey, magicEditModel, replicateKey } = await getSettings();
+  const { geminiKey, magicEditModel, replicateKey, openRouterKey } = await getSettings();
 
   // Helper to ensure correct data URI format
   const formatImageForService = (raw: string) => {
@@ -886,10 +886,120 @@ export const editImage = async (base64Image: string, prompt: string) => {
 
   const safePrompt = `${prompt} ${PROFILE_ZONE_CONSTRAINT}`;
 
-  // 1. Try Google Gemini (Primary)
+  // 1. Try OpenRouter first (same as generateImage for consistency)
+  if (openRouterKey) {
+    try {
+      console.log('[Image Edit] Attempting OpenRouter Magic Edit...');
+
+      // Clean base64 for OpenRouter
+      let base64Data: string;
+      let mimeType: string;
+
+      if (base64Image.startsWith('data:')) {
+        const matches = base64Image.match(/^data:([^;]+);base64,(.+)$/);
+        if (matches) {
+          mimeType = matches[1];
+          base64Data = matches[2];
+        } else {
+          base64Data = base64Image.split(',')[1] || base64Image;
+          mimeType = 'image/png';
+        }
+      } else {
+        base64Data = base64Image;
+        mimeType = 'image/png';
+      }
+
+      const openRouterModel = magicEditModel || MODELS.imageEdit;
+
+      // Use OpenRouter with image input for editing
+      const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${openRouterKey}`,
+          'HTTP-Referer': window.location.origin,
+          'X-Title': 'NanoBanna Pro',
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          model: openRouterModel,
+          messages: [
+            {
+              role: 'user',
+              content: [
+                {
+                  type: 'image_url',
+                  image_url: {
+                    url: `data:${mimeType};base64,${base64Data}`,
+                  },
+                },
+                {
+                  type: 'text',
+                  text: `Edit this image: ${safePrompt}. Return only the edited image.`,
+                },
+              ],
+            },
+          ],
+          // Request image output
+          response_format: { type: 'image' },
+        }),
+      });
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.warn('[Image Edit] OpenRouter failed:', errorText);
+        throw new Error(`OpenRouter error: ${response.status}`);
+      }
+
+      const data = await response.json();
+      console.log('[Image Edit] OpenRouter response:', data);
+
+      // Extract image from response
+      const content = data.choices?.[0]?.message?.content;
+      if (content) {
+        // Check if content is a base64 image or contains image data
+        if (typeof content === 'string') {
+          if (content.startsWith('data:image')) {
+            console.log('[Image Edit] ✅ OpenRouter edit successful');
+            return content;
+          }
+          // Check for base64 encoded image in response
+          if (content.match(/^[A-Za-z0-9+/=]+$/)) {
+            console.log('[Image Edit] ✅ OpenRouter edit successful (raw base64)');
+            return `data:image/png;base64,${content}`;
+          }
+        }
+        // Check for image in content array
+        if (Array.isArray(content)) {
+          for (const item of content) {
+            if (item.type === 'image_url' && item.image_url?.url) {
+              console.log('[Image Edit] ✅ OpenRouter edit successful (image_url)');
+              return item.image_url.url;
+            }
+          }
+        }
+      }
+
+      // Check for image in data field (some models return here)
+      if (data.data?.[0]?.b64_json) {
+        console.log('[Image Edit] ✅ OpenRouter edit successful (b64_json)');
+        return `data:image/png;base64,${data.data[0].b64_json}`;
+      }
+      if (data.data?.[0]?.url) {
+        console.log('[Image Edit] ✅ OpenRouter edit successful (url)');
+        return data.data[0].url;
+      }
+
+      throw new Error('OpenRouter returned no image content');
+    } catch (openRouterError) {
+      console.warn('[Image Edit] OpenRouter failed, trying Gemini direct...', openRouterError);
+      // Fall through to direct Gemini
+    }
+  }
+
+  // 2. Try Google Gemini Direct (Secondary)
   if (geminiKey) {
     try {
-      console.log('[Image Edit] Attempting Gemini Magic Edit...');
+      console.log('[Image Edit] Attempting Gemini Direct Magic Edit...');
       const ai = getGoogleClient(geminiKey);
 
       // Clean base64 for Gemini (needs raw base64, no header)
@@ -910,12 +1020,20 @@ export const editImage = async (base64Image: string, prompt: string) => {
         mimeType = 'image/png';
       }
 
+      // Strip 'google/' prefix for direct Gemini SDK - it expects just the model name
+      let geminiModelName = magicEditModel || 'gemini-2.0-flash-exp';
+      if (geminiModelName.startsWith('google/')) {
+        geminiModelName = geminiModelName.replace('google/', '');
+      }
+
+      console.log('[Image Edit] Using Gemini model:', geminiModelName);
+
       const response = await ai.models.generateContent({
-        model: magicEditModel || 'google/gemini-3-pro-image-preview',
+        model: geminiModelName,
         contents: {
           parts: [{ inlineData: { mimeType, data: base64Data } }, { text: safePrompt }],
         },
-        config: { imageConfig: { aspectRatio: '16:9' } },
+        config: { responseModalities: ['IMAGE', 'TEXT'] },
       });
 
       console.log('[Image Edit] Gemini response received...');
@@ -935,7 +1053,7 @@ export const editImage = async (base64Image: string, prompt: string) => {
     console.log('[Image Edit] No Gemini key found. Skipping to fallback.');
   }
 
-  // 2. Fallback: Replicate (Instruct-Pix2Pix)
+  // 3. Fallback: Replicate (Instruct-Pix2Pix)
   if (replicateKey) {
     try {
       console.log('[Image Edit] Attempting Replicate Fallback (Instruct-Pix2Pix)...');
@@ -959,13 +1077,13 @@ export const editImage = async (base64Image: string, prompt: string) => {
     } catch (replicateError) {
       console.error('[Image Edit] ❌ Replicate fallback failed:', replicateError);
       throw new Error(
-        `Magic Edit failed on both Gemini and Replicate. Details: ${replicateError instanceof Error ? replicateError.message : 'Unknown error'}`
+        `Magic Edit failed on all providers (OpenRouter, Gemini, Replicate). Details: ${replicateError instanceof Error ? replicateError.message : 'Unknown error'}`
       );
     }
   }
 
   throw new Error(
-    'Magic Edit requires an API key. Please add a valid Gemini or Replicate API key in Settings.'
+    'Magic Edit requires an API key. Please add a valid OpenRouter, Gemini, or Replicate API key in Settings.'
   );
 };
 
