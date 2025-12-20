@@ -5,6 +5,7 @@ import type { ImageEditTurn, BrandProfile } from '../types/ai';
 import { uploadImage } from './supabase';
 import { createImage } from './database';
 import { getUserAPIKeys } from './apiKeyStorage';
+import { resizeToLinkedInBanner, LINKEDIN_BANNER_WIDTH, LINKEDIN_BANNER_HEIGHT } from '../utils/imageUtils';
 // classifyError, getUserFriendlyMessage removed
 
 // Types
@@ -150,7 +151,7 @@ const callReplicate = async (apiKey: string, version: string, input: Record<stri
   }
 
   // ALWAYS use the nginx proxy to avoid CORS issues
-  // The proxy at /api/replicate converts X-Replicate-Token to Authorization header
+  // The proxy at /api/replicate passes Authorization header through
   const baseUrl = '/api/replicate';
 
   console.log('[Replicate] Using proxy endpoint:', baseUrl);
@@ -160,7 +161,7 @@ const callReplicate = async (apiKey: string, version: string, input: Record<stri
     const startResponse = await fetch(`${baseUrl}/v1/predictions`, {
       method: 'POST',
       headers: {
-        'X-Replicate-Token': apiKey,
+        'Authorization': `Token ${apiKey}`,
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({ version, input }),
@@ -214,7 +215,7 @@ const callReplicate = async (apiKey: string, version: string, input: Record<stri
       await new Promise((r) => setTimeout(r, 1000)); // Poll every 1s
       const pollResponse = await fetch(`${baseUrl}/v1/predictions/${predictionId}`, {
         headers: {
-          'X-Replicate-Token': apiKey,
+          'Authorization': `Token ${apiKey}`,
           'Content-Type': 'application/json',
         },
       });
@@ -790,16 +791,32 @@ export const generateImage = async (
 
     console.log('[Image Gen] ✅ OpenRouter Gemini successful!');
 
+    // Resize to exact LinkedIn banner dimensions (1584x396)
+    let finalImageDataUrl = imageDataUrl;
+    try {
+      console.log('[Image Gen] Resizing to LinkedIn banner dimensions (1584x396)...');
+      finalImageDataUrl = await resizeToLinkedInBanner(imageDataUrl, {
+        width: LINKEDIN_BANNER_WIDTH,
+        height: LINKEDIN_BANNER_HEIGHT,
+        fit: 'cover',
+        quality: 0.95,
+      });
+      console.log('[Image Gen] ✅ Resize complete');
+    } catch (resizeError) {
+      console.warn('[Image Gen] Resize failed, using original image:', resizeError);
+      // Continue with original image if resize fails
+    }
+
     // Upload to Supabase
     try {
-      console.log('[Image Gen] Uploading OpenRouter image to Supabase...');
+      console.log('[Image Gen] Uploading resized image to Supabase...');
       const fileName = `generated_${Date.now()}.png`;
 
       // Calculate file size from data URL (base64 encoded size * 0.75 for actual bytes)
-      const base64Data = imageDataUrl.split(',')[1] || '';
+      const base64Data = finalImageDataUrl.split(',')[1] || '';
       const fileSizeBytes = Math.ceil((base64Data.length * 3) / 4);
 
-      const publicUrl = await uploadImage(imageDataUrl, fileName);
+      const publicUrl = await uploadImage(finalImageDataUrl, fileName);
       console.log('[Image Gen] ✅ Saved to Supabase:', publicUrl);
 
       // Save to database with all fields including file size
@@ -827,8 +844,8 @@ export const generateImage = async (
 
       return publicUrl;
     } catch (uploadError) {
-      console.warn('[Image Gen] Supabase upload failed, returning base64:', uploadError);
-      return imageDataUrl;
+      console.warn('[Image Gen] Supabase upload failed, returning resized base64:', uploadError);
+      return finalImageDataUrl;
     }
   } catch (openRouterError) {
     console.error('[Image Gen] ❌ OpenRouter Gemini failed:', openRouterError);
@@ -859,7 +876,21 @@ export const generateImage = async (
       console.log('[Image Gen] ✅ Replicate FLUX fallback successful!');
       console.log('[Image Gen] 💡 Using Replicate because OpenRouter failed');
 
-      return imageUrl;
+      // Resize Replicate output to ensure exact dimensions
+      try {
+        console.log('[Image Gen] Resizing Replicate output to LinkedIn banner dimensions...');
+        const resizedImage = await resizeToLinkedInBanner(imageUrl, {
+          width: LINKEDIN_BANNER_WIDTH,
+          height: LINKEDIN_BANNER_HEIGHT,
+          fit: 'cover',
+          quality: 0.95,
+        });
+        console.log('[Image Gen] ✅ Replicate image resize complete');
+        return resizedImage;
+      } catch (resizeError) {
+        console.warn('[Image Gen] Replicate resize failed, returning original:', resizeError);
+        return imageUrl;
+      }
     } catch (replicateError) {
       console.error('[Image Gen] ❌ Replicate also failed:', replicateError);
       throw new Error(
@@ -882,6 +913,24 @@ export const editImage = async (base64Image: string, prompt: string) => {
   // Helper to ensure correct data URI format
   const formatImageForService = (raw: string) => {
     return raw.startsWith('data:') ? raw : `data:image/png;base64,${raw}`;
+  };
+
+  // Helper to resize result to LinkedIn banner dimensions
+  const resizeResult = async (imageData: string): Promise<string> => {
+    try {
+      console.log('[Image Edit] Resizing to LinkedIn banner dimensions (1584x396)...');
+      const resized = await resizeToLinkedInBanner(imageData, {
+        width: LINKEDIN_BANNER_WIDTH,
+        height: LINKEDIN_BANNER_HEIGHT,
+        fit: 'cover',
+        quality: 0.95,
+      });
+      console.log('[Image Edit] ✅ Resize complete');
+      return resized;
+    } catch (resizeError) {
+      console.warn('[Image Edit] Resize failed, returning original:', resizeError);
+      return imageData;
+    }
   };
 
   const safePrompt = `${prompt} ${PROFILE_ZONE_CONSTRAINT}`;
@@ -960,12 +1009,12 @@ export const editImage = async (base64Image: string, prompt: string) => {
         if (typeof content === 'string') {
           if (content.startsWith('data:image')) {
             console.log('[Image Edit] ✅ OpenRouter edit successful');
-            return content;
+            return resizeResult(content);
           }
           // Check for base64 encoded image in response
           if (content.match(/^[A-Za-z0-9+/=]+$/)) {
             console.log('[Image Edit] ✅ OpenRouter edit successful (raw base64)');
-            return `data:image/png;base64,${content}`;
+            return resizeResult(`data:image/png;base64,${content}`);
           }
         }
         // Check for image in content array
@@ -973,7 +1022,7 @@ export const editImage = async (base64Image: string, prompt: string) => {
           for (const item of content) {
             if (item.type === 'image_url' && item.image_url?.url) {
               console.log('[Image Edit] ✅ OpenRouter edit successful (image_url)');
-              return item.image_url.url;
+              return resizeResult(item.image_url.url);
             }
           }
         }
@@ -982,11 +1031,11 @@ export const editImage = async (base64Image: string, prompt: string) => {
       // Check for image in data field (some models return here)
       if (data.data?.[0]?.b64_json) {
         console.log('[Image Edit] ✅ OpenRouter edit successful (b64_json)');
-        return `data:image/png;base64,${data.data[0].b64_json}`;
+        return resizeResult(`data:image/png;base64,${data.data[0].b64_json}`);
       }
       if (data.data?.[0]?.url) {
         console.log('[Image Edit] ✅ OpenRouter edit successful (url)');
-        return data.data[0].url;
+        return resizeResult(data.data[0].url);
       }
 
       throw new Error('OpenRouter returned no image content');
@@ -1041,7 +1090,7 @@ export const editImage = async (base64Image: string, prompt: string) => {
       for (const part of candidates[0]?.content?.parts || []) {
         if (part.inlineData) {
           console.log('[Image Edit] ✅ Gemini edit successful');
-          return `data:image/png;base64,${part.inlineData.data}`;
+          return resizeResult(`data:image/png;base64,${part.inlineData.data}`);
         }
       }
       throw new Error('Gemini returned no image content');
@@ -1073,7 +1122,8 @@ export const editImage = async (base64Image: string, prompt: string) => {
 
       console.log('[Image Edit] ✅ Replicate fallback successful');
       // Output is usually a URL
-      return Array.isArray(output) ? output[0] : output;
+      const replicateResult = Array.isArray(output) ? output[0] : output;
+      return resizeResult(replicateResult);
     } catch (replicateError) {
       console.error('[Image Edit] ❌ Replicate fallback failed:', replicateError);
       throw new Error(
