@@ -145,14 +145,20 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
     setOpenRouterStatus('testing');
     setTestError('');
 
-    const result = await testOpenRouterKey(openRouterKey);
+    try {
+      const result = await testOpenRouterKey(openRouterKey);
 
-    if (result.valid) {
-      setOpenRouterStatus('valid');
-      console.log(`[Settings] ✓ OpenRouter connected (${result.modelCount} models)`);
-    } else {
+      if (result.valid) {
+        setOpenRouterStatus('valid');
+        console.log(`[Settings] ✓ OpenRouter connected (${result.modelCount} models)`);
+      } else {
+        setOpenRouterStatus('invalid');
+        setTestError(result.error || 'Connection failed');
+      }
+    } catch (error) {
+      console.error('[Settings] OpenRouter test error:', error);
       setOpenRouterStatus('invalid');
-      setTestError(result.error || 'Connection failed');
+      setTestError(error instanceof Error ? error.message : 'Connection test failed');
     }
   };
 
@@ -162,14 +168,20 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
     setReplicateStatus('testing');
     setTestError('');
 
-    const result = await testReplicateKey(replicateKey);
+    try {
+      const result = await testReplicateKey(replicateKey);
 
-    if (result.valid) {
-      setReplicateStatus('valid');
-      console.log('[Settings] ✓ Replicate connected');
-    } else {
+      if (result.valid) {
+        setReplicateStatus('valid');
+        console.log('[Settings] ✓ Replicate connected');
+      } else {
+        setReplicateStatus('invalid');
+        setTestError(result.error || 'Connection failed');
+      }
+    } catch (error) {
+      console.error('[Settings] Replicate test error:', error);
       setReplicateStatus('invalid');
-      setTestError(result.error || 'Connection failed');
+      setTestError(error instanceof Error ? error.message : 'Connection test failed');
     }
   };
 

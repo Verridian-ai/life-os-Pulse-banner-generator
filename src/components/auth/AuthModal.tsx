@@ -1,7 +1,8 @@
 import React, { useState, useCallback } from 'react';
-import { signUp, signIn, resetPassword } from '../../services/auth';
+import { signUp, resetPassword } from '../../services/auth';
 import { validateUsernameFormat, checkUsernameAvailability } from '../../services/auth';
 import { debounce } from '../../utils/debounce';
+import { useAuth } from '../../context/AuthContext';
 
 interface AuthModalProps {
   isOpen: boolean;
@@ -10,6 +11,7 @@ interface AuthModalProps {
 }
 
 export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onSuccess }) => {
+  const { signIn: contextSignIn } = useAuth();
   const [mode, setMode] = useState<'signin' | 'signup' | 'reset'>('signin');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -99,7 +101,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onSuccess
           setEmail('');
         }, 3000);
       } else if (mode === 'signin') {
-        const { error: signInError } = await signIn(email, password);
+        const { error: signInError } = await contextSignIn(email, password);
         if (signInError) {
           setError(signInError.message);
           return;
