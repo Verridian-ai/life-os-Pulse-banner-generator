@@ -43,6 +43,12 @@ interface CanvasContextType {
   deleteElement: (id: string) => void;
   centerElement: (id: string, axis: 'horizontal' | 'vertical') => void;
 
+  // Layer Ordering
+  bringForward: (id: string) => void;
+  sendBackward: (id: string) => void;
+  bringToFront: (id: string) => void;
+  sendToBack: (id: string) => void;
+
   // File Handlers
   handleProfileUpload: (e: React.ChangeEvent<HTMLInputElement>) => Promise<void>;
 
@@ -181,6 +187,49 @@ export const CanvasProvider: React.FC<{ children: ReactNode }> = ({ children }) 
     );
   }, []);
 
+  // Layer Ordering Functions
+  const bringForward = useCallback((id: string) => {
+    setElements((prev: BannerElement[]) => {
+      const index = prev.findIndex((el) => el.id === id);
+      if (index === -1 || index === prev.length - 1) return prev;
+      const newElements = [...prev];
+      [newElements[index], newElements[index + 1]] = [newElements[index + 1], newElements[index]];
+      return newElements;
+    });
+  }, []);
+
+  const sendBackward = useCallback((id: string) => {
+    setElements((prev: BannerElement[]) => {
+      const index = prev.findIndex((el) => el.id === id);
+      if (index <= 0) return prev;
+      const newElements = [...prev];
+      [newElements[index], newElements[index - 1]] = [newElements[index - 1], newElements[index]];
+      return newElements;
+    });
+  }, []);
+
+  const bringToFront = useCallback((id: string) => {
+    setElements((prev: BannerElement[]) => {
+      const index = prev.findIndex((el) => el.id === id);
+      if (index === -1 || index === prev.length - 1) return prev;
+      const element = prev[index];
+      const newElements = prev.filter((el) => el.id !== id);
+      newElements.push(element);
+      return newElements;
+    });
+  }, []);
+
+  const sendToBack = useCallback((id: string) => {
+    setElements((prev: BannerElement[]) => {
+      const index = prev.findIndex((el) => el.id === id);
+      if (index <= 0) return prev;
+      const element = prev[index];
+      const newElements = prev.filter((el) => el.id !== id);
+      newElements.unshift(element);
+      return newElements;
+    });
+  }, []);
+
   // Image History Management
   const addToHistory = useCallback(
     (img: string) => {
@@ -296,6 +345,10 @@ export const CanvasProvider: React.FC<{ children: ReactNode }> = ({ children }) 
         updateElement,
         deleteElement,
         centerElement,
+        bringForward,
+        sendBackward,
+        bringToFront,
+        sendToBack,
         handleProfileUpload,
         handleRefUpload,
         handleBgUpload,

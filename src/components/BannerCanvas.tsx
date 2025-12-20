@@ -245,9 +245,32 @@ const BannerCanvas = forwardRef<BannerCanvasHandle, BannerCanvasProps>(
           ctx.textBaseline = 'top';
           const align: CanvasTextAlign = (el.textAlign as CanvasTextAlign) || 'left';
           ctx.textAlign = align;
-          ctx.shadowColor = 'rgba(0,0,0,0.5)';
-          ctx.shadowBlur = 4;
+
+          // Apply text shadow from element properties or default
+          const shadowColor = el.textShadowColor || 'rgba(0,0,0,0.5)';
+          const shadowBlur = el.textShadowBlur ?? 4;
+          const shadowOffsetX = el.textShadowOffsetX ?? 2;
+          const shadowOffsetY = el.textShadowOffsetY ?? 2;
+          ctx.shadowColor = shadowBlur > 0 ? shadowColor : 'transparent';
+          ctx.shadowBlur = shadowBlur;
+          ctx.shadowOffsetX = shadowOffsetX;
+          ctx.shadowOffsetY = shadowOffsetY;
+
+          // Draw text stroke if configured
+          if (el.textStrokeWidth && el.textStrokeWidth > 0) {
+            ctx.strokeStyle = el.textStrokeColor || '#000000';
+            ctx.lineWidth = el.textStrokeWidth * 2; // Canvas stroke is centered
+            ctx.lineJoin = 'round';
+            ctx.strokeText(el.content, el.x, el.y);
+          }
+
           ctx.fillText(el.content, el.x, el.y);
+
+          // Reset shadow
+          ctx.shadowColor = 'transparent';
+          ctx.shadowBlur = 0;
+          ctx.shadowOffsetX = 0;
+          ctx.shadowOffsetY = 0;
         } else {
           const img = new Image();
           img.src = el.content;

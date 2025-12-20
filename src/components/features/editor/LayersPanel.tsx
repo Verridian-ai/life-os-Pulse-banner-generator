@@ -3,6 +3,16 @@ import { useCanvas } from '../../../context/CanvasContext';
 import { BTN_NEU_SOLID } from '../../../styles';
 import { FONT_OPTIONS } from '../../../constants';
 
+const FONT_WEIGHTS = [
+  { value: '300', label: 'Light' },
+  { value: '400', label: 'Regular' },
+  { value: '500', label: 'Medium' },
+  { value: '600', label: 'SemiBold' },
+  { value: '700', label: 'Bold' },
+  { value: '800', label: 'ExtraBold' },
+  { value: '900', label: 'Black' },
+];
+
 const LayersPanel: React.FC = () => {
   const {
     elements,
@@ -12,6 +22,10 @@ const LayersPanel: React.FC = () => {
     updateElement,
     deleteElement,
     centerElement,
+    bringForward,
+    sendBackward,
+    bringToFront,
+    sendToBack,
   } = useCanvas();
 
   const handleAddText = () => {
@@ -111,6 +125,20 @@ const LayersPanel: React.FC = () => {
                     ))}
                   </select>
                 </div>
+                <div className='relative'>
+                  <select
+                    value={el.fontWeight || '900'}
+                    onChange={(e) => updateElement(el.id, { fontWeight: e.target.value })}
+                    title='Font Weight'
+                    className='w-full bg-white/5 text-[10px] font-bold text-zinc-300 rounded-lg px-2 py-1.5 focus:outline-none appearance-none cursor-pointer uppercase'
+                  >
+                    {FONT_WEIGHTS.map((weight) => (
+                      <option key={weight.value} value={weight.value} className='bg-zinc-900 text-zinc-300'>
+                        {weight.label}
+                      </option>
+                    ))}
+                  </select>
+                </div>
                 <div className='flex gap-2'>
                   <input
                     type='color'
@@ -136,6 +164,32 @@ const LayersPanel: React.FC = () => {
                     />
                   </div>
                 </div>
+                <div className='flex gap-2'>
+                  <input
+                    type='color'
+                    value={el.textShadowColor || '#000000'}
+                    onChange={(e) => updateElement(el.id, { textShadowColor: e.target.value })}
+                    className='w-8 h-full rounded cursor-pointer bg-transparent'
+                    title='Shadow Color'
+                  />
+                  <div className='flex-1 flex items-center gap-2 bg-white/5 rounded-lg px-2 border border-white/5'>
+                    <span className='material-icons text-zinc-500 text-[14px]'>blur_on</span>
+                    <input
+                      type='number'
+                      min='0'
+                      max='20'
+                      title='Shadow Blur'
+                      value={el.textShadowBlur || 0}
+                      onChange={(e) => {
+                        const val = parseInt(e.target.value);
+                        if (!isNaN(val) && val >= 0) {
+                          updateElement(el.id, { textShadowBlur: val });
+                        }
+                      }}
+                      className='w-full bg-transparent text-[10px] font-bold text-zinc-300 py-1.5 text-center focus:outline-none appearance-none'
+                    />
+                  </div>
+                </div>
                 <div className='col-span-2 flex bg-white/5 rounded-lg p-0.5'>
                   {(['left', 'center', 'right'] as const).map((align) => (
                     <button
@@ -151,6 +205,33 @@ const LayersPanel: React.FC = () => {
                       <span className='material-icons text-[14px]'>format_align_{align}</span>
                     </button>
                   ))}
+                </div>
+
+                {/* Text Stroke */}
+                <div className='col-span-2 flex items-center gap-2 bg-white/5 rounded-lg px-2 py-1'>
+                  <span className='text-[9px] font-bold text-zinc-500 uppercase tracking-wider'>Stroke</span>
+                  <input
+                    type='color'
+                    value={el.textStrokeColor || '#000000'}
+                    onChange={(e) => updateElement(el.id, { textStrokeColor: e.target.value })}
+                    className='w-6 h-6 rounded cursor-pointer bg-transparent'
+                    title='Stroke Color'
+                  />
+                  <input
+                    type='number'
+                    min='0'
+                    max='10'
+                    title='Stroke Width'
+                    value={el.textStrokeWidth || 0}
+                    onChange={(e) => {
+                      const val = parseInt(e.target.value);
+                      if (!isNaN(val) && val >= 0) {
+                        updateElement(el.id, { textStrokeWidth: val });
+                      }
+                    }}
+                    className='w-12 bg-transparent text-[10px] font-bold text-zinc-300 py-1 text-center focus:outline-none border border-white/10 rounded'
+                  />
+                  <span className='text-[9px] text-zinc-600'>px</span>
                 </div>
 
                 <div className='col-span-2 flex items-center justify-between bg-white/5 rounded-lg px-2 py-1 mt-1'>
@@ -177,11 +258,52 @@ const LayersPanel: React.FC = () => {
                     </button>
                   </div>
                 </div>
+
+                {/* Layer Ordering */}
+                <div className='col-span-2 flex items-center justify-between bg-white/5 rounded-lg px-2 py-1 mt-1'>
+                  <span className='text-[9px] font-bold text-zinc-500 uppercase tracking-wider'>
+                    Layer Order
+                  </span>
+                  <div className='flex gap-1'>
+                    <button
+                      type='button'
+                      onClick={() => sendToBack(el.id)}
+                      className='p-1 hover:text-white text-zinc-400 transition'
+                      title='Send to Back'
+                    >
+                      <span className='material-icons text-sm'>vertical_align_bottom</span>
+                    </button>
+                    <button
+                      type='button'
+                      onClick={() => sendBackward(el.id)}
+                      className='p-1 hover:text-white text-zinc-400 transition'
+                      title='Send Backward'
+                    >
+                      <span className='material-icons text-sm'>arrow_downward</span>
+                    </button>
+                    <button
+                      type='button'
+                      onClick={() => bringForward(el.id)}
+                      className='p-1 hover:text-white text-zinc-400 transition'
+                      title='Bring Forward'
+                    >
+                      <span className='material-icons text-sm'>arrow_upward</span>
+                    </button>
+                    <button
+                      type='button'
+                      onClick={() => bringToFront(el.id)}
+                      className='p-1 hover:text-white text-zinc-400 transition'
+                      title='Bring to Front'
+                    >
+                      <span className='material-icons text-sm'>vertical_align_top</span>
+                    </button>
+                  </div>
+                </div>
               </div>
             )}
 
             {selectedElementId === el.id && el.type === 'image' && (
-              <div className='pt-2 border-t border-white/5 mt-2'>
+              <div className='pt-2 border-t border-white/5 mt-2 space-y-2'>
                 <div className='flex items-center justify-between bg-white/5 rounded-lg px-2 py-1'>
                   <span className='text-[9px] font-bold text-zinc-500 uppercase tracking-wider'>
                     Snap to Center
@@ -203,6 +325,46 @@ const LayersPanel: React.FC = () => {
                       title='Center Vertically'
                     >
                       <span className='material-icons text-base'>align_vertical_center</span>
+                    </button>
+                  </div>
+                </div>
+                {/* Layer Ordering for Images */}
+                <div className='flex items-center justify-between bg-white/5 rounded-lg px-2 py-1'>
+                  <span className='text-[9px] font-bold text-zinc-500 uppercase tracking-wider'>
+                    Layer Order
+                  </span>
+                  <div className='flex gap-1'>
+                    <button
+                      type='button'
+                      onClick={() => sendToBack(el.id)}
+                      className='p-1 hover:text-white text-zinc-400 transition'
+                      title='Send to Back'
+                    >
+                      <span className='material-icons text-sm'>vertical_align_bottom</span>
+                    </button>
+                    <button
+                      type='button'
+                      onClick={() => sendBackward(el.id)}
+                      className='p-1 hover:text-white text-zinc-400 transition'
+                      title='Send Backward'
+                    >
+                      <span className='material-icons text-sm'>arrow_downward</span>
+                    </button>
+                    <button
+                      type='button'
+                      onClick={() => bringForward(el.id)}
+                      className='p-1 hover:text-white text-zinc-400 transition'
+                      title='Bring Forward'
+                    >
+                      <span className='material-icons text-sm'>arrow_upward</span>
+                    </button>
+                    <button
+                      type='button'
+                      onClick={() => bringToFront(el.id)}
+                      className='p-1 hover:text-white text-zinc-400 transition'
+                      title='Bring to Front'
+                    >
+                      <span className='material-icons text-sm'>vertical_align_top</span>
                     </button>
                   </div>
                 </div>

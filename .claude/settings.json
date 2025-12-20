@@ -1,0 +1,44 @@
+{
+  "$schema": "https://claude.ai/code/settings-schema.json",
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": {
+          "tool": ["Write", "Edit"],
+          "pathPattern": "src/**"
+        },
+        "action": {
+          "type": "shell",
+          "command": "bash scripts/claude-hooks/deny_root_code_writes.sh"
+        },
+        "description": "Block production code writes in root worktree"
+      }
+    ],
+    "PostToolUse": [
+      {
+        "matcher": {
+          "tool": ["Write", "Edit", "Bash"]
+        },
+        "action": {
+          "type": "shell",
+          "command": "bash scripts/claude-hooks/log_tool_usage.sh"
+        },
+        "description": "Log all modifications"
+      }
+    ]
+  },
+  "governance": {
+    "orchestratorWritePaths": [
+      "CLAUDE.md",
+      ".claude/**",
+      "docs/**",
+      "*.md",
+      ".gitignore",
+      ".worktrees/**"
+    ],
+    "protectedPaths": [
+      "src/**"
+    ],
+    "worktreeRoot": ".worktrees"
+  }
+}

@@ -5,6 +5,7 @@ import { BANNER_WIDTH, BANNER_HEIGHT } from '../../constants';
 import AssetsPanel from './editor/AssetsPanel';
 import LayersPanel from './editor/LayersPanel';
 import ExportPanel from './editor/ExportPanel';
+import { KeyboardShortcutsPanel } from './KeyboardShortcutsPanel';
 import { BTN_NEU_SOLID } from '../../styles';
 import { getReplicateService } from '../../services/replicate';
 
@@ -93,7 +94,10 @@ const CanvasEditor: React.FC = () => {
         <div className='mt-8 grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6 pb-20'>
           <AssetsPanel />
           <LayersPanel />
-          <ExportPanel />
+          <div className='space-y-6'>
+            <ExportPanel />
+            <KeyboardShortcutsPanel />
+          </div>
         </div>
       </div>
     </div>

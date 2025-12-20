@@ -12,6 +12,13 @@ export interface BannerElement {
   fontFamily?: string;
   textAlign?: 'left' | 'center' | 'right';
   rotation?: number; // degrees
+  // Text effects
+  textShadowColor?: string;
+  textShadowBlur?: number;
+  textShadowOffsetX?: number;
+  textShadowOffsetY?: number;
+  textStrokeColor?: string;
+  textStrokeWidth?: number;
 }
 
 export interface ChatMessage {

@@ -24,11 +24,24 @@ export type OnUpdateCallback = (imageUrl: string, type: 'background' | 'profile'
 export class ActionExecutor {
   private onUpdate: OnUpdateCallback;
   private previewMode: boolean;
-  private getCanvasImage?: () => string | undefined;
+  private getCanvasImage: () => string | undefined;
 
-  constructor(onUpdate: OnUpdateCallback, previewMode = false) {
+  constructor(
+    onUpdate: OnUpdateCallback,
+    previewMode = false,
+    getCanvasImage?: () => string | undefined
+  ) {
     this.onUpdate = onUpdate;
     this.previewMode = previewMode;
+    this.getCanvasImage = getCanvasImage || (() => undefined);
+  }
+
+  /**
+   * Set canvas image getter for magic edit operations
+   */
+  setCanvasImageGetter(getter: () => string | undefined) {
+    this.getCanvasImage = getter;
+    console.log('[ActionExecutor] Canvas image getter set');
   }
 
   /**
@@ -134,17 +147,49 @@ export class ActionExecutor {
     prompt: string;
     mask?: string;
   }): Promise<ActionResult> {
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const { base_image: _base_image, prompt, mask } = args;
+    const { base_image, prompt, mask } = args;
 
-    console.log('[ActionExecutor] Magic edit:', { prompt, hasMask: !!mask });
+    // Try to get image from args first, then from canvas getter
+    const imageUrl = base_image || this.getCanvasImage?.();
 
-    // Note: This requires the current background image
-    // For now, return error - this needs canvas context
-    return {
-      success: false,
-      error: 'Magic edit requires current canvas state - use Studio tab',
-    };
+    if (!imageUrl) {
+      return {
+        success: false,
+        error: 'No image available for magic edit. Please generate or upload an image first.',
+      };
+    }
+
+    console.log('[ActionExecutor] Magic edit:', { prompt, hasMask: !!mask, hasImage: !!imageUrl });
+
+    try {
+      const replicateService = await getReplicateService();
+      // Use inpaint for magic edit with prompt
+      const resultUrl = await replicateService.inpaint(imageUrl, prompt, mask);
+
+      if (this.previewMode) {
+        return {
+          success: true,
+          result: resultUrl,
+          preview: resultUrl,
+          action: 'magic_edit',
+        };
+      }
+
+      this.onUpdate(resultUrl, 'background');
+
+      return {
+        success: true,
+        result: resultUrl,
+        imageUrl: resultUrl,
+        action: 'magic_edit',
+      };
+    } catch (error) {
+      console.error('[ActionExecutor] Magic edit failed:', error);
+      return {
+        success: false,
+        error: `Magic edit failed: ${error instanceof Error ? error.message : 'Unknown error'}`,
+      };
+    }
   }
 
   /**
