@@ -34,7 +34,9 @@ export default defineConfig(({ mode }) => {
                 // Remove custom header and add proper Authorization
                 proxyReq.removeHeader('x-replicate-token');
                 proxyReq.setHeader('Authorization', `Token ${token}`);
-                console.log('[Vite Proxy] Authorization header set');
+                console.log('[Vite Proxy] Authorization header set from x-replicate-token');
+              } else if (req.headers['authorization']) {
+                console.log('[Vite Proxy] Standard Authorization header present');
               } else {
                 console.warn('[Vite Proxy] No token found in request');
               }
@@ -45,6 +47,11 @@ export default defineConfig(({ mode }) => {
               }
             });
           },
+        },
+        '/api': {
+          target: 'http://localhost:3000',
+          changeOrigin: true,
+          secure: false,
         },
       },
     },
@@ -69,10 +76,6 @@ export default defineConfig(({ mode }) => {
               // React libraries in one chunk
               if (id.includes('react') || id.includes('react-dom')) {
                 return 'react-vendor';
-              }
-              // Supabase in separate chunk
-              if (id.includes('@supabase')) {
-                return 'supabase-vendor';
               }
               // Google AI in separate chunk
               if (id.includes('@google/genai')) {

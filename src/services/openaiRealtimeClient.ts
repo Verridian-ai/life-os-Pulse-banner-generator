@@ -1,5 +1,5 @@
 // OpenAI Realtime API Client for Voice Chat
-// Uses the latest gpt-realtime-2025-08-28 model
+// Uses the latest gpt-4o-realtime-preview model (GA December 2024)
 
 declare global {
   interface Window {
@@ -86,7 +86,7 @@ export class OpenAIRealtimeClient {
     // doesn't support this, you'll need to:
     // 1. Use the official OpenAI Realtime SDK/library, OR
     // 2. Set up a backend proxy to add the required headers
-    const wsUrl = `wss://api.openai.com/v1/realtime?model=gpt-realtime-2025-08-28`;
+    const wsUrl = `wss://api.openai.com/v1/realtime?model=gpt-4o-realtime-preview`;
 
     return new Promise<void>((resolve, reject) => {
       let didOpen = false;

@@ -82,6 +82,11 @@ export class ActionExecutor {
         case 'enhance_face':
           return await this.enhanceFace(toolCall.args as { image_url: string });
 
+        case 'suggest_prompts':
+          return this.suggestPrompts(
+            toolCall.args as { industry?: string; role?: string },
+          );
+
         default:
           return {
             success: false,
@@ -109,7 +114,7 @@ export class ActionExecutor {
     console.log('[ActionExecutor] Generating background:', { prompt, quality });
 
     try {
-      const imageUrl = await generateImage(prompt, [], quality as '1K' | '2K' | '4K');
+      const imageUrl = await generateImage(prompt, [], quality as '1K' | '2K' | '4K', true);
 
       if (!imageUrl) {
         return { success: false, error: 'Image generation returned null' };
@@ -163,8 +168,13 @@ export class ActionExecutor {
 
     try {
       const replicateService = await getReplicateService();
-      // Use inpaint for magic edit with prompt
-      const resultUrl = await replicateService.inpaint(imageUrl, prompt, mask);
+      // Use inpaint if mask is provided, otherwise magic edit
+      let resultUrl: string;
+      if (mask) {
+        resultUrl = await replicateService.inpaint(imageUrl, mask, prompt);
+      } else {
+        resultUrl = await replicateService.magicEdit(imageUrl, prompt);
+      }
 
       if (this.previewMode) {
         return {
@@ -197,7 +207,7 @@ export class ActionExecutor {
    */
   private async removeBackground(args: { image_url?: string }): Promise<ActionResult> {
     const imageUrl = args.image_url || this.getCanvasImage?.();
-    
+
     if (!imageUrl) {
       return {
         success: false,
@@ -325,6 +335,23 @@ export class ActionExecutor {
         error: error instanceof Error ? error.message : 'Face enhance failed',
       };
     }
+  }
+
+  /**
+   * Suggest creative prompts for LinkedIn banners
+   * This is a text-only tool - returns suggestions without executing any action
+   */
+  private suggestPrompts(args: { industry?: string; role?: string }): ActionResult {
+    const { industry, role } = args;
+
+    console.log('[ActionExecutor] Suggesting prompts for:', { industry, role });
+
+    // This tool doesn't execute an action - it's handled by the AI's text response
+    // We just acknowledge that the tool was called successfully
+    return {
+      success: true,
+      result: `Generating prompt suggestions for ${industry || 'general'} industry${role ? ` and ${role} role` : ''}...`,
+    };
   }
 
   /**

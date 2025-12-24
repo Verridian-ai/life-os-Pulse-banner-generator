@@ -1,0 +1,66 @@
+
+# Ignore node_modules since Docker will install dependencies
+node_modules/
+
+# Git files
+.git/
+.gitignore
+
+# Development files
+*.log
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Build output (will be created in Docker)
+dist/
+
+# Test files
+coverage/
+*.test.ts
+*.test.tsx
+*.spec.ts
+*.spec.tsx
+__tests__/
+
+# Documentation that's not needed in production
+*.md
+!README.md
+
+# Local development files
+.worktrees/
+.claude/
+docs/
+scripts/
+
+# Vercel files
+.vercel/
+vercel.json
+
+# Other
+.DS_Store
+Thumbs.db
+nul
+deploy_output*.txt
+
+# Browser test files
+browser-test*
+playwright*
+
+# Config files not needed for build
+.lighthouserc*
+.mcp.json
+.size-limit.json
+
+# PowerShell Source (Unrelated large directory)
+PowerShell-Source/
+ui-inspection/
+test-screenshots/
+screenshots/

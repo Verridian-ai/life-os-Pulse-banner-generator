@@ -1,7 +1,6 @@
-// ChatAgent Service - OpenRouter-based chat with tool calling support
+// ChatAgent Service - Chat with tool calling support via backend API
 // Provides a conversational interface for the Brainstorm tab with action execution
 
-import { getUserAPIKeys } from './apiKeyStorage';
 import { MODELS } from '@/constants';
 import { ChatMessage } from '@/types';
 
@@ -258,16 +257,8 @@ export class ChatAgent {
     this.notifyUpdate();
 
     try {
-      // Get API key
-      const keys = await getUserAPIKeys();
-      const apiKey = keys.openrouter_api_key;
-
-      if (!apiKey) {
-        throw new Error('OpenRouter API key not configured. Please add it in Settings.');
-      }
-
-      // Call OpenRouter with tool support
-      const response = await this.callOpenRouter(apiKey);
+      // Call backend API which handles API key resolution (product keys or BYOK)
+      const response = await this.callBackendChat();
 
       // Extract assistant message
       const assistantMessage = response.choices[0]?.message;
@@ -336,7 +327,7 @@ export class ChatAgent {
         }
 
         // Get final response after tool execution
-        const finalResponse = await this.callOpenRouter(apiKey);
+        const finalResponse = await this.callBackendChat();
         const finalMessage = finalResponse.choices[0]?.message;
 
         // Remove thinking indicator
@@ -408,9 +399,9 @@ export class ChatAgent {
   }
 
   /**
-   * Call OpenRouter API
+   * Call backend chat API (handles API key resolution - product keys or BYOK)
    */
-  private async callOpenRouter(apiKey: string): Promise<OpenRouterResponse> {
+  private async callBackendChat(): Promise<OpenRouterResponse> {
     const requestBody = {
       model: this.model,
       messages: this.internalHistory.map((msg) => ({
@@ -422,32 +413,30 @@ export class ChatAgent {
       tool_choice: 'auto', // Let the model decide when to use tools
     };
 
-    console.log('[ChatAgent] Calling OpenRouter:', {
+    console.log('[ChatAgent] Calling backend chat API:', {
       model: this.model,
       messageCount: requestBody.messages.length,
       hasTools: true,
     });
 
-    const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
+    const response = await fetch('/api/ai/chat', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        Authorization: `Bearer ${apiKey}`,
-        'HTTP-Referer': window.location.origin,
-        'X-Title': 'Nanobanna Pro',
       },
+      credentials: 'include', // Include auth cookies
       body: JSON.stringify(requestBody),
     });
 
     if (!response.ok) {
       const errorText = await response.text();
-      console.error('[ChatAgent] OpenRouter error:', errorText);
-      throw new Error(`OpenRouter API error: ${response.status} ${errorText}`);
+      console.error('[ChatAgent] Backend chat error:', errorText);
+      throw new Error(`Chat API error: ${response.status} ${errorText}`);
     }
 
     const data = await response.json();
 
-    console.log('[ChatAgent] OpenRouter response:', {
+    console.log('[ChatAgent] Backend chat response:', {
       hasContent: !!data.choices[0]?.message?.content,
       hasToolCalls: !!data.choices[0]?.message?.tool_calls,
       finishReason: data.choices[0]?.finish_reason,

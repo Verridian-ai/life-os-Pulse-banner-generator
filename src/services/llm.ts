@@ -1,1291 +1,338 @@
-import { GoogleGenAI } from '@google/genai';
+// LLM Service - Refactored to use Backend Proxy for Security & Observability
 import { MODELS, DESIGN_SYSTEM_INSTRUCTION } from '../constants';
 import { Part } from '../types';
-import type { ImageEditTurn, BrandProfile } from '../types/ai';
-import { uploadImage } from './supabase';
-import { createImage } from './database';
+import type { ImageEditTurn } from '../types/ai';
+import { api } from './api';
+import { resizeToLinkedInBanner, prepareForOutpainting } from '../utils/imageUtils';
 import { getUserAPIKeys } from './apiKeyStorage';
-import { resizeToLinkedInBanner, LINKEDIN_BANNER_WIDTH, LINKEDIN_BANNER_HEIGHT } from '../utils/imageUtils';
-// classifyError, getUserFriendlyMessage removed
 
-// Types
+// Types (Subset needed for frontend)
 type OpenRouterContentItem =
   | { type: 'text'; text: string }
   | { type: 'image_url'; image_url: { url: string } };
 
-type OpenRouterMessage = {
+type ChatMessage = {
   role: string;
   content: string | OpenRouterContentItem[];
 };
 
-const getSettings = async () => {
-  // Get keys from Supabase (with localStorage + env fallback)
-  const keys = await getUserAPIKeys();
+const PROFILE_ZONE_CONSTRAINT = " IMPORTANT CONSTRAINT: Do NOT place any text, logos, or important visual elements in the bottom-left corner area (coordinates 0,0 to 568,264).";
 
-  return {
-    provider: keys.llm_provider || 'openrouter',
-    geminiKey: keys.gemini_api_key || '',
-    openRouterKey: keys.openrouter_api_key || '',
-    replicateKey: keys.replicate_api_key || '',
-    stackKey: localStorage.getItem('stack_api_key') || import.meta.env.VITE_STACK_API_KEY || '',
-    model: keys.llm_model || MODELS.textThinking,
-    imageModel: keys.llm_image_model || MODELS.imageGen,
-    magicEditModel: keys.llm_magic_edit_model || MODELS.imageEdit, // NEW
-    upscaleModel: keys.llm_upscale_model ||
-      'nightmareai/real-esrgan:42fed1c4974146d4d2414e2be2c5277c7fcf05fcc3a73ab241b637189a1445ad',
-  };
-};
-
-// --- Google Client ---
-const getGoogleClient = (key: string) => {
-  return new GoogleGenAI({ apiKey: key });
-};
-
-// --- OpenRouter Client (Fetch wrapper) ---
-const callOpenRouter = async (apiKey: string, model: string, messages: OpenRouterMessage[]) => {
-  if (!apiKey) throw new Error('OpenRouter API Key not found');
-
-  const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
-    method: 'POST',
-    headers: {
-      Authorization: `Bearer ${apiKey}`,
-      'HTTP-Referer': window.location.origin, // Required by OpenRouter
-      'X-Title': 'NanoBanna Pro', // Required by OpenRouter
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify({
-      model: model,
-      messages: messages,
-      // Typical parameters, can be adjusted
-      temperature: 0.7,
-      max_tokens: 4096,
-    }),
-  });
-
-  if (!response.ok) {
-    const err = await response.json();
-    throw new Error(`OpenRouter Error: ${err.error?.message || response.statusText}`);
-  }
-
-  const data = await response.json();
-  return data.choices?.[0]?.message?.content || '';
-};
-
-// --- OpenRouter Image Generation Client ---
-const callOpenRouterImageGen = async (
-  apiKey: string,
-  model: string,
-  prompt: string,
-  aspectRatio: string = '16:9',
-): Promise<string> => {
-  console.log('[OpenRouter Image] Starting generation with:', {
-    model,
-    aspectRatio,
-    hasApiKey: !!apiKey,
-  });
-
-  if (!apiKey) {
-    throw new Error('OpenRouter API Key not found. Please add it in Settings.');
-  }
-
-  const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
-    method: 'POST',
-    headers: {
-      Authorization: `Bearer ${apiKey}`,
-      'HTTP-Referer': window.location.origin,
-      'X-Title': 'NanoBanna Pro',
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify({
-      model: model,
-      messages: [
-        {
-          role: 'user',
-          content: prompt,
-        },
-      ],
-      modalities: ['image', 'text'],
-      image_config: {
-        aspect_ratio: aspectRatio,
-      },
-    }),
-  });
-
-  console.log('[OpenRouter Image] Response status:', response.status);
-
-  if (!response.ok) {
-    const errorData = await response.json().catch(() => ({}));
-    console.error('[OpenRouter Image] API Error:', errorData);
-    throw new Error(
-      `OpenRouter Image Error: ${errorData.error?.message || response.statusText}`,
-    );
-  }
-
-  const data = await response.json();
-
-  // Extract image from response
-  const images = data.choices?.[0]?.message?.images;
-
-  if (!images || images.length === 0) {
-    console.error('[OpenRouter Image] No images in response:', data);
-    throw new Error('OpenRouter returned no images in response');
-  }
-
-  // Get the first image (base64 data URL)
-  const imageDataUrl = images[0]?.image_url?.url;
-
-  if (!imageDataUrl) {
-    throw new Error('OpenRouter image data URL is missing');
-  }
-
-  console.log('[OpenRouter Image] ✅ Image generated successfully');
-  return imageDataUrl; // Returns data:image/png;base64,...
-};
-
-// --- Replicate Client ---
-const callReplicate = async (apiKey: string, version: string, input: Record<string, unknown>) => {
-  console.log('[Replicate] Starting prediction with:', { version, hasApiKey: !!apiKey });
-
-  if (!apiKey) {
-    throw new Error('Replicate API Key not found. Please add it in Settings.');
-  }
-
-  // ALWAYS use the nginx proxy to avoid CORS issues
-  // The proxy at /api/replicate passes Authorization header through
-  const baseUrl = '/api/replicate';
-
-  console.log('[Replicate] Using proxy endpoint:', baseUrl);
-
-  try {
-    // 1. Start Prediction
-    const startResponse = await fetch(`${baseUrl}/v1/predictions`, {
-      method: 'POST',
-      headers: {
-        'Authorization': `Token ${apiKey}`,
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ version, input }),
-    });
-
-    console.log('[Replicate] Start response status:', startResponse.status);
-
-    if (!startResponse.ok) {
-      const errorText = await startResponse.text();
-      console.error('[Replicate] API Error:', errorText);
-
-      let parsedError;
-      try {
-        parsedError = JSON.parse(errorText);
-      } catch {
-        throw new Error(`Replicate API error (${startResponse.status}): ${errorText}`);
-      }
-
-      // Handle specific error types
-      if (startResponse.status === 401) {
-        throw new Error('Invalid Replicate API key. Please check your Settings.');
-      } else if (startResponse.status === 402) {
-        throw new Error('Replicate account has insufficient credits.');
-      } else if (startResponse.status === 404) {
-        throw new Error('Replicate model not found. Model may be outdated.');
-      } else if (startResponse.status === 429) {
-        throw new Error('Replicate rate limit exceeded. Please wait and try again.');
-      }
-
-      throw new Error(`Replicate Error: ${parsedError.detail || startResponse.statusText}`);
-    }
-
-    const startData = await startResponse.json();
-    const predictionId = startData.id;
-    console.log('[Replicate] Prediction started:', predictionId);
-
-    // 2. Poll for Result
-    let prediction = startData;
-    let pollCount = 0;
-    const maxPolls = 120; // 2 minutes max (120 seconds)
-
-    while (
-      prediction.status !== 'succeeded' &&
-      prediction.status !== 'failed' &&
-      prediction.status !== 'canceled'
-    ) {
-      if (pollCount >= maxPolls) {
-        throw new Error('Replicate prediction timed out after 2 minutes.');
-      }
-
-      await new Promise((r) => setTimeout(r, 1000)); // Poll every 1s
-      const pollResponse = await fetch(`${baseUrl}/v1/predictions/${predictionId}`, {
-        headers: {
-          'Authorization': `Token ${apiKey}`,
-          'Content-Type': 'application/json',
-        },
-      });
-
-      if (!pollResponse.ok) {
-        console.error('[Replicate] Poll failed:', pollResponse.status);
-        throw new Error(`Replicate polling failed: ${pollResponse.statusText}`);
-      }
-
-      prediction = await pollResponse.json();
-      pollCount++;
-
-      if (pollCount % 5 === 0) {
-        console.log('[Replicate] Polling...', { status: prediction.status, pollCount });
-      }
-    }
-
-    if (prediction.status === 'succeeded') {
-      console.log('[Replicate] ✅ Prediction succeeded');
-      return prediction.output;
-    } else {
-      console.error('[Replicate] ❌ Prediction failed:', prediction.error);
-      throw new Error(`Replicate Prediction Failed: ${prediction.error || 'Unknown error'}`);
-    }
-  } catch (error) {
-    console.error('[Replicate] Call failed:', error);
-    throw error;
-  }
-};
-
-// STRICT CONSTRAINT for all visual generation
-const PROFILE_ZONE_CONSTRAINT =
-  " IMPORTANT CONSTRAINT: Do NOT place any text, logos, or important visual elements in the bottom-left corner area (coordinates 0,0 to 568,264). This area is obscured by the user's profile picture. ALL TEXT MUST BE PLACED IN THE CENTER OR RIGHT SIDE.";
-
-// Diagnostics
-export const testGeminiConnection = async (): Promise<boolean> => {
-  try {
-    const { geminiKey } = await getSettings();
-    if (!geminiKey) return false;
-
-    const ai = getGoogleClient(geminiKey);
-    const result = await ai.models.generateContent({
-      model: 'google/gemini-2.0-flash-exp',
-      contents: { parts: [{ text: 'Test' }] },
-    });
-    // In new SDK, result is the response object directly or has .response.
-    // Checking documentation pattern: await client.models.generateContent(...) returns response
-    return !!result.candidates?.[0]?.content?.parts?.[0]?.text;
-  } catch (error) {
-    console.error('Gemini Test Failed:', error);
-    return false;
-  }
-};
-
-// --- Unified Functions ---
+// --- Chat Wrappers ---
 
 export const generateDesignChatResponse = async (
   prompt: string,
-  images: string[] = [], // base64 strings
+  images: string[] = [],
   history: { role: string; parts: Part[] }[] = [],
-  _isRetry: boolean = false,
 ) => {
-  const { provider, geminiKey, openRouterKey, model } = await getSettings();
+  // Construct messages on client to maintain state control, but send to server for execution
+  const messages: ChatMessage[] = history.map((h) => ({
+    role: h.role === 'model' ? 'assistant' : 'user',
+    content: h.parts.map(p => p.text ? { type: 'text', text: p.text } : { type: 'image_url', image_url: { url: p.inlineData ? `data:${p.inlineData.mimeType};base64,${p.inlineData.data}` : '' } }).filter(Boolean) as OpenRouterContentItem[]
+  }));
 
-  console.log('[Chat] Starting chat with:', {
-    provider,
-    model,
-    hasImages: images.length > 0,
-    isRetry: _isRetry,
+  const currentContent: OpenRouterContentItem[] = [{ type: 'text', text: prompt }];
+  images.forEach(img => currentContent.push({ type: 'image_url', image_url: { url: img } }));
+  messages.push({ role: 'user', content: currentContent });
+
+  const systemContent: OpenRouterContentItem[] = [{ type: 'text', text: DESIGN_SYSTEM_INSTRUCTION + PROFILE_ZONE_CONSTRAINT }];
+  messages.unshift({ role: 'system', content: systemContent });
+
+  // Call Backend API
+  const response = await api.post<{ text: string }>('/api/ai/chat', {
+    messages,
+    model: MODELS.openrouter.glm47, // Updated to user requested model
+    provider: 'openrouter'
   });
 
-  // 1. OpenRouter Path
-  if (provider === 'openrouter') {
-    // Convert History to OpenAI format for OpenRouter
-    const messages: OpenRouterMessage[] = history.map((h) => {
-      const content: OpenRouterContentItem[] = h.parts
-        .map((p): OpenRouterContentItem | null => {
-          if (p.text) return { type: 'text', text: p.text };
-          if (p.inlineData)
-            return {
-              type: 'image_url',
-              image_url: { url: `data:${p.inlineData.mimeType};base64,${p.inlineData.data}` },
-            };
-          return null;
-        })
-        .filter((p): p is OpenRouterContentItem => p !== null);
-      return { role: h.role === 'model' ? 'assistant' : 'user', content };
-    });
-
-    // Add current user message
-    const currentContent: OpenRouterContentItem[] = [{ type: 'text', text: prompt }];
-    images.forEach((img) => {
-      // Ensure base64 is clean
-      const base64 = img; // Usually implies full data URI in this context based on app flow
-      currentContent.push({ type: 'image_url', image_url: { url: base64 } });
-    });
-    messages.push({ role: 'user', content: currentContent });
-
-    // Add system instruction if supported (usually accepted as 'system' role)
-    const systemContent: OpenRouterContentItem[] = [
-      { type: 'text', text: DESIGN_SYSTEM_INSTRUCTION + PROFILE_ZONE_CONSTRAINT },
-    ];
-    messages.unshift({
-      role: 'system',
-      content: systemContent,
-    });
-
-    const text = await callOpenRouter(openRouterKey, model, messages);
-    return { text, groundingMetadata: null }; // OpenRouter generic doesn't return grounding usually
-  }
-
-  // 2. Google Gemini Path (Original Logic)
-  // Use specific Thinking model for 'design' mode if using Gemini directly
-  try {
-    const ai = getGoogleClient(geminiKey);
-
-    const currentParts: Part[] = [{ text: prompt }];
-    images.forEach((img) => {
-      const base64Data = img.split(',')[1] || img;
-      const mimeType = img.substring(img.indexOf(':') + 1, img.indexOf(';')) || 'image/png';
-      currentParts.push({ inlineData: { mimeType, data: base64Data } });
-    });
-
-    const response = await ai.models.generateContent({
-      model: MODELS.textThinking, // gemini-3-pro-preview
-      contents: [...history, { role: 'user', parts: currentParts }],
-      config: {
-        systemInstruction: DESIGN_SYSTEM_INSTRUCTION + PROFILE_ZONE_CONSTRAINT,
-        thinkingConfig: { thinkingBudget: 32768 },
-      },
-    });
-
-    return {
-      text: response.text || "I'm having trouble thinking of a response right now.",
-      groundingMetadata: response.candidates?.[0]?.groundingMetadata,
-    };
-  } catch (error) {
-    console.error('Gemini Design Error:', error);
-
-    // AUTO-FALLBACK: If Gemini fails, try OpenRouter
-    if (!_isRetry && openRouterKey) {
-      console.warn('[Chat] ⚠️ Gemini chat failed, falling back to OpenRouter');
-
-      try {
-        // Convert history to OpenAI format
-        const messages: OpenRouterMessage[] = history.map((h) => {
-          const content: OpenRouterContentItem[] = h.parts
-            .map((p): OpenRouterContentItem | null => {
-              if (p.text) return { type: 'text', text: p.text };
-              if (p.inlineData)
-                return {
-                  type: 'image_url',
-                  image_url: { url: `data:${p.inlineData.mimeType};base64,${p.inlineData.data}` },
-                };
-              return null;
-            })
-            .filter((p): p is OpenRouterContentItem => p !== null);
-          return { role: h.role === 'model' ? 'assistant' : 'user', content };
-        });
-
-        const currentContent: OpenRouterContentItem[] = [{ type: 'text', text: prompt }];
-        images.forEach((img) => {
-          currentContent.push({ type: 'image_url', image_url: { url: img } });
-        });
-        messages.push({ role: 'user', content: currentContent });
-        const systemContent: OpenRouterContentItem[] = [
-          { type: 'text', text: DESIGN_SYSTEM_INSTRUCTION + PROFILE_ZONE_CONSTRAINT },
-        ];
-        messages.unshift({
-          role: 'system',
-          content: systemContent,
-        });
-
-        const fallbackModel = model || 'google/gemini-3-pro-preview';
-        const text = await callOpenRouter(openRouterKey, fallbackModel, messages);
-
-        console.log('[Chat] ✅ OpenRouter fallback successful!');
-        return { text, groundingMetadata: null };
-      } catch (fallbackError) {
-        console.error('[Chat] ❌ OpenRouter fallback also failed:', fallbackError);
-        throw error; // Throw original error
-      }
-    }
-
-    throw error;
-  }
+  return { text: response.text, groundingMetadata: null };
 };
-
-// --- Agentic Capabilities ---
-
-const AGENT_TOOLS = [
-  {
-    name: 'generate_background',
-    description: 'Generates a new background image for the banner based on a text prompt.',
-    parameters: {
-      type: 'OBJECT',
-      properties: {
-        prompt: { type: 'STRING', description: 'The visual description of the image to generate' },
-        style: {
-          type: 'STRING',
-          description: "The artistic style (e.g., 'photorealistic', 'cyberpunk', 'minimalist')",
-        },
-      },
-      required: ['prompt'],
-    },
-  },
-  {
-    name: 'magic_edit',
-    description: 'Edits the existing background image using a text instruction.',
-    parameters: {
-      type: 'OBJECT',
-      properties: {
-        instruction: {
-          type: 'STRING',
-          description: "The editing instruction (e.g., 'make it sunset', 'add a laptop')",
-        },
-      },
-      required: ['instruction'],
-    },
-  },
-  {
-    name: 'remove_background',
-    description: 'Removes the background from the current image, leaving only the main subject.',
-    parameters: {
-      type: 'OBJECT',
-      properties: {},
-      required: [],
-    },
-  },
-  {
-    name: 'upscale_image',
-    description: 'Upscales the current image 2x to high resolution.',
-    parameters: {
-      type: 'OBJECT',
-      properties: {},
-      required: [],
-    },
-  },
-];
-
-interface AgentToolCall {
-  name: string;
-  args: Record<string, unknown>;
-}
-
-interface AgentHistoryItem {
-  role: string;
-  parts?: Array<{ text?: string; inlineData?: { mimeType: string; data: string } }>;
-}
 
 export const generateAgentResponse = async (
   userTranscript: string,
-  currentScreenshot: string | null, // Base64
-  history: AgentHistoryItem[] = [],
-  _isRetry: boolean = false,
-): Promise<{ text: string; toolCalls?: AgentToolCall[] }> => {
-  const { geminiKey, openRouterKey, model } = await getSettings();
+  currentScreenshot: string | null,
+  history: { role: string; parts: Part[] }[] = [],
+) => {
+  const messages: ChatMessage[] = history.map(h => ({ role: h.role === 'model' ? 'assistant' : 'user', content: h.parts?.[0]?.text || '' }));
 
-  console.log('[Voice Agent] Starting with:', {
-    hasGeminiKey: !!geminiKey,
-    hasOpenRouterKey: !!openRouterKey,
-    isRetry: _isRetry,
+  const content: OpenRouterContentItem[] = [{ type: 'text', text: userTranscript }];
+  if (currentScreenshot) content.push({ type: 'image_url', image_url: { url: currentScreenshot } });
+
+  messages.push({ role: 'user', content });
+  messages.unshift({ role: 'system', content: "You are Nano, an expert design partner. You are helpful, enthusiastic, and concise." });
+
+  const response = await api.post<{ text: string }>('/api/ai/chat', {
+    messages,
+    model: MODELS.openrouter.glm47,
+    provider: 'openrouter'
   });
 
-  if (!geminiKey && !openRouterKey) {
-    return { text: 'I need a Gemini or OpenRouter API Key to work. Please check your settings.' };
-  }
-
-  try {
-    const ai = getGoogleClient(geminiKey);
-
-    const parts: Array<{ text?: string; inlineData?: { mimeType: string; data: string } }> = [
-      { text: userTranscript },
-    ];
-    if (currentScreenshot) {
-      parts.push({ inlineData: { mimeType: 'image/png', data: currentScreenshot.split(',')[1] } });
-    }
-
-    // Using generateContent with tools config
-    const response = await ai.models.generateContent({
-      model: 'gemini-2.0-flash-exp',
-      config: {
-        systemInstruction:
-          'You are Nano, an expert design partner. You are helpful, enthusiastic, and concise. You have access to tools to control the canvas. When a user asks to change the background or edit something, USE THE TOOLS. Do not just describe what you would do.',
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        tools: [{ functionDeclarations: AGENT_TOOLS as any }],
-      },
-      contents: [
-        ...history, // Previous history
-        { role: 'user', parts: parts }, // Current message
-      ],
-    });
-
-    // Handle Tool Calls
-    const candidates = response.candidates;
-    let text = '';
-    try {
-      text = response.text || '';
-    } catch {
-      text = '';
-    }
-
-    let functionCalls: AgentToolCall[] = [];
-    if (candidates && candidates[0]?.content?.parts) {
-      functionCalls = candidates[0].content.parts
-        .filter(
-          (
-            part,
-          ): part is typeof part & {
-            functionCall: { name: string; args: Record<string, unknown> };
-          } => 'functionCall' in part && part.functionCall !== undefined,
-        )
-        .map((part) => part.functionCall);
-    }
-
-    if (functionCalls.length > 0) {
-      return { text: text, toolCalls: functionCalls };
-    }
-
-    return { text };
-  } catch (error) {
-    console.error('Agent Error:', error);
-
-    // AUTO-FALLBACK: If Gemini fails, try OpenRouter
-    if (!_isRetry && openRouterKey) {
-      console.warn('[Voice Agent] ⚠️ Gemini agent failed, falling back to OpenRouter');
-
-      try {
-        const messages: OpenRouterMessage[] = [];
-
-        // Convert history
-        history.forEach((msg) => {
-          if (msg.role === 'user' || msg.role === 'assistant') {
-            const content: OpenRouterContentItem[] = [];
-            if (msg.parts) {
-              msg.parts.forEach((part) => {
-                if (part.text) content.push({ type: 'text', text: part.text });
-                if (part.inlineData) {
-                  content.push({
-                    type: 'image_url',
-                    image_url: {
-                      url: `data:${part.inlineData.mimeType};base64,${part.inlineData.data}`,
-                    },
-                  });
-                }
-              });
-            }
-            messages.push({ role: msg.role, content });
-          }
-        });
-
-        // Add current message
-        const currentContent: OpenRouterContentItem[] = [{ type: 'text', text: userTranscript }];
-        if (currentScreenshot) {
-          currentContent.push({
-            type: 'image_url',
-            image_url: { url: `data:image/png;base64,${currentScreenshot}` },
-          });
-        }
-        messages.push({ role: 'user', content: currentContent });
-
-        // Add system instruction
-        messages.unshift({
-          role: 'system',
-          content:
-            'You are Nano, an expert design partner. You are helpful, enthusiastic, and concise. You help users create LinkedIn banners.',
-        });
-
-        const fallbackModel = model || 'google/gemini-3-pro-preview';
-        const text = await callOpenRouter(openRouterKey, fallbackModel, messages);
-
-        console.log('[Voice Agent] ✅ OpenRouter fallback successful!');
-
-        // Note: OpenRouter doesn't support tool calls in the same way, so return text only
-        return { text, toolCalls: [] };
-      } catch (fallbackError) {
-        console.error('[Voice Agent] ❌ OpenRouter fallback also failed:', fallbackError);
-        return { text: "I'm having trouble connecting. Please check your API keys." };
-      }
-    }
-
-    return { text: "I'm having trouble connecting to my brain right now." };
-  }
+  return { text: response.text };
 };
 
-export const generateThinkingResponse = async (
-  prompt: string,
-  history: { role: string; parts: Part[] }[] = [],
-) => {
-  // Currently 'Thinking' mode in chat interface calls this.
-  // For OpenRouter, we just use standard chat completion.
-  const { provider, geminiKey, openRouterKey, model } = await getSettings();
+export const generateThinkingResponse = async (prompt: string) => {
+  const messages = [{ role: 'system', content: 'You are a deep thinking assistant.' }, { role: 'user', content: prompt }];
 
-  if (provider === 'openrouter') {
-    // Re-use logic or simplify?
-    // Simplification for text-only thinking
-    const messages = history.map((h) => ({
-      role: h.role === 'model' ? 'assistant' : 'user',
-      content: h.parts.map((p) => p.text).join('\n'),
-    }));
-    messages.push({ role: 'user', content: prompt });
+  const response = await api.post<{ text: string }>('/api/ai/chat', {
+    messages,
+    model: MODELS.openrouter.glm47,
+    provider: 'openrouter'
+  });
 
-    const text = await callOpenRouter(openRouterKey, model, messages);
-    return { text, groundingMetadata: null };
-  }
-
-  // Gemini Path
-  try {
-    const ai = getGoogleClient(geminiKey);
-    const response = await ai.models.generateContent({
-      model: MODELS.textThinking,
-      contents: [...history, { role: 'user', parts: [{ text: prompt }] }],
-      config: {
-        thinkingConfig: { thinkingBudget: 32768 },
-      },
-    });
-    return {
-      text: response.text || 'No response generated.',
-      groundingMetadata: response.candidates?.[0]?.groundingMetadata,
-    };
-  } catch (error) {
-    console.error('Gemini Thinking Error:', error);
-    throw error;
-  }
+  return { text: response.text, groundingMetadata: null };
 };
 
-export const generateSearchResponse = async (
-  prompt: string,
-  history: { role: string; parts: Part[] }[] = [],
-) => {
-  // OpenRouter doesn't inherently support Google Search grounding unless using specific perplexity models maybe.
-  // We will Default to Gemini for Search if provider is 'openrouter' BUT warn/fallback?
-  // OR we just perform a standard completion and Model might hallucinate or know facts.
-  // Let's force Gemini logic for Search if possible, or just standard chat if OpenRouter selected.
+export const generateSearchResponse = async (prompt: string, history: { role: string; parts: Part[] }[] = []) => {
+  // Construct messages for Perplexity (Online Model)
+  // Perplexity works best with standard OpenAI-like message format
+  const messages: ChatMessage[] = history.map((h) => ({
+    role: h.role === 'model' ? 'assistant' : 'user',
+    content: h.parts.map(p => p.text ? { type: 'text', text: p.text } : null).filter(Boolean) as OpenRouterContentItem[]
+  }));
 
-  const { provider, geminiKey, openRouterKey, model } = await getSettings();
+  // Add current prompt
+  messages.push({ role: 'user', content: [{ type: 'text', text: prompt }] });
 
-  if (provider === 'openrouter') {
-    // Just do standard chat
-    const messages: Array<{ role: string; content: string }> = history.map((h) => ({
-      role: h.role === 'model' ? 'assistant' : 'user',
-      content: h.parts
-        .map((p) => p.text)
-        .filter((t): t is string => t !== undefined)
-        .join('\n'),
-    }));
-    messages.push({ role: 'user', content: prompt });
-    messages.unshift({
-      role: 'system',
-      content: 'You are a helpful assistant. Search the web if you can (simulation).',
-    });
+  // Add system instruction for search behavior
+  messages.unshift({
+    role: 'system',
+    content: [{ type: 'text', text: "You are an expert Trend Researcher for LinkedIn branding. Search the web for the latest trends, data, and visual styles. Be specific, cite sources if possible, and focus on actionable insights for banner design." }]
+  });
 
-    const text = await callOpenRouter(openRouterKey, model, messages);
-    return { text, groundingMetadata: null };
-  }
+  // Call Backend API with Perplexity Model
+  const response = await api.post<{ text: string }>('/api/ai/chat', {
+    messages,
+    model: MODELS.openrouter.sonarDeepResearch,
+    provider: 'openrouter'
+  });
 
-  try {
-    const ai = getGoogleClient(geminiKey);
-    const response = await ai.models.generateContent({
-      model: MODELS.textBasic,
-      contents: [...history, { role: 'user', parts: [{ text: prompt }] }],
-      config: {
-        tools: [{ googleSearch: {} }],
-      },
-    });
-    return {
-      text: response.text || 'No response generated.',
-      groundingMetadata: response.candidates?.[0]?.groundingMetadata,
-    };
-  } catch (error) {
-    console.error('Gemini Search Error:', error);
-    throw error;
-  }
+  return { text: response.text, groundingMetadata: null };
 };
-
-// ... (Other functions like generateImage and editImage likely remain Gemini-specific for now unless user has image models on OR)
-// For now, we keep Image generation constrained to Gemini as it's specialized.
-// We can expose the key setting though.
 
 export const generatePromptFromRefImages = async (images: string[], userHint: string) => {
-  // This uses 'thinking' model which is great for visual analysis.
-  // Can switch to OpenRouter vision models (gpt-4o, claude-3)
-  const { provider, geminiKey, openRouterKey, model } = await getSettings();
+  const content: OpenRouterContentItem[] = [{ type: 'text', text: `Analyze these reference images. Hint: ${userHint}. Return a prompt.` }];
+  images.forEach(img => content.push({ type: 'image_url', image_url: { url: img } }));
 
-  if (provider === 'openrouter') {
-    const contentArray: OpenRouterContentItem[] = [
-      {
-        type: 'text',
-        text: `Analyze available reference images. Extract aesthetic. User hint: ${userHint}. Write a LinkedIn banner prompt.`,
-      },
-    ];
-    images.forEach((img) => {
-      contentArray.push({ type: 'image_url', image_url: { url: img } });
-    });
-    const messages: OpenRouterMessage[] = [
-      {
-        role: 'user',
-        content: contentArray,
-      },
-    ];
-
-    return await callOpenRouter(openRouterKey, model, messages);
-  }
-
-  // Gemini
-  try {
-    const ai = getGoogleClient(geminiKey);
-    const parts: Part[] = [];
-    images.forEach((img) => {
-      const base64Data = img.split(',')[1] || img;
-      const mimeType = img.substring(img.indexOf(':') + 1, img.indexOf(';')) || 'image/png';
-      parts.push({ inlineData: { mimeType, data: base64Data } });
-    });
-    parts.push({
-      text: `Analyze ... User's specific intent: "${userHint}" ... Return ONLY prompt.`,
-    });
-
-    const response = await ai.models.generateContent({
-      model: MODELS.textThinking,
-      contents: [{ role: 'user', parts }],
-      config: { thinkingConfig: { thinkingBudget: 1024 } },
-    });
-
-    return response.text || '';
-  } catch (error) {
-    console.error('Magic Prompt Error:', error);
-    throw error;
-  }
+  const response = await api.post<{ text: string }>('/api/ai/chat', {
+    messages: [{ role: 'user', content }],
+    model: MODELS.openrouter.glm47,
+    provider: 'openrouter'
+  });
+  return response.text;
 };
 
-// Image Generation with Gemini 3 Pro Image (supports 14 refs, multi-turn, 4K)
+// --- Image Gen (Refactored) ---
 export const generateImage = async (
   prompt: string,
-  referenceImages: string[] = [], // Up to 14 reference images
-  size: '1K' | '2K' | '4K' = '4K',
-  editHistory: ImageEditTurn[] = [],
-  _isRetry: boolean = false, // Internal flag for fallback retry
+  _referenceImages: string[] = [],
+  _size: '1K' | '2K' | '4K' = '4K',
+  isBanner: boolean = false, // New param
+  _editHistory: ImageEditTurn[] = [],
+  _isRetry: boolean = false
 ): Promise<string> => {
-  const { provider, geminiKey, openRouterKey, imageModel } = await getSettings();
-  const modelToUse = imageModel;
+  let imageUrl = '';
+  // Force banner dimensions for all generations if isBanner is true
+  const dimensions = isBanner ? { width: 1584, height: 396 } : { aspect_ratio: '16:9' };
 
-  console.log('[Image Gen] Starting generation with:', {
-    provider,
-    model: modelToUse,
-    size,
-    refImagesCount: referenceImages.length,
-    editHistoryCount: editHistory.length,
-    hasGeminiKey: !!geminiKey,
-    hasOpenRouterKey: !!openRouterKey,
-    isRetry: _isRetry,
+  console.log('[Image Gen] Starting generation pipeline for:', prompt);
+
+  // Fetch keys for BYOK support
+  const keys = await getUserAPIKeys().catch(() => ({} as any));
+
+  // 1. Try Nano Banana Pro via OpenRouter (Gemini)
+  try {
+    console.log('[Image Gen] Attempting Nano Banana Pro (OpenRouter)...');
+    const response = await api.post<{ url: string }>('/api/ai/image/generate', {
+      prompt,
+      model: MODELS.imageGen, // google/gemini-3-pro-image-preview
+      provider: 'openrouter',
+      openRouterKey: keys.openrouter_api_key,
+      ...dimensions
+    });
+    imageUrl = response.url;
+    console.log('[Image Gen] ✅ Nano Banana Pro success');
+  } catch (err) {
+    console.warn('[Image Gen] ⚠️ Nano Banana Pro (OpenRouter) failed:', err);
+
+    // 2. Fallback to Nano Banana Pro via Replicate
+    try {
+      console.log('[Image Gen] Attempting Nano Banana Pro (Replicate)...');
+      const response = await api.post<{ url: string }>('/api/ai/image/generate', {
+        prompt,
+        model: 'google/nano-banana-pro', // Replicate ID
+        provider: 'replicate',
+        replicateKey: keys.replicate_api_key,
+        ...dimensions
+      });
+      imageUrl = response.url;
+      console.log('[Image Gen] ✅ Replicate fallback success');
+    } catch (err2) {
+      console.warn('[Image Gen] ⚠️ Replicate fallback failed:', err2);
+
+      // 3. Fallback to Flux (Replicate)
+      try {
+        console.log('[Image Gen] Attempting Flux fallback...');
+        const response = await api.post<{ url: string }>('/api/ai/image/generate', {
+          prompt,
+          model: 'black-forest-labs/flux-1-schnell',
+          provider: 'replicate',
+          replicateKey: keys.replicate_api_key,
+          ...dimensions
+        });
+        imageUrl = response.url;
+        console.log('[Image Gen] ✅ Flux fallback success');
+      } catch (err3) {
+        console.error('[Image Gen] ❌ All providers failed:', err3);
+        throw new Error('Image generation failed across all providers');
+      }
+    }
+  }
+
+  // 4. Mandatory Resizing Pipeline
+  // Regardless of which model generated it, enforce exact 1584x396 dimensions
+  if (isBanner && imageUrl) {
+    try {
+      console.log('[Image Gen] 📏 Resizing to 1584x396 (Smart Expand)...');
+
+      // 1. Prepare Composite & Mask (Image centered, white bars, mask preserves image)
+      const { image: composite, mask } = await prepareForOutpainting(imageUrl);
+
+      // 2. Call Flux Fill Pro via editImage
+      const expandPrompt = `${prompt} . High quality, seamless background extension, cinematic lighting, comprehensive background.`;
+
+      // We pass the composite as the "base image" and the mask to guide the AI
+      const expandedUrl = await editImage(composite, expandPrompt, mask, 'black-forest-labs/flux-fill-pro');
+
+      if (expandedUrl) {
+        imageUrl = expandedUrl;
+        console.log('[Image Gen] ✅ Smart Expand complete');
+      } else {
+        throw new Error("Flux Fill returned empty URL");
+      }
+
+    } catch (error) {
+      console.error("[Image Gen] ⚠️ Smart Expand failed. Fallback to Cover Crop:", error);
+      // Fallback: Standard Canvas Resizing (Crop)
+      imageUrl = await resizeToLinkedInBanner(imageUrl, { quality: 0.95, fit: 'cover' });
+      console.log('[Image Gen] ✅ Fallback Resize complete');
+    }
+  }
+
+  return imageUrl;
+};
+
+// --- Image Edit & Analysis Tools (Implemented) ---
+
+export const editImage = async (base64Image: string, prompt: string, mask?: string, modelOverride?: string) => {
+  // Fetch keys for BYOK support
+  const keys = await getUserAPIKeys().catch(() => ({} as any));
+
+  // Try OpenRouter (Gemini) for editing first as it's "Context Aware"
+  try {
+    const response = await api.post<{ url: string }>('/api/ai/image/edit', {
+      image: base64Image,
+      mask,
+      prompt: prompt,
+      provider: modelOverride ? 'replicate' : 'openrouter', // Force replicate if modelOverride is set (Flux)
+      model: modelOverride || MODELS.imageEdit,
+      openRouterKey: keys.openrouter_api_key,
+      replicateKey: keys.replicate_api_key
+    });
+    return response.url;
+  } catch (err) {
+    console.warn('[Edit] OpenRouter edit failed, falling back to Replicate', err);
+    // Fallback handled by backend defaulting to Replicate/InstructPix2Pix
+    const response = await api.post<{ url: string }>('/api/ai/image/edit', {
+      image: base64Image,
+      prompt: prompt,
+      provider: 'replicate',
+      replicateKey: keys.replicate_api_key
+    });
+    return response.url;
+  }
+};
+
+export const analyzeImageForPrompts = async (base64Image: string) => {
+  const content: OpenRouterContentItem[] = [
+    { type: 'image_url', image_url: { url: base64Image.startsWith('data:') ? base64Image : `data:image/png;base64,${base64Image}` } },
+    { type: 'text', text: 'Suggest 3 magic edit prompts and 3 generation prompts. Return JSON: { "magicEdit": [], "generation": [] }' }
+  ];
+
+  const response = await api.post<{ text: string }>('/api/ai/chat', {
+    messages: [{ role: 'user', content: content }],
+    model: MODELS.openrouter.glm47,
+    provider: 'openrouter'
   });
 
-  // PRIMARY: Try OpenRouter Gemini image generation first (bypasses billing issues!)
-  console.log('[Image Gen] 🎯 Using OpenRouter Gemini as primary method');
-
+  const text = response.text;
   try {
-    if (!openRouterKey) {
-      console.error('[Image Gen] ❌ OpenRouter API key is empty/missing!');
-      throw new Error('OpenRouter API key not found. Please check Settings and ensure you are logged in.');
-    }
-
-    // Use Google's Gemini via OpenRouter
-    // Use the selected model from settings, or fallback to the constant
-    const openRouterModel = modelToUse || MODELS.imageGen;
-    const safePrompt = `Professional LinkedIn Banner, 1584x396 pixels ratio (approx 4:1 aspect), high quality. ${prompt} ${PROFILE_ZONE_CONSTRAINT}`;
-
-    const imageDataUrl = await callOpenRouterImageGen(
-      openRouterKey,
-      openRouterModel,
-      safePrompt,
-      '21:9',
-    );
-
-    console.log('[Image Gen] ✅ OpenRouter Gemini successful!');
-
-    // Resize to exact LinkedIn banner dimensions (1584x396)
-    let finalImageDataUrl = imageDataUrl;
-    try {
-      console.log('[Image Gen] Resizing to LinkedIn banner dimensions (1584x396)...');
-      finalImageDataUrl = await resizeToLinkedInBanner(imageDataUrl, {
-        width: LINKEDIN_BANNER_WIDTH,
-        height: LINKEDIN_BANNER_HEIGHT,
-        fit: 'cover',
-        quality: 0.95,
-      });
-      console.log('[Image Gen] ✅ Resize complete');
-    } catch (resizeError) {
-      console.warn('[Image Gen] Resize failed, using original image:', resizeError);
-      // Continue with original image if resize fails
-    }
-
-    // Upload to Supabase
-    try {
-      console.log('[Image Gen] Uploading resized image to Supabase...');
-      const fileName = `generated_${Date.now()}.png`;
-
-      // Calculate file size from data URL (base64 encoded size * 0.75 for actual bytes)
-      const base64Data = finalImageDataUrl.split(',')[1] || '';
-      const fileSizeBytes = Math.ceil((base64Data.length * 3) / 4);
-
-      const publicUrl = await uploadImage(finalImageDataUrl, fileName);
-      console.log('[Image Gen] ✅ Saved to Supabase:', publicUrl);
-
-      // Save to database with all fields including file size
-      try {
-        const savedImage = await createImage({
-          storage_url: publicUrl,
-          file_name: fileName,
-          prompt: prompt,
-          model_used: 'gemini-2.5-flash-image (via OpenRouter)',
-          quality: size,
-          generation_type: 'generate',
-          file_size_bytes: fileSizeBytes,
-        });
-
-        if (savedImage) {
-          console.log('[Image Gen] ✅ Saved to database and gallery');
-        } else {
-          console.error('[Image Gen] ⚠️ Failed to save to database - check Supabase configuration');
-          throw new Error('Database save failed - image not added to Gallery');
-        }
-      } catch (dbError) {
-        console.error('[Image Gen] ❌ Database save error:', dbError);
-        throw new Error(`Failed to save image to Gallery: ${dbError instanceof Error ? dbError.message : 'Unknown error'}`);
-      }
-
-      return publicUrl;
-    } catch (uploadError) {
-      console.warn('[Image Gen] Supabase upload failed, returning resized base64:', uploadError);
-      return finalImageDataUrl;
-    }
-  } catch (openRouterError) {
-    console.error('[Image Gen] ❌ OpenRouter Gemini failed:', openRouterError);
-    console.log('[Image Gen] 🔄 Falling back to Replicate FLUX...');
-
-    // FALLBACK: Use Replicate FLUX.1-schnell
-    try {
-      const { replicateKey } = await getSettings();
-      if (!replicateKey) {
-        throw new Error('Replicate API key not found. Please add it in Settings.');
-      }
-
-      const fluxVersion = 'black-forest-labs/flux-schnell';
-      console.log('[Image Gen] Calling Replicate FLUX.1-schnell...');
-
-      const fluxPrompt = `Professional LinkedIn banner, 1584x396 pixels, 16:9 aspect ratio. ${prompt}`;
-
-      const output = await callReplicate(replicateKey, fluxVersion, {
-        prompt: fluxPrompt,
-        width: 1584,
-        height: 396,
-        num_outputs: 1,
-        guidance_scale: 3.5,
-        num_inference_steps: 4,
-      });
-
-      const imageUrl = Array.isArray(output) ? output[0] : output;
-      console.log('[Image Gen] ✅ Replicate FLUX fallback successful!');
-      console.log('[Image Gen] 💡 Using Replicate because OpenRouter failed');
-
-      // Resize Replicate output to ensure exact dimensions
-      try {
-        console.log('[Image Gen] Resizing Replicate output to LinkedIn banner dimensions...');
-        const resizedImage = await resizeToLinkedInBanner(imageUrl, {
-          width: LINKEDIN_BANNER_WIDTH,
-          height: LINKEDIN_BANNER_HEIGHT,
-          fit: 'cover',
-          quality: 0.95,
-        });
-        console.log('[Image Gen] ✅ Replicate image resize complete');
-        return resizedImage;
-      } catch (resizeError) {
-        console.warn('[Image Gen] Replicate resize failed, returning original:', resizeError);
-        return imageUrl;
-      }
-    } catch (replicateError) {
-      console.error('[Image Gen] ❌ Replicate also failed:', replicateError);
-      throw new Error(
-        'All image generation methods failed. Please check your API keys in Settings.',
-      );
-    }
-  }
-};
-
-// OLD GEMINI-DIRECT CODE REMOVED - NOW USING OPENROUTER-FIRST APPROACH
-// Image generation now uses OpenRouter Gemini as primary, with Replicate as fallback
-
-// ======================================================================
-
-// Fallback mechanism moved inside main function flow below
-
-export const editImage = async (base64Image: string, prompt: string) => {
-  const { geminiKey, magicEditModel, replicateKey, openRouterKey } = await getSettings();
-
-  // Helper to ensure correct data URI format
-  const formatImageForService = (raw: string) => {
-    return raw.startsWith('data:') ? raw : `data:image/png;base64,${raw}`;
-  };
-
-  // Helper to resize result to LinkedIn banner dimensions
-  const resizeResult = async (imageData: string): Promise<string> => {
-    try {
-      console.log('[Image Edit] Resizing to LinkedIn banner dimensions (1584x396)...');
-      const resized = await resizeToLinkedInBanner(imageData, {
-        width: LINKEDIN_BANNER_WIDTH,
-        height: LINKEDIN_BANNER_HEIGHT,
-        fit: 'cover',
-        quality: 0.95,
-      });
-      console.log('[Image Edit] ✅ Resize complete');
-      return resized;
-    } catch (resizeError) {
-      console.warn('[Image Edit] Resize failed, returning original:', resizeError);
-      return imageData;
-    }
-  };
-
-  const safePrompt = `${prompt} ${PROFILE_ZONE_CONSTRAINT}`;
-
-  // 1. Try OpenRouter first (same as generateImage for consistency)
-  if (openRouterKey) {
-    try {
-      console.log('[Image Edit] Attempting OpenRouter Magic Edit...');
-
-      // Clean base64 for OpenRouter
-      let base64Data: string;
-      let mimeType: string;
-
-      if (base64Image.startsWith('data:')) {
-        const matches = base64Image.match(/^data:([^;]+);base64,(.+)$/);
-        if (matches) {
-          mimeType = matches[1];
-          base64Data = matches[2];
-        } else {
-          base64Data = base64Image.split(',')[1] || base64Image;
-          mimeType = 'image/png';
-        }
-      } else {
-        base64Data = base64Image;
-        mimeType = 'image/png';
-      }
-
-      const openRouterModel = magicEditModel || MODELS.imageEdit;
-
-      // Use OpenRouter with image input for editing
-      const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
-        method: 'POST',
-        headers: {
-          Authorization: `Bearer ${openRouterKey}`,
-          'HTTP-Referer': window.location.origin,
-          'X-Title': 'NanoBanna Pro',
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          model: openRouterModel,
-          messages: [
-            {
-              role: 'user',
-              content: [
-                {
-                  type: 'image_url',
-                  image_url: {
-                    url: `data:${mimeType};base64,${base64Data}`,
-                  },
-                },
-                {
-                  type: 'text',
-                  text: `Edit this image: ${safePrompt}. Return only the edited image.`,
-                },
-              ],
-            },
-          ],
-          // Request image output
-          response_format: { type: 'image' },
-        }),
-      });
-
-      if (!response.ok) {
-        const errorText = await response.text();
-        console.warn('[Image Edit] OpenRouter failed:', errorText);
-        throw new Error(`OpenRouter error: ${response.status}`);
-      }
-
-      const data = await response.json();
-      console.log('[Image Edit] OpenRouter response:', data);
-
-      // Extract image from response
-      const content = data.choices?.[0]?.message?.content;
-      if (content) {
-        // Check if content is a base64 image or contains image data
-        if (typeof content === 'string') {
-          if (content.startsWith('data:image')) {
-            console.log('[Image Edit] ✅ OpenRouter edit successful');
-            return resizeResult(content);
-          }
-          // Check for base64 encoded image in response
-          if (content.match(/^[A-Za-z0-9+/=]+$/)) {
-            console.log('[Image Edit] ✅ OpenRouter edit successful (raw base64)');
-            return resizeResult(`data:image/png;base64,${content}`);
-          }
-        }
-        // Check for image in content array
-        if (Array.isArray(content)) {
-          for (const item of content) {
-            if (item.type === 'image_url' && item.image_url?.url) {
-              console.log('[Image Edit] ✅ OpenRouter edit successful (image_url)');
-              return resizeResult(item.image_url.url);
-            }
-          }
-        }
-      }
-
-      // Check for image in data field (some models return here)
-      if (data.data?.[0]?.b64_json) {
-        console.log('[Image Edit] ✅ OpenRouter edit successful (b64_json)');
-        return resizeResult(`data:image/png;base64,${data.data[0].b64_json}`);
-      }
-      if (data.data?.[0]?.url) {
-        console.log('[Image Edit] ✅ OpenRouter edit successful (url)');
-        return resizeResult(data.data[0].url);
-      }
-
-      throw new Error('OpenRouter returned no image content');
-    } catch (openRouterError) {
-      console.warn('[Image Edit] OpenRouter failed, trying Gemini direct...', openRouterError);
-      // Fall through to direct Gemini
-    }
-  }
-
-  // 2. Try Google Gemini Direct (Secondary)
-  if (geminiKey) {
-    try {
-      console.log('[Image Edit] Attempting Gemini Direct Magic Edit...');
-      const ai = getGoogleClient(geminiKey);
-
-      // Clean base64 for Gemini (needs raw base64, no header)
-      let base64Data: string;
-      let mimeType: string;
-
-      if (base64Image.startsWith('data:')) {
-        const matches = base64Image.match(/^data:([^;]+);base64,(.+)$/);
-        if (matches) {
-          mimeType = matches[1];
-          base64Data = matches[2];
-        } else {
-          base64Data = base64Image.split(',')[1] || base64Image;
-          mimeType = 'image/png';
-        }
-      } else {
-        base64Data = base64Image;
-        mimeType = 'image/png';
-      }
-
-      // Strip 'google/' prefix for direct Gemini SDK - it expects just the model name
-      let geminiModelName = magicEditModel || 'gemini-2.0-flash-exp';
-      if (geminiModelName.startsWith('google/')) {
-        geminiModelName = geminiModelName.replace('google/', '');
-      }
-
-      console.log('[Image Edit] Using Gemini model:', geminiModelName);
-
-      const response = await ai.models.generateContent({
-        model: geminiModelName,
-        contents: {
-          parts: [{ inlineData: { mimeType, data: base64Data } }, { text: safePrompt }],
-        },
-        config: { responseModalities: ['IMAGE', 'TEXT'] },
-      });
-
-      console.log('[Image Edit] Gemini response received...');
-      const candidates = response.candidates || [];
-      for (const part of candidates[0]?.content?.parts || []) {
-        if (part.inlineData) {
-          console.log('[Image Edit] ✅ Gemini edit successful');
-          return resizeResult(`data:image/png;base64,${part.inlineData.data}`);
-        }
-      }
-      throw new Error('Gemini returned no image content');
-    } catch (geminiError) {
-      console.warn('[Image Edit] Gemini failed, checking fallback...', geminiError);
-      // Fall through to Replicate if key exists
-    }
-  } else {
-    console.log('[Image Edit] No Gemini key found. Skipping to fallback.');
-  }
-
-  // 3. Fallback: Replicate (Instruct-Pix2Pix)
-  if (replicateKey) {
-    try {
-      console.log('[Image Edit] Attempting Replicate Fallback (Instruct-Pix2Pix)...');
-      // Pix2Pix requires full data URI
-      const imageUri = formatImageForService(base64Image);
-
-      // Instruct-Pix2Pix v1.1
-      const version = '30c1d0b916a6f8efce20493f5d61ee27491ab2a60437c13c588468b9810ec23f';
-
-      const output = await callReplicate(replicateKey, version, {
-        image: imageUri,
-        prompt: prompt, // Pix2Pix takes instructions directly
-        num_inference_steps: 20,
-        image_guidance_scale: 1.5,
-        guidance_scale: 7.5,
-      });
-
-      console.log('[Image Edit] ✅ Replicate fallback successful');
-      // Output is usually a URL
-      const replicateResult = Array.isArray(output) ? output[0] : output;
-      return resizeResult(replicateResult);
-    } catch (replicateError) {
-      console.error('[Image Edit] ❌ Replicate fallback failed:', replicateError);
-      throw new Error(
-        `Magic Edit failed on all providers (OpenRouter, Gemini, Replicate). Details: ${replicateError instanceof Error ? replicateError.message : 'Unknown error'}`
-      );
-    }
-  }
-
-  throw new Error(
-    'Magic Edit requires an API key. Please add a valid OpenRouter, Gemini, or Replicate API key in Settings.'
-  );
-};
-
-export const analyzeImageForPrompts = async (
-  base64Image: string,
-): Promise<{ magicEdit: string[]; generation: string[] }> => {
-  const { geminiKey } = await getSettings();
-  try {
-    const ai = getGoogleClient(geminiKey);
-    const parts: Part[] = [
-      { inlineData: { mimeType: 'image/png', data: base64Image.split(',')[1] } },
-      {
-        text: `Analyze this banner background image. 
-            
-            1. Suggest 3 "Magic Edit" prompts to enhance it (e.g., "Add a futuristic neon glow", "Change background to a sunset city").
-            2. Suggest 3 "generation" prompts to create a NEW image with a similar style/vibe.
-            
-            Return JSON format:
-            {
-                "magicEdit": ["prompt 1", "prompt 2", "prompt 3"],
-                "generation": ["prompt 1", "prompt 2", "prompt 3"]
-            }`,
-      },
-    ];
-
-    const response = await ai.models.generateContent({
-      model: MODELS.textThinking, // Gemini 2.0 Flash/Pro
-      contents: [{ role: 'user', parts }],
-      config: { responseMimeType: 'application/json' },
-    });
-
-    const text = response.text || '{}';
-    const json = JSON.parse(text);
-    return {
-      magicEdit: json.magicEdit || [],
-      generation: json.generation || [],
-    };
-  } catch (error) {
-    console.error('Analysis Error:', error);
+    const json = JSON.parse(text.replace(/```json|```/g, ''));
+    return { magicEdit: json.magicEdit || [], generation: json.generation || [] };
+  } catch {
     return { magicEdit: [], generation: [] };
   }
 };
 
-export const removeBackground = async (imageBase64: string): Promise<string> => {
-  const { replicateKey } = await getSettings();
-  if (!replicateKey) throw new Error('Missing Replicate API Key');
+export const removeBackground = async (imageBase64: string, model?: string) => {
+  const response = await api.post<{ url: string }>('/api/ai/image/remove-bg', {
+    image: imageBase64,
+    model // Optional model override
+  });
+  return response.url;
+};
 
-  const version = 'cjwbw/rembg:fb8af171cfa1616ddcf1242c093f9c46bcada5ad4cf6f2fbe8b81b330ec5c003';
-  const image = imageBase64.startsWith('data:')
-    ? imageBase64
-    : `data:image/png;base64,${imageBase64}`;
+export const upscaleImage = async (imageBase64: string, scale: number = 2, model?: string) => {
+  const response = await api.post<{ url: string }>('/api/ai/image/upscale', {
+    image: imageBase64,
+    scale,
+    model // Optional model override
+  });
+  return response.url;
+};
 
+export const outpaintImage = async (imageBase64: string, prompt: string, direction: 'left' | 'right' | 'up' | 'down', model?: string) => {
+  const response = await api.post<{ url: string }>('/api/ai/image/outpaint', {
+    image: imageBase64,
+    prompt,
+    direction,
+    model
+  });
+  return response.url;
+};
+
+export const restoreImage = async (imageBase64: string, codeformer_fidelity: number = 0.7) => {
+  const response = await api.post<{ url: string }>('/api/ai/image/restore', {
+    image: imageBase64,
+    fidelity: codeformer_fidelity
+  });
+  return response.url;
+};
+
+export const analyzeCanvasAndSuggest = async (canvasScreenshot: string, _brandProfile: unknown = null) => {
+  const content: OpenRouterContentItem[] = [
+    { type: 'image_url', image_url: { url: canvasScreenshot.startsWith('data:') ? canvasScreenshot : `data:image/png;base64,${canvasScreenshot}` } },
+    { type: 'text', text: 'Analyze this LinkedIn banner. Suggest 3 improvements. Return JSON: { "suggestions": [], "reasoning": "" }' }
+  ];
+
+  const messages: ChatMessage[] = [
+    { role: 'system', content: "You are Nano Banna Pro, an expert design AI." },
+    { role: 'user', content: content }
+  ];
+
+  const response = await api.post<{ text: string }>('/api/ai/chat', {
+    messages,
+    model: MODELS.openrouter.glm47,
+    provider: 'openrouter'
+  });
+
+  const text = response.text;
   try {
-    const output = await callReplicate(replicateKey, version, { image });
-    return output as string;
-  } catch (error) {
-    console.error('Remove BG Failed:', error);
-    throw error;
+    const json = JSON.parse(text.replace(/```json|```/g, ''));
+    return { suggestions: json.suggestions || [], reasoning: json.reasoning || '' };
+  } catch {
+    return { suggestions: [], reasoning: 'Analysis failed' };
   }
 };
 
-export const upscaleImage = async (imageBase64: string, scale: number = 2): Promise<string> => {
-  const { replicateKey, upscaleModel } = await getSettings();
-  if (!replicateKey) throw new Error('Missing Replicate API Key');
 
-  // version is the part after colon
-  const version = upscaleModel.includes(':') ? upscaleModel.split(':')[1] : upscaleModel;
 
-  const image = imageBase64.startsWith('data:')
-    ? imageBase64
-    : `data:image/png;base64,${imageBase64}`;
-
-  try {
-    const output = await callReplicate(replicateKey, version, { image, scale });
-    return output as string;
-  } catch (error) {
-    console.error('Upscale Failed:', error);
-    throw error;
-  }
-};
-
-/**
- * Analyze canvas screenshot and suggest improvements using vision AI
- * Considers brand profile if available for personalized suggestions
- */
-export const analyzeCanvasAndSuggest = async (
-  canvasScreenshot: string,
-  brandProfile: BrandProfile | null = null,
-): Promise<{ suggestions: string[]; reasoning: string }> => {
-  const { geminiKey } = await getSettings();
-  if (!geminiKey) throw new Error('Gemini API Key required for canvas analysis');
-
-  try {
-    const ai = getGoogleClient(geminiKey);
-
-    const base64Data = canvasScreenshot.split(',')[1] || canvasScreenshot;
-
-    let brandContext = '';
-    if (brandProfile) {
-      const colors = brandProfile.colors.map((c) => c.hex).join(', ');
-      const styles = brandProfile.styleKeywords.join(', ');
-      brandContext = `\nBrand Guidelines:
-- Colors: ${colors}
-- Style Keywords: ${styles}
-- Industry: ${brandProfile.industry || 'General'}
-- Target Audience: ${brandProfile.targetAudience || 'Professional'}`;
-    }
-
-    const parts: Part[] = [
-      { inlineData: { mimeType: 'image/png', data: base64Data } },
-      {
-        text: `Analyze this LinkedIn banner design (1584x396px).${brandContext}
-
-Provide 3 specific improvement suggestions to enhance:
-1. Visual appeal and professional polish
-2. LinkedIn engagement potential
-3. Brand consistency (if brand profile provided)
-
-Important: Remember the bottom-left corner (568x264px) is covered by profile picture.
-
-Return JSON format:
-{
-  "suggestions": [
-    "Specific improvement 1",
-    "Specific improvement 2",
-    "Specific improvement 3"
-  ],
-  "reasoning": "Brief explanation of why these improvements will enhance the design"
-}`,
-      },
-    ];
-
-    const response = await ai.models.generateContent({
-      model: MODELS.textThinking, // Use thinking model for better analysis
-      contents: [{ role: 'user', parts }],
-      config: {
-        responseMimeType: 'application/json',
-        thinkingConfig: { thinkingBudget: 2048 },
-      },
-    });
-
-    const result = JSON.parse(response.text || '{}');
-
-    return {
-      suggestions: result.suggestions || [],
-      reasoning: result.reasoning || '',
-    };
-  } catch (error) {
-    console.error('Canvas Analysis Error:', error);
-    return {
-      suggestions: [],
-      reasoning: 'Failed to analyze canvas. Please try again.',
-    };
-  }
-};

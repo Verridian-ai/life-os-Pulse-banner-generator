@@ -211,10 +211,10 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({ onGenerateFromPrompt }) =
           role,
           content,
           images: extra?.images,
-          generated_images: extra?.generated_images,
-          model_used: extra?.model_used,
-          tokens_used: extra?.tokens_used,
-          response_time_ms: extra?.response_time_ms,
+          generatedImages: extra?.generated_images,
+          modelUsed: extra?.model_used,
+          tokensUsed: extra?.tokens_used,
+          responseTimeMs: extra?.response_time_ms,
         });
         console.log('[ChatInterface] Saved message to conversation:', convId);
       } catch (error) {
@@ -365,8 +365,10 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({ onGenerateFromPrompt }) =
 
     try {
       // Pre-flight API key validation
+      // Skip check if product has server-side API keys configured
       const keys = await getUserAPIKeys();
-      if (!keys.openrouter_api_key && !keys.gemini_api_key) {
+      const hasAnyKeys = keys.openrouter_api_key || keys.gemini_api_key || keys.hasProductKeys;
+      if (!hasAnyKeys) {
         setMessages((prev) => [
           ...prev,
           {
@@ -409,17 +411,8 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({ onGenerateFromPrompt }) =
 
         const response = await generateSearchResponse(userMsg, history);
 
-        // Extract URLs if search
+        // Grounding extraction removed as we are no longer using Gemini SDK
         const groundings: { title: string; url: string }[] = [];
-        if (response.groundingMetadata?.groundingChunks) {
-          response.groundingMetadata.groundingChunks.forEach(
-            (chunk: { web?: { uri?: string; title?: string } }) => {
-              if (chunk.web?.uri) {
-                groundings.push({ title: chunk.web.title || 'Source', url: chunk.web.uri });
-              }
-            },
-          );
-        }
 
         setMessages((prev) => [
           ...prev,
@@ -567,7 +560,7 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({ onGenerateFromPrompt }) =
                               {conv.title}
                             </div>
                             <div className='text-xs text-zinc-500'>
-                              {new Date(conv.last_message_at).toLocaleDateString()}
+                              {new Date(conv.lastMessageAt).toLocaleDateString()}
                             </div>
                           </div>
                           <button

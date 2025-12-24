@@ -18,9 +18,11 @@ import { Tab } from './constants';
 import { CanvasProvider, useCanvas } from './context/CanvasContext';
 import { AIProvider } from './context/AIContext';
 import { AuthProvider, useAuth } from './context/AuthContext';
-import { migrateLocalStorageToSupabase } from './services/apiKeyStorage';
-// TODO: Import VoiceAgentProvider once created at src/context/VoiceAgentContext.tsx
-// import { VoiceAgentProvider, useVoiceAgent } from './context/VoiceAgentContext';
+import { migrateLocalStorageToNeon } from './services/apiKeyStorage';
+import { createImage } from './services/database';
+import { persistImageToGallery } from './utils/imagePersistence';
+// Voice Provider Imported
+import { VoiceAgentProvider, useVoiceAgent } from './context/VoiceAgentContext';
 
 const AppContent = () => {
   const [activeTab, setActiveTab] = useState<Tab>(Tab.STUDIO);
@@ -34,8 +36,8 @@ const AppContent = () => {
 
   // Voice Agent state
   const [isVoiceActive, setIsVoiceActive] = useState(false);
-  // TODO: Replace with actual hook once VoiceAgentContext is created
-  // const voiceAgent = useVoiceAgent();
+  // Voice Agent Hook
+  const voiceAgent = useVoiceAgent();
 
   // Accessibility states
   const [showChatHistory, setShowChatHistory] = useState(false);
@@ -44,20 +46,23 @@ const AppContent = () => {
   // Voice Agent toggle handler
   const toggleVoiceMode = async () => {
     if (isVoiceActive) {
-      // TODO: Replace with actual voiceAgent.disconnect() once context exists
-      // voiceAgent.disconnect();
+      await voiceAgent.disconnect();
       setIsVoiceActive(false);
       announce('Voice mode disconnected', 'polite');
     } else {
-      // TODO: Replace with actual voiceAgent.connect() once context exists
-      // await voiceAgent.connect();
-      setIsVoiceActive(true);
-      announce('Voice mode connected', 'polite');
+      try {
+        await voiceAgent.connect();
+        setIsVoiceActive(true);
+        announce('Voice mode connected', 'polite');
+      } catch (err) {
+        console.error('Voice connection failed:', err);
+        setNotification({ message: 'VOICE CONNECTION FAILED - CHECK API KEY', type: 'warning' });
+      }
     }
   };
 
   // Auth state
-  const { isAuthenticated, isLoading } = useAuth();
+  const { isAuthenticated, isLoading, authUser } = useAuth();
 
   // Context hooks for shared state
   const { bgImage, setBgImage, refImages } = useCanvas();
@@ -91,9 +96,23 @@ const AppContent = () => {
 
       console.log(`[App] Generating with ${modelName} (${currentModel})`);
 
-      const result = await generateImage(promptToUse, refImages, genSize);
+      const result = await generateImage(promptToUse, refImages, genSize, true);
       if (result) {
         setBgImage(result);
+
+        // Save to gallery if authenticated
+        if (isAuthenticated && authUser) {
+          persistImageToGallery(authUser.id, result, {
+            prompt: promptToUse,
+            model_used: currentModel,
+            quality: genSize,
+            generation_type: 'generate'
+          }).then(success => {
+            if (success) {
+              setNotification({ message: 'IMAGE SAVED TO GALERY', type: 'info' });
+            }
+          }).catch(console.error);
+        }
 
         // Check if model changed (fallback occurred)
         const finalModel = localStorage.getItem('llm_image_model');
@@ -186,6 +205,14 @@ const AppContent = () => {
       if (result) {
         setBgImage(result);
         setNotification({ message: 'IMAGE EDITED SUCCESSFULLY', type: 'info' });
+
+        if (isAuthenticated && authUser) {
+          persistImageToGallery(authUser.id, result, {
+            prompt: `Edit: ${editPrompt}`,
+            model_used: 'magic-edit',
+            generation_type: 'edit'
+          }).catch(console.error);
+        }
       }
     } catch (error) {
       console.error('[App] Edit error:', error);
@@ -227,7 +254,16 @@ const AppContent = () => {
 
       const { removeBackground } = await import('./services/llm');
       const result = await removeBackground(imageBase64);
-      if (result) setBgImage(result);
+      if (result) {
+        setBgImage(result);
+        if (isAuthenticated && authUser) {
+          persistImageToGallery(authUser.id, result, {
+            prompt: 'Remove Background',
+            model_used: 'rembg',
+            generation_type: 'remove-bg'
+          }).catch(console.error);
+        }
+      }
     } catch (error) {
       console.error(error);
       setNotification({ message: 'REMOVE BG FAILED', type: 'warning' });
@@ -253,7 +289,16 @@ const AppContent = () => {
 
       const { upscaleImage } = await import('./services/llm');
       const result = await upscaleImage(imageBase64);
-      if (result) setBgImage(result);
+      if (result) {
+        setBgImage(result);
+        if (isAuthenticated && authUser) {
+          persistImageToGallery(authUser.id, result, {
+            prompt: 'Upscaled Image',
+            model_used: 'esrgan',
+            generation_type: 'upscale'
+          }).catch(console.error);
+        }
+      }
     } catch (error) {
       console.error(error);
       setNotification({ message: 'UPSCALE FAILED', type: 'warning' });
@@ -262,9 +307,9 @@ const AppContent = () => {
     }
   };
 
-  // Migrate localStorage API keys to Supabase on first load
+  // Migrate localStorage API keys to Neon on first load
   useEffect(() => {
-    migrateLocalStorageToSupabase().catch((error) => {
+    migrateLocalStorageToNeon().catch((error: unknown) => {
       console.error('[App] Migration failed:', error);
     });
   }, []);
@@ -403,20 +448,15 @@ const AppContent = () => {
       </main>
 
       {/* Live Action Panel - Voice Agent UI */}
+      {/* Live Action Panel - Voice Agent UI */}
       {isVoiceActive && (
         <LiveActionPanel
-          isConnected={false} // TODO: Replace with voiceAgent.isConnected
-          transcript={[]} // TODO: Replace with voiceAgent.transcript
-          pendingAction={null} // TODO: Replace with voiceAgent.pendingAction
-          executingAction={false} // TODO: Replace with voiceAgent.executingAction
-          onApproveAction={() => {
-            // TODO: Replace with voiceAgent.approveAction()
-            console.log('[App] Action approved (placeholder)');
-          }}
-          onRejectAction={() => {
-            // TODO: Replace with voiceAgent.rejectAction()
-            console.log('[App] Action rejected (placeholder)');
-          }}
+          isConnected={voiceAgent.isConnected}
+          transcript={voiceAgent.transcript}
+          pendingAction={voiceAgent.pendingAction}
+          executingAction={voiceAgent.executingAction}
+          onApproveAction={() => voiceAgent.approveAction()}
+          onRejectAction={() => voiceAgent.rejectAction()}
         />
       )}
     </div>
@@ -428,12 +468,11 @@ function App() {
     <ScreenReaderAnnouncerProvider>
       <AuthProvider>
         <AIProvider>
-          {/* TODO: Add VoiceAgentProvider here once created */}
-          {/* <VoiceAgentProvider> */}
-          <CanvasProvider>
-            <AppContent />
-          </CanvasProvider>
-          {/* </VoiceAgentProvider> */}
+          <VoiceAgentProvider onUpdate={(action) => console.log('Voice Action:', action)}>
+            <CanvasProvider>
+              <AppContent />
+            </CanvasProvider>
+          </VoiceAgentProvider>
         </AIProvider>
       </AuthProvider>
     </ScreenReaderAnnouncerProvider>
