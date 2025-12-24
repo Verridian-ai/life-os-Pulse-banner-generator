@@ -4,8 +4,6 @@ steps:
     args:
       - "build"
       - "-t"
-      # - 'gcr.io/$PROJECT_ID/nanobanna-pro:$COMMIT_SHA' (Commented out for manual build)
-      - "-t"
       - "gcr.io/$PROJECT_ID/nanobanna-pro:latest"
       - "--build-arg"
       - "VITE_SUPABASE_URL=${_VITE_SUPABASE_URL}"
@@ -15,11 +13,6 @@ steps:
       - "."
 
   # Push the container image to Container Registry
-  - name: "gcr.io/cloud-builders/docker"
-    args:
-      - "push"
-      # - 'gcr.io/$PROJECT_ID/nanobanna-pro:$COMMIT_SHA'
-
   - name: "gcr.io/cloud-builders/docker"
     args:
       - "push"
