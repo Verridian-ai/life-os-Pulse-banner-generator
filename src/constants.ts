@@ -15,7 +15,8 @@ export const MODELS = {
   imageGen: 'google/gemini-3-pro-image-preview', // Nano Banana Pro (Gemini 3 Pro Image Preview) - verified on OpenRouter
   geminiImageGen: 'google/gemini-2.5-flash-image', // Fallback model (OpenRouter compatible)
   imageEdit: 'google/gemini-3-pro-image-preview', // Same as imageGen - Gemini 3 Pro Image Preview
-  liveAudio: 'gemini-2.5-flash-native-audio-preview-09-2025',
+  // Gemini 2.5 Flash Native Audio - December 2025 release with improved function calling
+  liveAudio: 'gemini-2.5-flash-native-audio-preview-12-2025',
 
   // OpenRouter Models (Latest 2025)
   openrouter: {
@@ -26,6 +27,10 @@ export const MODELS = {
     gemini3DeepThink: 'google/gemini-3-deep-think',
     minimaxM2: 'minimax/minimax-m2-plus',
     fluxSchnell: 'black-forest-labs/flux-1-schnell', // Image generation
+    // GLM-4 - Fast, capable model for chat and design tasks
+    glm47: 'thudm/glm-4-32b', // GLM-4 32B - balanced speed and quality
+    // Perplexity Sonar - Web-connected research model
+    sonarDeepResearch: 'perplexity/sonar-deep-research', // For trend research with web access
   },
 
   // Replicate Models

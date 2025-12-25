@@ -20,7 +20,6 @@ import { AIProvider } from './context/AIContext';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import { migrateLocalStorageToNeon } from './services/apiKeyStorage';
 import { createImage } from './services/database';
-import { persistImageToGallery } from './utils/imagePersistence';
 // Voice Provider Imported
 import { VoiceAgentProvider, useVoiceAgent } from './context/VoiceAgentContext';
 
@@ -62,7 +61,7 @@ const AppContent = () => {
   };
 
   // Auth state
-  const { isAuthenticated, isLoading, authUser } = useAuth();
+  const { isAuthenticated, isLoading, supabaseUser } = useAuth();
 
   // Context hooks for shared state
   const { bgImage, setBgImage, refImages } = useCanvas();
@@ -101,15 +100,17 @@ const AppContent = () => {
         setBgImage(result);
 
         // Save to gallery if authenticated
-        if (isAuthenticated && authUser) {
-          persistImageToGallery(authUser.id, result, {
+        if (isAuthenticated && supabaseUser) {
+          createImage({
+            storage_url: result,
+            file_name: `banner-${Date.now()}.png`,
             prompt: promptToUse,
             model_used: currentModel,
             quality: genSize,
             generation_type: 'generate'
-          }).then(success => {
-            if (success) {
-              setNotification({ message: 'IMAGE SAVED TO GALERY', type: 'info' });
+          }).then((saved) => {
+            if (saved) {
+              setNotification({ message: 'IMAGE SAVED TO GALLERY', type: 'info' });
             }
           }).catch(console.error);
         }
@@ -206,8 +207,10 @@ const AppContent = () => {
         setBgImage(result);
         setNotification({ message: 'IMAGE EDITED SUCCESSFULLY', type: 'info' });
 
-        if (isAuthenticated && authUser) {
-          persistImageToGallery(authUser.id, result, {
+        if (isAuthenticated && supabaseUser) {
+          createImage({
+            storage_url: result,
+            file_name: `edit-${Date.now()}.png`,
             prompt: `Edit: ${editPrompt}`,
             model_used: 'magic-edit',
             generation_type: 'edit'
@@ -256,8 +259,10 @@ const AppContent = () => {
       const result = await removeBackground(imageBase64);
       if (result) {
         setBgImage(result);
-        if (isAuthenticated && authUser) {
-          persistImageToGallery(authUser.id, result, {
+        if (isAuthenticated && supabaseUser) {
+          createImage({
+            storage_url: result,
+            file_name: `removebg-${Date.now()}.png`,
             prompt: 'Remove Background',
             model_used: 'rembg',
             generation_type: 'remove-bg'
@@ -291,8 +296,10 @@ const AppContent = () => {
       const result = await upscaleImage(imageBase64);
       if (result) {
         setBgImage(result);
-        if (isAuthenticated && authUser) {
-          persistImageToGallery(authUser.id, result, {
+        if (isAuthenticated && supabaseUser) {
+          createImage({
+            storage_url: result,
+            file_name: `upscale-${Date.now()}.png`,
             prompt: 'Upscaled Image',
             model_used: 'esrgan',
             generation_type: 'upscale'

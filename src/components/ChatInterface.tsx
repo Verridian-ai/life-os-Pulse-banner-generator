@@ -211,10 +211,10 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({ onGenerateFromPrompt }) =
           role,
           content,
           images: extra?.images,
-          generatedImages: extra?.generated_images,
-          modelUsed: extra?.model_used,
-          tokensUsed: extra?.tokens_used,
-          responseTimeMs: extra?.response_time_ms,
+          generated_images: extra?.generated_images,
+          model_used: extra?.model_used,
+          tokens_used: extra?.tokens_used,
+          response_time_ms: extra?.response_time_ms,
         });
         console.log('[ChatInterface] Saved message to conversation:', convId);
       } catch (error) {
@@ -560,7 +560,7 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({ onGenerateFromPrompt }) =
                               {conv.title}
                             </div>
                             <div className='text-xs text-zinc-500'>
-                              {new Date(conv.lastMessageAt).toLocaleDateString()}
+                              {new Date(conv.last_message_at).toLocaleDateString()}
                             </div>
                           </div>
                           <button

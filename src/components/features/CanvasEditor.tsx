@@ -44,19 +44,19 @@ const CanvasEditor: React.FC = () => {
   };
 
   return (
-    <div className='flex-1 p-4 md:p-6 lg:p-8 flex flex-col items-center justify-start'>
+    <div className='flex-1 p-2 sm:p-4 md:p-6 lg:p-8 flex flex-col items-center justify-start overflow-x-hidden'>
       <div className='w-full max-w-[1400px]'>
         {/* Canvas Header */}
-        <div className='mb-6 flex flex-wrap justify-between items-center gap-4'>
-          <div className='flex items-center gap-3'>
-            <span className='bg-white/10 p-2 rounded-lg text-zinc-400'>
-              <span className='material-icons text-base'>aspect_ratio</span>
+        <div className='mb-4 sm:mb-6 flex flex-wrap justify-between items-center gap-2 sm:gap-4'>
+          <div className='flex items-center gap-2 sm:gap-3'>
+            <span className='bg-white/10 p-1.5 sm:p-2 rounded-lg text-zinc-400'>
+              <span className='material-icons text-sm sm:text-base'>aspect_ratio</span>
             </span>
             <div>
-              <h2 className='text-white text-sm font-black uppercase tracking-wider drop-shadow-sm'>
+              <h2 className='text-white text-xs sm:text-sm font-black uppercase tracking-wider drop-shadow-sm'>
                 Canvas View
               </h2>
-              <p className='text-[10px] md:text-xs text-zinc-500 font-bold uppercase tracking-widest'>
+              <p className='text-[8px] sm:text-[10px] md:text-xs text-zinc-500 font-bold uppercase tracking-widest'>
                 {BANNER_WIDTH} x {BANNER_HEIGHT} PX
               </p>
             </div>
@@ -64,12 +64,12 @@ const CanvasEditor: React.FC = () => {
 
           <button
             onClick={() => setShowSafeZones(!showSafeZones)}
-            className={`h-9 md:h-10 px-4 rounded-full flex items-center gap-2 font-black uppercase tracking-wider text-[10px] transition-all ${showSafeZones ? 'bg-blue-600/20 border border-blue-500 text-blue-400' : BTN_NEU_SOLID}`}
+            className={`h-8 sm:h-9 md:h-10 px-2 sm:px-4 rounded-full flex items-center gap-1 sm:gap-2 font-black uppercase tracking-wider text-[8px] sm:text-[10px] transition-all ${showSafeZones ? 'bg-blue-600/20 border border-blue-500 text-blue-400' : BTN_NEU_SOLID}`}
           >
-            <span className='material-icons text-sm'>
+            <span className='material-icons text-xs sm:text-sm'>
               {showSafeZones ? 'visibility' : 'visibility_off'}
             </span>
-            Safe Zones: {showSafeZones ? 'ON' : 'OFF'}
+            <span className='hidden xs:inline'>Safe Zones:</span> {showSafeZones ? 'ON' : 'OFF'}
           </button>
         </div>
 
@@ -91,10 +91,10 @@ const CanvasEditor: React.FC = () => {
         </div>
 
         {/* Tools Grid - Stacks on mobile */}
-        <div className='mt-8 grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6 pb-20'>
+        <div className='mt-6 sm:mt-8 grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-3 sm:gap-6 pb-16 sm:pb-20'>
           <AssetsPanel />
           <LayersPanel />
-          <div className='space-y-6'>
+          <div className='space-y-3 sm:space-y-6'>
             <ExportPanel />
             <KeyboardShortcutsPanel />
           </div>

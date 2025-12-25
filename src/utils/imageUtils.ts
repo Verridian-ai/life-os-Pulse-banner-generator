@@ -177,3 +177,89 @@ export const urlToBase64 = async (url: string): Promise<string> => {
     img.src = url;
   });
 };
+
+/**
+ * Prepare an image for outpainting by creating a composite with extended canvas
+ * and a mask indicating the original image area
+ *
+ * @param imageSource - Base64 data URL or image URL
+ * @returns Promise<{image: string, mask: string}> - Composite image and mask
+ */
+export const prepareForOutpainting = async (
+  imageSource: string
+): Promise<{ image: string; mask: string }> => {
+  return new Promise((resolve, reject) => {
+    const img = new Image();
+    img.crossOrigin = 'anonymous';
+
+    img.onload = () => {
+      try {
+        // Target dimensions for LinkedIn banner
+        const targetWidth = LINKEDIN_BANNER_WIDTH;
+        const targetHeight = LINKEDIN_BANNER_HEIGHT;
+
+        // Create the composite canvas (image centered on banner-sized canvas)
+        const compositeCanvas = document.createElement('canvas');
+        compositeCanvas.width = targetWidth;
+        compositeCanvas.height = targetHeight;
+        const compositeCtx = compositeCanvas.getContext('2d');
+
+        // Create the mask canvas
+        const maskCanvas = document.createElement('canvas');
+        maskCanvas.width = targetWidth;
+        maskCanvas.height = targetHeight;
+        const maskCtx = maskCanvas.getContext('2d');
+
+        if (!compositeCtx || !maskCtx) {
+          reject(new Error('Failed to get canvas context'));
+          return;
+        }
+
+        // Fill composite with neutral gray (areas to be outpainted)
+        compositeCtx.fillStyle = '#808080';
+        compositeCtx.fillRect(0, 0, targetWidth, targetHeight);
+
+        // Fill mask with white (areas to be generated)
+        maskCtx.fillStyle = '#FFFFFF';
+        maskCtx.fillRect(0, 0, targetWidth, targetHeight);
+
+        // Calculate where to place the original image (centered)
+        const scale = Math.min(
+          targetWidth / img.width,
+          targetHeight / img.height
+        );
+        const scaledWidth = img.width * scale;
+        const scaledHeight = img.height * scale;
+        const offsetX = (targetWidth - scaledWidth) / 2;
+        const offsetY = (targetHeight - scaledHeight) / 2;
+
+        // Draw original image centered on composite
+        compositeCtx.drawImage(img, offsetX, offsetY, scaledWidth, scaledHeight);
+
+        // Draw black rectangle on mask where original image is (areas to keep)
+        maskCtx.fillStyle = '#000000';
+        maskCtx.fillRect(offsetX, offsetY, scaledWidth, scaledHeight);
+
+        console.log('[ImageUtils] Prepared image for outpainting:', {
+          original: `${img.width}x${img.height}`,
+          target: `${targetWidth}x${targetHeight}`,
+          offset: `(${offsetX}, ${offsetY})`,
+        });
+
+        resolve({
+          image: compositeCanvas.toDataURL('image/png'),
+          mask: maskCanvas.toDataURL('image/png'),
+        });
+      } catch (error) {
+        console.error('[ImageUtils] Outpainting preparation error:', error);
+        reject(error);
+      }
+    };
+
+    img.onerror = () => {
+      reject(new Error('Failed to load image for outpainting'));
+    };
+
+    img.src = imageSource;
+  });
+};
