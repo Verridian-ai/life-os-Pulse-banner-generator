@@ -4,6 +4,12 @@ import { LiveClient, ToolCall, TranscriptEntry } from '@/services/liveClient';
 import { ActionExecutor, ActionResult, OnUpdateCallback } from '@/services/actionExecutor';
 import { getUserAPIKeys } from '@/services/apiKeyStorage';
 
+// Pending action structure matching LiveActionPanel expectations
+interface PendingAction {
+  toolCall: ToolCall;
+  result: ActionResult;
+}
+
 interface VoiceAgentContextType {
   // Connection state
   isConnected: boolean;
@@ -12,7 +18,7 @@ interface VoiceAgentContextType {
 
   // Conversation data
   transcript: TranscriptEntry[];
-  pendingAction: ActionResult | null;
+  pendingAction: PendingAction | null;
   executingAction: boolean;
   error: string | null;
 
@@ -37,7 +43,7 @@ export function VoiceAgentProvider({ children, onUpdate }: VoiceAgentProviderPro
   const [isListening, setIsListening] = useState(false);
   const [isSpeaking, setIsSpeaking] = useState(false);
   const [transcript, setTranscript] = useState<TranscriptEntry[]>([]);
-  const [pendingAction, setPendingAction] = useState<ActionResult | null>(null);
+  const [pendingAction, setPendingAction] = useState<PendingAction | null>(null);
   const [executingAction, setExecutingAction] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -97,7 +103,8 @@ export function VoiceAgentProvider({ children, onUpdate }: VoiceAgentProviderPro
           setExecutingAction(true);
           try {
             const result = await executor.executeToolCall(toolCall);
-            setPendingAction(result);
+            // Store both toolCall and result for the LiveActionPanel
+            setPendingAction({ toolCall, result });
           } catch (err) {
             console.error('[VoiceAgentContext] Tool execution error:', err);
             setError(err instanceof Error ? err.message : 'Tool execution failed');
@@ -166,12 +173,13 @@ export function VoiceAgentProvider({ children, onUpdate }: VoiceAgentProviderPro
     setExecutingAction(true);
 
     try {
-      // Apply the previewed result
-      if (pendingAction.success && pendingAction.result) {
-        actionExecutorRef.current.applyPreview(pendingAction.result);
+      // Apply the previewed result (access result from the PendingAction structure)
+      const { result } = pendingAction;
+      if (result.success && result.result) {
+        actionExecutorRef.current.applyPreview(result.result);
         console.log('[VoiceAgentContext] Action applied successfully');
       } else {
-        throw new Error(pendingAction.error || 'Action failed');
+        throw new Error(result.error || 'Action failed');
       }
     } catch (err) {
       console.error('[VoiceAgentContext] Failed to apply action:', err);

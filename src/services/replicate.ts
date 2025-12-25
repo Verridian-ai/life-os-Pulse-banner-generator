@@ -96,6 +96,18 @@ export class ReplicateService {
   async generateLayer(prompt: string, width?: number, height?: number): Promise<string> {
     return this.callEndpoint('generate-layer', { prompt, width, height });
   }
+
+  /**
+   * Outpaint an image (expand canvas and fill with AI-generated content)
+   * Uses inpainting with a mask to extend the image in the specified direction
+   */
+  async outpaint(image: string, prompt: string, direction: 'left' | 'right' | 'up' | 'down' | 'all' = 'all'): Promise<string> {
+    return this.callEndpoint('outpaint', {
+      image,
+      prompt,
+      direction,
+    });
+  }
 }
 
 // Helper function to get Replicate service instance

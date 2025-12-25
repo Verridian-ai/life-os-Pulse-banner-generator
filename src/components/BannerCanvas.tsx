@@ -761,7 +761,15 @@ const BannerCanvas = forwardRef<BannerCanvasHandle, BannerCanvasProps>(
 
     return (
       <div
-        className='w-full relative shadow-2xl rounded-lg bg-slate-800 mb-20 group aspect-[1584/396]'
+        className='w-full relative shadow-2xl rounded-lg bg-slate-800 mb-16 sm:mb-20 group'
+        style={{
+          // Use aspect-ratio for consistent scaling across all browsers
+          aspectRatio: `${BANNER_WIDTH} / ${BANNER_HEIGHT}`,
+          // Prevent overflow on mobile
+          maxWidth: '100%',
+          // Ensure minimum height on very small screens
+          minHeight: '80px',
+        }}
         onWheel={handleCanvasWheel}
         onMouseMove={(e) => {
           if (profileDrag) handleProfileMouseMove(e);
@@ -774,7 +782,7 @@ const BannerCanvas = forwardRef<BannerCanvasHandle, BannerCanvasProps>(
           ref={canvasRef}
           width={BANNER_WIDTH}
           height={BANNER_HEIGHT}
-          className={`w-full h-full absolute top-0 left-0 origin-top-left touch-none ${dragState
+          className={`w-full h-full absolute top-0 left-0 origin-top-left touch-none rounded-lg ${dragState
               ? dragState.mode === 'move' || dragState.mode === 'rotate'
                 ? 'cursor-grabbing'
                 : 'cursor-crosshair'
@@ -811,73 +819,87 @@ const BannerCanvas = forwardRef<BannerCanvasHandle, BannerCanvasProps>(
           onTouchEnd={handleMouseUp}
         />
 
-        {/* Profile Picture Overlay - Floating above canvas to allow overlap - Round Circle */}
+        {/* Profile Picture Overlay - Floating above canvas to allow overlap - Perfect Circle */}
+        {/*
+          Profile circle sizing: LinkedIn profile pics overlay the banner at ~330px diameter on a 1584px banner.
+          Using width: 20.83% with explicit aspect-ratio: 1 ensures perfect circle on all screens.
+          Position: 19.31% from left (center of 524px safe zone on 1584px width).
+        */}
         {showSafeZones && (
           <div
-            className={`absolute rounded-full border-4 border-white overflow-hidden shadow-lg z-10 bg-slate-100 group w-[20.83%] aspect-square left-[19.31%] top-full -translate-x-1/2 -translate-y-1/2 pointer-events-auto ${profileDrag ? 'cursor-grabbing' : 'cursor-grab'}`}
+            className={`absolute left-[19.31%] top-full -translate-x-1/2 -translate-y-1/2 pointer-events-auto z-10 ${profileDrag ? 'cursor-grabbing' : 'cursor-grab'}`}
+            style={{
+              // Width is 20.83% of container (330px / 1584px)
+              width: '20.83%',
+              // Force 1:1 aspect ratio for perfect circle
+              aspectRatio: '1 / 1',
+            }}
             onMouseDown={handleProfileMouseDown}
             onWheel={handleProfileWheel}
           >
-            {profilePic ? (
-              <div className='w-full h-full relative pointer-events-none'>
-                <img
-                  src={profilePic}
-                  alt='Profile'
-                  className={`w-full h-full object-cover select-none ${profileDrag ? 'transition-none' : 'transition-transform duration-100 ease-out'}`}
-                  style={{
-                    transform: `scale(${profileTransform?.scale || 1}) translate(${profileTransform?.x || 0}px, ${profileTransform?.y || 0}px)`,
-                  }}
-                />
-                {/* Face Enhance Button - Appears on hover */}
-                <div className='absolute inset-0 bg-black/60 backdrop-blur-sm opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center pointer-events-auto'>
-                  <button
-                    type='button'
-                    onClick={async (e) => {
-                      e.stopPropagation();
-                      if (onProfileFaceEnhance && !isEnhancingProfile) {
-                        setIsEnhancingProfile(true);
-                        try {
-                          await onProfileFaceEnhance();
-                        } catch (error) {
-                          console.error('[Profile] Face enhance failed:', error);
-                        } finally {
-                          setIsEnhancingProfile(false);
-                        }
-                      }
+            {/* Inner circle container with proper styling */}
+            <div className='w-full h-full rounded-full border-4 border-white overflow-hidden shadow-lg bg-slate-100 group'>
+              {profilePic ? (
+                <div className='w-full h-full relative pointer-events-none'>
+                  <img
+                    src={profilePic}
+                    alt='Profile'
+                    className={`w-full h-full object-cover select-none ${profileDrag ? 'transition-none' : 'transition-transform duration-100 ease-out'}`}
+                    style={{
+                      transform: `scale(${profileTransform?.scale || 1}) translate(${profileTransform?.x || 0}px, ${profileTransform?.y || 0}px)`,
                     }}
-                    disabled={isEnhancingProfile}
-                    className='bg-gradient-to-br from-pink-600 to-pink-700 hover:from-pink-500 hover:to-pink-600 disabled:from-pink-800 disabled:to-pink-800 text-white font-bold py-2 px-4 rounded-xl transition flex items-center justify-center gap-2 text-xs shadow-lg'
-                    title='Enhance face quality with AI'
-                  >
-                    {isEnhancingProfile ? (
-                      <>
-                        <span className='material-icons text-sm animate-spin'>refresh</span>
-                        Enhancing...
-                      </>
-                    ) : (
-                      <>
-                        <span className='material-icons text-sm'>face</span>
-                        Face Enhance
-                      </>
-                    )}
-                  </button>
+                  />
+                  {/* Face Enhance Button - Appears on hover */}
+                  <div className='absolute inset-0 bg-black/60 backdrop-blur-sm opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center pointer-events-auto'>
+                    <button
+                      type='button'
+                      onClick={async (e) => {
+                        e.stopPropagation();
+                        if (onProfileFaceEnhance && !isEnhancingProfile) {
+                          setIsEnhancingProfile(true);
+                          try {
+                            await onProfileFaceEnhance();
+                          } catch (error) {
+                            console.error('[Profile] Face enhance failed:', error);
+                          } finally {
+                            setIsEnhancingProfile(false);
+                          }
+                        }
+                      }}
+                      disabled={isEnhancingProfile}
+                      className='bg-gradient-to-br from-pink-600 to-pink-700 hover:from-pink-500 hover:to-pink-600 disabled:from-pink-800 disabled:to-pink-800 text-white font-bold py-2 px-4 rounded-xl transition flex items-center justify-center gap-2 text-xs shadow-lg'
+                      title='Enhance face quality with AI'
+                    >
+                      {isEnhancingProfile ? (
+                        <>
+                          <span className='material-icons text-sm animate-spin'>refresh</span>
+                          Enhancing...
+                        </>
+                      ) : (
+                        <>
+                          <span className='material-icons text-sm'>face</span>
+                          Face Enhance
+                        </>
+                      )}
+                    </button>
+                  </div>
                 </div>
-              </div>
-            ) : (
-              <div className='text-slate-400 font-bold text-center leading-tight select-none pointer-events-none'>
-                <span className='material-icons text-4xl block md:text-5xl lg:text-6xl mb-1'>
-                  person
-                </span>
-                <span className='text-[8px] md:text-[10px] lg:text-sm whitespace-nowrap px-2'>
-                  524 px zone
-                </span>
-                <div className='mt-2 text-[10px] text-slate-300 opacity-60'>
-                  Ctrl+Scroll to Zoom
-                  <br />
-                  Drag to Move
+              ) : (
+                <div className='w-full h-full flex flex-col items-center justify-center text-slate-400 font-bold text-center leading-tight select-none pointer-events-none'>
+                  <span className='material-icons text-4xl md:text-5xl lg:text-6xl mb-1'>
+                    person
+                  </span>
+                  <span className='text-[8px] md:text-[10px] lg:text-sm whitespace-nowrap px-2'>
+                    524 px zone
+                  </span>
+                  <div className='mt-2 text-[10px] text-slate-300 opacity-60'>
+                    Ctrl+Scroll to Zoom
+                    <br />
+                    Drag to Move
+                  </div>
                 </div>
-              </div>
-            )}
+              )}
+            </div>
           </div>
         )}
       </div>

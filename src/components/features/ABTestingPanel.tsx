@@ -58,7 +58,7 @@ export const ABTestingPanel: React.FC<ABTestingPanelProps> = ({
             variantPrompt,
             referenceImages,
             '2K',
-            [], // No edit history for variants
+            true, // isBanner - generate as banner
           );
 
           generatedVariants.push({
