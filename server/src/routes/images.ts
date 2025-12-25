@@ -14,7 +14,7 @@ imageRouter.get('/', async (c) => {
     const user = c.get('user');
     const { search, type, favorites, limit, offset } = c.req.query();
 
-    let conditions = [eq(images.userId, user.id)];
+    const conditions = [eq(images.userId, user.id)];
 
     if (search) {
         conditions.push(like(images.prompt, `%${search}%`));

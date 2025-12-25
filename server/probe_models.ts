@@ -21,7 +21,7 @@ async function testModels() {
     for (const m of models) {
         console.log(`Testing ${m.name}: ${m.id}`);
         let url = `https://api.replicate.com/v1/models/${m.id}/predictions`;
-        let body: any = { input: { default: true } }; // Dummy input
+        const body: Record<string, unknown> = { input: { default: true } }; // Dummy input
 
         // If it has version hash (:)
         if (m.id.includes(':')) {
