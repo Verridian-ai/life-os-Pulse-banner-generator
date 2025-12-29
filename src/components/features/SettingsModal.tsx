@@ -35,12 +35,19 @@ const UPSCALE_MODELS = [
 
 // Common Image Models - Moved outside component for consistency
 const IMAGE_MODELS = [
-  { id: 'google/gemini-3-pro-image-preview', name: 'Nano Banana Pro (4K, Best Quality)' },
-  { id: 'google/gemini-2.5-flash-image', name: 'Nano Banana (2K, Fast)' },
-  { id: 'black-forest-labs/flux-1-schnell', name: 'Flux 1 Schnell (Fast/Cheap)' },
-  { id: 'black-forest-labs/flux-1-dev', name: 'Flux 1 Dev (High Quality)' },
-  { id: 'recraft-ai/recraft-v3', name: 'Recraft V3 (vector-like)' },
-  { id: 'stabilityai/stable-diffusion-xl-base-1.0', name: 'SDXL 1.0' },
+  // OpenRouter Models (Gemini)
+  { id: 'google/gemini-3-pro-image-preview', name: 'Nano Banana Pro (4K, Best Quality)', provider: 'openrouter' },
+  { id: 'google/gemini-2.5-flash-image', name: 'Nano Banana (2K, Fast)', provider: 'openrouter' },
+
+  // Replicate Models - Latest 2025
+  { id: 'ideogram-ai/ideogram-v3', name: 'Ideogram V3 (Best for Text)', provider: 'replicate' },
+  { id: 'stability-ai/stable-diffusion-3-large', name: 'SD3 Large (High Quality)', provider: 'replicate' },
+  { id: 'stability-ai/stable-diffusion-3-medium', name: 'SD3 Medium (Balanced)', provider: 'replicate' },
+  { id: 'adirik/flux-cinestill', name: 'FLUX Cinestill (Cinematic)', provider: 'replicate' },
+  { id: 'fofr/flux-realism', name: 'FLUX Realism (Photorealistic)', provider: 'replicate' },
+  { id: 'black-forest-labs/flux-1.1-pro', name: 'FLUX 1.1 Pro (Premium)', provider: 'replicate' },
+  { id: 'black-forest-labs/flux-1-schnell', name: 'FLUX Schnell (Fast)', provider: 'replicate' },
+  { id: 'black-forest-labs/flux-1-dev', name: 'FLUX Dev (Community)', provider: 'replicate' },
 ];
 
 // Magic Edit Models (same as image generation for now)
@@ -77,6 +84,7 @@ interface SettingsModalProps {
 export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose }) => {
   // API Keys
   const [openRouterKey, setOpenRouterKey] = useState('');
+  const [openaiKey, setOpenaiKey] = useState('');
   const [replicateKey, setReplicateKey] = useState('');
 
   // Model selections
@@ -88,6 +96,9 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
 
   // Validation states
   const [openRouterStatus, setOpenRouterStatus] = useState<
+    'untested' | 'testing' | 'valid' | 'invalid'
+  >('untested');
+  const [openaiStatus, setOpenaiStatus] = useState<
     'untested' | 'testing' | 'valid' | 'invalid'
   >('untested');
   const [replicateStatus, setReplicateStatus] = useState<
@@ -107,6 +118,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
 
         // Set API keys
         setOpenRouterKey(keys.openrouter_api_key || '');
+        setOpenaiKey(keys.openai_api_key || '');
         setReplicateKey(keys.replicate_api_key || '');
 
         // Set models with defaults
@@ -129,6 +141,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
 
         // Reset validation status
         setOpenRouterStatus('untested');
+        setOpenaiStatus('untested');
         setReplicateStatus('untested');
         setTestError('');
         setSaved(false);
@@ -158,6 +171,35 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
     } catch (error) {
       console.error('[Settings] OpenRouter test error:', error);
       setOpenRouterStatus('invalid');
+      setTestError(error instanceof Error ? error.message : 'Connection test failed');
+    }
+  };
+
+  const handleTestOpenAI = async () => {
+    if (!openaiKey) return;
+
+    setOpenaiStatus('testing');
+    setTestError('');
+
+    try {
+      // Test OpenAI key by making a simple API call
+      const response = await fetch('https://api.openai.com/v1/models', {
+        headers: {
+          'Authorization': `Bearer ${openaiKey}`,
+        },
+      });
+
+      if (response.ok) {
+        setOpenaiStatus('valid');
+        console.log('[Settings] ✓ OpenAI connected');
+      } else {
+        setOpenaiStatus('invalid');
+        const error = await response.json();
+        setTestError(error.error?.message || 'Invalid API key');
+      }
+    } catch (error) {
+      console.error('[Settings] OpenAI test error:', error);
+      setOpenaiStatus('invalid');
       setTestError(error instanceof Error ? error.message : 'Connection test failed');
     }
   };
@@ -201,9 +243,10 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
 
       const finalChatModel = chatModel === 'custom' ? customChatModel : chatModel;
 
-      // Save to Supabase
+      // Save to database via backend API
       const result = await saveUserAPIKeys({
         openrouter_api_key: openRouterKey,
+        openai_api_key: openaiKey || undefined,
         replicate_api_key: replicateKey || undefined,
         llm_provider: 'openrouter', // Always OpenRouter now
         llm_model: finalChatModel,
@@ -377,6 +420,52 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
 
           {/* Divider */}
           <div className='border-t border-white/10' />
+
+          {/* OpenAI Section (Optional - for Voice Chat) */}
+          <div>
+            <label
+              htmlFor='openai-key'
+              className='block text-[10px] font-bold text-zinc-500 uppercase tracking-widest mb-2 flex justify-between items-center'
+            >
+              <span>OpenAI API (Optional)</span>
+              <span className='text-[9px] text-zinc-600'>For voice chat / live assistant</span>
+            </label>
+            <input
+              id='openai-key'
+              type='password'
+              value={openaiKey}
+              onChange={(e) => {
+                setOpenaiKey(e.target.value);
+                setOpenaiStatus('untested');
+              }}
+              placeholder='sk-...'
+              className='w-full bg-zinc-950 border border-white/10 rounded-xl px-4 py-3 text-white text-xs font-medium focus:outline-none focus:border-purple-500/50 transition placeholder-zinc-700'
+            />
+            {openaiKey && (
+              <div className='flex items-center justify-between mt-2'>
+                <button
+                  type='button'
+                  onClick={handleTestOpenAI}
+                  disabled={openaiStatus === 'testing'}
+                  className='text-xs px-3 py-1 bg-purple-600 hover:bg-purple-700 rounded transition disabled:opacity-50 disabled:cursor-not-allowed'
+                >
+                  {openaiStatus === 'testing' ? 'Testing...' : 'Test Connection'}
+                </button>
+                <ConnectionStatus status={openaiStatus} />
+              </div>
+            )}
+            <p className='text-[9px] text-zinc-600 mt-2'>
+              <a
+                href='https://platform.openai.com/api-keys'
+                target='_blank'
+                rel='noopener noreferrer'
+                className='text-purple-400 hover:text-purple-300 underline inline-flex items-center gap-1'
+              >
+                Get your OpenAI API key
+                <span className='material-icons text-[10px]'>open_in_new</span>
+              </a>
+            </p>
+          </div>
 
           {/* Replicate Section (Optional) */}
           <div>
