@@ -1,27 +1,51 @@
 @import "tailwindcss";
 
+/* ============================================
+   NANOBANNA PRO - RESPONSIVE CSS FRAMEWORK
+   Optimized for all devices and browsers
+   Last Updated: 2025-12-29
+   ============================================ */
+
+/* ===========================================
+   1. BASE STYLES
+   =========================================== */
+
 body {
-  font-family: 'Inter', sans-serif;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  /* Prevent horizontal scroll on mobile */
+  overflow-x: hidden;
+  /* Smooth scrolling for anchor links */
+  scroll-behavior: smooth;
 }
 
-/* Custom scrollbar hiding with cross-browser support */
-/*
- * Fallback strategy:
- * 1. Webkit (Chrome, Safari, Edge 79+): ::-webkit-scrollbar
- * 2. IE/Old Edge: -ms-overflow-style
- * 3. Firefox 64+: scrollbar-width (Baseline 2024)
- *
- * Note: scrollbar-width warning is expected - we have webkit fallback
- * for older Chrome/Safari versions. All modern browsers are supported.
- */
-.scrollbar-hide {
-  /* IE and Edge (legacy) */
-  -ms-overflow-style: none;
+/* Reduce motion for users who prefer it */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
 
-  /* Firefox 64+ (Baseline 2024) */
-  /* stylelint-disable-next-line property-no-unknown */
-  /* doiuse-disable */
-  scrollbar-width: none;
+/* ===========================================
+   2. SCROLLBAR STYLES (Cross-browser)
+   =========================================== */
+
+/* IE and Edge (legacy) */
+.scrollbar-hide {
+  -ms-overflow-style: none;
+}
+
+/* Firefox 64+ (Baseline 2024) */
+@supports (scrollbar-width: none) {
+  .scrollbar-hide {
+    scrollbar-width: none;
+  }
 }
 
 /* Webkit browsers (Chrome, Safari, Edge 79+, Opera) */
@@ -29,4 +53,499 @@ body {
   display: none;
   width: 0;
   height: 0;
+}
+
+/* Custom styled scrollbar for visible areas */
+.scrollbar-styled::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+.scrollbar-styled::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 4px;
+}
+
+.scrollbar-styled::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 4px;
+}
+
+.scrollbar-styled::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.3);
+}
+
+/* ===========================================
+   3. SAFE AREA UTILITIES (iPhone X+, notched devices)
+   =========================================== */
+
+.safe-area-top {
+  padding-top: env(safe-area-inset-top, 0px);
+}
+
+.safe-area-bottom {
+  padding-bottom: env(safe-area-inset-bottom, 20px);
+}
+
+.safe-area-left {
+  padding-left: env(safe-area-inset-left, 0px);
+}
+
+.safe-area-right {
+  padding-right: env(safe-area-inset-right, 0px);
+}
+
+.safe-area-all {
+  padding-top: env(safe-area-inset-top, 0px);
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+  padding-left: env(safe-area-inset-left, 0px);
+  padding-right: env(safe-area-inset-right, 0px);
+}
+
+/* Safe area with max() for minimum padding */
+@supports(padding: max(0px)) {
+  .safe-area-x {
+    padding-left: max(1rem, env(safe-area-inset-left));
+    padding-right: max(1rem, env(safe-area-inset-right));
+  }
+
+  .safe-area-y {
+    padding-top: max(0.5rem, env(safe-area-inset-top));
+    padding-bottom: max(0.5rem, env(safe-area-inset-bottom));
+  }
+}
+
+/* ===========================================
+   4. GLASSMORPHISM (Cross-browser with fallbacks)
+   =========================================== */
+
+/* Base glass effect with solid fallback */
+.glass {
+  background: rgba(0, 0, 0, 0.8);
+}
+
+/* Progressive enhancement for browsers supporting backdrop-filter */
+@supports (backdrop-filter: blur(10px)) or (-webkit-backdrop-filter: blur(10px)) {
+  .glass {
+    background: rgba(0, 0, 0, 0.4);
+    backdrop-filter: blur(12px) saturate(150%);
+    -webkit-backdrop-filter: blur(12px) saturate(150%);
+  }
+
+  .glass-light {
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(12px) saturate(150%);
+    -webkit-backdrop-filter: blur(12px) saturate(150%);
+  }
+
+  .glass-dark {
+    background: rgba(0, 0, 0, 0.6);
+    backdrop-filter: blur(16px) saturate(180%);
+    -webkit-backdrop-filter: blur(16px) saturate(180%);
+  }
+
+  /* Optimized blur for mobile (performance) */
+  @media (max-width: 767px) {
+    .glass,
+    .glass-light,
+    .glass-dark {
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+    }
+  }
+
+  /* Enhanced blur for desktop */
+  @media (min-width: 1024px) {
+    .glass-desktop {
+      backdrop-filter: blur(20px) saturate(180%);
+      -webkit-backdrop-filter: blur(20px) saturate(180%);
+    }
+  }
+}
+
+/* GPU acceleration for glass elements */
+.glass,
+.glass-light,
+.glass-dark {
+  transform: translateZ(0);
+  will-change: auto;
+}
+
+/* ===========================================
+   5. ACCESSIBILITY OVERRIDES (MANDATORY)
+   =========================================== */
+
+/* High contrast mode - removes soft shadows, adds borders */
+@media (prefers-contrast: more) {
+  .glass,
+  .glass-light,
+  .glass-dark {
+    background: black !important;
+    border: 2px solid white !important;
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+  }
+
+  .neu-card,
+  .neumorphic {
+    background: white !important;
+    border: 2px solid black !important;
+    box-shadow: none !important;
+  }
+
+  button,
+  [role="button"] {
+    border: 2px solid currentColor !important;
+  }
+}
+
+/* Windows High Contrast Mode (forced colors) */
+@media (forced-colors: active) {
+  .glass,
+  .glass-light,
+  .glass-dark {
+    background: Canvas !important;
+    border: 2px solid ButtonText !important;
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+  }
+
+  .neu-card,
+  .neumorphic {
+    background: Canvas !important;
+    border: 2px solid ButtonText !important;
+    box-shadow: none !important;
+  }
+
+  button,
+  [role="button"] {
+    border: 2px solid ButtonText !important;
+    background: ButtonFace !important;
+    color: ButtonText !important;
+  }
+
+  button:hover,
+  [role="button"]:hover {
+    background: Highlight !important;
+    color: HighlightText !important;
+  }
+}
+
+/* ===========================================
+   6. TOUCH TARGET SIZES
+   =========================================== */
+
+/* Minimum 44x44px for iOS, 48x48dp for Android (Material Design) */
+.touch-target {
+  min-width: 44px;
+  min-height: 44px;
+}
+
+.touch-target-lg {
+  min-width: 48px;
+  min-height: 48px;
+}
+
+/* Ensure buttons have adequate touch targets on mobile */
+@media (max-width: 767px) {
+  button,
+  [role="button"],
+  a,
+  input[type="button"],
+  input[type="submit"],
+  input[type="checkbox"],
+  input[type="radio"] {
+    min-height: 44px;
+  }
+}
+
+/* ===========================================
+   7. RESPONSIVE TYPOGRAPHY
+   =========================================== */
+
+/* Fluid typography using clamp() */
+.text-fluid-xs {
+  font-size: clamp(0.625rem, 0.5rem + 0.5vw, 0.75rem);
+}
+
+.text-fluid-sm {
+  font-size: clamp(0.75rem, 0.6rem + 0.6vw, 0.875rem);
+}
+
+.text-fluid-base {
+  font-size: clamp(0.875rem, 0.75rem + 0.5vw, 1rem);
+}
+
+.text-fluid-lg {
+  font-size: clamp(1rem, 0.875rem + 0.5vw, 1.125rem);
+}
+
+.text-fluid-xl {
+  font-size: clamp(1.125rem, 1rem + 0.75vw, 1.5rem);
+}
+
+.text-fluid-2xl {
+  font-size: clamp(1.5rem, 1.25rem + 1vw, 2rem);
+}
+
+.text-fluid-3xl {
+  font-size: clamp(1.875rem, 1.5rem + 1.5vw, 3rem);
+}
+
+/* ===========================================
+   8. RESPONSIVE CONTAINER
+   =========================================== */
+
+.container-responsive {
+  width: 100%;
+  margin-left: auto;
+  margin-right: auto;
+  padding-left: 1rem;
+  padding-right: 1rem;
+}
+
+@media (min-width: 640px) {
+  .container-responsive {
+    padding-left: 1.5rem;
+    padding-right: 1.5rem;
+  }
+}
+
+@media (min-width: 1024px) {
+  .container-responsive {
+    max-width: 960px;
+    padding-left: 2rem;
+    padding-right: 2rem;
+  }
+}
+
+@media (min-width: 1280px) {
+  .container-responsive {
+    max-width: 1140px;
+  }
+}
+
+@media (min-width: 1440px) {
+  .container-responsive {
+    max-width: 1280px;
+  }
+}
+
+@media (min-width: 1920px) {
+  .container-responsive {
+    max-width: 1440px;
+  }
+}
+
+/* ===========================================
+   9. BROWSER-SPECIFIC FIXES
+   =========================================== */
+
+/* Safari-specific fixes */
+@supports (-webkit-touch-callout: none) {
+  /* Fix for Safari momentum scrolling */
+  .scroll-container {
+    -webkit-overflow-scrolling: touch;
+  }
+
+  /* Fix for Safari input zoom on focus */
+  input[type="text"],
+  input[type="email"],
+  input[type="password"],
+  input[type="number"],
+  textarea,
+  select {
+    font-size: 16px; /* Prevents zoom on iOS Safari */
+  }
+}
+
+/* Firefox-specific fixes */
+@-moz-document url-prefix() {
+  /* Firefox scrollbar styling */
+  * {
+    scrollbar-width: thin;
+    scrollbar-color: rgba(255, 255, 255, 0.2) transparent;
+  }
+}
+
+/* Edge/IE input placeholder fix */
+input::-ms-input-placeholder {
+  color: rgba(255, 255, 255, 0.5);
+}
+
+input:-ms-input-placeholder {
+  color: rgba(255, 255, 255, 0.5);
+}
+
+/* ===========================================
+   10. RESPONSIVE UTILITIES
+   =========================================== */
+
+/* Hide on specific device sizes */
+.hide-mobile {
+  display: block;
+}
+
+.hide-desktop {
+  display: none;
+}
+
+@media (max-width: 767px) {
+  .hide-mobile {
+    display: none !important;
+  }
+
+  .hide-desktop {
+    display: block !important;
+  }
+}
+
+/* Show only on specific breakpoints */
+.show-xs-only { display: none; }
+.show-sm-only { display: none; }
+.show-md-only { display: none; }
+.show-lg-only { display: none; }
+.show-xl-only { display: none; }
+
+@media (max-width: 359px) {
+  .show-xs-only { display: block !important; }
+}
+
+@media (min-width: 360px) and (max-width: 767px) {
+  .show-sm-only { display: block !important; }
+}
+
+@media (min-width: 768px) and (max-width: 1023px) {
+  .show-md-only { display: block !important; }
+}
+
+@media (min-width: 1024px) and (max-width: 1279px) {
+  .show-lg-only { display: block !important; }
+}
+
+@media (min-width: 1280px) {
+  .show-xl-only { display: block !important; }
+}
+
+/* ===========================================
+   11. PRINT STYLES
+   =========================================== */
+
+@media print {
+  .no-print {
+    display: none !important;
+  }
+
+  .glass,
+  .glass-light,
+  .glass-dark {
+    background: white !important;
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+  }
+
+  body {
+    background: white !important;
+    color: black !important;
+  }
+}
+
+/* ===========================================
+   12. PERFORMANCE OPTIMIZATIONS
+   =========================================== */
+
+/* GPU layers for animated elements (use sparingly) */
+.gpu-accelerated {
+  transform: translateZ(0);
+  backface-visibility: hidden;
+}
+
+/* Content visibility for off-screen optimization */
+.content-visibility-auto {
+  content-visibility: auto;
+  contain-intrinsic-size: 0 500px;
+}
+
+/* ===========================================
+   13. BANNER CANVAS SPECIFIC STYLES
+   =========================================== */
+
+/* LinkedIn banner aspect ratio container */
+.banner-aspect-ratio {
+  aspect-ratio: 4 / 1; /* LinkedIn banner ratio: 1584x396 */
+}
+
+/* Responsive canvas sizing */
+.canvas-container {
+  width: 100%;
+  max-width: 100%;
+  overflow: hidden;
+}
+
+@media (min-width: 768px) {
+  .canvas-container {
+    max-width: calc(100vw - 320px); /* Account for sidebar */
+  }
+}
+
+@media (min-width: 1280px) {
+  .canvas-container {
+    max-width: calc(100vw - 380px);
+  }
+}
+
+/* ===========================================
+   14. FORM INPUTS (Cross-browser)
+   =========================================== */
+
+/* Reset default appearance */
+input,
+textarea,
+select {
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+}
+
+/* Focus visible for keyboard users */
+:focus-visible {
+  outline: 2px solid #60a5fa;
+  outline-offset: 2px;
+}
+
+/* Remove default focus for mouse users */
+:focus:not(:focus-visible) {
+  outline: none;
+}
+
+/* ===========================================
+   15. LOADING STATES
+   =========================================== */
+
+.skeleton {
+  background: linear-gradient(
+    90deg,
+    rgba(255, 255, 255, 0.05) 25%,
+    rgba(255, 255, 255, 0.1) 50%,
+    rgba(255, 255, 255, 0.05) 75%
+  );
+  background-size: 200% 100%;
+  animation: skeleton-shimmer 1.5s ease-in-out infinite;
+}
+
+@keyframes skeleton-shimmer {
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
+}
+
+/* Reduce animation for users who prefer */
+@media (prefers-reduced-motion: reduce) {
+  .skeleton {
+    animation: none;
+    background: rgba(255, 255, 255, 0.1);
+  }
 }
