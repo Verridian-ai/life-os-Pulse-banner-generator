@@ -194,10 +194,13 @@ export class ActionExecutor {
   }): Promise<ActionResult> {
     const { prompt, quality = '2K' } = args;
 
-    console.log('[ActionExecutor] Generating background:', { prompt, quality });
+    // Enhance prompt for single cohesive banner (prevents 3-panel collage generation)
+    const bannerPrompt = `A single cohesive LinkedIn banner image, ultra-wide 4:1 aspect ratio, seamless professional design. ${prompt}. One unified scene, no panels, no divisions, no collage, no tiled sections.`;
+
+    console.log('[ActionExecutor] Generating background:', { originalPrompt: prompt, enhancedPrompt: bannerPrompt, quality });
 
     try {
-      const imageUrl = await generateImage(prompt, [], quality as '1K' | '2K' | '4K', true);
+      const imageUrl = await generateImage(bannerPrompt, [], quality as '1K' | '2K' | '4K', true);
 
       if (!imageUrl) {
         return { success: false, error: 'Image generation returned null' };

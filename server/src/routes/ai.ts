@@ -238,17 +238,21 @@ const callReplicateModel = async (apiKey: string, modelPath: string, input: any)
 
 // --- Routes ---
 
-// Helper to find closest supported aspect ratio for Flux on Replicate
-const getFluxAspectRatio = (width: number, height: number): string => {
+// Helper to find closest supported aspect ratio for image generation models
+const getAspectRatio = (width: number, height: number): string => {
     const ratio = width / height;
     const supported = [
         { str: "1:1", val: 1 },
+        { str: "4:1", val: 4 },          // LinkedIn banner (1584x396)
+        { str: "3:1", val: 3 },          // Wide banner alternative
+        { str: "21:9", val: 21 / 9 },    // Ultra-wide
         { str: "16:9", val: 16 / 9 },
-        { str: "21:9", val: 21 / 9 },
         { str: "3:2", val: 3 / 2 },
         { str: "2:3", val: 2 / 3 },
         { str: "4:5", val: 4 / 5 },
         { str: "5:4", val: 5 / 4 },
+        { str: "4:3", val: 4 / 3 },
+        { str: "3:4", val: 3 / 4 },
         { str: "9:16", val: 9 / 16 },
         { str: "9:21", val: 9 / 21 },
     ];
@@ -257,6 +261,9 @@ const getFluxAspectRatio = (width: number, height: number): string => {
         Math.abs(curr.val - ratio) < Math.abs(prev.val - ratio) ? curr : prev
     ).str;
 };
+
+// Alias for backward compatibility
+const getFluxAspectRatio = getAspectRatio;
 
 // Chat Route (supports tool calling when tools are provided)
 aiRouter.post('/chat', authMiddleware, async (c) => {
@@ -485,9 +492,18 @@ aiRouter.post('/image/generate', authMiddleware, async (c) => {
                     input.aspect_ratio = "1:1";
                 }
             }
-            // Imagen Logic
+            // Imagen Logic - use same dimension handling as Flux
             else if (modelId.includes('imagen') || modelId.includes('nano-banana')) {
-                input.aspect_ratio = "16:9";
+                if (width && height) {
+                    // Use provided dimensions to calculate aspect ratio
+                    input.aspect_ratio = getAspectRatio(width, height);
+                    console.log(`[Imagen] Using aspect ratio ${input.aspect_ratio} from dimensions ${width}x${height}`);
+                } else if (aspect_ratio) {
+                    input.aspect_ratio = aspect_ratio;
+                } else {
+                    // Default to 16:9 only if no dimensions provided
+                    input.aspect_ratio = "16:9";
+                }
             }
 
             const output = await traceLLMCall(
