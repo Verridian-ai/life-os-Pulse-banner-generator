@@ -33,3 +33,6 @@ dist-ssr
 PowerShell-Source/
 coverage/
 nul
+
+# Vercel (migrated to Cloud Run)
+.vercel/
