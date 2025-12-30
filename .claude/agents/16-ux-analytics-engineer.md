@@ -1,3 +1,8 @@
+---
+name: UX Analytics & Heatmapping Engineer
+description: Agent specialized in UX Analytics & Heatmapping Engineer tasks.
+---
+
 # Agent 16: UX Analytics & Heatmapping Engineer (NEW)
 
 ## Role

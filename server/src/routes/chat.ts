@@ -44,30 +44,64 @@ chatRouter.post('/conversations', async (c) => {
 });
 
 chatRouter.get('/conversations/:id', async (c) => {
+    const user = c.get('user');
+    if (!user) return c.json({ error: 'Unauthorized' }, 401);
+
     const id = c.req.param('id');
-    const [conversation] = await db.select().from(chatConversations).where(eq(chatConversations.id, id));
+    const [conversation] = await db.select().from(chatConversations)
+        .where(and(eq(chatConversations.id, id), eq(chatConversations.userId, user.id)));
+
+    if (!conversation) return c.json({ error: 'Not found' }, 404);
     return c.json({ conversation });
 });
 
 chatRouter.patch('/conversations/:id', async (c) => {
+    const user = c.get('user');
+    if (!user) return c.json({ error: 'Unauthorized' }, 401);
+
     const id = c.req.param('id');
     const body = await c.req.json();
+
+    // First verify ownership
+    const [existing] = await db.select().from(chatConversations)
+        .where(and(eq(chatConversations.id, id), eq(chatConversations.userId, user.id)));
+    if (!existing) return c.json({ error: 'Not found' }, 404);
+
     const [conversation] = await db.update(chatConversations)
         .set({ ...body, updatedAt: new Date() })
-        .where(eq(chatConversations.id, id))
+        .where(and(eq(chatConversations.id, id), eq(chatConversations.userId, user.id)))
         .returning();
     return c.json({ conversation });
 });
 
 chatRouter.delete('/conversations/:id', async (c) => {
+    const user = c.get('user');
+    if (!user) return c.json({ error: 'Unauthorized' }, 401);
+
     const id = c.req.param('id');
-    await db.delete(chatConversations).where(eq(chatConversations.id, id));
+
+    // First verify ownership
+    const [existing] = await db.select().from(chatConversations)
+        .where(and(eq(chatConversations.id, id), eq(chatConversations.userId, user.id)));
+    if (!existing) return c.json({ error: 'Not found' }, 404);
+
+    await db.delete(chatConversations)
+        .where(and(eq(chatConversations.id, id), eq(chatConversations.userId, user.id)));
     return c.json({ success: true });
 });
 
 // Messages
 chatRouter.get('/conversations/:id/messages', async (c) => {
+    const user = c.get('user');
+    if (!user) return c.json({ error: 'Unauthorized' }, 401);
+
     const id = c.req.param('id');
+
+    // First verify conversation ownership
+    const [conversation] = await db.select().from(chatConversations)
+        .where(and(eq(chatConversations.id, id), eq(chatConversations.userId, user.id)));
+    if (!conversation) return c.json({ error: 'Not found' }, 404);
+
     const messages = await db.select().from(chatMessages)
         .where(eq(chatMessages.conversationId, id))
         .orderBy(desc(chatMessages.createdAt)); // Frontend might expect asc, but let's send desc for now or match query
@@ -76,7 +110,15 @@ chatRouter.get('/conversations/:id/messages', async (c) => {
 
 chatRouter.post('/conversations/:id/messages', async (c) => {
     const user = c.get('user');
+    if (!user) return c.json({ error: 'Unauthorized' }, 401);
+
     const id = c.req.param('id');
+
+    // First verify conversation ownership
+    const [conversation] = await db.select().from(chatConversations)
+        .where(and(eq(chatConversations.id, id), eq(chatConversations.userId, user.id)));
+    if (!conversation) return c.json({ error: 'Not found' }, 404);
+
     const body = await c.req.json();
 
     const [message] = await db.insert(chatMessages).values({
@@ -89,7 +131,9 @@ chatRouter.post('/conversations/:id/messages', async (c) => {
     }).returning();
 
     // Update last_message_at
-    await db.update(chatConversations).set({ lastMessageAt: new Date() }).where(eq(chatConversations.id, id));
+    await db.update(chatConversations)
+        .set({ lastMessageAt: new Date() })
+        .where(and(eq(chatConversations.id, id), eq(chatConversations.userId, user.id)));
 
     return c.json({ message });
 });

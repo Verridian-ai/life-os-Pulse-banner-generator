@@ -1,3 +1,8 @@
+---
+name: SRE Engineer
+description: Agent specialized in SRE Engineer tasks.
+---
+
 # Agent 09: SRE Engineer
 
 ## Role

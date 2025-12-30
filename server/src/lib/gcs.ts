@@ -1,7 +1,7 @@
 import { Storage } from '@google-cloud/storage';
-import * as dotenv from 'dotenv';
+import { config } from 'dotenv';
 
-dotenv.config();
+config();
 
 // Initialize storage client
 // We expect GCS_CREDENTIALS to be a JSON string or we rely on automatic Google Application Credentials

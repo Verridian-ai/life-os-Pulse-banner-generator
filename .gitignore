@@ -28,3 +28,8 @@ dist-ssr
 *.sw?
 .vercel
 .vercel
+
+# Ignore problematic folders
+PowerShell-Source/
+coverage/
+nul

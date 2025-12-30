@@ -58,6 +58,7 @@ export const ABTestingPanel: React.FC<ABTestingPanelProps> = ({
             variantPrompt,
             referenceImages,
             '2K',
+            true, // isBanner
             [], // No edit history for variants
           );
 
@@ -121,11 +122,10 @@ export const ABTestingPanel: React.FC<ABTestingPanelProps> = ({
               key={count}
               onClick={() => setVariantCount(count as 3 | 5)}
               disabled={isGenerating}
-              className={`flex-1 py-2 px-4 rounded-lg text-sm font-bold transition ${
-                variantCount === count
+              className={`flex-1 py-2 px-4 rounded-lg text-sm font-bold transition ${variantCount === count
                   ? 'bg-blue-600 text-white'
                   : 'bg-zinc-800 text-zinc-400 hover:bg-zinc-700'
-              }`}
+                }`}
             >
               {count} Variants
             </button>
@@ -167,11 +167,10 @@ export const ABTestingPanel: React.FC<ABTestingPanelProps> = ({
             {variants.map((variant) => (
               <div
                 key={variant.id}
-                className={`relative group cursor-pointer rounded-xl overflow-hidden border-2 transition ${
-                  selectedVariant === variant.id
+                className={`relative group cursor-pointer rounded-xl overflow-hidden border-2 transition ${selectedVariant === variant.id
                     ? 'border-blue-500 shadow-[0_0_20px_rgba(59,130,246,0.5)]'
                     : 'border-white/10 hover:border-white/30'
-                }`}
+                  }`}
                 onClick={() => handleSelectVariant(variant.id)}
               >
                 {/* Image */}

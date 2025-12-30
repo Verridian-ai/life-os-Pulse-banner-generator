@@ -1,23 +1,25 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, Suspense, lazy } from 'react';
 import Header from './components/layout/Header';
 import GenerativeSidebar from './components/features/GenerativeSidebar';
 import CanvasEditor from './components/features/CanvasEditor';
-import ChatInterface from './components/ChatInterface';
-import ImageGallery from './components/features/ImageGallery';
-import { SettingsModal } from './components/features/SettingsModal';
-import { AuthModal } from './components/auth/AuthModal';
 import { APIKeyInstructionsModal } from './components/features/APIKeyInstructionsModal';
 import LiveActionPanel from './components/features/LiveActionPanel';
+
+// Lazy load heavy components for code splitting
+const ChatInterface = lazy(() => import('./components/ChatInterface'));
+const ImageGallery = lazy(() => import('./components/features/ImageGallery'));
+const SettingsModal = lazy(() => import('./components/features/SettingsModal').then(m => ({ default: m.SettingsModal })));
+const AuthModal = lazy(() => import('./components/auth/AuthModal').then(m => ({ default: m.AuthModal })));
 import {
   ScreenReaderAnnouncerProvider,
   useAnnouncer,
 } from './components/accessibility/ScreenReaderAnnouncer';
 import { useKeyboardShortcuts, getDefaultShortcuts } from './hooks/useKeyboardShortcuts';
-import { generateImage, generatePromptFromRefImages as generateMagicPrompt } from './services/llm';
+import { generateImage, generatePromptFromRefImages as generateMagicPrompt, enhancePrompt } from './services/llm';
 import { Tab } from './constants';
 import { CanvasProvider, useCanvas } from './context/CanvasContext';
 import { AIProvider } from './context/AIContext';
-import { AuthProvider, useAuth } from './context/AuthContext';
+import { useAuth } from './context/AuthContext';
 import { migrateLocalStorageToNeon } from './services/apiKeyStorage';
 import { createImage } from './services/database';
 import { persistImageToGallery } from './utils/imagePersistence';
@@ -72,8 +74,14 @@ const AppContent = () => {
   const [genSize, setGenSize] = useState<'1K' | '2K' | '4K'>('1K');
   const [isGenerating, setIsGenerating] = useState(false);
   const [isMagicPrompting, setIsMagicPrompting] = useState(false);
+  const [isEnhancing, setIsEnhancing] = useState(false);
   const [editPrompt, setEditPrompt] = useState('');
   const [isEditing, setIsEditing] = useState(false);
+
+  // Register setGenPrompt with voice agent for voice-to-prompt enhancement
+  useEffect(() => {
+    voiceAgent.registerPromptSetter(setGenPrompt);
+  }, [voiceAgent, setGenPrompt]);
 
   const handleGenerate = async (overridePrompt?: string) => {
     const promptToUse = overridePrompt || genPrompt;
@@ -174,6 +182,38 @@ const AppContent = () => {
       console.error(e);
     } finally {
       setIsMagicPrompting(false);
+    }
+  };
+
+  const handleEnhancePrompt = async () => {
+    if (!genPrompt.trim()) {
+      setNotification({ message: 'ENTER A PROMPT TO ENHANCE', type: 'warning' });
+      announce('Please enter a prompt to enhance', 'assertive');
+      return;
+    }
+    setIsEnhancing(true);
+    announce('Enhancing prompt, please wait', 'polite');
+    try {
+      const result = await enhancePrompt(genPrompt);
+      if (result.enhancedPrompt) {
+        setGenPrompt(result.enhancedPrompt);
+        setNotification({ message: '✓ PROMPT ENHANCED', type: 'info' });
+        announce('Prompt enhanced successfully', 'polite');
+      }
+    } catch (error) {
+      console.error('[App] Enhance error:', error);
+      let errorMessage = 'ENHANCE FAILED';
+      if (error instanceof Error) {
+        if (error.message.includes('API key')) {
+          errorMessage = 'MISSING API KEY - CHECK SETTINGS';
+        } else if (error.message.length < 60) {
+          errorMessage = error.message.toUpperCase();
+        }
+      }
+      setNotification({ message: errorMessage, type: 'warning' });
+      announce(`Enhancement failed: ${errorMessage}`, 'assertive');
+    } finally {
+      setIsEnhancing(false);
     }
   };
 
@@ -373,27 +413,31 @@ const AppContent = () => {
         onToggleVoice={toggleVoiceMode}
       />
 
-      <SettingsModal isOpen={showSettings} onClose={() => setShowSettings(false)} />
-      <AuthModal
-        isOpen={showAuthModal}
-        onClose={() => {
-          // Only allow closing if user is authenticated
-          if (isAuthenticated) {
-            setShowAuthModal(false);
-          }
-        }}
-        onSuccess={() => {
-          setNotification({ message: '✓ SIGNED IN SUCCESSFULLY', type: 'info' });
-          announce('Signed in successfully', 'polite');
-          setShowAuthModal(false); // Close modal after successful auth
-        }}
-      />
+      <Suspense fallback={null}>
+        <SettingsModal isOpen={showSettings} onClose={() => setShowSettings(false)} />
+      </Suspense>
+      <Suspense fallback={null}>
+        <AuthModal
+          isOpen={showAuthModal}
+          onClose={() => {
+            // Only allow closing if user is authenticated
+            if (isAuthenticated) {
+              setShowAuthModal(false);
+            }
+          }}
+          onSuccess={() => {
+            setNotification({ message: '✓ SIGNED IN SUCCESSFULLY', type: 'info' });
+            announce('Signed in successfully', 'polite');
+            setShowAuthModal(false); // Close modal after successful auth
+          }}
+        />
+      </Suspense>
       <APIKeyInstructionsModal
         isOpen={showInstructions}
         onClose={() => setShowInstructions(false)}
       />
 
-      <main className='flex-1 relative flex flex-col lg:flex-row bg-black w-full'>
+      <main className='flex-1 relative flex flex-col md:flex-row bg-black w-full overflow-hidden'>
         <div className='absolute top-0 left-0 w-full h-[500px] bg-gradient-to-b from-blue-900/10 to-transparent pointer-events-none'></div>
 
         {notification && (
@@ -413,7 +457,7 @@ const AppContent = () => {
         )}
 
         {activeTab === Tab.STUDIO && (
-          <div className='flex-1 flex flex-col lg:flex-row h-auto w-full relative z-10 overflow-hidden'>
+          <div className='flex-1 flex flex-col md:flex-row h-auto w-full relative z-10 overflow-hidden'>
             <CanvasEditor />
 
             <GenerativeSidebar
@@ -426,6 +470,8 @@ const AppContent = () => {
               onGenerate={handleGenerate}
               isMagicPrompting={isMagicPrompting}
               onMagicPrompt={handleMagicPrompt}
+              isEnhancing={isEnhancing}
+              onEnhancePrompt={handleEnhancePrompt}
               editPrompt={editPrompt}
               setEditPrompt={setEditPrompt}
               isEditing={isEditing}
@@ -438,11 +484,17 @@ const AppContent = () => {
           </div>
         )}
 
-        {activeTab === Tab.GALLERY && <ImageGallery />}
+        {activeTab === Tab.GALLERY && (
+          <Suspense fallback={<div className="flex-1 flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div></div>}>
+            <ImageGallery />
+          </Suspense>
+        )}
 
         {activeTab === Tab.BRAINSTORM && (
           <div className='flex-1 flex flex-col h-full relative z-10 p-3 sm:p-4 md:p-6 lg:p-8 overflow-hidden'>
-            <ChatInterface onGenerateFromPrompt={handleGenerate} />
+            <Suspense fallback={<div className="flex-1 flex items-center justify-center"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div></div>}>
+              <ChatInterface onGenerateFromPrompt={handleGenerate} />
+            </Suspense>
           </div>
         )}
       </main>
@@ -466,16 +518,59 @@ const AppContent = () => {
 function App() {
   return (
     <ScreenReaderAnnouncerProvider>
-      <AuthProvider>
-        <AIProvider>
-          <VoiceAgentProvider onUpdate={(action) => console.log('Voice Action:', action)}>
-            <CanvasProvider>
-              <AppContent />
-            </CanvasProvider>
-          </VoiceAgentProvider>
-        </AIProvider>
-      </AuthProvider>
+      <AIProvider>
+        <CanvasProvider>
+          <VoiceAgentWrapper>
+            <AppContent />
+          </VoiceAgentWrapper>
+        </CanvasProvider>
+      </AIProvider>
     </ScreenReaderAnnouncerProvider>
+  );
+}
+
+// Wrapper component that connects VoiceAgentProvider to CanvasContext
+function VoiceAgentWrapper({ children }: { children: React.ReactNode }) {
+  const {
+    setBgImage,
+    addElement,
+    updateElement,
+    deleteElement,
+    elements,
+    undo,
+    redo,
+  } = useCanvas();
+
+  const handleVoiceUpdate = React.useCallback(
+    (imageUrl: string, type: 'background' | 'profile') => {
+      if (type === 'background') {
+        setBgImage(imageUrl);
+      }
+      // Profile updates handled separately
+    },
+    [setBgImage]
+  );
+
+  const canvasCallbacks = React.useMemo(
+    () => ({
+      addElement,
+      updateElement,
+      deleteElement,
+      getElements: () => elements,
+      undo,
+      redo,
+      // setActiveTab will be registered by AppContent via registerTabSetter
+    }),
+    [addElement, updateElement, deleteElement, elements, undo, redo]
+  );
+
+  return (
+    <VoiceAgentProvider
+      onUpdate={handleVoiceUpdate}
+      canvasCallbacks={canvasCallbacks}
+    >
+      {children}
+    </VoiceAgentProvider>
   );
 }
 

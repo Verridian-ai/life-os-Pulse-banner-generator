@@ -1,22 +1,183 @@
-// Supabase Auth Service
+import { api } from './api';
 
-import { type User as SupabaseUser, type Session } from '@supabase/supabase-js';
-import { upsertUser, getCurrentUser } from './db-api';
-import type { User } from '../types/database';
+// Auth types
+export interface AppUser {
+  id: string;
+  email?: string;
+  app_metadata: {
+    provider?: string;
+    [key: string]: string | Record<string, unknown> | undefined;
+  };
+  user_metadata: {
+    [key: string]: string | Record<string, unknown> | undefined;
+  };
+  aud: string;
+  created_at: string;
+}
 
-import { supabase } from './supabase';
+export interface AppSession {
+  access_token: string;
+  token_type: string;
+  expires_in: number;
+  expires_at?: number;
+  refresh_token: string;
+  user: AppUser;
+}
 
-// Re-export supabase client for backward compatibility
-export { supabase };
+// Global types
+export type User = AppUser;
+export type Session = AppSession;
 
-/**
- * Validate username format
- * Rules: 3-30 chars, alphanumeric + underscores + hyphens only
- */
-export const validateUsernameFormat = (username: string): {
-  isValid: boolean;
-  error?: string;
-} => {
+// Auth events
+type AuthChangeEvent = 'SIGNED_IN' | 'SIGNED_OUT' | 'TOKEN_REFRESHED' | 'USER_UPDATED' | 'PASSWORD_RECOVERY';
+
+type AuthStateChangeCallback = (event: AuthChangeEvent, session: Session | null) => void;
+
+const listeners: AuthStateChangeCallback[] = [];
+
+function notifyListeners(event: AuthChangeEvent, session: Session | null) {
+  listeners.forEach((l) => l(event, session));
+}
+
+// --- API IMPLEMENTATION ---
+
+export const signUp = async (
+  email: string,
+  password: string,
+  metadata?: { first_name?: string; last_name?: string; username?: string }
+) => {
+  try {
+    const res = await api.post<{ success: true; userId: string; error?: string }>('/api/auth/signup', {
+      email,
+      password,
+      metadata,
+    });
+    if (res.error) throw new Error(res.error);
+
+    // In Lucia + this flow, user is logged in via cookie.
+    const user = await getCurrentUser();
+    const session = await getSession();
+
+    if (user && session) {
+      notifyListeners('SIGNED_IN', session);
+      return { user, error: null };
+    }
+    return { user: { id: res.userId, email } as User, error: null };
+
+  } catch (error) {
+    return { user: null, error: error as Error };
+  }
+};
+
+export const signIn = async (email: string, password: string) => {
+  try {
+    const res = await api.post<{ success: true; user: { id: string; email: string }; error?: string }>('/api/auth/login', { email, password });
+    if (res.error) throw new Error(res.error);
+
+    const fullUser = await getCurrentUser();
+    const session = await getSession();
+
+    notifyListeners('SIGNED_IN', session);
+    return { user: fullUser, session, error: null };
+  } catch (error) {
+    return { user: null, session: null, error: error as Error };
+  }
+};
+
+export const signOut = async () => {
+  try {
+    await api.post('/api/auth/logout', {});
+    notifyListeners('SIGNED_OUT', null);
+    return { error: null };
+  } catch (error) {
+    return { error: error as Error };
+  }
+};
+
+export const getSession = async (): Promise<Session | null> => {
+  try {
+    const res = await api.get<{ user: AppUser | null }>('/api/auth/me');
+    if (!res.user) return null;
+
+    // Construct a fake "Session" object to satisfy the app's type expectations
+    // The actual auth is handled by HttpOnly cookies, so the token here is dummy.
+    const session: AppSession = {
+      access_token: 'dummy-cookie-token',
+      token_type: 'bearer',
+      expires_in: 3600,
+      refresh_token: 'dummy-refresh',
+      user: res.user
+    };
+
+    return session as unknown as Session;
+  } catch (error) {
+    return null;
+  }
+};
+
+export const getCurrentUser = async (): Promise<User | null> => {
+  const session = await getSession();
+  return session?.user ?? null;
+};
+
+export const onAuthStateChange = (callback: AuthStateChangeCallback) => {
+  listeners.push(callback);
+  return {
+    data: {
+      subscription: {
+        unsubscribe: () => {
+          const index = listeners.indexOf(callback);
+          if (index > -1) listeners.splice(index, 1);
+        },
+      },
+    },
+  };
+};
+
+export const signInWithGoogle = async () => {
+  console.warn('Google Sign-In needs backend endpoints /api/auth/login/google');
+  // In a real implementation: window.location.href = API_URL + '/auth/login/google';
+  return {
+    data: null,
+    error: new Error('Google Sign-In is temporarily disabled during migration.')
+  };
+};
+
+export const signInWithGitHub = async () => {
+  console.warn('GitHub Sign-In needs backend endpoints');
+  return {
+    data: null,
+    error: new Error('GitHub Sign-In is temporarily disabled during migration.')
+  };
+};
+
+// Profile Helper
+export const getCurrentUserProfile = async () => {
+  try {
+    const res = await api.get<{ profile: any; preferences: any }>('/api/user/profile');
+    if (!res.profile) return { data: null, error: new Error('Profile not found') };
+    return { data: res.profile, error: null };
+  } catch (e) {
+    return { data: null, error: e };
+  }
+};
+
+// Password Reset
+export const resetPassword = async (email: string) => {
+  try {
+    const res = await api.post<{ success: true; error?: string }>('/api/auth/reset-password', { email });
+    if (res.error) throw new Error(res.error);
+    return { error: null };
+  } catch (error) {
+    return { error: error as Error };
+  }
+};
+
+// Username Validation
+export const validateUsernameFormat = (username: string): { isValid: boolean; error?: string } => {
+  // Username should be 3-20 characters, alphanumeric and underscores only
+  const usernameRegex = /^[a-zA-Z0-9_]{3,20}$/;
+
   if (!username) {
     return { isValid: false, error: 'Username is required' };
   }
@@ -25,341 +186,23 @@ export const validateUsernameFormat = (username: string): {
     return { isValid: false, error: 'Username must be at least 3 characters' };
   }
 
-  if (username.length > 30) {
-    return { isValid: false, error: 'Username must be 30 characters or less' };
+  if (username.length > 20) {
+    return { isValid: false, error: 'Username must be at most 20 characters' };
   }
 
-  const validFormat = /^[a-zA-Z0-9_-]+$/;
-  if (!validFormat.test(username)) {
-    return {
-      isValid: false,
-      error: 'Username can only contain letters, numbers, underscores, and hyphens',
-    };
-  }
-
-  // Reserved usernames
-  const reserved = ['admin', 'system', 'support', 'help', 'api', 'root', 'null', 'undefined'];
-  if (reserved.includes(username.toLowerCase())) {
-    return { isValid: false, error: 'This username is reserved' };
+  if (!usernameRegex.test(username)) {
+    return { isValid: false, error: 'Username can only contain letters, numbers, and underscores' };
   }
 
   return { isValid: true };
 };
 
-/**
- * Check if username is available (not taken)
- */
-export const checkUsernameAvailability = async (username: string): Promise<boolean> => {
-  if (!supabase) {
-    throw new Error('Supabase not configured');
-  }
-
+// Check Username Availability
+export const checkUsernameAvailability = async (username: string): Promise<{ available: boolean; error?: string }> => {
   try {
-    const { data, error } = await supabase
-      .from('profiles')
-      .select('username')
-      .ilike('username', username.toLowerCase())
-      .maybeSingle();
-
-    if (error && error.code !== 'PGRST116') {
-      // PGRST116 = no rows found (username available)
-      console.error('Username availability check error:', error);
-      throw error;
-    }
-
-    // If data exists, username is taken
-    return !data;
+    const res = await api.get<{ available: boolean; error?: string }>(`/api/auth/check-username?username=${encodeURIComponent(username)}`);
+    return { available: res.available ?? false, error: res.error };
   } catch (error) {
-    console.error('Error checking username availability:', error);
-    throw error;
+    return { available: false, error: error instanceof Error ? error.message : 'Unknown error' };
   }
-};
-
-/**
- * Sign up with email and password
- */
-export const signUp = async (
-  email: string,
-  password: string,
-  metadata?: {
-    first_name?: string;
-    last_name?: string;
-    username?: string;
-  },
-): Promise<{ user: SupabaseUser | null; error: Error | null }> => {
-  if (!supabase) {
-    return { user: null, error: new Error('Supabase not configured') };
-  }
-
-  try {
-    // Validate username format before attempting signup
-    if (metadata?.username) {
-      const usernameValidation = validateUsernameFormat(metadata.username);
-      if (!usernameValidation.isValid) {
-        return {
-          user: null,
-          error: new Error(usernameValidation.error || 'Invalid username format'),
-        };
-      }
-
-      // Check username availability
-      const isAvailable = await checkUsernameAvailability(metadata.username);
-      if (!isAvailable) {
-        return {
-          user: null,
-          error: new Error('Username already taken. Please choose another.'),
-        };
-      }
-    }
-
-    const { data, error } = await supabase.auth.signUp({
-      email,
-      password,
-      options: {
-        data: {
-          first_name: metadata?.first_name,
-          last_name: metadata?.last_name,
-          username: metadata?.username?.toLowerCase(),
-          // For backward compatibility
-          full_name: `${metadata?.first_name || ''} ${metadata?.last_name || ''}`.trim(),
-        },
-        emailRedirectTo: 'https://life-os-banner.verridian.ai/auth/callback',
-      },
-    });
-
-    if (error) throw error;
-
-    // Create user profile in database (non-blocking - don't fail signup if this fails)
-    if (data.user) {
-      try {
-        console.log('[auth.signUp] Calling upsertUser for user:', data.user.id);
-        await upsertUser(
-          data.user.id,
-          email,
-          metadata?.first_name,
-          metadata?.last_name,
-          metadata?.username
-        );
-        console.log('[auth.signUp] upsertUser succeeded');
-      } catch (dbError) {
-        console.error('[auth.signUp] upsertUser failed (non-critical):', dbError);
-        // Continue with signup even if database save fails - this is NOT blocking
-      }
-    }
-
-    return { user: data.user, error: null };
-  } catch (error: unknown) {
-    console.error('Sign up error:', error);
-    return { user: null, error: error instanceof Error ? error : new Error('Sign up failed') };
-  }
-};
-
-/**
- * Sign in with email and password
- */
-export const signIn = async (
-  email: string,
-  password: string,
-): Promise<{ user: SupabaseUser | null; session: Session | null; error: Error | null }> => {
-  if (!supabase) {
-    return { user: null, session: null, error: new Error('Supabase not configured') };
-  }
-  try {
-    const { data, error } = await supabase.auth.signInWithPassword({
-      email,
-      password,
-    });
-
-    if (error) throw error;
-
-    // Update last login in Neon (non-blocking)
-    if (data.user) {
-      try {
-        await upsertUser(data.user.id, email);
-      } catch (dbError) {
-        console.warn('Failed to update user profile in database (non-critical):', dbError);
-        // Continue with signin even if database save fails
-      }
-    }
-
-    return { user: data.user, session: data.session, error: null };
-  } catch (error: unknown) {
-    console.error('Sign in error:', error);
-    return {
-      user: null,
-      session: null,
-      error: error instanceof Error ? error : new Error('Sign in failed'),
-    };
-  }
-};
-
-/**
- * Sign in with Google OAuth
- */
-export const signInWithGoogle = async (): Promise<{ error: Error | null }> => {
-  if (!supabase) {
-    return { error: new Error('Supabase not configured') };
-  }
-  try {
-    const { error } = await supabase.auth.signInWithOAuth({
-      provider: 'google',
-      options: {
-        redirectTo: `${window.location.origin}/auth/callback`,
-      },
-    });
-
-    if (error) throw error;
-    return { error: null };
-  } catch (error: unknown) {
-    console.error('Google sign in error:', error);
-    return { error: error instanceof Error ? error : new Error('Google sign in failed') };
-  }
-};
-
-/**
- * Sign in with GitHub OAuth
- */
-export const signInWithGitHub = async (): Promise<{ error: Error | null }> => {
-  if (!supabase) {
-    return { error: new Error('Supabase not configured') };
-  }
-  try {
-    const { error } = await supabase.auth.signInWithOAuth({
-      provider: 'github',
-      options: {
-        redirectTo: `${window.location.origin}/auth/callback`,
-      },
-    });
-
-    if (error) throw error;
-    return { error: null };
-  } catch (error: unknown) {
-    console.error('GitHub sign in error:', error);
-    return { error: error instanceof Error ? error : new Error('GitHub sign in failed') };
-  }
-};
-
-/**
- * Sign out
- */
-export const signOut = async (): Promise<{ error: Error | null }> => {
-  if (!supabase) {
-    return { error: new Error('Supabase not configured') };
-  }
-  try {
-    console.log('[Auth] Signing out...');
-
-    // Add timeout protection to prevent infinite hang
-    const signOutPromise = supabase.auth.signOut();
-    const timeoutPromise = new Promise<never>((_, reject) =>
-      setTimeout(() => reject(new Error('Sign out timeout - please refresh the page and try again')), 3000)
-    );
-
-    const { error } = await Promise.race([signOutPromise, timeoutPromise]);
-    if (error) throw error;
-
-    // Clear local storage
-    localStorage.removeItem('supabase.auth.token');
-
-    console.log('[Auth] ✓ Signed out successfully');
-    return { error: null };
-  } catch (error: unknown) {
-    console.error('[Auth] Sign out error:', error);
-    return { error: error instanceof Error ? error : new Error('Sign out failed') };
-  }
-};
-
-/**
- * Get current session
- */
-export const getSession = async (): Promise<Session | null> => {
-  if (!supabase) return null;
-  const { data } = await supabase.auth.getSession();
-  return data.session;
-};
-
-/**
- * Get current user from Supabase
- */
-export const getCurrentSupabaseUser = async (): Promise<SupabaseUser | null> => {
-  if (!supabase) return null;
-  const { data } = await supabase.auth.getUser();
-  return data.user;
-};
-
-/**
- * Get current user profile from Neon database
- */
-export const getCurrentUserProfile = async (): Promise<User | null> => {
-  const supabaseUser = await getCurrentSupabaseUser();
-  if (!supabaseUser) return null;
-
-  try {
-    return await getCurrentUser(supabaseUser.id);
-  } catch (error) {
-    console.error('Failed to get user profile:', error);
-    return null;
-  }
-};
-
-/**
- * Reset password
- */
-export const resetPassword = async (email: string): Promise<{ error: Error | null }> => {
-  try {
-    if (!supabase) throw new Error('Supabase not configured');
-    const { error } = await supabase.auth.resetPasswordForEmail(email, {
-      redirectTo: `${window.location.origin}/auth/reset-password`,
-    });
-
-    if (error) throw error;
-    return { error: null };
-  } catch (error: unknown) {
-    console.error('Reset password error:', error);
-    return { error: error instanceof Error ? error : new Error('Reset password failed') };
-  }
-};
-
-/**
- * Update password
- */
-export const updatePassword = async (newPassword: string): Promise<{ error: Error | null }> => {
-  try {
-    if (!supabase) throw new Error('Supabase not configured');
-    const { error } = await supabase.auth.updateUser({
-      password: newPassword,
-    });
-
-    if (error) throw error;
-    return { error: null };
-  } catch (error: unknown) {
-    console.error('Update password error:', error);
-    return { error: error instanceof Error ? error : new Error('Update password failed') };
-  }
-};
-
-/**
- * Listen to auth state changes
- */
-export const onAuthStateChange = (callback: (event: string, session: Session | null) => void) => {
-  if (!supabase) {
-    return { data: { subscription: { unsubscribe: () => { } } } };
-  }
-  return supabase.auth.onAuthStateChange(callback);
-};
-
-/**
- * Verify if user is authenticated
- */
-export const isAuthenticated = async (): Promise<boolean> => {
-  const session = await getSession();
-  return !!session;
-};
-
-/**
- * Get auth token for API requests
- */
-export const getAuthToken = async (): Promise<string | null> => {
-  const session = await getSession();
-  return session?.access_token || null;
 };

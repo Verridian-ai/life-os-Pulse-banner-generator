@@ -1,3 +1,8 @@
+---
+name: Code Standards Auditor
+description: Agent specialized in Code Standards Auditor tasks.
+---
+
 # Agent 14: Code Standards Auditor (NEW)
 
 ## Role

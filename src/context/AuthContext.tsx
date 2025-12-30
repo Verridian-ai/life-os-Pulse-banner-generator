@@ -1,7 +1,7 @@
 // Auth Context - Global authentication state management
 
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
-import type { User as SupabaseUser, Session } from '@supabase/supabase-js';
+import type { AppUser, AppSession } from '../services/auth';
 import {
   signUp as authSignUp,
   signIn as authSignIn,
@@ -9,17 +9,17 @@ import {
   signInWithGitHub as authSignInWithGitHub,
   signOut as authSignOut,
   onAuthStateChange,
-  getCurrentSupabaseUser,
+  getCurrentUser,
   getCurrentUserProfile,
 } from '../services/auth';
 import type { User } from '../types/database';
 
 interface AuthContextType {
-  // Supabase user (auth layer)
-  supabaseUser: SupabaseUser | null;
-  // Neon user profile (database layer)
+  // Auth user (from session)
+  authUser: AppUser | null;
+  // User profile (from database)
   user: User | null;
-  session: Session | null;
+  session: AppSession | null;
   isLoading: boolean;
   isAuthenticated: boolean;
 
@@ -56,16 +56,21 @@ interface AuthProviderProps {
 }
 
 export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
-  const [supabaseUser, setSupabaseUser] = useState<SupabaseUser | null>(null);
+  const [authUser, setAuthUser] = useState<AppUser | null>(null);
   const [user, setUser] = useState<User | null>(null);
-  const [session, setSession] = useState<Session | null>(null);
+  const [session, setSession] = useState<AppSession | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
-  // Load user profile from Neon database
-  const loadUserProfile = async (_supabaseUserId: string) => {
+  // Load user profile from database
+  const loadUserProfile = async (_userId: string) => {
     try {
-      const profile = await getCurrentUserProfile();
-      setUser(profile);
+      const { data: profile, error } = await getCurrentUserProfile();
+      if (error) {
+        console.error('Failed to load user profile:', error);
+        setUser(null);
+        return;
+      }
+      setUser(profile as User | null);
     } catch (error) {
       console.error('Failed to load user profile:', error);
       setUser(null);
@@ -76,8 +81,8 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   useEffect(() => {
     const initAuth = async () => {
       try {
-        const currentUser = await getCurrentSupabaseUser();
-        setSupabaseUser(currentUser);
+        const currentUser = await getCurrentUser();
+        setAuthUser(currentUser);
 
         if (currentUser) {
           await loadUserProfile(currentUser.id);
@@ -103,7 +108,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     } = onAuthStateChange(async (event, session) => {
       console.log('Auth state changed:', event);
       setSession(session);
-      setSupabaseUser(session?.user || null);
+      setAuthUser(session?.user || null);
 
       if (session?.user) {
         await loadUserProfile(session.user.id);
@@ -121,8 +126,8 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
   // Refresh user profile
   const refreshProfile = async () => {
-    if (supabaseUser) {
-      await loadUserProfile(supabaseUser.id);
+    if (authUser) {
+      await loadUserProfile(authUser.id);
     }
   };
 
@@ -138,15 +143,13 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   ): Promise<{ error: Error | null }> => {
     const { user: newUser, error } = await authSignUp(email, password, metadata);
     if (!error && newUser) {
-      setSupabaseUser(newUser);
+      setAuthUser(newUser);
 
-      // Load user profile from database (optional - won't block signup if DB not ready)
+      // Load user profile from database
       try {
         await loadUserProfile(newUser.id);
       } catch (profileError) {
         console.warn('[Auth] Could not load user profile from database:', profileError);
-        // Continue without profile - user can still use the app
-        // Profile will be created on next login or when database is set up
       }
     }
     return { error };
@@ -156,15 +159,14 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const signIn = async (email: string, password: string): Promise<{ error: Error | null }> => {
     const { user: signedInUser, session: newSession, error } = await authSignIn(email, password);
     if (!error && signedInUser) {
-      setSupabaseUser(signedInUser);
+      setAuthUser(signedInUser);
       setSession(newSession);
 
-      // Load user profile from database (optional)
+      // Load user profile from database
       try {
         await loadUserProfile(signedInUser.id);
       } catch (profileError) {
         console.warn('[Auth] Could not load user profile from database:', profileError);
-        // Continue without profile
       }
     }
     return { error };
@@ -184,7 +186,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const signOut = async (): Promise<{ error: Error | null }> => {
     const { error } = await authSignOut();
     if (!error) {
-      setSupabaseUser(null);
+      setAuthUser(null);
       setUser(null);
       setSession(null);
     }
@@ -192,11 +194,11 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   };
 
   const value: AuthContextType = {
-    supabaseUser,
+    authUser,
     user,
     session,
     isLoading,
-    isAuthenticated: !!supabaseUser,
+    isAuthenticated: !!authUser,
     signUp,
     signIn,
     signInWithGoogle,

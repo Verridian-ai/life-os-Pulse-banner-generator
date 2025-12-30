@@ -5,8 +5,14 @@ import { authMiddleware } from '../lib/auth';
 import { db } from '../db';
 import { userApiKeys } from '../db/schema';
 import { eq } from 'drizzle-orm';
+import { PROMPT_ENHANCER_SYSTEM, PROMPT_ENHANCER_MODEL, type PromptEnhanceContext } from '../prompts/promptEnhancer';
+import { aiRateLimit } from '../lib/rateLimit';
 
 export const aiRouter = new Hono();
+
+// SECURITY: Apply global rate limit to all AI routes (30 requests per minute)
+// This prevents API cost abuse and ensures fair usage across users
+aiRouter.use('*', aiRateLimit);
 
 // Helper to fetch user's API keys from database
 // SECURITY: Keys are stored server-side only, never exposed to client
@@ -627,6 +633,68 @@ aiRouter.post('/image/restore', authMiddleware, async (c) => {
     } catch (error: unknown) {
         const msg = error instanceof Error ? error.message : 'Unknown error';
         return c.json({ error: msg }, 500);
+    }
+});
+
+// Prompt Enhancement (Gemini 3 Pro)
+// Enhances user prompts with professional visual details for better image generation
+aiRouter.post('/prompt/enhance', authMiddleware, async (c) => {
+    const { prompt, context } = await c.req.json() as { prompt: string; context?: PromptEnhanceContext };
+
+    if (!prompt || typeof prompt !== 'string') {
+        return c.json({ error: 'Prompt is required' }, 400);
+    }
+
+    // SECURITY: Fetch API key from database, not from request body
+    const user = c.get('user');
+    const userKeys = user ? await getUserApiKeys(user.id) : null;
+    const apiKey = userKeys?.openrouterApiKey || process.env.OPENROUTER_API_KEY || '';
+
+    if (!apiKey) {
+        return c.json({ error: 'OpenRouter API key not configured' }, 401);
+    }
+
+    try {
+        // Build the system prompt with optional context
+        let systemPrompt = PROMPT_ENHANCER_SYSTEM;
+        if (context?.industry) {
+            systemPrompt += `\n\nINDUSTRY CONTEXT: ${context.industry}`;
+        }
+        if (context?.style) {
+            systemPrompt += `\n\nSTYLE PREFERENCE: ${context.style}`;
+        }
+        if (context?.brandColors && context.brandColors.length > 0) {
+            systemPrompt += `\n\nBRAND COLORS: ${context.brandColors.join(', ')}`;
+        }
+
+        const messages = [
+            { role: 'system', content: systemPrompt },
+            { role: 'user', content: prompt }
+        ];
+
+        const enhancedPrompt = await traceLLMCall(
+            PROMPT_ENHANCER_MODEL,
+            'openrouter',
+            prompt,
+            'llm.prompt_enhance',
+            () => callOpenRouter(apiKey, PROMPT_ENHANCER_MODEL, messages)
+        );
+
+        // Clean up the response (remove any quotes or extra whitespace)
+        const cleanedPrompt = enhancedPrompt
+            .trim()
+            .replace(/^["']|["']$/g, '')  // Remove surrounding quotes
+            .replace(/^\*\*.*?\*\*\s*/g, '')  // Remove bold headers
+            .trim();
+
+        return c.json({
+            enhancedPrompt: cleanedPrompt,
+            originalPrompt: prompt
+        });
+    } catch (error: unknown) {
+        const msg = error instanceof Error ? error.message : 'Unknown error';
+        console.error('[Prompt Enhance] Error:', msg);
+        return c.json({ error: `Prompt enhancement failed: ${msg}` }, 500);
     }
 });
 

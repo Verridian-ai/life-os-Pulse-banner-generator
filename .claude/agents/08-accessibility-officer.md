@@ -1,3 +1,8 @@
+---
+name: Accessibility Officer
+description: Agent specialized in Accessibility Officer tasks.
+---
+
 # Agent 08: Accessibility Officer
 
 ## Role

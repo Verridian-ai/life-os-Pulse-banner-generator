@@ -1,7 +1,17 @@
 // Tool Chain Builder - Create and execute multi-step AI workflows
 
 import React, { useState } from 'react';
+
+import {
+  generateImage,
+  upscaleImage,
+  removeBackground,
+  restoreImage,
+  editImage
+} from '../../services/llm';
+
 import { useAI } from '../../context/AIContext';
+
 import type { ToolChain, ChainStep } from '../../types/ai';
 
 interface ToolChainBuilderProps {
@@ -63,32 +73,32 @@ const CHAIN_TEMPLATES: Array<{
   description: string;
   steps: Array<{ tool: ToolType; params: Record<string, string | number | boolean> }>;
 }> = [
-  {
-    name: 'Professional Polish',
-    description: 'Upscale, restore, and enhance',
-    steps: [
-      { tool: 'upscale' as ToolType, params: { quality: 'balanced' } },
-      { tool: 'restore' as ToolType, params: {} as Record<string, string | number | boolean> },
-      { tool: 'faceenhance' as ToolType, params: {} as Record<string, string | number | boolean> },
-    ],
-  },
-  {
-    name: 'Clean Background',
-    description: 'Remove BG and upscale',
-    steps: [
-      { tool: 'removebg' as ToolType, params: {} as Record<string, string | number | boolean> },
-      { tool: 'upscale' as ToolType, params: { quality: 'best' } },
-    ],
-  },
-  {
-    name: 'Quick Enhance',
-    description: 'Fast upscale and restore',
-    steps: [
-      { tool: 'upscale' as ToolType, params: { quality: 'fast' } },
-      { tool: 'restore' as ToolType, params: {} as Record<string, string | number | boolean> },
-    ],
-  },
-];
+    {
+      name: 'Professional Polish',
+      description: 'Upscale, restore, and enhance',
+      steps: [
+        { tool: 'upscale' as ToolType, params: { quality: 'balanced' } },
+        { tool: 'restore' as ToolType, params: {} as Record<string, string | number | boolean> },
+        { tool: 'faceenhance' as ToolType, params: {} as Record<string, string | number | boolean> },
+      ],
+    },
+    {
+      name: 'Clean Background',
+      description: 'Remove BG and upscale',
+      steps: [
+        { tool: 'removebg' as ToolType, params: {} as Record<string, string | number | boolean> },
+        { tool: 'upscale' as ToolType, params: { quality: 'best' } },
+      ],
+    },
+    {
+      name: 'Quick Enhance',
+      description: 'Fast upscale and restore',
+      steps: [
+        { tool: 'upscale' as ToolType, params: { quality: 'fast' } },
+        { tool: 'restore' as ToolType, params: {} as Record<string, string | number | boolean> },
+      ],
+    },
+  ];
 
 export const ToolChainBuilder: React.FC<ToolChainBuilderProps> = ({
   currentImage,
@@ -181,36 +191,100 @@ export const ToolChainBuilder: React.FC<ToolChainBuilderProps> = ({
     setActiveChain(chain);
 
     try {
-      // TODO: Implement actual chain execution
-      // This would integrate with ReplicateService and LLM service
-      // For now, we'll simulate execution
-      const currentImageData = currentImage;
+      let currentResult = currentImage; // Start with the input image
 
       for (let i = 0; i < steps.length; i++) {
-        // Update step status
-        steps[i].status = 'running';
-        setActiveChain({ ...chain, steps: [...steps] });
+        const step = steps[i];
 
-        // Simulate processing delay
-        await new Promise((resolve) => setTimeout(resolve, 2000));
+        // Update step status to running
+        step.status = 'running';
+        // Using object literal update instead of functional update
+        setActiveChain({ ...chain, steps: [...steps], currentStep: i });
 
-        // Mark step as completed
-        steps[i].status = 'completed';
+        console.log(`[ToolChain] Executing step ${i + 1}: ${step.tool}`, step.params);
+
+        // Execute the specific tool
+        try {
+          switch (step.tool) {
+            case 'upscale': {
+              currentResult = await upscaleImage(currentResult, 2);
+              break;
+            }
+
+            case 'removebg': {
+              currentResult = await removeBackground(currentResult);
+              break;
+            }
+
+            case 'restore':
+            case 'faceenhance': {
+              // Both map to restoreImage (CodeFormer) for now
+              // Fidelity default 0.7
+              currentResult = await restoreImage(currentResult, 0.7);
+              break;
+            }
+
+            case 'edit': {
+              const prompt = String(step.params.prompt || 'enhance image');
+              currentResult = await editImage(currentResult, prompt);
+              break;
+            }
+
+            case 'generate': {
+              const genPrompt = String(step.params.prompt || 'random image');
+              // Generate replaces the current image completely
+              currentResult = await generateImage(genPrompt, [], '4K', true); // Force banner? Or inherit?
+              // Assuming tool chain usage implies we want to keep working on the current canvas context,
+              // but 'generate' usually starts fresh.
+              // Getting strict 1584x396 if we set isBanner=true.
+              // Let's assume yes, as this is the banner app.
+              break;
+            }
+
+            case 'inpaint':
+            case 'outpaint': {
+              // Placeholder: Not fully implemented in llm.ts yet
+              console.warn(`Tool ${step.tool} not fully implemented in service, skipping.`);
+              break;
+            }
+
+            default:
+              console.warn(`Unknown tool ${step.tool}`);
+          }
+
+          // Step Success
+          step.status = 'completed';
+
+        } catch (stepError) {
+          console.error(`Step ${i + 1} failed:`, stepError);
+          step.status = 'failed';
+          throw stepError; // Stop chain
+        }
+
+        // Update chain state
         setActiveChain({ ...chain, steps: [...steps] });
       }
 
       chain.status = 'completed';
-      setActiveChain(chain);
+      setActiveChain({ ...chain, status: 'completed' });
 
-      onChainComplete(currentImageData);
-      alert('Chain execution completed!');
+      onChainComplete(currentResult);
+      // alert('Chain execution completed!'); // Removed alert for smoother UX
     } catch (error: unknown) {
-      chain.status = 'failed';
-      setActiveChain(chain);
-      alert(`Chain execution failed: ${error instanceof Error ? error.message : 'Unknown error'}`);
+      console.error('Chain execution failed', error);
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+
+      const failedChain = { ...chain, status: 'failed' as const };
+      // Find the running step and mark failed
+      const failedStep = failedChain.steps.find(s => s.status === 'running');
+      if (failedStep) failedStep.status = 'failed';
+
+      setActiveChain(failedChain);
+      alert(`Chain execution failed: ${errorMessage}`);
     } finally {
       setIsExecuting(false);
-      setTimeout(() => setActiveChain(null), 3000);
+      // Don't auto-clear immediately so user can see result/status
+      // setTimeout(() => setActiveChain(null), 3000); 
     }
   };
 

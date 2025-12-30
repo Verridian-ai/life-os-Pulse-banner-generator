@@ -12,8 +12,10 @@ tracer.init({
 import { serve } from '@hono/node-server'
 import { Hono } from 'hono'
 import { cors } from 'hono/cors'
-import * as dotenv from 'dotenv'
 import { getCookie } from 'hono/cookie';
+import { serveStatic } from '@hono/node-server/serve-static'
+import { config } from 'dotenv'
+
 import { authRouter } from './routes/auth';
 import { userRouter } from './routes/user';
 import { storageRouter } from './routes/storage';
@@ -22,15 +24,24 @@ import { aiRouter } from './routes/ai';
 import { imageRouter } from './routes/images';
 import { replicateRouter } from './routes/replicate';
 import { lucia } from './lib/auth';
-import { serveStatic } from '@hono/node-server/serve-static'
 
-dotenv.config()
+config()
 
 const app = new Hono()
 
 // Configure CORS for local development and production
 app.use('*', cors({
-    origin: ['http://localhost:5173', 'http://localhost:3000', 'http://192.168.0.235:5173', 'http://100.96.1.165:5173', 'https://life-os-banner.verridian.ai', 'https://life-osbanner.verridian.ai'],
+    origin: [
+        'http://localhost:5173',
+        'http://localhost:5174',
+        'http://localhost:5175',
+        'http://localhost:3000',
+        'http://192.168.0.235:5173',
+        'http://100.96.1.165:5173',
+        'https://life-os-banner.verridian.ai',
+        'https://life-osbanner.verridian.ai',
+        'https://life-os-banner-237245874937.us-central1.run.app'  // Cloud Run URL
+    ],
     credentials: true,
 }));
 

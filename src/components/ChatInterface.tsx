@@ -1,14 +1,24 @@
 import React, { useState, useRef, useEffect, useMemo, useCallback } from 'react';
+
 import { generateDesignChatResponse, generateSearchResponse } from '../services/llm';
 import { ChatMessage, Part } from '../types';
 import { optimizeImage } from '../utils';
-import { SettingsModal } from './features/SettingsModal';
 import { getUserAPIKeys } from '../services/apiKeyStorage';
 import { ChatAgent } from '../services/chatAgent';
 import { ActionExecutor } from '../services/actionExecutor';
+import {
+  getConversations,
+  createConversation,
+  getConversationWithMessages,
+  addMessage,
+  deleteConversation as deleteConversationService,
+  type ChatConversation
+} from '../services/chatPersistence';
+
 import { useCanvas } from '../context/CanvasContext';
 import { useAuth } from '../context/AuthContext';
-import * as chatPersistence from '../services/chatPersistence';
+
+import { SettingsModal } from './features/SettingsModal';
 
 interface ChatInterfaceProps {
   onGenerateFromPrompt: (prompt: string) => void;
@@ -47,7 +57,7 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({ onGenerateFromPrompt }) =
 
   // Persistence state
   const [conversationId, setConversationId] = useState<string | null>(null);
-  const [conversations, setConversations] = useState<chatPersistence.ChatConversation[]>([]);
+  const [conversations, setConversations] = useState<ChatConversation[]>([]);
   const [showHistory, setShowHistory] = useState(false);
   const [loadingHistory, setLoadingHistory] = useState(false);
 
@@ -156,7 +166,7 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({ onGenerateFromPrompt }) =
     const loadConversations = async () => {
       setLoadingHistory(true);
       try {
-        const convos = await chatPersistence.getConversations({ mode, limit: 20 });
+        const convos = await getConversations({ mode, limit: 20 });
         setConversations(convos);
         console.log('[ChatInterface] Loaded', convos.length, 'conversations');
       } catch (error) {
@@ -178,7 +188,7 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({ onGenerateFromPrompt }) =
 
     // Create new conversation
     try {
-      const conversation = await chatPersistence.createConversation(mode);
+      const conversation = await createConversation(mode);
       if (conversation) {
         setConversationId(conversation.id);
         console.log('[ChatInterface] Created conversation:', conversation.id);
@@ -207,7 +217,7 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({ onGenerateFromPrompt }) =
       if (!user || !convId) return;
 
       try {
-        await chatPersistence.addMessage(convId, {
+        await addMessage(convId, {
           role,
           content,
           images: extra?.images,
@@ -239,7 +249,7 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({ onGenerateFromPrompt }) =
 
       setLoadingHistory(true);
       try {
-        const result = await chatPersistence.getConversationWithMessages(convId);
+        const result = await getConversationWithMessages(convId);
         if (result) {
           setConversationId(result.conversation.id);
           setMode(result.conversation.mode as 'design' | 'search');
@@ -278,7 +288,7 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({ onGenerateFromPrompt }) =
       if (!user) return;
 
       try {
-        await chatPersistence.deleteConversation(convId);
+        await deleteConversationService(convId);
         setConversations((prev) => prev.filter((c) => c.id !== convId));
 
         // If we deleted the current conversation, start fresh
@@ -299,7 +309,7 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({ onGenerateFromPrompt }) =
     if (!user) return;
 
     try {
-      const convos = await chatPersistence.getConversations({ mode, limit: 20 });
+      const convos = await getConversations({ mode, limit: 20 });
       setConversations(convos);
     } catch (error) {
       console.error('[ChatInterface] Failed to refresh conversations:', error);

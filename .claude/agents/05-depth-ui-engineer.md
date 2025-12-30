@@ -1,3 +1,8 @@
+---
+name: Depth UI Engineer
+description: Agent specialized in Depth UI Engineer tasks.
+---
+
 # Agent 05: Depth UI Engineer
 
 ## Role

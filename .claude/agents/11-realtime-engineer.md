@@ -1,3 +1,8 @@
+---
+name: Realtime Engineer
+description: Agent specialized in Realtime Engineer tasks.
+---
+
 # Agent 11: Realtime Engineer
 
 ## Role

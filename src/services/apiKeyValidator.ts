@@ -68,11 +68,11 @@ export async function testReplicateKey(apiKey: string): Promise<{
   }
 
   try {
-    // Use the proxy for CORS (development) or direct API (production)
+    // Use the proxy for CORS - send Authorization header directly
     const response = await fetch('/api/replicate/v1/models', {
       method: 'GET',
       headers: {
-        'X-Replicate-Token': apiKey, // Dev proxy header
+        'Authorization': `Token ${apiKey}`,
       },
     });
 

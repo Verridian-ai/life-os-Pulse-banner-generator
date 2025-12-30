@@ -1,591 +1,495 @@
-// Image Tools Panel - UI for all Replicate image processing operations
+// Image Tools Panel - Intelligent Workflow System
+// Integrates Replicate models: Face Enhance, Remove BG, Inpainting, Upscale, Magic Edit, Generate Layer
 
-import React, { useState } from 'react';
-import { getReplicateService } from '../../services/replicate';
-import type { ReplicateQuality } from '../../types/replicate';
-import { useAI } from '../../context/AIContext';
+import React, { useState, useEffect, useRef } from 'react';
 import { useCanvas } from '../../context/CanvasContext';
-import { getUserAPIKeys } from '../../services/apiKeyStorage';
-import { APIKeyInstructionsModal } from './APIKeyInstructionsModal';
+import { useAI } from '../../context/AIContext';
+import { getReplicateService } from '../../services/replicate';
+import { BTN_NEU_SOLID } from '../../styles';
+import { EnhanceButton } from '../ui/EnhanceButton';
 
 interface ImageToolsPanelProps {
-  bgImage: string | null;
-  onImageUpdate: (newImage: string) => void;
-  onLayerImageUpdate?: (layerId: string, newImage: string) => void; // NEW
+  // Props are now largely handled via Context, but keeping for compatibility if needed
 }
 
-export const ImageToolsPanel: React.FC<ImageToolsPanelProps> = ({
-  bgImage,
-  onImageUpdate,
-  onLayerImageUpdate,
-}) => {
+
+// Helper to ensure image is a Data URI (Replicate needs URI, and relative paths fail)
+const urlToDataUri = async (url: string): Promise<string> => {
+  if (url.startsWith('data:')) return url;
+  if (url.startsWith('http') && !url.includes(window.location.origin)) {
+    // External URL: Return as is (Replicate can fetch public URLs), unless it fails CORS then we try to proxy/fetch.
+    // Ideally we try to fetch it to convert to base64 to avoid any access issues.
+    try {
+      const response = await fetch(url, { mode: 'cors' });
+      if (!response.ok) return url;
+      const blob = await response.blob();
+      return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onloadend = () => resolve(reader.result as string);
+        reader.onerror = reject;
+        reader.readAsDataURL(blob);
+      });
+    } catch (e) {
+      return url; // Usage as public URL
+    }
+  }
+
+  // Relative or same-origin URL: Fetch and convert
+  try {
+    const response = await fetch(url);
+    const blob = await response.blob();
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onloadend = () => resolve(reader.result as string);
+      reader.onerror = reject;
+      reader.readAsDataURL(blob);
+    });
+  } catch (e) {
+    console.error("Failed to convert image to Data URI:", e);
+    return url;
+  }
+};
+
+export const ImageToolsPanel: React.FC<ImageToolsPanelProps> = () => {
+  const {
+    bgImage,
+    setBgImage,
+    selectedElementId,
+    elements,
+    updateElement,
+    profilePic,
+    setProfilePic,
+    addToHistory,
+  } = useCanvas();
   const { setReplicateOperation } = useAI();
-  const { addToHistory, canUndo, canRedo, undo, redo, selectedElementId, elements } = useCanvas();
-  const [quality, setQuality] = useState<ReplicateQuality>('balanced');
+
+  const [activeContext, setActiveContext] = useState<'banner' | 'profile' | 'layer' | null>(null);
   const [isProcessing, setIsProcessing] = useState(false);
-  const [currentOperation, setCurrentOperation] = useState<string | null>(null);
-  const [progress, setProgress] = useState(0);
+  const [processingLabel, setProcessingLabel] = useState('');
   const [error, setError] = useState<string | null>(null);
 
-  // Layer selection state
-  const [imageSource, setImageSource] = useState<'background' | 'layer'>('background');
-  const [selectedLayerImage, setSelectedLayerImage] = useState<string | null>(null);
+  // Magic Edit State
+  const [magicPrompt, setMagicPrompt] = useState('');
+  const [showMagicInput, setShowMagicInput] = useState(false);
 
-  // Before/After comparison state
-  const [showComparison, setShowComparison] = useState(false);
-  const [beforeImage, setBeforeImage] = useState<string | null>(null);
-  const [afterImage, setAfterImage] = useState<string | null>(null);
-  const [sliderPosition, setSliderPosition] = useState(50);
-  const [isDragging, setIsDragging] = useState(false);
+  // Inpainting State
+  const [showInpaintModal, setShowInpaintModal] = useState(false);
+  const [inpaintPrompt, setInpaintPrompt] = useState('');
+  const [maskBrushSize, setMaskBrushSize] = useState(20);
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+  const [isDrawing, setIsDrawing] = useState(false);
 
-  // API Key modal state
-  const [showAPIKeyModal, setShowAPIKeyModal] = useState(false);
-
-  // Auto-detect selected layer image
-  React.useEffect(() => {
+  // Determine Active Context
+  useEffect(() => {
     if (selectedElementId) {
-      const element = elements.find((el) => el.id === selectedElementId);
-      if (element?.type === 'image') {
-        setSelectedLayerImage(element.content);
-        setImageSource('layer');
-        console.log('[ImageTools] Layer image selected:', element.id);
-      } else {
-        setImageSource('background');
-        setSelectedLayerImage(null);
+      const el = elements.find((e) => e.id === selectedElementId);
+      if (el?.type === 'image') {
+        setActiveContext('layer');
+        return;
       }
-    } else {
-      setImageSource('background');
-      setSelectedLayerImage(null);
     }
+    // If no layer selected, check if we entered "Profile Mode" (managed externally usually, but we can detect if profile exists and no other selection)
+    // For now, if no element selected, default to Banner Background
+    setActiveContext('banner');
   }, [selectedElementId, elements]);
 
-  // Handle progress updates
-  const handleProgress = (progressValue: number) => {
-    setProgress(progressValue);
-    if (setReplicateOperation) {
-      setReplicateOperation((prev) => (prev ? { ...prev, progress: progressValue } : prev));
-    }
-  };
-
-  // Check if Replicate API key is configured
-  const checkReplicateKey = async (): Promise<boolean> => {
-    const keys = await getUserAPIKeys();
-    return !!keys.replicate_api_key;
-  };
-
-  // Generic operation handler
-  const handleOperation = async (operation: string, operationFn: () => Promise<string>) => {
-    // Determine which image to process
-    const sourceImage = imageSource === 'layer' ? selectedLayerImage : bgImage;
-
-    if (!sourceImage) {
-      setError(
-        imageSource === 'layer'
-          ? 'No layer image selected. Please select a layer with an image.'
-          : 'No image selected. Please generate or upload a background image first.',
-      );
-      return;
-    }
-
-    // Save original image for comparison
-    setBeforeImage(sourceImage);
-
+  // Handle Replicate Operations
+  const runOperation = async (
+    name: string,
+    operationFn: (service: any) => Promise<string>,
+    target: 'banner' | 'profile' | 'layer' = 'banner'
+  ) => {
     setIsProcessing(true);
-    setCurrentOperation(operation);
-    setProgress(0);
+    setProcessingLabel(name);
     setError(null);
 
-    // Update Replicate operation state
-    if (setReplicateOperation) {
-      setReplicateOperation({
-        id: Date.now().toString(),
-        type: operation as 'upscale' | 'removebg' | 'restore' | 'faceenhance',
-        status: 'starting',
-        progress: 0,
-        inputImage: sourceImage,
-      });
-    }
-
     try {
-      const result = await operationFn();
+      const service = await getReplicateService();
+      const resultUrl = await operationFn(service);
 
-      // Update the appropriate image (layer or background)
-      if (imageSource === 'layer' && onLayerImageUpdate && selectedElementId) {
-        onLayerImageUpdate(selectedElementId, result);
-        console.log('[ImageTools] Updated layer image:', selectedElementId);
-      } else {
-        onImageUpdate(result);
-        console.log('[ImageTools] Updated background image');
+      // Apply Result
+      if (target === 'banner') {
+        setBgImage(resultUrl);
+        addToHistory(resultUrl); // Simplified history for now
+      } else if (target === 'profile' && setProfilePic) {
+        setProfilePic(resultUrl);
+      } else if (target === 'layer' && selectedElementId) {
+        updateElement(selectedElementId, { content: resultUrl });
       }
 
-      // Add to history
-      addToHistory(result);
-      console.log('[History] Added to history after', operation);
-
-      // Update operation to succeeded
-      if (setReplicateOperation) {
-        setReplicateOperation((prev) =>
-          prev ? { ...prev, status: 'succeeded', progress: 100, outputImage: result } : null,
-        );
-      }
-
-      setProgress(100);
-      setTimeout(() => {
-        setIsProcessing(false);
-        setCurrentOperation(null);
-        if (setReplicateOperation) setReplicateOperation(null);
-
-        // Show before/after comparison
-        setAfterImage(result);
-        setSliderPosition(50);
-        setShowComparison(true);
-
-        // Auto-dismiss after 8 seconds
-        setTimeout(() => {
-          setShowComparison(false);
-        }, 8000);
-      }, 1000);
-    } catch (err: unknown) {
-      const errorMsg = err instanceof Error ? err.message : 'Operation failed';
-      setError(errorMsg);
-
-      // Update operation to failed
-      if (setReplicateOperation) {
-        setReplicateOperation((prev) =>
-          prev ? { ...prev, status: 'failed', error: errorMsg } : null,
-        );
-      }
-
+      console.log(`[Replicate] ${name} Success:`, resultUrl);
+    } catch (err: any) {
+      console.error(`[Replicate] ${name} Failed:`, err);
+      setError(err.message || 'Operation failed');
+    } finally {
       setIsProcessing(false);
-      setCurrentOperation(null);
+      setProcessingLabel('');
     }
   };
 
-  // Upscale handler
+  // --- Tool Handlers ---
+
   const handleUpscale = async () => {
-    // Check API key first
-    const hasKey = await checkReplicateKey();
-    if (!hasKey) {
-      setShowAPIKeyModal(true);
-      return;
-    }
+    const target = activeContext === 'layer' ? 'layer' : 'banner';
+    const image = activeContext === 'layer'
+      ? elements.find(e => e.id === selectedElementId)?.content
+      : bgImage;
 
-    await handleOperation('upscale', async () => {
-      const service = await getReplicateService(handleProgress);
-      return await service.upscale(bgImage!, quality);
-    });
+    if (!image) return;
+
+    // Convert to Data URI so Replicate accepts it (handles relative paths)
+    const validImage = await urlToDataUri(image);
+
+    runOperation('Enhance Quality', (s) => s.upscale(validImage, 'balanced'), target as any);
   };
 
-  // Remove background handler
+  const handleMagicEdit = async () => {
+    if (!magicPrompt) return;
+    const target = activeContext === 'layer' ? 'layer' : 'banner';
+    const image = activeContext === 'layer'
+      ? elements.find(e => e.id === selectedElementId)?.content
+      : bgImage;
+
+    if (!image) return;
+
+    // Convert to Data URI
+    const validImage = await urlToDataUri(image);
+
+    runOperation('Magic Edit', (s) => s.magicEdit(validImage, magicPrompt), target as any);
+    setShowMagicInput(false);
+    setMagicPrompt('');
+  };
+
   const handleRemoveBg = async () => {
-    // Check API key first
-    const hasKey = await checkReplicateKey();
-    if (!hasKey) {
-      setShowAPIKeyModal(true);
-      return;
-    }
+    // Context: Layer or Profile (if we supported profile context switching here)
+    if (activeContext !== 'layer') return;
+    const image = elements.find(e => e.id === selectedElementId)?.content;
+    if (!image) return;
 
-    await handleOperation('removebg', async () => {
-      const service = await getReplicateService(handleProgress);
-      return await service.removeBg(bgImage!);
-    });
+    // Convert to Data URI
+    const validImage = await urlToDataUri(image);
+
+    runOperation('Remove Background', (s) => s.removeBg(validImage), 'layer');
   };
 
-  // Restore handler
-  const handleRestore = async () => {
-    // Check API key first
-    const hasKey = await checkReplicateKey();
-    if (!hasKey) {
-      setShowAPIKeyModal(true);
-      return;
-    }
-
-    await handleOperation('restore', async () => {
-      const service = await getReplicateService(handleProgress);
-      return await service.restore(bgImage!);
-    });
-  };
-
-  // Face enhance handler
   const handleFaceEnhance = async () => {
-    // Check API key first
-    const hasKey = await checkReplicateKey();
-    if (!hasKey) {
-      setShowAPIKeyModal(true);
-      return;
+    if (activeContext !== 'layer') return;
+    const image = elements.find(e => e.id === selectedElementId)?.content;
+    if (!image) return;
+
+    // Convert to Data URI
+    const validImage = await urlToDataUri(image);
+
+    runOperation('Face Enhance', (s) => s.faceEnhance(validImage), 'layer');
+  };
+
+  // --- Inpainting Logic (Banner Only) ---
+  const prepareInpainting = () => {
+    if (!bgImage) return;
+    setShowInpaintModal(true);
+    // Initialize canvas with image after render
+    setTimeout(() => {
+      const canvas = canvasRef.current;
+      if (!canvas) return;
+      const ctx = canvas.getContext('2d');
+      if (!ctx) return;
+
+      const img = new Image();
+      img.crossOrigin = "anonymous";
+      img.src = bgImage;
+      img.onload = () => {
+        canvas.width = img.width;
+        canvas.height = img.height;
+        ctx.drawImage(img, 0, 0);
+      };
+    }, 100);
+  };
+
+  const handleCanvasDraw = (e: React.MouseEvent) => {
+    if (!isDrawing || !canvasRef.current) return;
+    const ctx = canvasRef.current.getContext('2d');
+    if (!ctx) return;
+
+    const rect = canvasRef.current.getBoundingClientRect();
+    const scaleX = canvasRef.current.width / rect.width;
+    const scaleY = canvasRef.current.height / rect.height; // Should be same ratio
+
+    const x = (e.clientX - rect.left) * scaleX;
+    const y = (e.clientY - rect.top) * scaleY;
+
+    ctx.fillStyle = 'rgba(255, 0, 255, 1)'; // Mask color (magenta usually)
+    ctx.globalCompositeOperation = 'source-over';
+    ctx.beginPath();
+    ctx.arc(x, y, maskBrushSize, 0, Math.PI * 2);
+    ctx.fill();
+  };
+
+  const submitInpainting = async () => {
+    if (!bgImage || !canvasRef.current || !inpaintPrompt) return;
+
+    // Generate mask from canvas (assuming we drew on top of image, we need ONLY the mask)
+    // Actually, typically we send the original image and a black/white mask.
+    // Current simple canvas approach draws ON the image. 
+    // Better approach: Draw on a separate transparent canvas ON TOP of the image in the UI.
+    // For this step, let's create a temporary canvas to extract the mask.
+    // Since we drew on the image pixel data, extracting is hard unless we tracked paths.
+    // SIMPLIFICATION: We will assume we drew pure magenta #FF00FF. 
+    // We process the canvas data to create a B&W mask.
+
+    const ctx = canvasRef.current.getContext('2d');
+    const imageData = ctx!.getImageData(0, 0, canvasRef.current.width, canvasRef.current.height);
+    const data = imageData.data;
+
+    // Create new canvas for mask
+    const maskCanvas = document.createElement('canvas');
+    maskCanvas.width = canvasRef.current.width;
+    maskCanvas.height = canvasRef.current.height;
+    const maskCtx = maskCanvas.getContext('2d');
+    if (!maskCtx) return;
+
+    const maskImgData = maskCtx.createImageData(maskCanvas.width, maskCanvas.height);
+    const maskData = maskImgData.data;
+
+    for (let i = 0; i < data.length; i += 4) {
+      // Detect Magenta (R=255, G=0, B=255)
+      // Allow some tolerance
+      if (data[i] > 200 && data[i + 1] < 50 && data[i + 2] > 200) {
+        // Mask Area -> White
+        maskData[i] = 255;
+        maskData[i + 1] = 255;
+        maskData[i + 2] = 255;
+        maskData[i + 3] = 255;
+      } else {
+        // Background -> Black
+        maskData[i] = 0;
+        maskData[i + 1] = 0;
+        maskData[i + 2] = 0;
+        maskData[i + 3] = 255;
+      }
     }
+    maskCtx.putImageData(maskImgData, 0, 0);
+    const maskUrl = maskCanvas.toDataURL('image/png');
 
-    await handleOperation('faceenhance', async () => {
-      const service = await getReplicateService(handleProgress);
-      return await service.faceEnhance(bgImage!);
-    });
-  };
+    // Also convert the Source Image to Data URI (crucial fix for 422 error)
+    const validBgImage = await urlToDataUri(bgImage);
 
-  // Outpaint state
-  const [outpaintPrompt, setOutpaintPrompt] = useState('');
-  const [outpaintDirection, setOutpaintDirection] = useState<'left' | 'right' | 'up' | 'down'>('right');
-  const [showOutpaintInput, setShowOutpaintInput] = useState(false);
+    setShowInpaintModal(false);
 
-  // Outpaint handler
-  const handleOutpaint = async () => {
-    if (!outpaintPrompt.trim()) {
-      setError('Please enter a prompt describing what to extend');
-      return;
-    }
-
-    const hasKey = await checkReplicateKey();
-    if (!hasKey) {
-      setShowAPIKeyModal(true);
-      return;
-    }
-
-    await handleOperation('outpaint', async () => {
-      const service = await getReplicateService(handleProgress);
-      return await service.outpaint(bgImage!, outpaintPrompt, outpaintDirection);
-    });
-    setShowOutpaintInput(false);
-    setOutpaintPrompt('');
-  };
-
-  // Comparison slider drag handlers
-  const handleMouseDown = () => {
-    setIsDragging(true);
-  };
-
-  const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
-    if (!isDragging) return;
-    const rect = e.currentTarget.getBoundingClientRect();
-    const x = e.clientX - rect.left;
-    const percentage = (x / rect.width) * 100;
-    setSliderPosition(Math.max(0, Math.min(100, percentage)));
-  };
-
-  const handleMouseUp = () => {
-    setIsDragging(false);
-  };
-
-  // Close comparison
-  const handleCloseComparison = () => {
-    setShowComparison(false);
+    runOperation('Inpainting', (s) => s.inpaint(validBgImage, maskUrl, inpaintPrompt), 'banner');
   };
 
   return (
-    <div className='bg-black/40 p-5 rounded-3xl border border-white/5 mt-4'>
-      <h4 className='text-xs font-bold text-zinc-400 uppercase mb-4 flex items-center gap-2'>
-        <span className='material-icons text-sm'>auto_fix_high</span>
-        Advanced Tools
-      </h4>
+    <div className='bg-zinc-900/40 backdrop-blur-md p-6 rounded-3xl border border-white/10 shadow-xl flex flex-col relative group overflow-hidden'>
+      {/* Background Ambient Glow */}
+      <div className={`absolute inset-0 bg-gradient-to-br transition duration-500 opacity-0 group-hover:opacity-10 rounded-3xl pointer-events-none
+           ${activeContext === 'banner' ? 'from-blue-500' : 'from-purple-500'}
+       `}></div>
 
-      {/* Image Source Indicator */}
-      <div className='mb-4 p-3 bg-zinc-900/50 rounded-xl'>
-        <span
-          className={`text-xs font-bold px-2 py-1 rounded-full ${
-            imageSource === 'layer'
-              ? 'bg-purple-500/20 text-purple-400 border border-purple-500/30'
-              : 'bg-blue-500/20 text-blue-400 border border-blue-500/30'
-          }`}
-        >
-          <span className='material-icons text-xs align-middle mr-1'>
-            {imageSource === 'layer' ? 'layers' : 'image'}
+      {/* Header */}
+      <div className='flex items-center justify-between mb-6 relative z-10'>
+        <h3 className='font-black text-sm uppercase tracking-wider text-white flex items-center gap-2 drop-shadow-sm'>
+          <span className={`material-icons ${activeContext === 'banner' ? 'text-blue-400' : 'text-purple-400'}`}>
+            {activeContext === 'banner' ? 'wallpaper' : 'layers'}
           </span>
-          {imageSource === 'layer' ? 'Selected Layer' : 'Background Image'}
-        </span>
-        {imageSource === 'layer' && selectedLayerImage && (
-          <p className='text-[10px] text-zinc-500 mt-2'>
-            Tools will process the selected layer image
-          </p>
+          {activeContext === 'banner' ? 'Banner Workflow' : 'Layer Workflow'}
+        </h3>
+        {isProcessing && (
+          <span className='text-[10px] font-bold text-yellow-500 animate-pulse flex items-center gap-1'>
+            <span className='material-icons text-xs'>sync</span>
+            {processingLabel}...
+          </span>
         )}
       </div>
 
-      {/* Image Preview */}
-      <div className='mb-4'>
-        <label className='block text-[10px] font-bold text-zinc-500 uppercase tracking-widest mb-2'>
-          <span className='material-icons text-sm align-middle mr-1'>image</span>
-          Current Image
-        </label>
-        {(imageSource === 'layer' ? selectedLayerImage : bgImage) ? (
-          <div className='relative aspect-[1584/396] bg-zinc-900/50 rounded-xl overflow-hidden border border-white/10'>
-            <img
-              src={imageSource === 'layer' ? selectedLayerImage || '' : bgImage || ''}
-              alt={imageSource === 'layer' ? 'Selected layer' : 'Current background'}
-              className='w-full h-full object-cover'
-            />
-            {isProcessing && (
-              <div className='absolute inset-0 bg-black/90 backdrop-blur-sm flex flex-col items-center justify-center'>
-                <div className='w-12 h-12 border-4 border-blue-500 border-t-transparent rounded-full animate-spin mb-3' />
-                <p className='text-sm font-bold text-white capitalize'>{currentOperation}...</p>
-                <p className='text-xs text-zinc-400 mt-2'>
-                  {progress === 10 && 'Starting operation...'}
-                  {progress === 50 && 'Processing image...'}
-                  {progress === 100 && 'Almost done...'}
-                  {progress === 0 && 'Initializing...'}
-                </p>
-                <div className='w-48 bg-zinc-800 rounded-full h-2 overflow-hidden mt-3'>
-                  <div
-                    className={`h-full bg-gradient-to-r from-blue-500 to-purple-500 transition-all duration-300 w-[${progress || 0}%]`}
-                  />
-                </div>
-              </div>
-            )}
-          </div>
-        ) : (
-          <div className='aspect-[1584/396] bg-zinc-900/50 rounded-xl border-2 border-dashed border-white/10 flex flex-col items-center justify-center'>
-            <span className='material-icons text-4xl text-zinc-700'>image_not_supported</span>
-            <p className='text-xs text-zinc-600 mt-2'>No background image loaded</p>
-            <p className='text-[10px] text-zinc-700 mt-1'>Generate or upload an image first</p>
-          </div>
+      {/* Tools Grid */}
+      <div className='relative z-10 space-y-4'>
+
+        {/* Banner Context Tools */}
+        {activeContext === 'banner' && (
+          <>
+            <div className="grid grid-cols-2 gap-3">
+              <button
+                onClick={prepareInpainting}
+                disabled={!bgImage || isProcessing}
+                className={`flex flex-col items-center justify-center p-4 rounded-xl border border-white/5 bg-white/5 hover:bg-white/10 hover:border-blue-500/50 transition-all group/btn ${!bgImage ? 'opacity-50 cursor-not-allowed' : ''}`}
+              >
+                <span className="material-icons text-2xl text-blue-400 mb-2 group-hover/btn:scale-110 transition">brush</span>
+                <span className="text-[10px] font-bold uppercase tracking-wider text-zinc-300">Inpaint</span>
+              </button>
+
+              <button
+                onClick={() => setShowMagicInput(!showMagicInput)}
+                disabled={!bgImage || isProcessing}
+                className={`flex flex-col items-center justify-center p-4 rounded-xl border border-white/5 bg-white/5 hover:bg-white/10 hover:border-purple-500/50 transition-all group/btn ${!bgImage ? 'opacity-50 cursor-not-allowed' : ''}`}
+              >
+                <span className="material-icons text-2xl text-purple-400 mb-2 group-hover/btn:scale-110 transition">auto_fix_normal</span>
+                <span className="text-[10px] font-bold uppercase tracking-wider text-zinc-300">Magic Edit</span>
+              </button>
+
+              <button
+                onClick={handleUpscale}
+                disabled={!bgImage || isProcessing}
+                className={`flex flex-col items-center justify-center p-4 rounded-xl border border-white/5 bg-white/5 hover:bg-white/10 hover:border-green-500/50 transition-all group/btn ${!bgImage ? 'opacity-50 cursor-not-allowed' : ''}`}
+              >
+                <span className="material-icons text-2xl text-green-400 mb-2 group-hover/btn:scale-110 transition">hd</span>
+                <span className="text-[10px] font-bold uppercase tracking-wider text-zinc-300">Enhance Quality</span>
+              </button>
+
+              {/* Placeholder for Generate Layer trigger if needed here */}
+            </div>
+          </>
         )}
-      </div>
 
-      {/* Quality Selector */}
-      <div className='bg-zinc-900/50 rounded-xl p-3 mb-4'>
-        <label htmlFor='quality-select' className='text-[10px] text-zinc-500 mb-2 block font-bold'>
-          QUALITY
-        </label>
-        <select
-          id='quality-select'
-          className='w-full bg-zinc-800 border border-white/10 rounded-lg p-2 text-sm text-white focus:border-blue-500 focus:outline-none transition'
-          value={quality}
-          onChange={(e) => setQuality(e.target.value as ReplicateQuality)}
-          disabled={isProcessing}
-        >
-          <option value='fast'>Fast - Real-ESRGAN (~2s, good quality)</option>
-          <option value='balanced'>Balanced - Recraft Crisp (recommended)</option>
-          <option value='best'>Best - Magic Refiner (highest quality)</option>
-        </select>
-        <p className='text-[9px] text-zinc-600 mt-1'>
-          {quality === 'fast' && 'Fastest processing, great for previews'}
-          {quality === 'balanced' && 'Best balance of speed and quality'}
-          {quality === 'best' && 'Slowest but best results for final output'}
-        </p>
-      </div>
-
-      {/* Undo/Redo Buttons */}
-      <div className='flex gap-2 mb-4'>
-        <button
-          onClick={undo}
-          disabled={!canUndo || isProcessing}
-          className='flex-1 bg-zinc-800 hover:bg-zinc-700 disabled:bg-zinc-900 disabled:text-zinc-700 text-white font-bold py-2 px-3 rounded-lg transition flex items-center justify-center gap-2 text-xs'
-          title='Undo last operation'
-        >
-          <span className='material-icons text-sm'>undo</span>
-          Undo
-        </button>
-        <button
-          onClick={redo}
-          disabled={!canRedo || isProcessing}
-          className='flex-1 bg-zinc-800 hover:bg-zinc-700 disabled:bg-zinc-900 disabled:text-zinc-700 text-white font-bold py-2 px-3 rounded-lg transition flex items-center justify-center gap-2 text-xs'
-          title='Redo last undone operation'
-        >
-          <span className='material-icons text-sm'>redo</span>
-          Redo
-        </button>
-      </div>
-
-      {/* Tool Grid */}
-      <div className='grid grid-cols-2 gap-2 mb-4'>
-        <button
-          onClick={handleUpscale}
-          disabled={!bgImage || isProcessing}
-          className='bg-gradient-to-br from-blue-600 to-blue-700 hover:from-blue-500 hover:to-blue-600 disabled:from-zinc-800 disabled:to-zinc-800 disabled:text-zinc-600 text-white font-bold py-3 px-4 rounded-xl transition flex items-center justify-center gap-2 text-sm'
-        >
-          <span className='material-icons text-base'>hd</span>
-          Upscale
-        </button>
-
-        <button
-          onClick={handleRemoveBg}
-          disabled={!bgImage || isProcessing}
-          className='bg-gradient-to-br from-purple-600 to-purple-700 hover:from-purple-500 hover:to-purple-600 disabled:from-zinc-800 disabled:to-zinc-800 disabled:text-zinc-600 text-white font-bold py-3 px-4 rounded-xl transition flex items-center justify-center gap-2 text-sm'
-        >
-          <span className='material-icons text-base'>layers_clear</span>
-          Remove BG
-        </button>
-
-        <button
-          onClick={handleRestore}
-          disabled={!bgImage || isProcessing}
-          className='bg-gradient-to-br from-green-600 to-green-700 hover:from-green-500 hover:to-green-600 disabled:from-zinc-800 disabled:to-zinc-800 disabled:text-zinc-600 text-white font-bold py-3 px-4 rounded-xl transition flex items-center justify-center gap-2 text-sm'
-        >
-          <span className='material-icons text-base'>auto_awesome</span>
-          Restore
-        </button>
-
-        <button
-          onClick={handleFaceEnhance}
-          disabled={!bgImage || isProcessing}
-          className='bg-gradient-to-br from-pink-600 to-pink-700 hover:from-pink-500 hover:to-pink-600 disabled:from-zinc-800 disabled:to-zinc-800 disabled:text-zinc-600 text-white font-bold py-3 px-4 rounded-xl transition flex items-center justify-center gap-2 text-sm'
-        >
-          <span className='material-icons text-base'>face</span>
-          Face Enhance
-        </button>
-
-        <button
-          onClick={() => setShowOutpaintInput(!showOutpaintInput)}
-          disabled={!bgImage || isProcessing}
-          className='bg-gradient-to-br from-cyan-600 to-cyan-700 hover:from-cyan-500 hover:to-cyan-600 disabled:from-zinc-800 disabled:to-zinc-800 disabled:text-zinc-600 text-white font-bold py-3 px-4 rounded-xl transition flex items-center justify-center gap-2 text-sm'
-        >
-          <span className='material-icons text-base'>open_in_full</span>
-          Extend
-        </button>
-      </div>
-
-      {/* Outpaint Input */}
-      {showOutpaintInput && (
-        <div className='bg-cyan-900/20 border border-cyan-500/30 rounded-xl p-3 mb-4'>
-          <label className='text-[10px] font-bold text-cyan-400 uppercase mb-2 block'>
-            Extend Image - Choose direction & describe
-          </label>
-          <div className='flex gap-2 mb-2'>
-            {(['left', 'right', 'up', 'down'] as const).map((dir) => (
+        {/* Layer/Profile Context Tools */}
+        {activeContext === 'layer' && (
+          <>
+            <div className="grid grid-cols-2 gap-3">
               <button
-                key={dir}
-                onClick={() => setOutpaintDirection(dir)}
-                className={`flex-1 py-2 rounded-lg text-xs font-bold transition capitalize ${
-                  outpaintDirection === dir
-                    ? 'bg-cyan-600 text-white'
-                    : 'bg-zinc-800 text-zinc-400 hover:bg-zinc-700'
-                }`}
+                onClick={handleFaceEnhance}
+                disabled={isProcessing}
+                className="flex flex-col items-center justify-center p-4 rounded-xl border border-white/5 bg-white/5 hover:bg-white/10 hover:border-pink-500/50 transition-all group/btn"
               >
-                {dir}
+                <span className="material-icons text-2xl text-pink-400 mb-2 group-hover/btn:scale-110 transition">face</span>
+                <span className="text-[10px] font-bold uppercase tracking-wider text-zinc-300">Face Enhance</span>
               </button>
-            ))}
-          </div>
-          <input
-            type='text'
-            value={outpaintPrompt}
-            onChange={(e) => setOutpaintPrompt(e.target.value)}
-            placeholder='e.g., Continue the landscape, Extend the sky...'
-            className='w-full bg-black/30 border border-white/10 rounded-lg px-3 py-2 text-sm text-white placeholder-zinc-500 focus:border-cyan-500 focus:outline-none mb-2'
-            onKeyDown={(e) => e.key === 'Enter' && handleOutpaint()}
-          />
-          <div className='flex gap-2'>
-            <button
-              onClick={handleOutpaint}
-              disabled={!outpaintPrompt.trim() || isProcessing}
-              className='flex-1 bg-cyan-600 hover:bg-cyan-500 disabled:bg-zinc-700 text-white font-bold py-2 px-4 rounded-lg text-xs transition'
-            >
-              Extend Image
-            </button>
-            <button
-              onClick={() => {
-                setShowOutpaintInput(false);
-                setOutpaintPrompt('');
-              }}
-              className='bg-zinc-700 hover:bg-zinc-600 text-white font-bold py-2 px-4 rounded-lg text-xs transition'
-            >
-              Cancel
-            </button>
-          </div>
-        </div>
-      )}
 
-      {/* Error Display */}
-      {error && (
-        <div className='bg-red-900/20 border border-red-500/50 rounded-lg p-3 mb-3'>
-          <div className='flex items-start gap-2'>
-            <span className='material-icons text-sm text-red-400'>error</span>
-            <div>
-              <p className='text-xs font-bold text-red-400'>Operation Failed</p>
-              <p className='text-[10px] text-red-300 mt-1'>{error}</p>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Before/After Comparison Overlay */}
-      {showComparison && beforeImage && afterImage && (
-        <div className='fixed inset-0 z-50 bg-black/90 backdrop-blur-sm flex items-center justify-center p-4'>
-          <div className='bg-zinc-900 border border-white/10 rounded-2xl p-6 max-w-5xl w-full mx-4'>
-            {/* Header */}
-            <div className='flex items-center justify-between mb-4'>
-              <div>
-                <h3 className='text-lg font-bold text-white flex items-center gap-2'>
-                  <span className='material-icons'>compare</span>
-                  Before & After Comparison
-                </h3>
-                <p className='text-xs text-zinc-500 mt-1'>
-                  Drag the slider to compare • Auto-closes in 8 seconds
-                </p>
-              </div>
               <button
-                onClick={handleCloseComparison}
-                className='text-zinc-500 hover:text-white transition'
+                onClick={handleRemoveBg}
+                disabled={isProcessing}
+                className="flex flex-col items-center justify-center p-4 rounded-xl border border-white/5 bg-white/5 hover:bg-white/10 hover:border-orange-500/50 transition-all group/btn"
               >
-                <span className='material-icons'>close</span>
+                <span className="material-icons text-2xl text-orange-400 mb-2 group-hover/btn:scale-110 transition">layers_clear</span>
+                <span className="text-[10px] font-bold uppercase tracking-wider text-zinc-300">Remove BG</span>
+              </button>
+
+              <button
+                onClick={() => setShowMagicInput(!showMagicInput)}
+                disabled={isProcessing}
+                className="flex flex-col items-center justify-center p-4 rounded-xl border border-white/5 bg-white/5 hover:bg-white/10 hover:border-purple-500/50 transition-all group/btn"
+              >
+                <span className="material-icons text-2xl text-purple-400 mb-2 group-hover/btn:scale-110 transition">auto_fix_normal</span>
+                <span className="text-[10px] font-bold uppercase tracking-wider text-zinc-300">Magic Edit</span>
+              </button>
+
+              <button
+                onClick={handleUpscale}
+                disabled={isProcessing}
+                className="flex flex-col items-center justify-center p-4 rounded-xl border border-white/5 bg-white/5 hover:bg-white/10 hover:border-green-500/50 transition-all group/btn"
+              >
+                <span className="material-icons text-2xl text-green-400 mb-2 group-hover/btn:scale-110 transition">hd</span>
+                <span className="text-[10px] font-bold uppercase tracking-wider text-zinc-300">Enhance</span>
               </button>
             </div>
+          </>
+        )}
 
-            {/* Comparison Container */}
-            <div
-              className='relative aspect-[1584/396] bg-zinc-950 rounded-xl overflow-hidden cursor-ew-resize select-none'
-              onMouseDown={handleMouseDown}
-              onMouseMove={handleMouseMove}
-              onMouseUp={handleMouseUp}
-              onMouseLeave={handleMouseUp}
-            >
-              {/* After Image (Full) */}
-              <img
-                src={afterImage}
-                alt='After'
-                className='absolute inset-0 w-full h-full object-cover'
-                draggable={false}
+        {/* Magic Edit Input */}
+        {showMagicInput && (
+          <div className="mt-4 p-3 bg-black/30 rounded-xl border border-white/10 animate-in fade-in slide-in-from-top-2">
+            <div className="flex gap-2 mb-2">
+              <input
+                type="text"
+                value={magicPrompt}
+                onChange={(e) => setMagicPrompt(e.target.value)}
+                placeholder={activeContext === 'banner' ? "e.g., Make it a sunset..." : "e.g., Turn into a cartoon..."}
+                className="flex-1 bg-zinc-900 border border-zinc-700 rounded-lg px-3 py-2 text-xs text-white placeholder-zinc-500 focus:border-purple-500 outline-none"
+                onKeyDown={(e) => e.key === 'Enter' && handleMagicEdit()}
               />
+              <EnhanceButton
+                prompt={magicPrompt}
+                onEnhanced={setMagicPrompt}
+                size="sm"
+                variant="secondary"
+                showLabel={false}
+              />
+            </div>
+            <div className="flex gap-2">
+              <button
+                onClick={handleMagicEdit}
+                disabled={!magicPrompt}
+                className="flex-1 bg-purple-600 hover:bg-purple-500 text-white rounded-lg py-1.5 text-[10px] font-bold uppercase"
+              >
+                Apply
+              </button>
+              <button
+                onClick={() => setShowMagicInput(false)}
+                className="px-3 bg-zinc-700 hover:bg-zinc-600 text-white rounded-lg py-1.5 text-[10px] font-bold uppercase"
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
+        )}
 
-              {/* Before Image (Clipped) */}
-              <div className='absolute inset-0 overflow-hidden' style={{ width: `${sliderPosition}%` }}>
-                <img
-                  src={beforeImage}
-                  alt='Before'
-                  className='absolute inset-0 h-full object-cover'
-                  style={{ width: `${(100 / sliderPosition) * 100}%` }}
-                  draggable={false}
+        {/* Error Message */}
+        {error && (
+          <div className="mt-4 p-3 bg-red-500/20 border border-red-500/50 rounded-xl">
+            <p className="text-[10px] font-medium text-red-200">{error}</p>
+          </div>
+        )}
+      </div>
+
+      {/* Inpainting Modal (Simple Canvas Overlay) */}
+      {showInpaintModal && bgImage && (
+        <div className="fixed inset-0 z-50 bg-black/90 backdrop-blur-md flex flex-col items-center justify-center p-4">
+          <div className="w-full max-w-4xl flex justify-between items-center mb-4">
+            <h3 className="text-white font-bold uppercase tracking-wider">Paint area to modify (Mask)</h3>
+            <div className="flex gap-4 items-center">
+              <div className="flex items-center gap-2">
+                <span className="text-xs text-zinc-400">Brush Size</span>
+                <input
+                  type="range"
+                  min="5"
+                  max="100"
+                  value={maskBrushSize}
+                  onChange={(e) => setMaskBrushSize(parseInt(e.target.value))}
+                  className="w-24 accent-purple-500"
                 />
               </div>
-
-              {/* Slider Line */}
-              <div
-                className='absolute top-0 bottom-0 w-1 bg-white shadow-lg'
-                style={{ left: `${sliderPosition}%` }}
-              >
-                {/* Slider Handle */}
-                <div className='absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-12 h-12 bg-white rounded-full shadow-xl flex items-center justify-center cursor-ew-resize'>
-                  <span className='material-icons text-zinc-900 text-lg'>drag_indicator</span>
-                </div>
-              </div>
-
-              {/* Labels */}
-              <div className='absolute top-4 left-4 bg-black/70 backdrop-blur-sm px-3 py-1.5 rounded-lg'>
-                <p className='text-xs font-bold text-white uppercase tracking-wider'>Before</p>
-              </div>
-              <div className='absolute top-4 right-4 bg-black/70 backdrop-blur-sm px-3 py-1.5 rounded-lg'>
-                <p className='text-xs font-bold text-white uppercase tracking-wider'>After</p>
-              </div>
-            </div>
-
-            {/* Footer */}
-            <div className='mt-4 flex items-center justify-between'>
-              <p className='text-xs text-zinc-600'>The new image has been applied to your canvas</p>
-              <button
-                onClick={handleCloseComparison}
-                className='bg-blue-600 hover:bg-blue-500 text-white px-6 py-2 rounded-lg text-sm font-bold transition flex items-center gap-2'
-              >
-                <span className='material-icons text-base'>check</span>
-                Got It
+              <button onClick={() => setShowInpaintModal(false)} className="text-zinc-400 hover:text-white">
+                <span className="material-icons">close</span>
               </button>
             </div>
           </div>
-        </div>
-      )}
 
-      {/* API Key Instructions Modal */}
-      {showAPIKeyModal && (
-        <APIKeyInstructionsModal
-          isOpen={showAPIKeyModal}
-          onClose={() => setShowAPIKeyModal(false)}
-          defaultTab='replicate'
-        />
+          <div className="relative border border-white/20 rounded-lg overflow-hidden cursor-crosshair max-h-[70vh]">
+            <canvas
+              ref={canvasRef}
+              onMouseDown={(e) => { setIsDrawing(true); handleCanvasDraw(e); }}
+              onMouseMove={handleCanvasDraw}
+              onMouseUp={() => setIsDrawing(false)}
+              onMouseLeave={() => setIsDrawing(false)}
+              className="max-w-full h-auto"
+            />
+          </div>
+
+          <div className="w-full max-w-lg mt-6 bg-zinc-900 border border-white/10 rounded-xl p-2 flex gap-2">
+            <input
+              type="text"
+              value={inpaintPrompt}
+              onChange={(e) => setInpaintPrompt(e.target.value)}
+              placeholder="Describe what should fill the masked area..."
+              className="flex-1 bg-transparent px-3 text-sm text-white focus:outline-none"
+            />
+            <EnhanceButton
+              prompt={inpaintPrompt}
+              onEnhanced={setInpaintPrompt}
+              size="sm"
+              variant="ghost"
+              showLabel={false}
+            />
+            <button
+              onClick={submitInpainting}
+              disabled={!inpaintPrompt}
+              className="bg-purple-600 hover:bg-purple-500 text-white font-bold px-6 py-2 rounded-lg text-xs uppercase"
+            >
+              Generate
+            </button>
+          </div>
+        </div>
       )}
     </div>
   );
 };
+
+export default ImageToolsPanel;

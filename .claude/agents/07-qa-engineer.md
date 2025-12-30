@@ -1,3 +1,8 @@
+---
+name: QA Engineer
+description: Agent specialized in QA Engineer tasks.
+---
+
 # Agent 07: QA Engineer
 
 ## Role

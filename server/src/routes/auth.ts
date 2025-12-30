@@ -7,11 +7,13 @@ import { db } from '../db';
 import { users, emailVerificationTokens, passwordResetTokens, profiles, userPreferences } from '../db/schema';
 import { sendVerificationEmail, sendPasswordResetEmail } from '../lib/email';
 import { randomBytes } from 'crypto';
+import { authRateLimit } from '../lib/rateLimit';
 
 export const authRouter = new Hono();
 
 // SIGNUP
-authRouter.post('/signup', async (c) => {
+// SECURITY: Rate limited to 3 requests per minute to prevent account spam
+authRouter.post('/signup', authRateLimit.signup, async (c) => {
     const { email, password } = await c.req.json();
 
     if (!email || !password || typeof email !== 'string' || typeof password !== 'string') {
@@ -83,7 +85,8 @@ authRouter.post('/signup', async (c) => {
 });
 
 // LOGIN
-authRouter.post('/login', async (c) => {
+// SECURITY: Rate limited to 5 requests per minute to prevent brute force attacks
+authRouter.post('/login', authRateLimit.login, async (c) => {
     const { email, password } = await c.req.json();
 
     if (!email || !password || typeof email !== 'string' || typeof password !== 'string') {
@@ -191,7 +194,8 @@ authRouter.get('/verify-email', async (c) => {
 });
 
 // FORGOT PASSWORD
-authRouter.post('/forgot-password', async (c) => {
+// SECURITY: Rate limited to 3 requests per minute to prevent email bombing
+authRouter.post('/forgot-password', authRateLimit.forgotPassword, async (c) => {
     const { email } = await c.req.json();
     if (!email || typeof email !== 'string') return c.json({ error: 'Invalid email' }, 400);
 
@@ -219,7 +223,8 @@ authRouter.post('/forgot-password', async (c) => {
 });
 
 // RESET PASSWORD
-authRouter.post('/reset-password', async (c) => {
+// SECURITY: Rate limited to 5 requests per minute to prevent brute force token guessing
+authRouter.post('/reset-password', authRateLimit.resetPassword, async (c) => {
     const { token, newPassword } = await c.req.json();
 
     if (!token || !newPassword) return c.json({ error: 'Missing fields' }, 400);

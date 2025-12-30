@@ -1,3 +1,8 @@
+---
+name: AI Safety Engineer
+description: Agent specialized in AI Safety Engineer tasks.
+---
+
 # Agent 12: AI Safety Engineer
 
 ## Role

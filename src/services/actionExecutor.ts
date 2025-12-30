@@ -1,6 +1,8 @@
 // Action Executor - Execute AI assistant tool calls on behalf of the user
-import { generateImage } from './llm';
+import { generateImage, enhancePrompt, analyzeImageForPrompts, analyzeCanvasAndSuggest } from './llm';
 import { getReplicateService } from './replicate';
+import type { BannerElement } from '@/types';
+import { Tab } from '@/constants';
 
 export interface ToolCall {
   name: string;
@@ -18,6 +20,19 @@ export interface ActionResult {
 
 export type OnUpdateCallback = (imageUrl: string, type: 'background' | 'profile') => void;
 
+export type SetGenPromptCallback = (prompt: string) => void;
+
+// Canvas manipulation callbacks for voice control
+export interface CanvasCallbacks {
+  addElement?: (element: BannerElement) => void;
+  updateElement?: (id: string, updates: Partial<BannerElement>) => void;
+  deleteElement?: (id: string) => void;
+  getElements?: () => BannerElement[];
+  undo?: () => void;
+  redo?: () => void;
+  setActiveTab?: (tab: Tab) => void;
+}
+
 /**
  * ActionExecutor - Handles execution of AI tool calls
  */
@@ -25,15 +40,37 @@ export class ActionExecutor {
   private onUpdate: OnUpdateCallback;
   private previewMode: boolean;
   private getCanvasImage: () => string | undefined;
+  private setGenPrompt?: SetGenPromptCallback;
+  private canvasCallbacks: CanvasCallbacks;
 
   constructor(
     onUpdate: OnUpdateCallback,
     previewMode = false,
-    getCanvasImage?: () => string | undefined
+    getCanvasImage?: () => string | undefined,
+    setGenPrompt?: SetGenPromptCallback,
+    canvasCallbacks?: CanvasCallbacks
   ) {
     this.onUpdate = onUpdate;
     this.previewMode = previewMode;
     this.getCanvasImage = getCanvasImage || (() => undefined);
+    this.setGenPrompt = setGenPrompt;
+    this.canvasCallbacks = canvasCallbacks || {};
+  }
+
+  /**
+   * Set canvas manipulation callbacks
+   */
+  setCanvasCallbacks(callbacks: CanvasCallbacks) {
+    this.canvasCallbacks = { ...this.canvasCallbacks, ...callbacks };
+    console.log('[ActionExecutor] Canvas callbacks configured');
+  }
+
+  /**
+   * Set the prompt setter callback for voice-to-prompt enhancement
+   */
+  setPromptSetter(setter: SetGenPromptCallback) {
+    this.setGenPrompt = setter;
+    console.log('[ActionExecutor] Prompt setter configured');
   }
 
   /**
@@ -86,6 +123,52 @@ export class ActionExecutor {
           return this.suggestPrompts(
             toolCall.args as { industry?: string; role?: string },
           );
+
+        case 'write_enhanced_prompt':
+          return await this.writeEnhancedPrompt(
+            toolCall.args as { prompt: string; industry?: string; style?: string },
+          );
+
+        // Canvas manipulation tools
+        case 'add_text_element':
+          return this.addTextElement(
+            toolCall.args as { text: string; x?: number; y?: number; fontSize?: number; color?: string; fontFamily?: string },
+          );
+
+        case 'update_element':
+          return this.updateElementTool(
+            toolCall.args as { element_id: string; properties: Partial<BannerElement> },
+          );
+
+        case 'delete_element':
+          return this.deleteElementTool(
+            toolCall.args as { element_id: string },
+          );
+
+        case 'list_elements':
+          return this.listElements();
+
+        // Navigation tools
+        case 'navigate_to_tab':
+          return this.navigateToTab(
+            toolCall.args as { tab: string },
+          );
+
+        // History tools
+        case 'undo_action':
+          return this.undoAction();
+
+        case 'redo_action':
+          return this.redoAction();
+
+        // Analysis tools
+        case 'analyze_image':
+          return await this.analyzeImage(
+            toolCall.args as { image_url?: string },
+          );
+
+        case 'analyze_banner':
+          return await this.analyzeBanner();
 
         default:
           return {
@@ -355,10 +438,348 @@ export class ActionExecutor {
   }
 
   /**
+   * Write enhanced prompt to the generation input field
+   * Voice agent uses this to enhance spoken prompts and write them to the UI
+   */
+  private async writeEnhancedPrompt(args: {
+    prompt: string;
+    industry?: string;
+    style?: string;
+  }): Promise<ActionResult> {
+    const { prompt, industry, style } = args;
+
+    console.log('[ActionExecutor] Enhancing and writing prompt:', { prompt, industry, style });
+
+    if (!this.setGenPrompt) {
+      return {
+        success: false,
+        error: 'Prompt setter not configured. Cannot write to generation field.',
+      };
+    }
+
+    try {
+      // Call the prompt enhancement service
+      const result = await enhancePrompt(prompt, { industry, style });
+
+      if (result.enhancedPrompt) {
+        // Write the enhanced prompt to the generation input field
+        this.setGenPrompt(result.enhancedPrompt);
+
+        return {
+          success: true,
+          result: `Enhanced prompt written to generation field: "${result.enhancedPrompt.substring(0, 100)}..."`,
+        };
+      }
+
+      return {
+        success: false,
+        error: 'Enhancement returned empty result',
+      };
+    } catch (error) {
+      console.error('[ActionExecutor] Prompt enhancement failed:', error);
+      return {
+        success: false,
+        error: error instanceof Error ? error.message : 'Prompt enhancement failed',
+      };
+    }
+  }
+
+  /**
    * Apply a previewed action to the canvas
    */
   applyPreview(imageUrl: string, type: 'background' | 'profile' = 'background') {
     console.log('[ActionExecutor] Applying preview:', { imageUrl, type });
     this.onUpdate(imageUrl, type);
+  }
+
+  // ============================================
+  // Canvas Manipulation Tools
+  // ============================================
+
+  /**
+   * Add a text element to the canvas
+   */
+  private addTextElement(args: {
+    text: string;
+    x?: number;
+    y?: number;
+    fontSize?: number;
+    color?: string;
+    fontFamily?: string;
+  }): ActionResult {
+    const { text, x = 792, y = 198, fontSize = 48, color = '#ffffff', fontFamily = 'Inter' } = args;
+
+    console.log('[ActionExecutor] Adding text element:', { text, x, y, fontSize, color });
+
+    if (!this.canvasCallbacks.addElement) {
+      return {
+        success: false,
+        error: 'Canvas not connected. Cannot add elements.',
+      };
+    }
+
+    const element: BannerElement = {
+      id: `text-${Date.now()}`,
+      type: 'text',
+      content: text,
+      x,
+      y,
+      fontSize,
+      color,
+      fontFamily,
+      fontWeight: '600',
+      textAlign: 'center',
+    };
+
+    this.canvasCallbacks.addElement(element);
+
+    return {
+      success: true,
+      result: `Added text element: "${text.substring(0, 50)}${text.length > 50 ? '...' : ''}"`,
+      action: 'add_text_element',
+    };
+  }
+
+  /**
+   * Update an element's properties
+   */
+  private updateElementTool(args: {
+    element_id: string;
+    properties: Partial<BannerElement>;
+  }): ActionResult {
+    const { element_id, properties } = args;
+
+    console.log('[ActionExecutor] Updating element:', { element_id, properties });
+
+    if (!this.canvasCallbacks.updateElement) {
+      return {
+        success: false,
+        error: 'Canvas not connected. Cannot update elements.',
+      };
+    }
+
+    this.canvasCallbacks.updateElement(element_id, properties);
+
+    return {
+      success: true,
+      result: `Updated element ${element_id}`,
+      action: 'update_element',
+    };
+  }
+
+  /**
+   * Delete an element from the canvas
+   */
+  private deleteElementTool(args: { element_id: string }): ActionResult {
+    const { element_id } = args;
+
+    console.log('[ActionExecutor] Deleting element:', element_id);
+
+    if (!this.canvasCallbacks.deleteElement) {
+      return {
+        success: false,
+        error: 'Canvas not connected. Cannot delete elements.',
+      };
+    }
+
+    this.canvasCallbacks.deleteElement(element_id);
+
+    return {
+      success: true,
+      result: `Deleted element ${element_id}`,
+      action: 'delete_element',
+    };
+  }
+
+  /**
+   * List all current canvas elements
+   */
+  private listElements(): ActionResult {
+    console.log('[ActionExecutor] Listing canvas elements');
+
+    if (!this.canvasCallbacks.getElements) {
+      return {
+        success: false,
+        error: 'Canvas not connected. Cannot list elements.',
+      };
+    }
+
+    const elements = this.canvasCallbacks.getElements();
+    const summary = elements.map((el) => ({
+      id: el.id,
+      type: el.type,
+      content: el.type === 'text' ? el.content.substring(0, 30) : el.content,
+      position: { x: el.x, y: el.y },
+    }));
+
+    return {
+      success: true,
+      result: JSON.stringify(summary, null, 2),
+      action: 'list_elements',
+    };
+  }
+
+  // ============================================
+  // Navigation Tools
+  // ============================================
+
+  /**
+   * Navigate to a different tab
+   */
+  private navigateToTab(args: { tab: string }): ActionResult {
+    const { tab } = args;
+
+    console.log('[ActionExecutor] Navigating to tab:', tab);
+
+    if (!this.canvasCallbacks.setActiveTab) {
+      return {
+        success: false,
+        error: 'Navigation not connected. Cannot change tabs.',
+      };
+    }
+
+    const tabMap: Record<string, Tab> = {
+      studio: Tab.STUDIO,
+      gallery: Tab.GALLERY,
+      brainstorm: Tab.BRAINSTORM,
+    };
+
+    const targetTab = tabMap[tab.toLowerCase()];
+    if (!targetTab) {
+      return {
+        success: false,
+        error: `Unknown tab: ${tab}. Valid tabs: studio, gallery, brainstorm`,
+      };
+    }
+
+    this.canvasCallbacks.setActiveTab(targetTab);
+
+    return {
+      success: true,
+      result: `Navigated to ${tab} tab`,
+      action: 'navigate_to_tab',
+    };
+  }
+
+  // ============================================
+  // History Tools
+  // ============================================
+
+  /**
+   * Undo the last canvas action
+   */
+  private undoAction(): ActionResult {
+    console.log('[ActionExecutor] Executing undo');
+
+    if (!this.canvasCallbacks.undo) {
+      return {
+        success: false,
+        error: 'Undo not available.',
+      };
+    }
+
+    this.canvasCallbacks.undo();
+
+    return {
+      success: true,
+      result: 'Undid last action',
+      action: 'undo_action',
+    };
+  }
+
+  /**
+   * Redo a previously undone action
+   */
+  private redoAction(): ActionResult {
+    console.log('[ActionExecutor] Executing redo');
+
+    if (!this.canvasCallbacks.redo) {
+      return {
+        success: false,
+        error: 'Redo not available.',
+      };
+    }
+
+    this.canvasCallbacks.redo();
+
+    return {
+      success: true,
+      result: 'Redid action',
+      action: 'redo_action',
+    };
+  }
+
+  // ============================================
+  // Analysis Tools
+  // ============================================
+
+  /**
+   * Analyze an image and suggest creative edit prompts or generation ideas
+   */
+  private async analyzeImage(args: { image_url?: string }): Promise<ActionResult> {
+    const imageUrl = args.image_url || this.getCanvasImage?.();
+
+    console.log('[ActionExecutor] Analyzing image for prompts');
+
+    if (!imageUrl) {
+      return {
+        success: false,
+        error: 'No image available to analyze. Please generate or upload an image first.',
+      };
+    }
+
+    try {
+      const analysis = await analyzeImageForPrompts(imageUrl);
+
+      // Format the analysis result for voice response
+      const result = {
+        magicEditSuggestions: analysis.magicEdit || [],
+        generationIdeas: analysis.generation || [],
+      };
+
+      return {
+        success: true,
+        result: JSON.stringify(result, null, 2),
+        action: 'analyze_image',
+      };
+    } catch (error) {
+      console.error('[ActionExecutor] Image analysis failed:', error);
+      return {
+        success: false,
+        error: error instanceof Error ? error.message : 'Image analysis failed',
+      };
+    }
+  }
+
+  /**
+   * Analyze the current banner and provide professional improvement suggestions
+   */
+  private async analyzeBanner(): Promise<ActionResult> {
+    const canvasImage = this.getCanvasImage?.();
+
+    console.log('[ActionExecutor] Analyzing banner for improvements');
+
+    if (!canvasImage) {
+      return {
+        success: false,
+        error: 'No banner available to analyze. Please generate or upload a banner first.',
+      };
+    }
+
+    try {
+      const analysis = await analyzeCanvasAndSuggest(canvasImage);
+
+      return {
+        success: true,
+        result: JSON.stringify(analysis, null, 2),
+        action: 'analyze_banner',
+      };
+    } catch (error) {
+      console.error('[ActionExecutor] Banner analysis failed:', error);
+      return {
+        success: false,
+        error: error instanceof Error ? error.message : 'Banner analysis failed',
+      };
+    }
   }
 }

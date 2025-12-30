@@ -94,9 +94,10 @@ userRouter.get('/api-keys', async (c) => {
     // Check if product (server) has API keys configured via environment variables
     // This tells the frontend that AI features will work even without user BYOK keys
     const hasProductKeys = !!(process.env.OPENROUTER_API_KEY || process.env.GEMINI_API_KEY);
+    const hasProductOpenAIKey = !!process.env.OPENAI_API_KEY;
 
     if (!keys[0]) {
-        return c.json({ apiKeys: {}, hasProductKeys });
+        return c.json({ apiKeys: {}, hasProductKeys, hasProductOpenAIKey });
     }
 
     const dbKeys = keys[0];
@@ -122,7 +123,36 @@ userRouter.get('/api-keys', async (c) => {
         hasReplicateKey: !!dbKeys.replicateApiKey,
     };
 
-    return c.json({ apiKeys: maskedApiKeys, hasProductKeys });
+    return c.json({ apiKeys: maskedApiKeys, hasProductKeys, hasProductOpenAIKey });
+});
+
+// Get Voice API Key (for voice agent WebSocket connection)
+// SECURITY: Returns the actual OpenAI key ONLY for authenticated users for voice features
+// Priority: 1) User's own key, 2) Product-level OPENAI_API_KEY environment variable
+userRouter.get('/voice-key', async (c) => {
+    const user = await getUser(c);
+    if (!user) return c.json({ error: 'Unauthorized' }, 401);
+
+    // First, try to get user's own OpenAI key
+    const keys = await db.select().from(userApiKeys).where(eq(userApiKeys.userId, user.id)).limit(1);
+    const userOpenAIKey = keys[0]?.openaiApiKey;
+
+    // If user has their own key, use it
+    if (userOpenAIKey) {
+        return c.json({ voiceKey: userOpenAIKey, source: 'user' });
+    }
+
+    // Fallback to product-level OpenAI API key from environment
+    const productOpenAIKey = process.env.OPENAI_API_KEY;
+    if (productOpenAIKey) {
+        return c.json({ voiceKey: productOpenAIKey, source: 'product' });
+    }
+
+    // Neither user nor product key available
+    return c.json({
+        error: 'OpenAI API key not configured. Please add it in Settings → AI Settings to use voice features.',
+        requiresKey: true
+    }, 400);
 });
 
 // Update API Keys

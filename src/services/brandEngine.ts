@@ -1,37 +1,14 @@
-// Brand Consistency Engine - Learn and enforce brand guidelines
-
-import { GoogleGenAI } from '@google/genai';
-import { MODELS } from '../constants';
+import { generateAgentResponse } from './llm';
 import type { BrandProfile } from '../types/ai';
-import type { Part } from '../types';
 
 const BRAND_PROFILE_KEY = 'brand_profile';
 
 /**
- * Extract brand profile from reference images using vision AI
+ * Extract brand profile from reference images using vision AI (via OpenRouter)
  */
 export const extractBrandFromImages = async (images: string[]): Promise<Partial<BrandProfile>> => {
-  const geminiKey =
-    localStorage.getItem('gemini_api_key') || import.meta.env.VITE_GEMINI_API_KEY || '';
-  if (!geminiKey) throw new Error('Gemini API Key required for brand analysis');
-
   try {
-    const ai = new GoogleGenAI({ apiKey: geminiKey });
-
-    // Build parts array with all images
-    const parts: Part[] = images.map((img) => {
-      const base64Data = img.split(',')[1] || img;
-      return {
-        inlineData: {
-          mimeType: 'image/png',
-          data: base64Data,
-        },
-      };
-    });
-
-    // Add analysis prompt
-    parts.push({
-      text: `Analyze these images to extract brand identity elements.
+    const prompt = `Analyze these images to extract brand identity elements.
 
 Identify and extract:
 1. Primary colors (provide hex codes and descriptive names)
@@ -46,19 +23,30 @@ Be specific and detailed. Return JSON format:
   ],
   "styleKeywords": ["modern", "professional", "tech"],
   "industry": "Technology" (if identifiable)
-}`,
-    });
+}`;
 
-    const response = await ai.models.generateContent({
-      model: MODELS.textThinking,
-      contents: [{ role: 'user', parts }],
-      config: {
-        responseMimeType: 'application/json',
-        thinkingConfig: { thinkingBudget: 2048 },
-      },
-    });
+    // We reuse the existing agent response function which handles OpenRouter + Vision
+    // We pass the prompt as the user transcript and the first image as screenshot, 
+    // but we need to modify generateAgentResponse to support multiple images if we want to be robust.
+    // For now, we'll try to use the first image or refactor.
+    // Actually, let's just make a direct call using the same pattern as generateDesignChatResponse.
 
-    const result = JSON.parse(response.text || '{}');
+    // Using generateAgentResponse signature: (transcript, screenshot, history)
+    // It only accepts one image. 
+    // Let's rely on a new export from llm.ts or just inline the fetch here if needed?
+    // Better: Helper in llm.ts was not exported.
+    // Let's use generateDesignChatResponse which supports multiple images.
+
+    // Cyclic dependency risk? brandEngine -> llm -> brandEngine? 
+    // llm.ts imports constants, types, utils. Doesn't seem to import brandEngine.
+    // So safe to import from llm.
+
+    const { generateDesignChatResponse } = await import('./llm');
+    const response = await generateDesignChatResponse(prompt, images);
+
+    const text = response.text || '{}';
+    const jsonStr = text.replace(/```json|```/g, '').trim();
+    const result = JSON.parse(jsonStr);
 
     return {
       colors: result.colors || [],
@@ -139,21 +127,11 @@ export const checkBrandConsistency = async (
   imageBase64: string,
   brandProfile: BrandProfile,
 ): Promise<{ consistent: boolean; issues: string[]; score: number }> => {
-  const geminiKey =
-    localStorage.getItem('gemini_api_key') || import.meta.env.VITE_GEMINI_API_KEY || '';
-  if (!geminiKey) throw new Error('Gemini API Key required');
-
   try {
-    const ai = new GoogleGenAI({ apiKey: geminiKey });
-
-    const base64Data = imageBase64.split(',')[1] || imageBase64;
     const colors = brandProfile.colors.map((c) => `${c.name} (${c.hex})`).join(', ');
     const styles = brandProfile.styleKeywords.join(', ');
 
-    const parts: Part[] = [
-      { inlineData: { mimeType: 'image/png', data: base64Data } },
-      {
-        text: `Analyze this image against the brand guidelines below.
+    const prompt = `Analyze this image against the brand guidelines below.
 
 Brand Guidelines:
 - Primary Colors: ${colors}
@@ -170,20 +148,14 @@ Return JSON:
   "consistent": true/false,
   "score": 0-100 (consistency score),
   "issues": ["Issue 1", "Issue 2"] (if any)
-}`,
-      },
-    ];
+}`;
 
-    const response = await ai.models.generateContent({
-      model: MODELS.textThinking,
-      contents: [{ role: 'user', parts }],
-      config: {
-        responseMimeType: 'application/json',
-        thinkingConfig: { thinkingBudget: 1024 },
-      },
-    });
+    const { generateDesignChatResponse } = await import('./llm');
+    const response = await generateDesignChatResponse(prompt, [imageBase64]);
 
-    const result = JSON.parse(response.text || '{}');
+    const text = response.text || '{}';
+    const jsonStr = text.replace(/```json|```/g, '').trim();
+    const result = JSON.parse(jsonStr);
 
     return {
       consistent: result.consistent || false,

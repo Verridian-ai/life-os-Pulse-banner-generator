@@ -1,6 +1,7 @@
-// Database Service - Supabase PostgreSQL Client
+// Database Service - Neon PostgreSQL via Backend API
+// All database operations go through the backend API endpoints
 
-import { supabase as supabaseClient } from './auth';
+import { api } from './api';
 import type {
   User,
   Design,
@@ -14,106 +15,60 @@ import type {
   CreateBrandProfileRequest,
 } from '../types/database';
 
-/**
- * Get Supabase client or return null if not configured
- */
-const getSupabase = () => {
-  if (!supabaseClient) {
-    console.warn('Supabase not configured - database operations disabled');
-    return null;
-  }
-  return supabaseClient;
-};
-
-// Create a proxy that we can use throughout the file
-const supabase = new Proxy({} as NonNullable<typeof supabaseClient>, {
-  get(_target, prop) {
-    const client = getSupabase();
-    if (!client) {
-      throw new Error('Supabase not configured');
-    }
-    return client[prop as keyof typeof client];
-  },
-});
-
 // ============================================================================
 // USER OPERATIONS
 // ============================================================================
 
 /**
- * Get current user profile
+ * Get current user profile from backend API
  */
 export const getCurrentUser = async (): Promise<User | null> => {
-  if (!getSupabase()) return null;
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-  if (!user) return null;
-
-  const { data, error } = await supabase.from('users').select('*').eq('id', user.id).single();
-
-  if (error) {
-    console.error('Error fetching user:', error);
+  try {
+    const response = await api.get<{ user: User }>('/api/user/profile');
+    return response?.user || null;
+  } catch (error) {
+    console.error('[Database] Error fetching user:', error);
     return null;
   }
-
-  return data;
 };
 
 /**
- * Update user profile
+ * Update user profile via backend API
  */
 export const updateUser = async (
   updates: Partial<Pick<User, 'full_name' | 'avatar_url'>>,
 ): Promise<User | null> => {
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-  if (!user) throw new Error('Not authenticated');
-
-  const { data, error } = await supabase
-    .from('users')
-    .update({ ...updates, updated_at: new Date().toISOString() })
-    .eq('id', user.id)
-    .select()
-    .single();
-
-  if (error) throw error;
-  return data;
+  try {
+    const response = await api.put<{ user: User }>('/api/user/profile', updates);
+    return response?.user || null;
+  } catch (error) {
+    console.error('[Database] Error updating user:', error);
+    throw error;
+  }
 };
 
 /**
- * Update last login timestamp
+ * Update last login timestamp via backend API
  */
 export const updateLastLogin = async (): Promise<void> => {
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-  if (!user) return;
-
-  await supabase
-    .from('users')
-    .update({ last_login_at: new Date().toISOString() })
-    .eq('id', user.id);
+  try {
+    await api.post('/api/user/last-login', {});
+  } catch (error) {
+    console.error('[Database] Error updating last login:', error);
+  }
 };
 
 /**
- * Get user statistics
+ * Get user statistics via backend API
  */
 export const getUserStats = async (): Promise<UserStats | null> => {
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-  if (!user) return null;
-
-  const { data, error } = await supabase.rpc('get_user_stats', { p_user_id: user.id });
-
-  if (error) {
-    console.error('Error fetching user stats:', error);
+  try {
+    const response = await api.get<{ stats: UserStats }>('/api/user/stats');
+    return response?.stats || null;
+  } catch (error) {
+    console.error('[Database] Error fetching user stats:', error);
     return null;
   }
-
-  return data;
 };
 
 // ============================================================================
@@ -121,18 +76,11 @@ export const getUserStats = async (): Promise<UserStats | null> => {
 // ============================================================================
 
 /**
- * Create a new design
+ * Create a new design via backend API
  */
 export const createDesign = async (data: CreateDesignRequest): Promise<Design | null> => {
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-  if (!user) throw new Error('Not authenticated');
-
-  const { data: design, error } = await supabase
-    .from('designs')
-    .insert({
-      user_id: user.id,
+  try {
+    const response = await api.post<{ design: Design }>('/api/designs', {
       title: data.title,
       description: data.description,
       thumbnail_url: data.thumbnail_url,
@@ -142,102 +90,91 @@ export const createDesign = async (data: CreateDesignRequest): Promise<Design | 
       height: data.height || 568,
       tags: data.tags || [],
       is_public: data.is_public || false,
-    })
-    .select()
-    .single();
-
-  if (error) throw error;
-  return design;
+    });
+    return response?.design || null;
+  } catch (error) {
+    console.error('[Database] Error creating design:', error);
+    throw error;
+  }
 };
 
 /**
- * Get all designs for current user
+ * Get all designs for current user via backend API
  */
 export const getUserDesigns = async (): Promise<Design[]> => {
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-  if (!user) return [];
-
-  const { data, error } = await supabase
-    .from('designs')
-    .select('*')
-    .eq('user_id', user.id)
-    .order('created_at', { ascending: false });
-
-  if (error) {
-    console.error('Error fetching designs:', error);
+  try {
+    const response = await api.get<{ designs: Design[] }>('/api/designs');
+    return response?.designs || [];
+  } catch (error) {
+    console.error('[Database] Error fetching designs:', error);
     return [];
   }
-
-  return data || [];
 };
 
 /**
- * Get a single design by ID
+ * Get a single design by ID via backend API
  */
 export const getDesignById = async (designId: string): Promise<Design | null> => {
-  const { data, error } = await supabase.from('designs').select('*').eq('id', designId).single();
-
-  if (error) {
-    console.error('Error fetching design:', error);
+  try {
+    const response = await api.get<{ design: Design }>(`/api/designs/${designId}`);
+    return response?.design || null;
+  } catch (error) {
+    console.error('[Database] Error fetching design:', error);
     return null;
   }
-
-  return data;
 };
 
 /**
- * Update a design
+ * Update a design via backend API
  */
 export const updateDesign = async (
   designId: string,
   updates: UpdateDesignRequest,
 ): Promise<Design | null> => {
-  const { data, error } = await supabase
-    .from('designs')
-    .update(updates)
-    .eq('id', designId)
-    .select()
-    .single();
-
-  if (error) throw error;
-  return data;
+  try {
+    const response = await api.put<{ design: Design }>(`/api/designs/${designId}`, updates);
+    return response?.design || null;
+  } catch (error) {
+    console.error('[Database] Error updating design:', error);
+    throw error;
+  }
 };
 
 /**
- * Delete a design
+ * Delete a design via backend API
  */
 export const deleteDesign = async (designId: string): Promise<boolean> => {
-  const { error } = await supabase.from('designs').delete().eq('id', designId);
-
-  return !error;
+  try {
+    await api.delete(`/api/designs/${designId}`);
+    return true;
+  } catch (error) {
+    console.error('[Database] Error deleting design:', error);
+    return false;
+  }
 };
 
 /**
- * Get public designs (for gallery/inspiration)
+ * Get public designs (for gallery/inspiration) via backend API
  */
 export const getPublicDesigns = async (limit: number = 20): Promise<Design[]> => {
-  const { data, error } = await supabase
-    .from('designs')
-    .select('*')
-    .eq('is_public', true)
-    .order('created_at', { ascending: false })
-    .limit(limit);
-
-  if (error) {
-    console.error('Error fetching public designs:', error);
+  try {
+    const response = await api.get<{ designs: Design[] }>(`/api/designs/public?limit=${limit}`);
+    return response?.designs || [];
+  } catch (error) {
+    console.error('[Database] Error fetching public designs:', error);
     return [];
   }
-
-  return data || [];
 };
 
 /**
- * Increment view count
+ * Increment view count via backend API
  */
 export const incrementViewCount = async (designId: string): Promise<void> => {
-  await supabase.rpc('increment_view_count', { design_id: designId });
+  try {
+    await api.post(`/api/designs/${designId}/views`, {});
+  } catch (error) {
+    console.error('[Database] Error incrementing view count:', error);
+  }
 };
 
 // ============================================================================
@@ -245,20 +182,13 @@ export const incrementViewCount = async (designId: string): Promise<void> => {
 // ============================================================================
 
 /**
- * Create a brand profile
+ * Create a brand profile via backend API
  */
 export const createBrandProfile = async (
   data: CreateBrandProfileRequest,
 ): Promise<BrandProfile | null> => {
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-  if (!user) throw new Error('Not authenticated');
-
-  const { data: profile, error } = await supabase
-    .from('brand_profiles')
-    .insert({
-      user_id: user.id,
+  try {
+    const response = await api.post<{ profile: BrandProfile }>('/api/brand-profiles', {
       name: data.name,
       colors: data.colors,
       fonts: data.fonts,
@@ -267,107 +197,80 @@ export const createBrandProfile = async (
       industry: data.industry,
       target_audience: data.target_audience,
       reference_images: data.reference_images,
-    })
-    .select()
-    .single();
-
-  if (error) throw error;
-  return profile;
+    });
+    return response?.profile || null;
+  } catch (error) {
+    console.error('[Database] Error creating brand profile:', error);
+    throw error;
+  }
 };
 
 /**
- * Get all brand profiles for current user
+ * Get all brand profiles for current user via backend API
  */
 export const getUserBrandProfiles = async (): Promise<BrandProfile[]> => {
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-  if (!user) return [];
-
-  const { data, error } = await supabase
-    .from('brand_profiles')
-    .select('*')
-    .eq('user_id', user.id)
-    .order('is_active', { ascending: false })
-    .order('created_at', { ascending: false });
-
-  if (error) {
-    console.error('Error fetching brand profiles:', error);
+  try {
+    const response = await api.get<{ profiles: BrandProfile[] }>('/api/brand-profiles');
+    return response?.profiles || [];
+  } catch (error) {
+    console.error('[Database] Error fetching brand profiles:', error);
     return [];
   }
-
-  return data || [];
 };
 
 /**
- * Get active brand profile
+ * Get active brand profile via backend API
  */
 export const getActiveBrandProfile = async (): Promise<BrandProfile | null> => {
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-  if (!user) return null;
-
-  const { data, error } = await supabase
-    .from('brand_profiles')
-    .select('*')
-    .eq('user_id', user.id)
-    .eq('is_active', true)
-    .order('updated_at', { ascending: false })
-    .limit(1)
-    .single();
-
-  if (error) return null;
-  return data;
+  try {
+    const response = await api.get<{ profile: BrandProfile }>('/api/brand-profiles/active');
+    return response?.profile || null;
+  } catch (error) {
+    console.error('[Database] Error fetching active brand profile:', error);
+    return null;
+  }
 };
 
 /**
- * Set active brand profile
+ * Set active brand profile via backend API
  */
 export const setActiveBrandProfile = async (profileId: string): Promise<boolean> => {
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-  if (!user) return false;
-
-  // Deactivate all other profiles
-  await supabase.from('brand_profiles').update({ is_active: false }).eq('user_id', user.id);
-
-  // Activate the selected profile
-  const { error } = await supabase
-    .from('brand_profiles')
-    .update({ is_active: true })
-    .eq('id', profileId)
-    .eq('user_id', user.id);
-
-  return !error;
+  try {
+    await api.post(`/api/brand-profiles/${profileId}/activate`, {});
+    return true;
+  } catch (error) {
+    console.error('[Database] Error setting active brand profile:', error);
+    return false;
+  }
 };
 
 /**
- * Update brand profile
+ * Update brand profile via backend API
  */
 export const updateBrandProfile = async (
   profileId: string,
   updates: Partial<CreateBrandProfileRequest>,
 ): Promise<BrandProfile | null> => {
-  const { data, error } = await supabase
-    .from('brand_profiles')
-    .update(updates)
-    .eq('id', profileId)
-    .select()
-    .single();
-
-  if (error) throw error;
-  return data;
+  try {
+    const response = await api.put<{ profile: BrandProfile }>(`/api/brand-profiles/${profileId}`, updates);
+    return response?.profile || null;
+  } catch (error) {
+    console.error('[Database] Error updating brand profile:', error);
+    throw error;
+  }
 };
 
 /**
- * Delete brand profile
+ * Delete brand profile via backend API
  */
 export const deleteBrandProfile = async (profileId: string): Promise<boolean> => {
-  const { error } = await supabase.from('brand_profiles').delete().eq('id', profileId);
-
-  return !error;
+  try {
+    await api.delete(`/api/brand-profiles/${profileId}`);
+    return true;
+  } catch (error) {
+    console.error('[Database] Error deleting brand profile:', error);
+    return false;
+  }
 };
 
 // ============================================================================
@@ -375,68 +278,35 @@ export const deleteBrandProfile = async (profileId: string): Promise<boolean> =>
 // ============================================================================
 
 /**
- * Record a usage metric
+ * Record a usage metric via backend API
  */
 export const recordMetric = async (
   metric: Omit<UsageMetric, 'id' | 'user_id' | 'created_at'>,
 ): Promise<UsageMetric | null> => {
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-  if (!user) return null;
-
-  const { data, error } = await supabase
-    .from('usage_metrics')
-    .insert({
-      user_id: user.id,
-      operation_type: metric.operation_type,
-      model_id: metric.model_id,
-      provider: metric.provider,
-      status: metric.status,
-      response_time_ms: metric.response_time_ms,
-      cost_usd: metric.cost_usd,
-      input_tokens: metric.input_tokens,
-      output_tokens: metric.output_tokens,
-      error_message: metric.error_message,
-      metadata: metric.metadata,
-    })
-    .select()
-    .single();
-
-  if (error) {
-    console.error('Error recording metric:', error);
+  try {
+    const response = await api.post<{ metric: UsageMetric }>('/api/metrics', metric);
+    return response?.metric || null;
+  } catch (error) {
+    console.error('[Database] Error recording metric:', error);
     return null;
   }
-
-  return data;
 };
 
 /**
- * Get usage metrics for current user (with date range)
+ * Get usage metrics for current user (with date range) via backend API
  */
 export const getUserMetrics = async (startDate?: Date, endDate?: Date): Promise<UsageMetric[]> => {
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-  if (!user) return [];
+  try {
+    const params = new URLSearchParams();
+    if (startDate) params.append('startDate', startDate.toISOString());
+    if (endDate) params.append('endDate', endDate.toISOString());
 
-  let query = supabase.from('usage_metrics').select('*').eq('user_id', user.id);
-
-  if (startDate) {
-    query = query.gte('created_at', startDate.toISOString());
-  }
-  if (endDate) {
-    query = query.lte('created_at', endDate.toISOString());
-  }
-
-  const { data, error } = await query.order('created_at', { ascending: false });
-
-  if (error) {
-    console.error('Error fetching metrics:', error);
+    const response = await api.get<{ metrics: UsageMetric[] }>(`/api/metrics?${params.toString()}`);
+    return response?.metrics || [];
+  } catch (error) {
+    console.error('[Database] Error fetching metrics:', error);
     return [];
   }
-
-  return data || [];
 };
 
 // ============================================================================
@@ -444,66 +314,44 @@ export const getUserMetrics = async (startDate?: Date, endDate?: Date): Promise<
 // ============================================================================
 
 /**
- * Save a reference image
+ * Save a reference image via backend API
  */
 export const saveReferenceImage = async (
   data: Omit<ReferenceImage, 'id' | 'user_id' | 'created_at'>,
 ): Promise<ReferenceImage | null> => {
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-  if (!user) throw new Error('Not authenticated');
-
-  const { data: image, error } = await supabase
-    .from('reference_images')
-    .insert({
-      user_id: user.id,
-      file_name: data.file_name,
-      file_url: data.file_url,
-      file_size_bytes: data.file_size_bytes,
-      mime_type: data.mime_type,
-      width: data.width,
-      height: data.height,
-      tags: data.tags || [],
-      brand_profile_id: data.brand_profile_id,
-    })
-    .select()
-    .single();
-
-  if (error) throw error;
-  return image;
+  try {
+    const response = await api.post<{ image: ReferenceImage }>('/api/reference-images', data);
+    return response?.image || null;
+  } catch (error) {
+    console.error('[Database] Error saving reference image:', error);
+    throw error;
+  }
 };
 
 /**
- * Get all reference images for current user
+ * Get all reference images for current user via backend API
  */
 export const getUserReferenceImages = async (): Promise<ReferenceImage[]> => {
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-  if (!user) return [];
-
-  const { data, error } = await supabase
-    .from('reference_images')
-    .select('*')
-    .eq('user_id', user.id)
-    .order('created_at', { ascending: false });
-
-  if (error) {
-    console.error('Error fetching reference images:', error);
+  try {
+    const response = await api.get<{ images: ReferenceImage[] }>('/api/reference-images');
+    return response?.images || [];
+  } catch (error) {
+    console.error('[Database] Error fetching reference images:', error);
     return [];
   }
-
-  return data || [];
 };
 
 /**
- * Delete reference image
+ * Delete reference image via backend API
  */
 export const deleteReferenceImage = async (imageId: string): Promise<boolean> => {
-  const { error } = await supabase.from('reference_images').delete().eq('id', imageId);
-
-  return !error;
+  try {
+    await api.delete(`/api/reference-images/${imageId}`);
+    return true;
+  } catch (error) {
+    console.error('[Database] Error deleting reference image:', error);
+    return false;
+  }
 };
 
 // ============================================================================
@@ -511,46 +359,31 @@ export const deleteReferenceImage = async (imageId: string): Promise<boolean> =>
 // ============================================================================
 
 /**
- * Get user preferences
+ * Get user preferences via backend API
  */
 export const getUserPreferences = async (): Promise<UserPreferences | null> => {
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-  if (!user) return null;
-
-  const { data, error } = await supabase
-    .from('user_preferences')
-    .select('*')
-    .eq('user_id', user.id)
-    .single();
-
-  if (error) return null;
-  return data;
+  try {
+    const response = await api.get<{ preferences: UserPreferences }>('/api/user/preferences');
+    return response?.preferences || null;
+  } catch (error) {
+    console.error('[Database] Error fetching user preferences:', error);
+    return null;
+  }
 };
 
 /**
- * Update user preferences (upsert)
+ * Update user preferences (upsert) via backend API
  */
 export const updateUserPreferences = async (
   preferences: Partial<Omit<UserPreferences, 'user_id' | 'updated_at'>>,
 ): Promise<UserPreferences | null> => {
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-  if (!user) throw new Error('Not authenticated');
-
-  const { data, error } = await supabase
-    .from('user_preferences')
-    .upsert({
-      user_id: user.id,
-      ...preferences,
-    })
-    .select()
-    .single();
-
-  if (error) throw error;
-  return data;
+  try {
+    const response = await api.put<{ preferences: UserPreferences }>('/api/user/preferences', preferences);
+    return response?.preferences || null;
+  } catch (error) {
+    console.error('[Database] Error updating user preferences:', error);
+    throw error;
+  }
 };
 
 // ============================================================================
@@ -558,7 +391,7 @@ export const updateUserPreferences = async (
 // ============================================================================
 
 /**
- * Save a generated image to the database
+ * Save a generated image to the database via backend API
  */
 export const createImage = async (data: {
   storage_url: string;
@@ -566,55 +399,26 @@ export const createImage = async (data: {
   prompt?: string;
   model_used?: string;
   quality?: string;
-  generation_type?: 'generate' | 'edit' | 'upscale' | 'remove-bg' | 'restore' | 'face-enhance';
+  generation_type?: 'generate' | 'edit' | 'upscale' | 'remove-bg' | 'restore' | 'face-enhance' | 'upload';
   tags?: string[];
   project_id?: string;
   file_size_bytes?: number;
 }): Promise<{ id: string; storage_url: string } | null> => {
-  // Check if Supabase is configured
-  if (!getSupabase()) {
-    console.warn('[Database] Supabase not configured - cannot save image to database');
-    return null;
-  }
-
   try {
-    const {
-      data: { user },
-    } = await supabase.auth.getUser();
+    const response = await api.post<{ image: { id: string; storage_url: string } }>('/api/images', {
+      storage_url: data.storage_url,
+      file_name: data.file_name,
+      prompt: data.prompt,
+      model_used: data.model_used,
+      quality: data.quality,
+      generation_type: data.generation_type || 'generate',
+      tags: data.tags || [],
+      project_id: data.project_id,
+      file_size_bytes: data.file_size_bytes,
+    });
 
-    if (!user) {
-      console.warn('[Database] User not authenticated - cannot save image to database');
-      console.info('[Database] Images will be saved to gallery once you sign in');
-      return null;
-    }
-
-    console.log('[Database] Saving image to database for user:', user.id);
-
-    const { data: image, error } = await supabase
-      .from('images')
-      .insert({
-        user_id: user.id,
-        storage_url: data.storage_url,
-        file_name: data.file_name,
-        prompt: data.prompt,
-        model_used: data.model_used,
-        quality: data.quality,
-        generation_type: data.generation_type || 'generate',
-        tags: data.tags || [],
-        project_id: data.project_id,
-        file_size_bytes: data.file_size_bytes,
-      })
-      .select('id, storage_url')
-      .single();
-
-    if (error) {
-      console.error('[Database] Create image error:', error);
-      console.error('[Database] Error details:', error.message, error.code);
-      throw error;
-    }
-
-    console.log('[Database] ✅ Image saved to database:', image.id);
-    return image;
+    console.log('[Database] ✅ Image saved to database:', response?.image?.id);
+    return response?.image || null;
   } catch (error) {
     console.error('[Database] Failed to save image:', error);
     throw error;
@@ -622,7 +426,7 @@ export const createImage = async (data: {
 };
 
 /**
- * Get all images for current user with search and filters
+ * Get all images for current user with search and filters via backend API
  */
 export const getUserImages = async (filters?: {
   searchQuery?: string;
@@ -647,97 +451,56 @@ export const getUserImages = async (filters?: {
     file_name: string;
   }>
 > => {
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-  if (!user) return [];
+  try {
+    const params = new URLSearchParams();
+    if (filters?.searchQuery) params.append('search', filters.searchQuery);
+    if (filters?.generationType) params.append('type', filters.generationType);
+    if (filters?.favorites) params.append('favorites', 'true');
+    if (filters?.tags?.length) params.append('tags', filters.tags.join(','));
+    if (filters?.startDate) params.append('startDate', filters.startDate.toISOString());
+    if (filters?.endDate) params.append('endDate', filters.endDate.toISOString());
+    params.append('limit', String(filters?.limit || 50));
+    params.append('offset', String(filters?.offset || 0));
 
-  let query = supabase.from('images').select('*').eq('user_id', user.id);
-
-  // Apply filters
-  if (filters?.searchQuery) {
-    query = query.ilike('prompt', `%${filters.searchQuery}%`);
-  }
-
-  if (filters?.generationType) {
-    query = query.eq('generation_type', filters.generationType);
-  }
-
-  if (filters?.favorites) {
-    query = query.eq('is_favorite', true);
-  }
-
-  if (filters?.tags && filters.tags.length > 0) {
-    query = query.contains('tags', filters.tags);
-  }
-
-  if (filters?.startDate) {
-    query = query.gte('created_at', filters.startDate.toISOString());
-  }
-
-  if (filters?.endDate) {
-    query = query.lte('created_at', filters.endDate.toISOString());
-  }
-
-  query = query
-    .order('created_at', { ascending: false })
-    .limit(filters?.limit || 50)
-    .range(filters?.offset || 0, (filters?.offset || 0) + (filters?.limit || 50) - 1);
-
-  const { data, error } = await query;
-
-  if (error) {
+    const response = await api.get<{ images: Array<any> }>(`/api/images?${params.toString()}`);
+    console.log(`[Database] Retrieved ${response?.images?.length || 0} images`);
+    return response?.images || [];
+  } catch (error) {
     console.error('[Database] Get images error:', error);
     return [];
   }
-
-  console.log(`[Database] Retrieved ${data?.length || 0} images`);
-  return data || [];
 };
 
 /**
- * Toggle favorite status
+ * Toggle favorite status via backend API
  */
 export const toggleImageFavorite = async (imageId: string): Promise<boolean> => {
-  const { data: image } = await supabase
-    .from('images')
-    .select('is_favorite')
-    .eq('id', imageId)
-    .single();
-
-  if (!image) return false;
-
-  const { error } = await supabase
-    .from('images')
-    .update({ is_favorite: !image.is_favorite })
-    .eq('id', imageId);
-
-  if (error) {
+  try {
+    await api.post(`/api/images/${imageId}/toggle-favorite`, {});
+    console.log(`[Database] Toggled favorite for image ${imageId}`);
+    return true;
+  } catch (error) {
     console.error('[Database] Toggle favorite error:', error);
     return false;
   }
-
-  console.log(`[Database] Toggled favorite for image ${imageId}`);
-  return true;
 };
 
 /**
- * Delete an image
+ * Delete an image via backend API
  */
 export const deleteImageRecord = async (imageId: string): Promise<boolean> => {
-  const { error } = await supabase.from('images').delete().eq('id', imageId);
-
-  if (error) {
+  try {
+    await api.delete(`/api/images/${imageId}`);
+    console.log(`[Database] Deleted image ${imageId}`);
+    return true;
+  } catch (error) {
     console.error('[Database] Delete image error:', error);
     return false;
   }
-
-  console.log(`[Database] Deleted image ${imageId}`);
-  return true;
 };
 
 /**
- * Search images by tags
+ * Search images by tags via backend API
  */
 export const searchImagesByTags = async (
   tags: string[],
@@ -755,28 +518,19 @@ export const searchImagesByTags = async (
     file_name: string;
   }>
 > => {
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-  if (!user) return [];
-
-  const { data, error } = await supabase
-    .from('images')
-    .select('*')
-    .eq('user_id', user.id)
-    .contains('tags', tags)
-    .order('created_at', { ascending: false });
-
-  if (error) {
+  try {
+    const params = new URLSearchParams();
+    params.append('tags', tags.join(','));
+    const response = await api.get<{ images: Array<any> }>(`/api/images/search?${params.toString()}`);
+    return response?.images || [];
+  } catch (error) {
     console.error('[Database] Search images error:', error);
     return [];
   }
-
-  return data || [];
 };
 
 /**
- * Update image metadata (tags, favorite, etc.)
+ * Update image metadata (tags, favorite, etc.) via backend API
  */
 export const updateImage = async (
   imageId: string,
@@ -786,13 +540,12 @@ export const updateImage = async (
     prompt?: string;
   },
 ): Promise<boolean> => {
-  const { error } = await supabase.from('images').update(updates).eq('id', imageId);
-
-  if (error) {
+  try {
+    await api.put(`/api/images/${imageId}`, updates);
+    console.log(`[Database] Updated image ${imageId}`);
+    return true;
+  } catch (error) {
     console.error('[Database] Update image error:', error);
     return false;
   }
-
-  console.log(`[Database] Updated image ${imageId}`);
-  return true;
 };

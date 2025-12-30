@@ -2,9 +2,10 @@
 import { MODELS, DESIGN_SYSTEM_INSTRUCTION } from '../constants';
 import { Part } from '../types';
 import type { ImageEditTurn } from '../types/ai';
-import { api } from './api';
+
 import { resizeToLinkedInBanner, prepareForOutpainting } from '../utils/imageUtils';
 import { getUserAPIKeys } from './apiKeyStorage';
+import { api } from './api';
 
 // Types (Subset needed for frontend)
 type OpenRouterContentItem =
@@ -119,6 +120,35 @@ export const generatePromptFromRefImages = async (images: string[], userHint: st
     provider: 'openrouter'
   });
   return response.text;
+};
+
+/**
+ * Enhance a user prompt using Gemini 3 Pro
+ * Transforms basic prompts into detailed, optimized image generation prompts
+ *
+ * @param prompt - The user's original prompt to enhance
+ * @param context - Optional context for industry, style, or brand colors
+ * @returns Enhanced prompt optimized for LinkedIn banner generation
+ */
+export interface PromptEnhanceContext {
+  industry?: string;      // e.g., "tech", "finance", "healthcare"
+  style?: string;         // e.g., "professional", "creative", "minimal"
+  brandColors?: string[]; // e.g., ["#1a73e8", "#34a853"]
+}
+
+export const enhancePrompt = async (
+  prompt: string,
+  context?: PromptEnhanceContext
+): Promise<{ enhancedPrompt: string; originalPrompt: string }> => {
+  console.log('[Prompt Enhance] Enhancing prompt:', prompt.substring(0, 50) + '...');
+
+  const response = await api.post<{ enhancedPrompt: string; originalPrompt: string }>('/api/ai/prompt/enhance', {
+    prompt,
+    context
+  });
+
+  console.log('[Prompt Enhance] ✅ Enhancement complete');
+  return response;
 };
 
 // --- Image Gen (Refactored) ---

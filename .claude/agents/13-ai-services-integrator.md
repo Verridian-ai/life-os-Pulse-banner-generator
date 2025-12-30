@@ -1,3 +1,8 @@
+---
+name: AI Services Integrator
+description: Agent specialized in AI Services Integrator tasks.
+---
+
 # Agent 13: AI Services Integrator (NEW)
 
 ## Role

@@ -1,3 +1,8 @@
+---
+name: Frontend Architect
+description: Agent specialized in Frontend Architect tasks.
+---
+
 # Agent 04: Frontend Architect
 
 ## Role

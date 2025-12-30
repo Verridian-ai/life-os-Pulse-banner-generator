@@ -1,3 +1,8 @@
+---
+name: FastAPI Sentinel
+description: Agent specialized in FastAPI Sentinel tasks.
+---
+
 # Agent 03: FastAPI Sentinel
 
 ## Role

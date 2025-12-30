@@ -7,6 +7,80 @@
    ============================================ */
 
 /* ===========================================
+   0. DESIGN SYSTEM TOKENS (Life OS Standard)
+   =========================================== */
+
+:root {
+  /* Base Colors */
+  --color-bg-base: hsl(220, 15%, 95%);
+  --color-bg-elevated: hsl(220, 15%, 98%);
+  --color-text-primary: hsl(220, 20%, 20%);
+  --color-text-secondary: hsl(220, 15%, 45%);
+
+  /* Brand Colors */
+  --color-brand-primary: hsl(220, 80%, 55%);
+  --color-brand-secondary: hsl(180, 60%, 45%);
+
+  /* Shadow Colors (Neumorphism) */
+  --neu-shadow-dark: rgba(0, 0, 0, 0.15);
+  --neu-shadow-light: rgba(255, 255, 255, 0.7);
+
+  /* Glass Colors (Glassmorphism) */
+  --glass-fill: rgba(255, 255, 255, 0.1);
+  --glass-border: rgba(255, 255, 255, 0.2);
+
+  /* Depth distances */
+  --neu-depth-xs: 2px;
+  --neu-depth-sm: 3px;
+  --neu-depth-md: 6px;
+  --neu-depth-lg: 12px;
+
+  /* Blur radii (2x depth) */
+  --neu-blur-xs: 4px;
+  --neu-blur-sm: 6px;
+  --neu-blur-md: 12px;
+  --neu-blur-lg: 24px;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --color-bg-base: hsl(220, 20%, 12%);
+    --color-bg-elevated: hsl(220, 20%, 16%);
+    --color-text-primary: hsl(220, 10%, 92%);
+    --color-text-secondary: hsl(220, 10%, 65%);
+
+    --neu-shadow-dark: rgba(0, 0, 0, 0.4);
+    --neu-shadow-light: rgba(255, 255, 255, 0.05);
+
+    --glass-fill: rgba(255, 255, 255, 0.05);
+    --glass-border: rgba(255, 255, 255, 0.1);
+  }
+}
+
+/* ===========================================
+   0.5 NEUMORPHIC UTILITIES
+   =========================================== */
+
+/* Raised surface (convex) */
+.neu-raised {
+  background: var(--color-bg-elevated);
+  border-radius: 16px;
+  box-shadow:
+    var(--neu-depth-md) var(--neu-depth-md) var(--neu-blur-md) var(--neu-shadow-dark),
+    calc(var(--neu-depth-md) * -1) calc(var(--neu-depth-md) * -1) var(--neu-blur-md) var(--neu-shadow-light);
+  border: 0.5px solid rgba(0, 0, 0, 0.05);
+}
+
+/* Inset surface (concave) */
+.neu-inset {
+  background: var(--color-bg-base);
+  border-radius: 12px;
+  box-shadow:
+    inset var(--neu-depth-sm) var(--neu-depth-sm) var(--neu-blur-sm) var(--neu-shadow-dark),
+    inset calc(var(--neu-depth-sm) * -1) calc(var(--neu-depth-sm) * -1) var(--neu-blur-sm) var(--neu-shadow-light);
+}
+
+/* ===========================================
    1. BASE STYLES
    =========================================== */
 
@@ -22,6 +96,7 @@ body {
 
 /* Reduce motion for users who prefer it */
 @media (prefers-reduced-motion: reduce) {
+
   *,
   *::before,
   *::after {
@@ -105,14 +180,18 @@ body {
 /* Safe area with max() for minimum padding */
 @supports(padding: max(0px)) {
   .safe-area-x {
-    padding-left: max(1rem, env(safe-area-inset-left));
-    padding-right: max(1rem, env(safe-area-inset-right));
+    padding-left: max(1.25rem, env(safe-area-inset-left));
+    padding-right: max(1.25rem, env(safe-area-inset-right));
   }
 
   .safe-area-y {
-    padding-top: max(0.5rem, env(safe-area-inset-top));
-    padding-bottom: max(0.5rem, env(safe-area-inset-bottom));
+    padding-top: max(0.75rem, env(safe-area-inset-top));
+    padding-bottom: max(0.75rem, env(safe-area-inset-bottom));
   }
+}
+
+.safe-area-bottom-fb {
+  padding-bottom: env(safe-area-inset-bottom, 24px);
 }
 
 /* ===========================================
@@ -146,6 +225,7 @@ body {
 
   /* Optimized blur for mobile (performance) */
   @media (max-width: 767px) {
+
     .glass,
     .glass-light,
     .glass-dark {
@@ -177,6 +257,7 @@ body {
 
 /* High contrast mode - removes soft shadows, adds borders */
 @media (prefers-contrast: more) {
+
   .glass,
   .glass-light,
   .glass-dark {
@@ -201,6 +282,7 @@ body {
 
 /* Windows High Contrast Mode (forced colors) */
 @media (forced-colors: active) {
+
   .glass,
   .glass-light,
   .glass-dark {
@@ -248,6 +330,7 @@ body {
 
 /* Ensure buttons have adequate touch targets on mobile */
 @media (max-width: 767px) {
+
   button,
   [role="button"],
   a,
@@ -343,6 +426,7 @@ body {
 
 /* Safari-specific fixes */
 @supports (-webkit-touch-callout: none) {
+
   /* Fix for Safari momentum scrolling */
   .scroll-container {
     -webkit-overflow-scrolling: touch;
@@ -355,12 +439,14 @@ body {
   input[type="number"],
   textarea,
   select {
-    font-size: 16px; /* Prevents zoom on iOS Safari */
+    font-size: 16px;
+    /* Prevents zoom on iOS Safari */
   }
 }
 
 /* Firefox-specific fixes */
 @-moz-document url-prefix() {
+
   /* Firefox scrollbar styling */
   * {
     scrollbar-width: thin;
@@ -401,30 +487,87 @@ input:-ms-input-placeholder {
 }
 
 /* Show only on specific breakpoints */
-.show-xs-only { display: none; }
-.show-sm-only { display: none; }
-.show-md-only { display: none; }
-.show-lg-only { display: none; }
-.show-xl-only { display: none; }
+.show-xs-only {
+  display: none;
+}
+
+.show-sm-only {
+  display: none;
+}
+
+.show-md-only {
+  display: none;
+}
+
+.show-lg-only {
+  display: none;
+}
+
+.show-xl-only {
+  display: none;
+}
 
 @media (max-width: 359px) {
-  .show-xs-only { display: block !important; }
+  .show-xs-only {
+    display: block !important;
+  }
 }
 
 @media (min-width: 360px) and (max-width: 767px) {
-  .show-sm-only { display: block !important; }
+  .show-sm-only {
+    display: block !important;
+  }
 }
 
 @media (min-width: 768px) and (max-width: 1023px) {
-  .show-md-only { display: block !important; }
+  .show-md-only {
+    display: block !important;
+  }
 }
 
 @media (min-width: 1024px) and (max-width: 1279px) {
-  .show-lg-only { display: block !important; }
+  .show-lg-only {
+    display: block !important;
+  }
 }
 
 @media (min-width: 1280px) {
-  .show-xl-only { display: block !important; }
+  .show-xl-only {
+    display: block !important;
+  }
+}
+
+/* ===========================================
+   10.5 ORIENTATION-SPECIFIC UTILITIES
+   =========================================== */
+
+/* Landscape-only grid for mobile/tablet */
+.landscape-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+}
+
+@media (orientation: landscape) and (max-height: 500px) {
+  .landscape-grid {
+    grid-template-columns: 1.2fr 1fr;
+    height: 100vh;
+    overflow: hidden;
+  }
+
+  .hide-landscape-short {
+    display: none !important;
+  }
+}
+
+/* Landscape-tuned spacing */
+@media (orientation: landscape) {
+  .landscape-p-sm {
+    padding: 0.5rem;
+  }
+
+  .landscape-gap-sm {
+    gap: 0.5rem;
+  }
 }
 
 /* ===========================================
@@ -472,7 +615,8 @@ input:-ms-input-placeholder {
 
 /* LinkedIn banner aspect ratio container */
 .banner-aspect-ratio {
-  aspect-ratio: 4 / 1; /* LinkedIn banner ratio: 1584x396 */
+  aspect-ratio: 4 / 1;
+  /* LinkedIn banner ratio: 1584x396 */
 }
 
 /* Responsive canvas sizing */
@@ -484,7 +628,8 @@ input:-ms-input-placeholder {
 
 @media (min-width: 768px) {
   .canvas-container {
-    max-width: calc(100vw - 320px); /* Account for sidebar */
+    max-width: calc(100vw - 320px);
+    /* Account for sidebar */
   }
 }
 
@@ -523,12 +668,10 @@ select {
    =========================================== */
 
 .skeleton {
-  background: linear-gradient(
-    90deg,
-    rgba(255, 255, 255, 0.05) 25%,
-    rgba(255, 255, 255, 0.1) 50%,
-    rgba(255, 255, 255, 0.05) 75%
-  );
+  background: linear-gradient(90deg,
+      rgba(255, 255, 255, 0.05) 25%,
+      rgba(255, 255, 255, 0.1) 50%,
+      rgba(255, 255, 255, 0.05) 75%);
   background-size: 200% 100%;
   animation: skeleton-shimmer 1.5s ease-in-out infinite;
 }
@@ -537,6 +680,7 @@ select {
   0% {
     background-position: 200% 0;
   }
+
   100% {
     background-position: -200% 0;
   }

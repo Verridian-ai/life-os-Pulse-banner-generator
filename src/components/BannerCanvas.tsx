@@ -1,4 +1,4 @@
-import React, { useRef, useEffect, useState, useImperativeHandle, forwardRef } from 'react';
+import React, { useRef, useEffect, useState, useImperativeHandle, forwardRef, memo } from 'react';
 import { BANNER_WIDTH, BANNER_HEIGHT } from '../constants';
 import { BannerElement } from '../types';
 
@@ -17,6 +17,7 @@ interface BannerCanvasProps {
   selectedElementId: string | null;
   onSelectElement: (id: string | null) => void;
   onProfileFaceEnhance?: () => Promise<void>;
+  onProfileRemoveBg?: () => Promise<void>;
 }
 
 const HANDLE_SIZE = 20; // Increased from 10 to 20 for better touch interaction
@@ -54,7 +55,7 @@ const rotatePoint = (x: number, y: number, cx: number, cy: number, angleRad: num
   };
 };
 
-const BannerCanvas = forwardRef<BannerCanvasHandle, BannerCanvasProps>(
+const BannerCanvasComponent = forwardRef<BannerCanvasHandle, BannerCanvasProps>(
   (
     {
       backgroundImage,
@@ -67,6 +68,7 @@ const BannerCanvas = forwardRef<BannerCanvasHandle, BannerCanvasProps>(
       selectedElementId,
       onSelectElement,
       onProfileFaceEnhance,
+      onProfileRemoveBg,
     },
     ref,
   ) => {
@@ -78,6 +80,7 @@ const BannerCanvas = forwardRef<BannerCanvasHandle, BannerCanvasProps>(
     const [dragState, setDragState] = useState<DragState | null>(null);
     const [cursor, setCursor] = useState('default');
     const [isEnhancingProfile, setIsEnhancingProfile] = useState(false);
+    const [isRemovingBgProfile, setIsRemovingBgProfile] = useState(false);
 
     // Internal render function that can be called with different options
     const renderCanvas = (
@@ -204,11 +207,19 @@ const BannerCanvas = forwardRef<BannerCanvasHandle, BannerCanvasProps>(
           rectX = el.x;
 
         if (el.type === 'text') {
-          // Uses fontWeight property, defaults to bold
-          ctx.font = `${el.fontWeight || 'bold'} ${el.fontSize || 48}px "${el.fontFamily || 'Inter'}", sans-serif`;
-          const metrics = ctx.measureText(el.content);
+          // Build font with fontStyle support for measurement
+          const fontStyleMeasure = el.fontStyle === 'italic' ? 'italic ' : '';
+          ctx.font = `${fontStyleMeasure}${el.fontWeight || 'bold'} ${el.fontSize || 48}px "${el.fontFamily || 'Inter'}", sans-serif`;
+
+          // Apply text transform for accurate measurement
+          let measureText = el.content;
+          if (el.textTransform === 'uppercase') measureText = el.content.toUpperCase();
+          else if (el.textTransform === 'lowercase') measureText = el.content.toLowerCase();
+          else if (el.textTransform === 'capitalize') measureText = el.content.replace(/\b\w/g, (c) => c.toUpperCase());
+
+          const metrics = ctx.measureText(measureText);
           width = metrics.width;
-          height = (el.fontSize || 48) * 1.2;
+          height = (el.fontSize || 48) * (el.lineHeight || 1.2);
 
           const align: CanvasTextAlign = (el.textAlign as CanvasTextAlign) || 'left';
           if (align === 'center') {
@@ -239,12 +250,63 @@ const BannerCanvas = forwardRef<BannerCanvasHandle, BannerCanvasProps>(
         ctx.translate(-cx, -cy);
 
         if (el.type === 'text') {
-          // Uses fontWeight property, defaults to bold
-          ctx.font = `${el.fontWeight || 'bold'} ${el.fontSize || 48}px "${el.fontFamily || 'Inter'}", sans-serif`;
+          // Apply opacity if set
+          const opacity = el.opacity !== undefined ? el.opacity / 100 : 1;
+          ctx.globalAlpha = opacity;
+
+          // Build font string with fontStyle (italic) support
+          const fontStyle = el.fontStyle === 'italic' ? 'italic ' : '';
+          ctx.font = `${fontStyle}${el.fontWeight || 'bold'} ${el.fontSize || 48}px "${el.fontFamily || 'Inter'}", sans-serif`;
           ctx.fillStyle = el.color || 'white';
           ctx.textBaseline = 'top';
           const align: CanvasTextAlign = (el.textAlign as CanvasTextAlign) || 'left';
           ctx.textAlign = align;
+
+          // Apply letter spacing if supported and set
+          const letterSpacing = el.letterSpacing ?? 0;
+          if ('letterSpacing' in ctx) {
+            (ctx as CanvasRenderingContext2D & { letterSpacing: string }).letterSpacing = `${letterSpacing}px`;
+          }
+
+          // Apply text transform
+          let displayText = el.content;
+          if (el.textTransform === 'uppercase') {
+            displayText = el.content.toUpperCase();
+          } else if (el.textTransform === 'lowercase') {
+            displayText = el.content.toLowerCase();
+          } else if (el.textTransform === 'capitalize') {
+            displayText = el.content.replace(/\b\w/g, (c) => c.toUpperCase());
+          }
+
+          // Measure text for background and decorations
+          const textMetrics = ctx.measureText(displayText);
+          const fontSize = el.fontSize || 48;
+          const textHeight = fontSize * (el.lineHeight || 1.2);
+          const bgPadding = el.backgroundPadding ?? 0;
+
+          // Calculate text X position based on alignment for background
+          let bgX = el.x - bgPadding;
+          if (align === 'center') {
+            bgX = el.x - textMetrics.width / 2 - bgPadding;
+          } else if (align === 'right') {
+            bgX = el.x - textMetrics.width - bgPadding;
+          }
+
+          // Draw text background/highlight if set
+          if (el.backgroundColor && el.backgroundColor !== 'transparent') {
+            ctx.save();
+            ctx.shadowColor = 'transparent';
+            ctx.shadowBlur = 0;
+            ctx.fillStyle = el.backgroundColor;
+            ctx.fillRect(
+              bgX,
+              el.y - bgPadding,
+              textMetrics.width + bgPadding * 2,
+              textHeight + bgPadding * 2
+            );
+            ctx.restore();
+            ctx.fillStyle = el.color || 'white';
+          }
 
           // Apply text shadow from element properties or default
           const shadowColor = el.textShadowColor || 'rgba(0,0,0,0.5)';
@@ -261,16 +323,67 @@ const BannerCanvas = forwardRef<BannerCanvasHandle, BannerCanvasProps>(
             ctx.strokeStyle = el.textStrokeColor || '#000000';
             ctx.lineWidth = el.textStrokeWidth * 2; // Canvas stroke is centered
             ctx.lineJoin = 'round';
-            ctx.strokeText(el.content, el.x, el.y);
+
+            // Apply stroke style (dashed, dotted)
+            if (el.textStrokeStyle === 'dashed') {
+              ctx.setLineDash([el.textStrokeWidth * 3, el.textStrokeWidth * 2]);
+            } else if (el.textStrokeStyle === 'dotted') {
+              ctx.setLineDash([el.textStrokeWidth, el.textStrokeWidth]);
+            } else {
+              ctx.setLineDash([]);
+            }
+
+            ctx.strokeText(displayText, el.x, el.y);
+            ctx.setLineDash([]); // Reset line dash
           }
 
-          ctx.fillText(el.content, el.x, el.y);
+          ctx.fillText(displayText, el.x, el.y);
 
-          // Reset shadow
+          // Reset shadow for decorations
           ctx.shadowColor = 'transparent';
           ctx.shadowBlur = 0;
           ctx.shadowOffsetX = 0;
           ctx.shadowOffsetY = 0;
+
+          // Draw text decorations (underline, line-through)
+          if (el.textDecoration && el.textDecoration !== 'none') {
+            ctx.strokeStyle = el.color || 'white';
+            ctx.lineWidth = Math.max(1, fontSize / 20);
+            ctx.lineCap = 'round';
+
+            // Calculate line positions
+            let lineStartX = el.x;
+            if (align === 'center') {
+              lineStartX = el.x - textMetrics.width / 2;
+            } else if (align === 'right') {
+              lineStartX = el.x - textMetrics.width;
+            }
+            const lineEndX = lineStartX + textMetrics.width;
+
+            if (el.textDecoration.includes('underline')) {
+              const underlineY = el.y + fontSize * 1.1;
+              ctx.beginPath();
+              ctx.moveTo(lineStartX, underlineY);
+              ctx.lineTo(lineEndX, underlineY);
+              ctx.stroke();
+            }
+
+            if (el.textDecoration.includes('line-through')) {
+              const strikeY = el.y + fontSize * 0.55;
+              ctx.beginPath();
+              ctx.moveTo(lineStartX, strikeY);
+              ctx.lineTo(lineEndX, strikeY);
+              ctx.stroke();
+            }
+          }
+
+          // Reset letter spacing if it was set
+          if ('letterSpacing' in ctx) {
+            (ctx as CanvasRenderingContext2D & { letterSpacing: string }).letterSpacing = '0px';
+          }
+
+          // Reset opacity
+          ctx.globalAlpha = 1;
         } else {
           const img = new Image();
           img.src = el.content;
@@ -677,25 +790,35 @@ const BannerCanvas = forwardRef<BannerCanvasHandle, BannerCanvasProps>(
     };
 
     // --- Profile Interaction ---
-    const handleProfileMouseDown = (e: React.MouseEvent) => {
-      if (!setProfileTransform || e.button !== 0) return; // Only left click
+    const handleProfileMouseDown = (e: React.MouseEvent | React.TouchEvent) => {
+      if (!setProfileTransform) return;
+
+      const clientX = 'touches' in e ? e.touches[0].clientX : e.clientX;
+      const clientY = 'touches' in e ? e.touches[0].clientY : e.clientY;
+      const button = 'touches' in e ? 0 : e.button;
+
+      if (button !== 0) return; // Only left click / touch
+
       e.stopPropagation();
-      e.preventDefault();
+      // Only prevent default on move to allow scrolling if user just taps
       setProfileDrag({
-        startX: e.clientX,
-        startY: e.clientY,
+        startX: clientX,
+        startY: clientY,
         startPX: profileTransform?.x || 0,
         startPY: profileTransform?.y || 0,
       });
     };
 
-    const handleProfileMouseMove = (e: React.MouseEvent) => {
+    const handleProfileMouseMove = (e: React.MouseEvent | React.TouchEvent) => {
       if (!profileDrag || !setProfileTransform) return;
-      e.preventDefault();
-      const dx = e.clientX - profileDrag.startX;
-      const dy = e.clientY - profileDrag.startY;
 
-      // 1px drag = 1px move (assuming 1:1 scale for simplicity, or adjust sensitivity)
+      const clientX = 'touches' in e ? e.touches[0].clientX : e.clientX;
+      const clientY = 'touches' in e ? e.touches[0].clientY : e.clientY;
+
+      e.preventDefault();
+      const dx = clientX - profileDrag.startX;
+      const dy = clientY - profileDrag.startY;
+
       setProfileTransform({
         x: profileDrag.startPX + dx,
         y: profileDrag.startPY + dy,
@@ -775,34 +898,34 @@ const BannerCanvas = forwardRef<BannerCanvasHandle, BannerCanvasProps>(
           width={BANNER_WIDTH}
           height={BANNER_HEIGHT}
           className={`w-full h-full absolute top-0 left-0 origin-top-left touch-none ${dragState
-              ? dragState.mode === 'move' || dragState.mode === 'rotate'
-                ? 'cursor-grabbing'
-                : 'cursor-crosshair'
-              : cursor === 'move'
-                ? 'cursor-move'
-                : cursor === 'nw-resize'
-                  ? 'cursor-nw-resize'
-                  : cursor === 'ne-resize'
-                    ? 'cursor-ne-resize'
-                    : cursor === 'sw-resize'
-                      ? 'cursor-sw-resize'
-                      : cursor === 'se-resize'
-                        ? 'cursor-se-resize'
-                        : cursor === 'n-resize'
-                          ? 'cursor-n-resize'
-                          : cursor === 's-resize'
-                            ? 'cursor-s-resize'
-                            : cursor === 'e-resize'
-                              ? 'cursor-e-resize'
-                              : cursor === 'w-resize'
-                                ? 'cursor-w-resize'
-                                : cursor === 'rotate'
-                                  ? 'cursor-alias'
-                                  : cursor === 'grab'
-                                    ? 'cursor-grab'
-                                    : cursor === 'grabbing'
-                                      ? 'cursor-grabbing'
-                                      : 'cursor-default'
+            ? dragState.mode === 'move' || dragState.mode === 'rotate'
+              ? 'cursor-grabbing'
+              : 'cursor-crosshair'
+            : cursor === 'move'
+              ? 'cursor-move'
+              : cursor === 'nw-resize'
+                ? 'cursor-nw-resize'
+                : cursor === 'ne-resize'
+                  ? 'cursor-ne-resize'
+                  : cursor === 'sw-resize'
+                    ? 'cursor-sw-resize'
+                    : cursor === 'se-resize'
+                      ? 'cursor-se-resize'
+                      : cursor === 'n-resize'
+                        ? 'cursor-n-resize'
+                        : cursor === 's-resize'
+                          ? 'cursor-s-resize'
+                          : cursor === 'e-resize'
+                            ? 'cursor-e-resize'
+                            : cursor === 'w-resize'
+                              ? 'cursor-w-resize'
+                              : cursor === 'rotate'
+                                ? 'cursor-alias'
+                                : cursor === 'grab'
+                                  ? 'cursor-grab'
+                                  : cursor === 'grabbing'
+                                    ? 'cursor-grabbing'
+                                    : 'cursor-default'
             }`}
           onMouseDown={handleMouseDown}
           // Mouse move/up handled by parent for robustness
@@ -816,6 +939,9 @@ const BannerCanvas = forwardRef<BannerCanvasHandle, BannerCanvasProps>(
           <div
             className={`absolute rounded-full border-4 border-white overflow-hidden shadow-lg z-10 bg-slate-100 group w-[20.83%] aspect-square left-[19.31%] top-full -translate-x-1/2 -translate-y-1/2 pointer-events-auto ${profileDrag ? 'cursor-grabbing' : 'cursor-grab'}`}
             onMouseDown={handleProfileMouseDown}
+            onTouchStart={handleProfileMouseDown}
+            onTouchMove={handleProfileMouseMove}
+            onTouchEnd={handleMouseUp}
             onWheel={handleProfileWheel}
           >
             {profilePic ? (
@@ -861,10 +987,39 @@ const BannerCanvas = forwardRef<BannerCanvasHandle, BannerCanvasProps>(
                       </>
                     )}
                   </button>
+
+                  {/* Remove BG Button */}
+                  <button
+                    type='button'
+                    onClick={async (e) => {
+                      e.stopPropagation();
+                      if (onProfileRemoveBg && !isRemovingBgProfile) {
+                        setIsRemovingBgProfile(true);
+                        try {
+                          await onProfileRemoveBg();
+                        } catch (error) {
+                          console.error('[Profile] Remove BG failed:', error);
+                        } finally {
+                          setIsRemovingBgProfile(false);
+                        }
+                      }
+                    }}
+                    disabled={isRemovingBgProfile}
+                    className='bg-gradient-to-br from-indigo-600 to-indigo-700 hover:from-indigo-500 hover:to-indigo-600 disabled:from-indigo-800 disabled:to-indigo-800 text-white font-bold py-2 px-4 rounded-xl transition flex items-center justify-center gap-2 text-xs shadow-lg'
+                    title='Remove Background'
+                  >
+                    {isRemovingBgProfile ? (
+                      <>
+                        <span className='material-icons text-sm animate-spin'>refresh</span>
+                      </>
+                    ) : (
+                      <span className='material-icons text-sm'>branding_watermark</span>
+                    )}
+                  </button>
                 </div>
               </div>
             ) : (
-              <div className='text-slate-400 font-bold text-center leading-tight select-none pointer-events-none'>
+              <div className='w-full h-full flex flex-col items-center justify-center text-slate-400 font-bold text-center leading-tight select-none pointer-events-none'>
                 <span className='material-icons text-4xl block md:text-5xl lg:text-6xl mb-1'>
                   person
                 </span>
@@ -884,5 +1039,8 @@ const BannerCanvas = forwardRef<BannerCanvasHandle, BannerCanvasProps>(
     );
   },
 );
+
+// Wrap with memo for performance optimization
+const BannerCanvas = memo(BannerCanvasComponent);
 
 export default BannerCanvas;

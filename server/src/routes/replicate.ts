@@ -2,8 +2,18 @@
 import { Hono } from 'hono';
 import tracer from 'dd-trace';
 import { authMiddleware } from '../lib/auth';
+import { db } from '../db';
+import { userApiKeys } from '../db/schema';
+import { eq } from 'drizzle-orm';
 
 export const replicateRouter = new Hono();
+
+// Helper to fetch user's API keys from database
+// SECURITY: Keys are stored server-side only, never exposed to client
+const getUserApiKeys = async (userId: string) => {
+    const keys = await db.select().from(userApiKeys).where(eq(userApiKeys.userId, userId)).limit(1);
+    return keys[0] || null;
+};
 
 // Helper for Datadog LLM Observability
 const traceLLMCall = async (
@@ -93,8 +103,12 @@ const callReplicate = async (apiKey: string, modelVersionOrName: string, input: 
 
 // 1. Face Enhance
 replicateRouter.post('/face-enhance', authMiddleware, async (c) => {
-    const { image, model, replicateKey: bodyKey } = await c.req.json();
-    const replicateKey = bodyKey || process.env.REPLICATE_API_KEY || '';
+    const { image, model } = await c.req.json();
+
+    // SECURITY: Fetch API key from database, not from request body
+    const user = c.get('user');
+    const userKeys = user ? await getUserApiKeys(user.id) : null;
+    const replicateKey = userKeys?.replicateApiKey || process.env.REPLICATE_API_KEY || '';
 
     // Default to GFPGAN v1.4 (updated March 2024)
     const modelToUse = model || 'tencentarc/gfpgan:0fbacf7afc6c144e5be9767cff80f25aff23e52b0708f17e20f9879b2f21516c';
@@ -117,8 +131,12 @@ replicateRouter.post('/face-enhance', authMiddleware, async (c) => {
 
 // 2. Remove Background
 replicateRouter.post('/remove-background', authMiddleware, async (c) => {
-    const { image, model, replicateKey: bodyKey } = await c.req.json();
-    const replicateKey = bodyKey || process.env.REPLICATE_API_KEY || '';
+    const { image, model } = await c.req.json();
+
+    // SECURITY: Fetch API key from database, not from request body
+    const user = c.get('user');
+    const userKeys = user ? await getUserApiKeys(user.id) : null;
+    const replicateKey = userKeys?.replicateApiKey || process.env.REPLICATE_API_KEY || '';
 
     // Default to RMBG-2.0 if available, else standard rembg
     const modelToUse = model || 'briaai/rmbg-2.0';
@@ -152,26 +170,31 @@ replicateRouter.post('/remove-background', authMiddleware, async (c) => {
 
 // 3. Inpainting
 replicateRouter.post('/inpaint', authMiddleware, async (c) => {
-    const { image, mask, prompt, negative_prompt, model, replicateKey: bodyKey } = await c.req.json();
-    const replicateKey = bodyKey || process.env.REPLICATE_API_KEY || '';
+    const { image, mask, prompt, negative_prompt, model } = await c.req.json();
 
-    const modelToUse = model || 'stability-ai/stable-diffusion-inpainting:c28b92a7ecd66eee13d780ef4C70183k5b57d622883395c2769493f06659f888';
-    // Note: SD-inpainting often just uses the 'stability-ai/stable-diffusion-inpainting' named pointer
-    const namedModel = 'stability-ai/stable-diffusion-inpainting';
+    // SECURITY: Fetch API key from database, not from request body
+    const user = c.get('user');
+    const userKeys = user ? await getUserApiKeys(user.id) : null;
+    const replicateKey = userKeys?.replicateApiKey || process.env.REPLICATE_API_KEY || '';
+
+    // Use andreasjansson/stable-diffusion-inpainting (stable, well-maintained fork)
+    // Note: stability-ai/stable-diffusion-inpainting was deprecated on Replicate
+    const modelToUse = model || 'andreasjansson/stable-diffusion-inpainting:e490d072a34a94a11e9711ed5a6ba621c3fab884eda1665d9d3a282d65a21f2d';
 
     try {
         const output = await traceLLMCall(
-            namedModel,
+            'andreasjansson/stable-diffusion-inpainting',
             'replicate',
             prompt,
             'llm.image_inpainting',
-            () => callReplicate(replicateKey, namedModel, {
+            () => callReplicate(replicateKey, modelToUse, {
                 image,
                 mask,
                 prompt,
-                negative_prompt,
-                scheduler: "K_EULER_ANCESTRAL",
-                num_inference_steps: 30
+                negative_prompt: negative_prompt || '',
+                num_outputs: 1,
+                num_inference_steps: 30,
+                guidance_scale: 7.5
             })
         );
         let url = output;
@@ -184,8 +207,12 @@ replicateRouter.post('/inpaint', authMiddleware, async (c) => {
 
 // 4. Upscale (Enhanced Placement already client-side, this is Upscale tool)
 replicateRouter.post('/upscale', authMiddleware, async (c) => {
-    const { image, scale, face_enhance, model, replicateKey: bodyKey } = await c.req.json();
-    const replicateKey = bodyKey || process.env.REPLICATE_API_KEY || '';
+    const { image, scale, face_enhance, model } = await c.req.json();
+
+    // SECURITY: Fetch API key from database, not from request body
+    const user = c.get('user');
+    const userKeys = user ? await getUserApiKeys(user.id) : null;
+    const replicateKey = userKeys?.replicateApiKey || process.env.REPLICATE_API_KEY || '';
 
     const modelToUse = model || 'nightmareai/real-esrgan:b3ef194191d13140337468c916c2c5b96dd0cb06dffc032a022a31807f6a5ea8';
 
@@ -211,8 +238,12 @@ replicateRouter.post('/upscale', authMiddleware, async (c) => {
 
 // 6. Restore (Auto-fix)
 replicateRouter.post('/restore', authMiddleware, async (c) => {
-    const { image, model, replicateKey: bodyKey } = await c.req.json();
-    const replicateKey = bodyKey || process.env.REPLICATE_API_KEY || '';
+    const { image, model } = await c.req.json();
+
+    // SECURITY: Fetch API key from database, not from request body
+    const user = c.get('user');
+    const userKeys = user ? await getUserApiKeys(user.id) : null;
+    const replicateKey = userKeys?.replicateApiKey || process.env.REPLICATE_API_KEY || '';
 
     // CodeFormer is usually best for "Restore" of mixed content (faces + general) - updated Jan 2025
     const modelToUse = model || 'sczhou/codeformer:cc4956dd26fa5a7185d5660cc9100fab1b8070a1d1654a8bb5eb6d443b020bb2';
@@ -240,8 +271,12 @@ replicateRouter.post('/restore', authMiddleware, async (c) => {
 
 // 7. Magic Edit
 replicateRouter.post('/magic-edit', authMiddleware, async (c) => {
-    const { image, prompt, strength, model, replicateKey: bodyKey } = await c.req.json();
-    const replicateKey = bodyKey || process.env.REPLICATE_API_KEY || '';
+    const { image, prompt, strength, model } = await c.req.json();
+
+    // SECURITY: Fetch API key from database, not from request body
+    const user = c.get('user');
+    const userKeys = user ? await getUserApiKeys(user.id) : null;
+    const replicateKey = userKeys?.replicateApiKey || process.env.REPLICATE_API_KEY || '';
 
     // InstructPix2Pix (correct username: timothybrooks)
     const modelToUse = model || 'timothybrooks/instruct-pix2pix:30c1d0b916a6f8efce20493f5d61ee27491ab2a60437c13c588468b9810ec23f';
@@ -270,8 +305,12 @@ replicateRouter.post('/magic-edit', authMiddleware, async (c) => {
 
 // 8. Generate Layer (SDXL transparent)
 replicateRouter.post('/generate-layer', authMiddleware, async (c) => {
-    const { prompt, width, height, model, replicateKey: bodyKey } = await c.req.json();
-    const replicateKey = bodyKey || process.env.REPLICATE_API_KEY || '';
+    const { prompt, width, height, model } = await c.req.json();
+
+    // SECURITY: Fetch API key from database, not from request body
+    const user = c.get('user');
+    const userKeys = user ? await getUserApiKeys(user.id) : null;
+    const replicateKey = userKeys?.replicateApiKey || process.env.REPLICATE_API_KEY || '';
 
     // Use SDXL Base unless specified
     const modelToUse = model || 'stability-ai/sdxl:39ed52f2a78e934b3ba6e2a89f5b1c712de7dfea535525255b715953eeb9f155';

@@ -21,16 +21,16 @@ interface HeaderProps {
   onToggleVoice?: () => void;
 }
 
-const Header: React.FC<HeaderProps> = ({ 
-  activeTab, 
-  setActiveTab, 
-  onOpenSettings, 
-  onOpenAuth, 
+const Header: React.FC<HeaderProps> = ({
+  activeTab,
+  setActiveTab,
+  onOpenSettings,
+  onOpenAuth,
   onOpenInstructions,
   isVoiceActive = false,
   onToggleVoice,
 }) => {
-  const { isAuthenticated, user, supabaseUser, signOut } = useAuth();
+  const { isAuthenticated, user, authUser, signOut } = useAuth();
   const [showProfileMenu, setShowProfileMenu] = useState(false);
 
   const handleSignOut = async () => {
@@ -39,18 +39,16 @@ const Header: React.FC<HeaderProps> = ({
   };
 
   return (
-    <header className='flex flex-col md:flex-row items-center justify-between px-4 py-3 md:px-8 md:py-2 bg-black/60 backdrop-blur-xl sticky top-0 z-50 border-b border-white/5 gap-2 md:gap-4 overflow-visible'>
+    <header className='flex flex-col md:flex-row items-center justify-between px-3 py-2 md:px-8 md:py-2 bg-black/60 backdrop-blur-xl sticky top-0 z-50 border-b border-white/5 gap-1.5 md:gap-4 overflow-visible'>
       {/* Left: Logo Area */}
       <div className='flex items-center justify-between w-full md:w-auto md:justify-start'>
         <div className='flex items-center gap-2 md:gap-3 relative'>
           <img
-            src='/assets/3d_render_of_202512101206.png'
-            alt='Logo'
+            src='/logo.png'
+            alt='Life OS Logo'
             className='h-12 w-12 md:h-16 md:w-16 lg:h-24 lg:w-24 object-contain -my-2 md:-my-4 lg:-my-6 drop-shadow-2xl relative z-10'
           />
-          <span className='text-base md:text-lg font-black tracking-tight text-white uppercase md:hidden'>
-            LIFE OS
-          </span>
+          {/* Text removed on mobile - logo already displays "Life OS" */}
         </div>
 
         {/* Mobile Menu Button (Help + Settings) */}
@@ -76,10 +74,6 @@ const Header: React.FC<HeaderProps> = ({
 
       {/* Center: Title (Flex-1 for natural spacing away from larger right nav) */}
       <div className='w-full md:flex-1 text-center mt-1 md:mt-0 md:px-2 lg:px-4'>
-        <h1 className='text-lg sm:text-xl md:text-2xl lg:text-3xl font-black tracking-wide text-white uppercase drop-shadow-lg'>
-          <span className='hidden sm:inline'>Banner and Profile Editor</span>
-          <span className='sm:hidden'>Banner Editor</span>
-        </h1>
       </div>
 
       {/* Right: Navigation */}
@@ -114,11 +108,10 @@ const Header: React.FC<HeaderProps> = ({
         {onToggleVoice && (
           <button
             onClick={onToggleVoice}
-            className={`min-w-[44px] min-h-[44px] w-12 h-12 rounded-full border flex items-center justify-center transition-all shadow-lg shrink-0 ${
-              isVoiceActive
-                ? 'bg-gradient-to-br from-green-600 to-emerald-600 border-green-400/50 text-white animate-pulse shadow-green-500/50'
-                : 'bg-gradient-to-br from-blue-600/20 to-cyan-600/20 border-blue-500/30 text-blue-400 hover:text-blue-300 hover:from-blue-600/30 hover:to-cyan-600/30'
-            }`}
+            className={`min-w-[44px] min-h-[44px] w-12 h-12 rounded-full border flex items-center justify-center transition-all shadow-lg shrink-0 ${isVoiceActive
+              ? 'bg-gradient-to-br from-green-600 to-emerald-600 border-green-400/50 text-white animate-pulse shadow-green-500/50'
+              : 'bg-gradient-to-br from-blue-600/20 to-cyan-600/20 border-blue-500/30 text-blue-400 hover:text-blue-300 hover:from-blue-600/30 hover:to-cyan-600/30'
+              }`}
             title={isVoiceActive ? 'Stop Benno' : 'Talk to Benno'}
             aria-label={isVoiceActive ? 'Stop voice agent' : 'Start voice agent'}
           >
@@ -143,7 +136,7 @@ const Header: React.FC<HeaderProps> = ({
             <button
               onClick={() => setShowProfileMenu(!showProfileMenu)}
               className='flex md:hidden min-w-[44px] min-h-[44px] w-11 h-11 rounded-full bg-gradient-to-br from-purple-600 to-blue-600 border border-white/10 items-center justify-center text-white active:scale-95 transition shrink-0'
-              title={user?.email || supabaseUser?.email || 'Profile'}
+              title={user?.email || authUser?.email || 'Profile'}
               aria-label='User profile menu'
             >
               <span className='material-icons text-lg'>account_circle</span>
@@ -153,7 +146,7 @@ const Header: React.FC<HeaderProps> = ({
             <button
               onClick={() => setShowProfileMenu(!showProfileMenu)}
               className='hidden md:flex min-w-[44px] min-h-[44px] w-12 h-12 rounded-full bg-gradient-to-br from-purple-600 to-blue-600 border border-white/10 items-center justify-center text-white hover:shadow-lg transition shrink-0'
-              title={user?.email || supabaseUser?.email || 'Profile'}
+              title={user?.email || authUser?.email || 'Profile'}
               aria-label='User profile menu'
             >
               <span className='material-icons text-xl'>account_circle</span>
@@ -169,12 +162,12 @@ const Header: React.FC<HeaderProps> = ({
                     <div className='flex-1 min-w-0'>
                       <p className='text-xs font-bold text-white uppercase tracking-wide truncate'>
                         {user?.full_name ||
-                         user?.username ||
-                         (user?.email || supabaseUser?.email)?.split('@')[0] ||
-                         'User'}
+                          user?.username ||
+                          (user?.email || authUser?.email)?.split('@')[0] ||
+                          'User'}
                       </p>
                       <p className='text-[10px] text-zinc-400 truncate'>
-                        {user?.email || supabaseUser?.email}
+                        {user?.email || authUser?.email}
                       </p>
                     </div>
                   </div>

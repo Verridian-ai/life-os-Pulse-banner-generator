@@ -1,3 +1,8 @@
+---
+name: Lead Architect
+description: Agent specialized in Lead Architect tasks.
+---
+
 # Agent 01: Lead Architect (Orchestrator)
 
 ## Role

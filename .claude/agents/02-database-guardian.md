@@ -1,3 +1,8 @@
+---
+name: Database Guardian
+description: Agent specialized in Database Guardian tasks.
+---
+
 # Agent 02: Database Guardian
 
 ## Role

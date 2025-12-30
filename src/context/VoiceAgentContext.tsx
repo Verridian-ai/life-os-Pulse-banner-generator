@@ -1,8 +1,8 @@
 // Voice Agent Context - Centralized state management for voice agent interactions
 import React, { createContext, useContext, useState, useCallback, useRef } from 'react';
-import { LiveClient, ToolCall, TranscriptEntry } from '@/services/liveClient';
-import { ActionExecutor, ActionResult, OnUpdateCallback } from '@/services/actionExecutor';
-import { getUserAPIKeys } from '@/services/apiKeyStorage';
+import { OpenAIRealtimeClient, ToolCall, TranscriptEntry } from '@/services/openaiRealtimeClient';
+import { ActionExecutor, ActionResult, OnUpdateCallback, CanvasCallbacks } from '@/services/actionExecutor';
+import { getVoiceAPIKey } from '@/services/apiKeyStorage';
 
 interface VoiceAgentContextType {
   // Connection state
@@ -12,7 +12,10 @@ interface VoiceAgentContextType {
 
   // Conversation data
   transcript: TranscriptEntry[];
-  pendingAction: ActionResult | null;
+  pendingAction: {
+    toolCall: ToolCall;
+    result: ActionResult;
+  } | null;
   executingAction: boolean;
   error: string | null;
 
@@ -22,6 +25,7 @@ interface VoiceAgentContextType {
   approveAction: () => Promise<void>;
   rejectAction: () => void;
   clearTranscript: () => void;
+  registerPromptSetter: (setter: (prompt: string) => void) => void;
 }
 
 const VoiceAgentContext = createContext<VoiceAgentContextType | undefined>(undefined);
@@ -29,44 +33,84 @@ const VoiceAgentContext = createContext<VoiceAgentContextType | undefined>(undef
 interface VoiceAgentProviderProps {
   children: React.ReactNode;
   onUpdate: OnUpdateCallback;
+  setGenPrompt?: (prompt: string) => void; // For voice-to-prompt enhancement
+  canvasCallbacks?: CanvasCallbacks; // Canvas manipulation callbacks for voice control
 }
 
-export function VoiceAgentProvider({ children, onUpdate }: VoiceAgentProviderProps) {
+export function VoiceAgentProvider({ children, onUpdate, setGenPrompt, canvasCallbacks }: VoiceAgentProviderProps) {
   // State
   const [isConnected, setIsConnected] = useState(false);
   const [isListening, setIsListening] = useState(false);
   const [isSpeaking, setIsSpeaking] = useState(false);
   const [transcript, setTranscript] = useState<TranscriptEntry[]>([]);
-  const [pendingAction, setPendingAction] = useState<ActionResult | null>(null);
+  const [pendingAction, setPendingAction] = useState<{
+    toolCall: ToolCall;
+    result: ActionResult;
+  } | null>(null);
   const [executingAction, setExecutingAction] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   // References
-  const liveClientRef = useRef<LiveClient | null>(null);
+  const liveClientRef = useRef<OpenAIRealtimeClient | null>(null);
   const actionExecutorRef = useRef<ActionExecutor | null>(null);
+  const promptSetterRef = useRef<((prompt: string) => void) | null>(setGenPrompt || null);
+  const connectingRef = useRef(false); // Prevents double connection race condition
 
   /**
-   * Connect to Gemini Live voice session
+   * Register a prompt setter callback from child components
+   * This allows AppContent to register its setGenPrompt function
+   */
+  const registerPromptSetter = useCallback((setter: (prompt: string) => void) => {
+    console.log('[VoiceAgentContext] Prompt setter registered');
+    promptSetterRef.current = setter;
+    // Update the action executor if it exists
+    if (actionExecutorRef.current) {
+      actionExecutorRef.current.setPromptSetter(setter);
+    }
+  }, []);
+
+  /**
+   * Connect to OpenAI Realtime voice session
    */
   const connect = useCallback(async () => {
+    // CRITICAL: Prevent double connection race condition
+    // Use ref for synchronous check (state updates are async)
+    if (connectingRef.current) {
+      console.log('[VoiceAgentContext] Already connecting, ignoring duplicate call');
+      return;
+    }
+    if (liveClientRef.current) {
+      console.log('[VoiceAgentContext] Already connected, disconnecting first...');
+      await liveClientRef.current.disconnect();
+      liveClientRef.current = null;
+    }
+
+    connectingRef.current = true;
     console.log('[VoiceAgentContext] Starting connection...');
     setError(null);
 
     try {
-      // Get Gemini API key
-      const apiKeys = await getUserAPIKeys();
-      const geminiKey = apiKeys.gemini_api_key;
+      // Get OpenAI API key for voice connection
+      const keyResult = await getVoiceAPIKey();
 
-      if (!geminiKey) {
-        throw new Error('Gemini API key not found. Please add it in Settings.');
+      if ('error' in keyResult) {
+        throw new Error(keyResult.error);
       }
 
-      // Create LiveClient instance
-      const client = new LiveClient(geminiKey);
+      const openaiKey = keyResult.voiceKey;
+
+      // Create OpenAIRealtimeClient instance
+      const client = new OpenAIRealtimeClient(openaiKey);
       liveClientRef.current = client;
 
-      // Create ActionExecutor in preview mode
-      const executor = new ActionExecutor(onUpdate, true);
+      // Create ActionExecutor in preview mode with prompt setter and canvas callbacks for voice control
+      const executor = new ActionExecutor(
+        onUpdate,
+        true,
+        undefined,
+        promptSetterRef.current || undefined,
+        canvasCallbacks
+      );
       actionExecutorRef.current = executor;
 
       // Connect with callbacks
@@ -97,7 +141,7 @@ export function VoiceAgentProvider({ children, onUpdate }: VoiceAgentProviderPro
           setExecutingAction(true);
           try {
             const result = await executor.executeToolCall(toolCall);
-            setPendingAction(result);
+            setPendingAction({ toolCall, result });
           } catch (err) {
             console.error('[VoiceAgentContext] Tool execution error:', err);
             setError(err instanceof Error ? err.message : 'Tool execution failed');
@@ -106,13 +150,25 @@ export function VoiceAgentProvider({ children, onUpdate }: VoiceAgentProviderPro
           }
         },
 
-        // onTranscript - conversation updates
+        // onTranscript - conversation updates (with deduplication)
         (entry: TranscriptEntry) => {
           console.log('[VoiceAgentContext] Transcript entry:', entry);
-          setTranscript((prev) => [...prev, entry]);
+          setTranscript((prev) => {
+            // Prevent duplicate entries (same role and text within 2 seconds)
+            const lastEntry = prev[prev.length - 1];
+            if (lastEntry &&
+                lastEntry.role === entry.role &&
+                lastEntry.text === entry.text &&
+                entry.timestamp - lastEntry.timestamp < 2000) {
+              console.log('[VoiceAgentContext] Skipping duplicate entry');
+              return prev; // Skip duplicate
+            }
+            return [...prev, entry];
+          });
         }
       );
 
+      connectingRef.current = false;
       console.log('[VoiceAgentContext] Connected successfully');
     } catch (err) {
       console.error('[VoiceAgentContext] Connection failed:', err);
@@ -126,16 +182,20 @@ export function VoiceAgentProvider({ children, onUpdate }: VoiceAgentProviderPro
         liveClientRef.current = null;
       }
       actionExecutorRef.current = null;
+      connectingRef.current = false;
 
       throw err;
     }
-  }, [onUpdate]);
+  }, [onUpdate, canvasCallbacks]);
 
   /**
    * Disconnect from voice session
    */
   const disconnect = useCallback(async () => {
     console.log('[VoiceAgentContext] Disconnecting...');
+
+    // Reset connecting flag to allow reconnection
+    connectingRef.current = false;
 
     if (liveClientRef.current) {
       await liveClientRef.current.disconnect();
@@ -167,11 +227,11 @@ export function VoiceAgentProvider({ children, onUpdate }: VoiceAgentProviderPro
 
     try {
       // Apply the previewed result
-      if (pendingAction.success && pendingAction.result) {
-        actionExecutorRef.current.applyPreview(pendingAction.result);
+      if (pendingAction.result.success && pendingAction.result.result) {
+        actionExecutorRef.current.applyPreview(pendingAction.result.result);
         console.log('[VoiceAgentContext] Action applied successfully');
       } else {
-        throw new Error(pendingAction.error || 'Action failed');
+        throw new Error(pendingAction.result.error || 'Action failed');
       }
     } catch (err) {
       console.error('[VoiceAgentContext] Failed to apply action:', err);
@@ -215,6 +275,7 @@ export function VoiceAgentProvider({ children, onUpdate }: VoiceAgentProviderPro
     approveAction,
     rejectAction,
     clearTranscript,
+    registerPromptSetter,
   };
 
   return <VoiceAgentContext.Provider value={value}>{children}</VoiceAgentContext.Provider>;

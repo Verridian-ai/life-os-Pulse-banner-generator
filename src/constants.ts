@@ -26,6 +26,9 @@ export const MODELS = {
     gemini3DeepThink: 'google/gemini-3-deep-think',
     minimaxM2: 'minimax/minimax-m2-plus',
     fluxSchnell: 'black-forest-labs/flux-1-schnell', // Image generation
+    perplexityOnline: 'perplexity/llama-3.1-sonar-large-128k-online', // Online Search
+    glm47: 'z-ai/glm-4.7', // User requested specific model
+    sonarDeepResearch: 'perplexity/sonar-deep-research', // Trend Research
   },
 
   // Replicate Models
@@ -57,12 +60,16 @@ export const MODELS = {
     removebg: 'cjwbw/rembg:fb8af171cfa1616ddcf1242c093f9c46bcada5ad4cf6f2fbe8b81b330ec5c003',
     inpaint: {
       flux: 'black-forest-labs/flux-fill-pro',
-      ideogram: 'ideogram-ai/ideogram-v3-inpainting',
+      ideogram: 'ideogram-ai/ideogram-v2',
     },
     outpaint: 'stability-ai/stable-diffusion-outpainting',
     restore: 'sczhou/codeformer:cc4956dd26fa5a7185d5660cc9100fab1b8070a1d1654a8bb5eb6d443b020bb2',
     faceenhance:
       'tencentarc/gfpgan:0fbacf7afc6c144e5be9767cff80f25aff23e52b0708f17e20f9879b2f21516c',
+    reframe: 'luma/reframe-image', // Luma Reframe
+    extra: {
+      gptImage15: 'openai/gpt-image-1.5', // As requested by user (Note: Check availability)
+    },
   },
 };
 
@@ -72,17 +79,90 @@ export enum Tab {
   GALLERY = 'gallery',
 }
 
-export const FONT_OPTIONS = [
-  'Inter',
-  'Roboto',
-  'Open Sans',
-  'Lato',
-  'Playfair Display',
-  'Montserrat',
-  'Arial',
-  'Georgia',
-  'Courier New',
+// Font categories for organized UI display
+export type FontCategory = 'sans-serif' | 'serif' | 'display' | 'script' | 'monospace';
+
+export interface FontOption {
+  name: string;
+  category: FontCategory;
+}
+
+// 52 fonts organized by category
+export const FONT_OPTIONS_CATEGORIZED: FontOption[] = [
+  // Sans-Serif (15 fonts)
+  { name: 'Inter', category: 'sans-serif' },
+  { name: 'Roboto', category: 'sans-serif' },
+  { name: 'Open Sans', category: 'sans-serif' },
+  { name: 'Lato', category: 'sans-serif' },
+  { name: 'Montserrat', category: 'sans-serif' },
+  { name: 'Poppins', category: 'sans-serif' },
+  { name: 'Nunito', category: 'sans-serif' },
+  { name: 'Raleway', category: 'sans-serif' },
+  { name: 'Source Sans 3', category: 'sans-serif' },
+  { name: 'Work Sans', category: 'sans-serif' },
+  { name: 'Outfit', category: 'sans-serif' },
+  { name: 'Plus Jakarta Sans', category: 'sans-serif' },
+  { name: 'DM Sans', category: 'sans-serif' },
+  { name: 'Manrope', category: 'sans-serif' },
+  { name: 'Figtree', category: 'sans-serif' },
+
+  // Serif (12 fonts)
+  { name: 'Playfair Display', category: 'serif' },
+  { name: 'Merriweather', category: 'serif' },
+  { name: 'Lora', category: 'serif' },
+  { name: 'Georgia', category: 'serif' },
+  { name: 'Crimson Text', category: 'serif' },
+  { name: 'Libre Baskerville', category: 'serif' },
+  { name: 'Cormorant Garamond', category: 'serif' },
+  { name: 'EB Garamond', category: 'serif' },
+  { name: 'Spectral', category: 'serif' },
+  { name: 'Bitter', category: 'serif' },
+  { name: 'Noto Serif', category: 'serif' },
+  { name: 'Source Serif 4', category: 'serif' },
+
+  // Display/Headlines (12 fonts)
+  { name: 'Bebas Neue', category: 'display' },
+  { name: 'Oswald', category: 'display' },
+  { name: 'Anton', category: 'display' },
+  { name: 'Fjalla One', category: 'display' },
+  { name: 'Passion One', category: 'display' },
+  { name: 'Alfa Slab One', category: 'display' },
+  { name: 'Righteous', category: 'display' },
+  { name: 'Bangers', category: 'display' },
+  { name: 'Black Ops One', category: 'display' },
+  { name: 'Russo One', category: 'display' },
+  { name: 'Orbitron', category: 'display' },
+  { name: 'Bungee', category: 'display' },
+
+  // Handwriting/Script (8 fonts)
+  { name: 'Dancing Script', category: 'script' },
+  { name: 'Pacifico', category: 'script' },
+  { name: 'Great Vibes', category: 'script' },
+  { name: 'Caveat', category: 'script' },
+  { name: 'Satisfy', category: 'script' },
+  { name: 'Lobster', category: 'script' },
+  { name: 'Sacramento', category: 'script' },
+  { name: 'Kaushan Script', category: 'script' },
+
+  // Monospace (5 fonts)
+  { name: 'Courier New', category: 'monospace' },
+  { name: 'Fira Code', category: 'monospace' },
+  { name: 'JetBrains Mono', category: 'monospace' },
+  { name: 'Source Code Pro', category: 'monospace' },
+  { name: 'IBM Plex Mono', category: 'monospace' },
 ];
+
+// Flat array for backwards compatibility
+export const FONT_OPTIONS = FONT_OPTIONS_CATEGORIZED.map((f) => f.name);
+
+// Category labels for UI
+export const FONT_CATEGORY_LABELS: Record<FontCategory, string> = {
+  'sans-serif': 'Sans Serif',
+  serif: 'Serif',
+  display: 'Display',
+  script: 'Script',
+  monospace: 'Monospace',
+};
 
 export const PLACEHOLDER_BG = 'https://picsum.photos/1584/396';
 
@@ -135,3 +215,55 @@ Which one feels more like your personal brand? And do you have a company logo I 
 **Nano**: "Perfect choice. Blue is the color of reliability. I'll design a professional, deep blue geometric background. I'll make sure the texture is subtle on the right side so you can add your contact info text easily. Creating it now..."
 PROMPT: A professional LinkedIn banner background, deep royal blue geometric pattern, subtle 3D depth, clean and corporate, 1584x396, 4k, high quality, negative space on the right, abstract trust signals.
 `;
+
+// Image generation models available for selection
+export const IMAGE_MODELS = [
+  {
+    id: 'gemini-3-pro',
+    name: 'Nano Banana Pro',
+    provider: 'OpenRouter',
+    model: 'google/gemini-3-pro-image-preview',
+    description: 'Default - Great quality, fast',
+    icon: 'auto_awesome',
+  },
+  {
+    id: 'ideogram-v3',
+    name: 'Ideogram V3',
+    provider: 'Replicate',
+    model: 'ideogram-ai/ideogram-v3',
+    description: 'Best for text in images',
+    icon: 'text_fields',
+  },
+  {
+    id: 'sd3-large',
+    name: 'SD3 Large',
+    provider: 'Replicate',
+    model: 'stability-ai/stable-diffusion-3-large',
+    description: 'High quality, detailed',
+    icon: 'hd',
+  },
+  {
+    id: 'sd3-medium',
+    name: 'SD3 Medium',
+    provider: 'Replicate',
+    model: 'stability-ai/stable-diffusion-3-medium',
+    description: 'Balanced speed/quality',
+    icon: 'speed',
+  },
+  {
+    id: 'flux-cinestill',
+    name: 'FLUX Cinestill',
+    provider: 'Replicate',
+    model: 'adirik/flux-cinestill',
+    description: 'Cinematic film style',
+    icon: 'movie',
+  },
+  {
+    id: 'flux-realism',
+    name: 'FLUX Realism',
+    provider: 'Replicate',
+    model: 'fofr/flux-realism',
+    description: 'Photorealistic images',
+    icon: 'photo_camera',
+  },
+];

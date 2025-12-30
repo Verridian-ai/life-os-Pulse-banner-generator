@@ -1,3 +1,8 @@
+---
+name: Release Governor
+description: Agent specialized in Release Governor tasks.
+---
+
 # Agent 10: Release Governor
 
 ## Role

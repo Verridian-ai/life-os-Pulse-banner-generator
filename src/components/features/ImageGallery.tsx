@@ -1,22 +1,29 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, memo } from 'react';
 import { getUserImages, toggleImageFavorite, deleteImageRecord } from '../../services/database';
 import { useCanvas } from '../../context/CanvasContext';
 import { BTN_NEU_SOLID, INPUT_NEU } from '../../styles';
 
 interface ImageData {
   id: string;
-  storage_url: string;
+  storageUrl: string;
   prompt: string;
-  model_used: string;
+  modelUsed: string;
   quality: string;
-  generation_type: string;
+  generationType: string;
   tags: string[];
-  created_at: string;
-  is_favorite: boolean;
-  file_name: string;
+  createdAt: string;
+  isFavorite: boolean;
+  fileName: string;
 }
 
-const ImageGallery: React.FC = () => {
+// ... types existing ...
+
+export interface ImageGalleryProps {
+  embedded?: boolean;
+  onSelect?: (url: string) => void;
+}
+
+const ImageGalleryComponent: React.FC<ImageGalleryProps> = ({ embedded, onSelect }) => {
   const { setBgImage } = useCanvas();
 
   // State
@@ -51,7 +58,8 @@ const ImageGallery: React.FC = () => {
         filters.favorites = true;
       }
 
-      const data = await getUserImages(filters);
+      // Cast the response to match our camelCase interface
+      const data = await getUserImages(filters) as any as ImageData[];
       setImages(data);
       console.log('[Gallery] Loaded', data.length, 'images');
     } catch (error) {
@@ -74,6 +82,10 @@ const ImageGallery: React.FC = () => {
 
   // Handle apply to canvas
   const handleApplyToCanvas = (imageUrl: string) => {
+    if (onSelect) {
+      onSelect(imageUrl);
+      return;
+    }
     setBgImage(imageUrl);
     console.log('[Gallery] Applied image to canvas:', imageUrl);
   };
@@ -85,7 +97,7 @@ const ImageGallery: React.FC = () => {
       if (success) {
         // Update local state
         setImages((prev) =>
-          prev.map((img) => (img.id === imageId ? { ...img, is_favorite: !img.is_favorite } : img)),
+          prev.map((img) => (img.id === imageId ? { ...img, isFavorite: !img.isFavorite } : img)),
         );
       }
     } catch (error) {
@@ -142,8 +154,8 @@ const ImageGallery: React.FC = () => {
   };
 
   return (
-    <div className='flex-1 p-4 md:p-6 lg:p-8 flex flex-col'>
-      <div className='w-full max-w-[1600px] mx-auto'>
+    <div className={`flex-1 flex flex-col ${embedded ? 'p-0' : 'p-4 md:p-6 lg:p-8'}`}>
+      <div className={`w-full mx-auto ${embedded ? 'max-w-full' : 'max-w-[1600px]'}`}>
         {/* Header */}
         <div className='mb-6'>
           <div className='flex items-center gap-3 mb-4'>
@@ -169,7 +181,7 @@ const ImageGallery: React.FC = () => {
                 placeholder='Search by prompt...'
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className={`${INPUT_NEU} w-full h-10 px-4 text-xs font-bold`}
+                className={`${INPUT_NEU} w-full h-11 px-4 text-xs font-bold`}
               />
             </div>
 
@@ -177,7 +189,7 @@ const ImageGallery: React.FC = () => {
             <select
               value={filterType}
               onChange={(e) => setFilterType(e.target.value)}
-              className={`${INPUT_NEU} h-10 px-4 text-xs font-bold uppercase`}
+              className={`${INPUT_NEU} h-11 px-4 text-xs font-bold uppercase`}
             >
               <option value='all'>All Types</option>
               <option value='generate'>Generate</option>
@@ -191,11 +203,10 @@ const ImageGallery: React.FC = () => {
             {/* Favorites Toggle */}
             <button
               onClick={() => setShowFavoritesOnly(!showFavoritesOnly)}
-              className={`h-10 px-4 rounded-full flex items-center gap-2 font-black uppercase tracking-wider text-[10px] transition-all ${
-                showFavoritesOnly
-                  ? 'bg-pink-600/20 border border-pink-500 text-pink-400'
-                  : BTN_NEU_SOLID
-              }`}
+              className={`h-11 px-4 rounded-full flex items-center gap-2 font-black uppercase tracking-wider text-[10px] transition-all ${showFavoritesOnly
+                ? 'bg-pink-600/20 border border-pink-500 text-pink-400'
+                : BTN_NEU_SOLID
+                }`}
             >
               <span className='material-icons text-sm'>
                 {showFavoritesOnly ? 'favorite' : 'favorite_border'}
@@ -206,7 +217,7 @@ const ImageGallery: React.FC = () => {
             {/* Refresh */}
             <button
               onClick={loadImages}
-              className={`${BTN_NEU_SOLID} h-10 px-4 rounded-full flex items-center gap-2`}
+              className={`${BTN_NEU_SOLID} h-11 px-4 rounded-full flex items-center gap-2`}
             >
               <span className='material-icons text-sm'>refresh</span>
             </button>
@@ -283,12 +294,13 @@ const ImageGallery: React.FC = () => {
                 className='relative group rounded-xl overflow-hidden bg-zinc-900/50 border border-white/5 hover:border-white/10 transition-all duration-300'
                 onMouseEnter={() => setHoveredImageId(image.id)}
                 onMouseLeave={() => setHoveredImageId(null)}
+                onClick={() => setHoveredImageId(hoveredImageId === image.id ? null : image.id)}
               >
                 {/* Image */}
                 <div className='aspect-video w-full bg-zinc-950'>
                   <img
-                    src={image.storage_url}
-                    alt={image.prompt || image.file_name}
+                    src={image.storageUrl}
+                    alt={image.prompt || image.fileName}
                     className='w-full h-full object-cover'
                     loading='lazy'
                   />
@@ -302,9 +314,9 @@ const ImageGallery: React.FC = () => {
                       <div className='space-y-2'>
                         {/* Type Badge */}
                         <span
-                          className={`inline-block px-2 py-1 rounded text-[9px] font-black uppercase tracking-wider border ${getTypeBadgeColor(image.generation_type)}`}
+                          className={`inline-block px-2 py-1 rounded text-[9px] font-black uppercase tracking-wider border ${getTypeBadgeColor(image.generationType)}`}
                         >
-                          {image.generation_type}
+                          {image.generationType}
                         </span>
 
                         {/* Prompt */}
@@ -316,7 +328,7 @@ const ImageGallery: React.FC = () => {
 
                         {/* Model & Quality */}
                         <div className='flex flex-wrap gap-2 text-[9px] text-zinc-400 font-bold uppercase'>
-                          {image.model_used && <span>{image.model_used}</span>}
+                          {image.modelUsed && <span>{image.modelUsed}</span>}
                           {image.quality && <span>• {image.quality}</span>}
                         </div>
 
@@ -336,7 +348,7 @@ const ImageGallery: React.FC = () => {
 
                         {/* Date */}
                         <p className='text-[9px] text-zinc-600 font-bold uppercase tracking-wider'>
-                          {formatDate(image.created_at)}
+                          {formatDate(image.createdAt)}
                         </p>
                       </div>
                     </div>
@@ -345,33 +357,32 @@ const ImageGallery: React.FC = () => {
                     <div className='flex gap-2 mt-3'>
                       {/* Apply to Canvas */}
                       <button
-                        onClick={() => handleApplyToCanvas(image.storage_url)}
-                        className='flex-1 h-8 bg-blue-600 hover:bg-blue-500 text-white rounded-lg flex items-center justify-center gap-1.5 font-black uppercase text-[9px] tracking-wider transition-colors'
-                        title='Apply to Canvas'
+                        onClick={() => handleApplyToCanvas(image.storageUrl)}
+                        className='flex-1 min-h-[44px] h-11 bg-blue-600 hover:bg-blue-500 text-white rounded-lg flex items-center justify-center gap-1.5 font-black uppercase text-[9px] sm:text-[10px] md:text-xs tracking-wider transition-colors touch-manipulation active:scale-[0.98]'
+                        title={onSelect ? 'Select Image' : 'Apply to Canvas'}
                       >
-                        <span className='material-icons text-sm'>add_photo_alternate</span>
-                        Apply
+                        <span className='material-icons text-sm'>{onSelect ? 'check' : 'add_photo_alternate'}</span>
+                        {onSelect ? 'Select' : 'Apply'}
                       </button>
 
                       {/* Toggle Favorite */}
                       <button
                         onClick={() => handleToggleFavorite(image.id)}
-                        className={`h-8 w-8 rounded-lg flex items-center justify-center transition-colors ${
-                          image.is_favorite
-                            ? 'bg-pink-600 hover:bg-pink-500 text-white'
-                            : 'bg-zinc-800 hover:bg-zinc-700 text-zinc-400'
-                        }`}
-                        title={image.is_favorite ? 'Remove from Favorites' : 'Add to Favorites'}
+                        className={`h-11 w-11 rounded-lg flex items-center justify-center transition-colors touch-manipulation ${image.isFavorite
+                          ? 'bg-pink-600 hover:bg-pink-500 text-white'
+                          : 'bg-zinc-800 hover:bg-zinc-700 text-zinc-400'
+                          }`}
+                        title={image.isFavorite ? 'Remove from Favorites' : 'Add to Favorites'}
                       >
                         <span className='material-icons text-sm'>
-                          {image.is_favorite ? 'favorite' : 'favorite_border'}
+                          {image.isFavorite ? 'favorite' : 'favorite_border'}
                         </span>
                       </button>
 
                       {/* Delete */}
                       <button
                         onClick={() => handleDelete(image.id)}
-                        className='h-8 w-8 bg-red-600 hover:bg-red-500 text-white rounded-lg flex items-center justify-center transition-colors'
+                        className='h-11 w-11 bg-red-600 hover:bg-red-500 text-white rounded-lg flex items-center justify-center transition-colors touch-manipulation'
                         title='Delete Image'
                       >
                         <span className='material-icons text-sm'>delete</span>
@@ -381,7 +392,7 @@ const ImageGallery: React.FC = () => {
                 )}
 
                 {/* Favorite Badge (Always Visible) */}
-                {image.is_favorite && (
+                {image.isFavorite && (
                   <div className='absolute top-2 right-2 bg-pink-600 text-white p-1 rounded-full shadow-lg'>
                     <span className='material-icons text-sm'>favorite</span>
                   </div>
@@ -394,5 +405,8 @@ const ImageGallery: React.FC = () => {
     </div>
   );
 };
+
+// Wrap with memo for performance optimization
+const ImageGallery = memo(ImageGalleryComponent);
 
 export default ImageGallery;

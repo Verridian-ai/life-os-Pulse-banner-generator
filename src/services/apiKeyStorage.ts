@@ -72,6 +72,29 @@ export async function getUserAPIKeys(): Promise<UserAPIKeys> {
 }
 
 /**
+ * Get Voice API Key (actual OpenAI key for voice WebSocket connection)
+ * SECURITY: This returns the ACTUAL key, not masked. Only use for voice connection.
+ */
+export async function getVoiceAPIKey(): Promise<{ voiceKey: string } | { error: string; requiresKey?: boolean }> {
+  console.log('[API Keys] getVoiceAPIKey() called');
+
+  try {
+    const response = await api.get<{ voiceKey?: string; error?: string; requiresKey?: boolean }>('/api/user/voice-key');
+
+    if (response.voiceKey) {
+      console.log('[API Keys] ✓ Voice key retrieved');
+      return { voiceKey: response.voiceKey };
+    }
+
+    return { error: response.error || 'Voice key not found', requiresKey: response.requiresKey };
+  } catch (error: unknown) {
+    console.error('[API Keys] Voice key error:', error);
+    const message = error instanceof Error ? error.message : 'Failed to get voice key';
+    return { error: message };
+  }
+}
+
+/**
  * Save user's API keys to Neon via Backend API
  */
 export async function saveUserAPIKeys(

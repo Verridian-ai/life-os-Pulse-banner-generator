@@ -1,4 +1,4 @@
-import { supabase } from './supabase';
+import { api } from './api';
 
 export interface EmailLog {
     id?: string;
@@ -11,26 +11,22 @@ export interface EmailLog {
 }
 
 /**
- * Service to handle email operations and logging
+ * Service to handle email operations and logging via backend API
  */
 export const emailService = {
     /**
-     * Log an email attempt to Supabase
+     * Log an email attempt via backend API
      */
     async logEmail(log: Omit<EmailLog, 'id' | 'created_at'>) {
         try {
-            const { data, error } = await supabase
-                .from('email_logs')
-                .insert([log])
-                .select()
-                .single();
+            const data = await api.post<{ success?: boolean; error?: string; data?: EmailLog }>('/api/email-logs', log);
 
-            if (error) {
-                console.error('Failed to log email:', error);
-                return { success: false, error };
+            if (data.error) {
+                console.error('Failed to log email:', data.error);
+                return { success: false, error: data.error };
             }
 
-            return { success: true, data };
+            return { success: true, data: data.data };
         } catch (e) {
             console.error('Exception logging email:', e);
             return { success: false, error: e };
@@ -38,16 +34,17 @@ export const emailService = {
     },
 
     /**
-     * Fetch recent email logs
+     * Fetch recent email logs via backend API
      */
     async getLogs(limit = 50) {
-        const { data, error } = await supabase
-            .from('email_logs')
-            .select('*')
-            .order('created_at', { ascending: false })
-            .limit(limit);
+        try {
+            const data = await api.get<{ logs?: EmailLog[]; error?: string }>(`/api/email-logs?limit=${limit}`);
 
-        if (error) throw error;
-        return data;
-    }
+            if (data.error) throw new Error(data.error);
+            return data.logs || [];
+        } catch (e) {
+            console.error('Exception fetching email logs:', e);
+            throw e;
+        }
+    },
 };

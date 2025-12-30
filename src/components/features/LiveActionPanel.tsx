@@ -80,7 +80,7 @@ const LiveActionPanel: React.FC<LiveActionPanelProps> = ({
   };
 
   return (
-    <div className='fixed bottom-0 left-0 right-0 z-40 bg-black/95 backdrop-blur-xl border-t border-white/10'>
+    <div className='fixed bottom-0 left-0 right-0 z-40 bg-black/95 backdrop-blur-xl border-t border-white/10 safe-area-bottom'>
       {/* Connection Status Bar */}
       <div
         className={`px-6 py-2 flex items-center justify-between border-b ${isConnected ? 'border-green-500/30 bg-green-950/20' : 'border-zinc-700/30 bg-zinc-950/20'}`}
@@ -119,9 +119,8 @@ const LiveActionPanel: React.FC<LiveActionPanelProps> = ({
                 >
                   {/* Avatar */}
                   <div
-                    className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold shrink-0 ${
-                      entry.role === 'user' ? 'bg-blue-600 text-white' : 'bg-purple-600 text-white'
-                    }`}
+                    className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold shrink-0 ${entry.role === 'user' ? 'bg-blue-600 text-white' : 'bg-purple-600 text-white'
+                      }`}
                   >
                     <span className='material-icons text-sm'>
                       {entry.role === 'user' ? 'person' : 'smart_toy'}
@@ -131,11 +130,10 @@ const LiveActionPanel: React.FC<LiveActionPanelProps> = ({
                   {/* Message Content */}
                   <div className={`flex-1 ${entry.role === 'user' ? 'text-right' : 'text-left'}`}>
                     <div
-                      className={`inline-block max-w-[80%] rounded-lg px-3 py-2 ${
-                        entry.role === 'user'
+                      className={`inline-block max-w-[80%] rounded-lg px-3 py-2 ${entry.role === 'user'
                           ? 'bg-blue-600/20 border border-blue-500/30 text-blue-100'
                           : 'bg-purple-600/20 border border-purple-500/30 text-purple-100'
-                      }`}
+                        }`}
                     >
                       <p className='text-xs font-medium'>{entry.text}</p>
 
@@ -208,7 +206,7 @@ const LiveActionPanel: React.FC<LiveActionPanelProps> = ({
             {/* Error Message */}
             {!pendingAction.result.success && (
               <div className='mb-3 p-2 bg-red-950/50 border border-red-500/30 rounded'>
-                <p className='text-[9px] text-red-400 font-medium'>{pendingAction.result.error}</p>
+                <p className='text-[9px] sm:text-[10px] md:text-xs text-red-400 font-medium'>{pendingAction.result.error}</p>
               </div>
             )}
 
@@ -218,7 +216,7 @@ const LiveActionPanel: React.FC<LiveActionPanelProps> = ({
                 <button
                   onClick={onApproveAction}
                   disabled={executingAction}
-                  className='flex-1 h-9 bg-green-600 hover:bg-green-500 disabled:bg-green-800 disabled:cursor-not-allowed text-white rounded-lg flex items-center justify-center gap-1.5 font-black uppercase text-[9px] tracking-wider transition-colors'
+                  className='flex-1 min-h-[44px] h-11 bg-green-600 hover:bg-green-500 disabled:bg-green-800 disabled:cursor-not-allowed text-white rounded-lg flex items-center justify-center gap-1.5 font-black uppercase text-[9px] sm:text-[10px] md:text-xs tracking-wider transition-colors touch-manipulation active:scale-[0.98]'
                 >
                   {executingAction ? (
                     <>
@@ -235,7 +233,7 @@ const LiveActionPanel: React.FC<LiveActionPanelProps> = ({
                 <button
                   onClick={onRejectAction}
                   disabled={executingAction}
-                  className='flex-1 h-9 bg-red-600 hover:bg-red-500 disabled:bg-red-800 disabled:cursor-not-allowed text-white rounded-lg flex items-center justify-center gap-1.5 font-black uppercase text-[9px] tracking-wider transition-colors'
+                  className='flex-1 min-h-[44px] h-11 bg-red-600 hover:bg-red-500 disabled:bg-red-800 disabled:cursor-not-allowed text-white rounded-lg flex items-center justify-center gap-1.5 font-black uppercase text-[9px] sm:text-[10px] md:text-xs tracking-wider transition-colors touch-manipulation active:scale-[0.98]'
                 >
                   <span className='material-icons text-sm'>close</span>
                   Reject
@@ -247,7 +245,7 @@ const LiveActionPanel: React.FC<LiveActionPanelProps> = ({
             {!pendingAction.result.success && (
               <button
                 onClick={onRejectAction}
-                className='w-full h-9 bg-zinc-700 hover:bg-zinc-600 text-white rounded-lg flex items-center justify-center gap-1.5 font-black uppercase text-[9px] tracking-wider transition-colors'
+                className='w-full min-h-[44px] h-11 bg-zinc-700 hover:bg-zinc-600 text-white rounded-lg flex items-center justify-center gap-1.5 font-black uppercase text-[9px] sm:text-[10px] md:text-xs tracking-wider transition-colors touch-manipulation active:scale-[0.98]'
               >
                 <span className='material-icons text-sm'>close</span>
                 Dismiss

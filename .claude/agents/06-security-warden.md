@@ -1,3 +1,8 @@
+---
+name: Security Warden
+description: Agent specialized in Security Warden tasks.
+---
+
 # Agent 06: Security Warden
 
 ## Role

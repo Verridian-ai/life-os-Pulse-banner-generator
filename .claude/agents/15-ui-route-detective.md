@@ -1,3 +1,8 @@
+---
+name: UI Route Detective
+description: Agent specialized in UI Route Detective tasks.
+---
+
 # Agent 15: UI Route Detective (NEW)
 
 ## Role
