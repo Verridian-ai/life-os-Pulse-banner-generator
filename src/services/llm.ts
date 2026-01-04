@@ -3,7 +3,7 @@ import { MODELS, DESIGN_SYSTEM_INSTRUCTION } from '../constants';
 import { Part } from '../types';
 import type { ImageEditTurn } from '../types/ai';
 
-import { resizeToLinkedInBanner, prepareForOutpainting } from '../utils/imageUtils';
+import { resizeToLinkedInBanner, resizeToCanvasDimensions, prepareForOutpainting } from '../utils/imageUtils';
 import { getUserAPIKeys } from './apiKeyStorage';
 import { api } from './api';
 
@@ -152,99 +152,164 @@ export const enhancePrompt = async (
 };
 
 // --- Image Gen (Refactored) ---
+// NOTE: OpenRouter does NOT support image generation - it's a chat completions proxy only.
+// All image generation goes through Replicate (Imagen-3, Flux, etc.)
+
+// Canvas dimensions type for multi-format support
+export type CanvasDimensions = {
+  width: number;
+  height: number;
+} | null;
+
 export const generateImage = async (
   prompt: string,
   _referenceImages: string[] = [],
   _size: '1K' | '2K' | '4K' = '4K',
-  isBanner: boolean = false, // New param
+  canvasDimensions: CanvasDimensions = null, // Updated: accepts dimensions object or null
   _editHistory: ImageEditTurn[] = [],
   _isRetry: boolean = false
 ): Promise<string> => {
   let imageUrl = '';
-  // Force banner dimensions for all generations if isBanner is true
-  const dimensions = isBanner ? { width: 1584, height: 396 } : { aspect_ratio: '16:9' };
+  // Use provided canvas dimensions or fall back to 16:9 for generic images
+  const dimensions = canvasDimensions
+    ? { width: canvasDimensions.width, height: canvasDimensions.height }
+    : { aspect_ratio: '16:9' };
+  const shouldResize = canvasDimensions !== null;
 
   console.log('[Image Gen] Starting generation pipeline for:', prompt);
+  console.log('[Image Gen] Dimensions:', dimensions, 'shouldResize:', shouldResize);
 
-  // Fetch keys for BYOK support
-  const keys = await getUserAPIKeys().catch(() => ({} as any));
+  // Try to fetch keys - if auth fails, we'll still try with server-side keys
+  let keys: Partial<Awaited<ReturnType<typeof getUserAPIKeys>>> = {};
+  try {
+    keys = await getUserAPIKeys();
+  } catch (authError) {
+    console.log('[Image Gen] Auth check skipped - will use server product keys if available');
+  }
 
-  // 1. Try Nano Banana Pro via OpenRouter (Gemini)
+  // Note: We don't block here - server will use its own env keys if user has none
+  console.log('[Image Gen] User API Keys available:', {
+    hasReplicate: !!keys.hasReplicateKey || !!keys.replicate_api_key,
+    canGenerateImages: !!keys.canGenerateImages,
+    hasProductKeys: !!keys.hasProductKeys
+  });
+
+  // 1. Primary: Try Nano Banana Pro (Gemini 3 Pro Image via OpenRouter)
+  // This is the highest quality option with text-in-image support
   try {
     console.log('[Image Gen] Attempting Nano Banana Pro (OpenRouter)...');
-    const response = await api.post<{ url: string }>('/api/ai/image/generate', {
+    const response = await api.post<{ url: string; error?: string }>('/api/ai/image/generate', {
       prompt,
       model: MODELS.imageGen, // google/gemini-3-pro-image-preview
       provider: 'openrouter',
-      openRouterKey: keys.openrouter_api_key,
       ...dimensions
     });
+
+    if (response.error) {
+      throw new Error(response.error);
+    }
+
     imageUrl = response.url;
     console.log('[Image Gen] ✅ Nano Banana Pro success');
   } catch (err) {
-    console.warn('[Image Gen] ⚠️ Nano Banana Pro (OpenRouter) failed:', err);
+    const errMsg = err instanceof Error ? err.message : String(err);
+    console.warn('[Image Gen] ⚠️ Nano Banana Pro failed:', errMsg);
 
-    // 2. Fallback to Nano Banana Pro via Replicate
+    // 2. Fallback to Flux Schnell (fast, reliable via Replicate)
     try {
-      console.log('[Image Gen] Attempting Nano Banana Pro (Replicate)...');
-      const response = await api.post<{ url: string }>('/api/ai/image/generate', {
+      console.log('[Image Gen] Attempting Flux Schnell fallback (Replicate)...');
+      const response = await api.post<{ url: string; error?: string }>('/api/ai/image/generate', {
         prompt,
-        model: 'google/nano-banana-pro', // Replicate ID
+        model: 'black-forest-labs/flux-schnell',
         provider: 'replicate',
-        replicateKey: keys.replicate_api_key,
         ...dimensions
       });
-      imageUrl = response.url;
-      console.log('[Image Gen] ✅ Replicate fallback success');
-    } catch (err2) {
-      console.warn('[Image Gen] ⚠️ Replicate fallback failed:', err2);
 
-      // 3. Fallback to Flux (Replicate)
+      if (response.error) {
+        throw new Error(response.error);
+      }
+
+      imageUrl = response.url;
+      console.log('[Image Gen] ✅ Flux Schnell fallback success');
+    } catch (err2) {
+      const errMsg2 = err2 instanceof Error ? err2.message : String(err2);
+      console.warn('[Image Gen] ⚠️ Flux Schnell failed:', errMsg2);
+
+      // 3. Last resort: Flux Dev (higher quality but slower)
       try {
-        console.log('[Image Gen] Attempting Flux fallback...');
-        const response = await api.post<{ url: string }>('/api/ai/image/generate', {
+        console.log('[Image Gen] Attempting Flux Dev fallback...');
+        const response = await api.post<{ url: string; error?: string }>('/api/ai/image/generate', {
           prompt,
-          model: 'black-forest-labs/flux-1-schnell',
+          model: 'black-forest-labs/flux-dev',
           provider: 'replicate',
-          replicateKey: keys.replicate_api_key,
           ...dimensions
         });
+
+        if (response.error) {
+          throw new Error(response.error);
+        }
+
         imageUrl = response.url;
-        console.log('[Image Gen] ✅ Flux fallback success');
+        console.log('[Image Gen] ✅ Flux Dev fallback success');
       } catch (err3) {
-        console.error('[Image Gen] ❌ All providers failed:', err3);
-        throw new Error('Image generation failed across all providers');
+        const errMsg3 = err3 instanceof Error ? err3.message : String(err3);
+        console.error('[Image Gen] ❌ All providers failed. Last error:', errMsg3);
+
+        // Provide helpful error message based on error type
+        const isKeyError = errMsg3.includes('KEY_MISSING') || errMsg3.includes('Unauthorized') || errMsg3.includes('not configured');
+        const helpText = isKeyError
+          ? 'Please add API keys in Settings to enable image generation.'
+          : 'Please try again or check your internet connection.';
+        throw new Error(`Image generation failed: ${errMsg3}. ${helpText}`);
       }
     }
   }
 
-  // 4. Mandatory Resizing Pipeline
-  // Regardless of which model generated it, enforce exact 1584x396 dimensions
-  if (isBanner && imageUrl) {
-    try {
-      console.log('[Image Gen] 📏 Resizing to 1584x396 (Smart Expand)...');
+  // 4. Mandatory Resizing Pipeline for all canvas formats
+  // Resize generated images to match exact canvas dimensions
+  if (shouldResize && canvasDimensions && imageUrl) {
+    const { width: targetWidth, height: targetHeight } = canvasDimensions;
+    const aspectRatio = targetWidth / targetHeight;
 
-      // 1. Prepare Composite & Mask (Image centered, white bars, mask preserves image)
-      const { image: composite, mask } = await prepareForOutpainting(imageUrl);
+    // Use Smart Expand (Flux Fill) for banner-like formats (wide aspect ratios 2:1 or wider)
+    const useSmartExpand = aspectRatio >= 2.0;
 
-      // 2. Call Flux Fill Pro via editImage
-      const expandPrompt = `${prompt} . High quality, seamless background extension, cinematic lighting, comprehensive background.`;
+    if (useSmartExpand) {
+      try {
+        console.log(`[Image Gen] 📏 Smart Expand to ${targetWidth}x${targetHeight}...`);
 
-      // We pass the composite as the "base image" and the mask to guide the AI
-      const expandedUrl = await editImage(composite, expandPrompt, mask, 'black-forest-labs/flux-fill-pro');
+        // 1. Prepare Composite & Mask (Image centered, white bars, mask preserves image)
+        const { image: composite, mask } = await prepareForOutpainting(imageUrl, targetWidth, targetHeight);
 
-      if (expandedUrl) {
-        imageUrl = expandedUrl;
-        console.log('[Image Gen] ✅ Smart Expand complete');
-      } else {
-        throw new Error("Flux Fill returned empty URL");
+        // 2. Call Flux Fill Pro via editImage
+        const expandPrompt = `${prompt} . High quality, seamless background extension, cinematic lighting, comprehensive background.`;
+
+        // We pass the composite as the "base image" and the mask to guide the AI
+        const expandedUrl = await editImage(composite, expandPrompt, mask, 'black-forest-labs/flux-fill-pro');
+
+        if (expandedUrl) {
+          imageUrl = expandedUrl;
+          console.log('[Image Gen] ✅ Smart Expand complete');
+        } else {
+          throw new Error("Flux Fill returned empty URL");
+        }
+
+      } catch (error) {
+        console.error("[Image Gen] ⚠️ Smart Expand failed. Fallback to Cover Crop:", error);
+        // Fallback: Standard Canvas Resizing (Crop)
+        imageUrl = await resizeToCanvasDimensions(imageUrl, targetWidth, targetHeight, { quality: 0.95, fit: 'cover' });
+        console.log('[Image Gen] ✅ Fallback Resize complete');
       }
-
-    } catch (error) {
-      console.error("[Image Gen] ⚠️ Smart Expand failed. Fallback to Cover Crop:", error);
-      // Fallback: Standard Canvas Resizing (Crop)
-      imageUrl = await resizeToLinkedInBanner(imageUrl, { quality: 0.95, fit: 'cover' });
-      console.log('[Image Gen] ✅ Fallback Resize complete');
+    } else {
+      // For square or portrait formats, just resize with cover crop
+      try {
+        console.log(`[Image Gen] 📏 Resizing to ${targetWidth}x${targetHeight}...`);
+        imageUrl = await resizeToCanvasDimensions(imageUrl, targetWidth, targetHeight, { quality: 0.95, fit: 'cover' });
+        console.log('[Image Gen] ✅ Resize complete');
+      } catch (error) {
+        console.error('[Image Gen] ⚠️ Resize failed:', error);
+        // Return original if resize fails
+      }
     }
   }
 
@@ -255,7 +320,7 @@ export const generateImage = async (
 
 export const editImage = async (base64Image: string, prompt: string, mask?: string, modelOverride?: string) => {
   // Fetch keys for BYOK support
-  const keys = await getUserAPIKeys().catch(() => ({} as any));
+  const keys = await getUserAPIKeys().catch(() => ({} as Record<string, never>));
 
   // Try OpenRouter (Gemini) for editing first as it's "Context Aware"
   try {

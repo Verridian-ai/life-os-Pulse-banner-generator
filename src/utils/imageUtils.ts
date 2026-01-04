@@ -1,11 +1,101 @@
 /**
- * Image utility functions for banner processing
- * LinkedIn banner dimensions: 1584 x 396 pixels (4:1 aspect ratio)
+ * Image utility functions for canvas processing
+ * Supports multiple social media canvas formats with dynamic dimensions
  */
 
-// LinkedIn banner standard dimensions
+// LinkedIn banner standard dimensions (legacy constants for backwards compatibility)
 export const LINKEDIN_BANNER_WIDTH = 1584;
 export const LINKEDIN_BANNER_HEIGHT = 396;
+
+/**
+ * Resize an image to specified canvas dimensions
+ * Uses high-quality canvas rendering with proper aspect ratio handling
+ *
+ * @param imageSource - Base64 data URL or image URL
+ * @param targetWidth - Target canvas width in pixels
+ * @param targetHeight - Target canvas height in pixels
+ * @param options - Resize options
+ * @returns Promise<string> - Resized image as base64 data URL
+ */
+export const resizeToCanvasDimensions = async (
+  imageSource: string,
+  targetWidth: number,
+  targetHeight: number,
+  options: {
+    quality?: number;
+    fit?: 'cover' | 'contain' | 'fill';
+  } = {}
+): Promise<string> => {
+  const { quality = 0.95, fit = 'cover' } = options;
+
+  return new Promise((resolve, reject) => {
+    const img = new Image();
+    img.crossOrigin = 'anonymous';
+
+    img.onload = () => {
+      try {
+        const canvas = document.createElement('canvas');
+        canvas.width = targetWidth;
+        canvas.height = targetHeight;
+        const ctx = canvas.getContext('2d');
+
+        if (!ctx) {
+          reject(new Error('Failed to get canvas context'));
+          return;
+        }
+
+        ctx.imageSmoothingEnabled = true;
+        ctx.imageSmoothingQuality = 'high';
+
+        let sx = 0, sy = 0, sw = img.width, sh = img.height;
+        let dx = 0, dy = 0, dw = targetWidth, dh = targetHeight;
+
+        if (fit === 'cover') {
+          const sourceRatio = img.width / img.height;
+          const targetRatio = targetWidth / targetHeight;
+
+          if (sourceRatio > targetRatio) {
+            sw = img.height * targetRatio;
+            sx = (img.width - sw) / 2;
+          } else {
+            sh = img.width / targetRatio;
+            sy = (img.height - sh) / 2;
+          }
+        } else if (fit === 'contain') {
+          const sourceRatio = img.width / img.height;
+          const targetRatio = targetWidth / targetHeight;
+
+          ctx.fillStyle = 'transparent';
+          ctx.fillRect(0, 0, targetWidth, targetHeight);
+
+          if (sourceRatio > targetRatio) {
+            dh = targetWidth / sourceRatio;
+            dy = (targetHeight - dh) / 2;
+          } else {
+            dw = targetHeight * sourceRatio;
+            dx = (targetWidth - dw) / 2;
+          }
+        }
+
+        ctx.drawImage(img, sx, sy, sw, sh, dx, dy, dw, dh);
+        const resizedDataUrl = canvas.toDataURL('image/png', quality);
+
+        console.log('[ImageUtils] Resized image to', targetWidth, 'x', targetHeight, 'using', fit, 'mode');
+        resolve(resizedDataUrl);
+      } catch (error) {
+        console.error('[ImageUtils] Canvas resize error:', error);
+        reject(error);
+      }
+    };
+
+    img.onerror = (error) => {
+      console.error('[ImageUtils] Failed to load image for resize:', error);
+      reject(new Error('Failed to load image for resizing'));
+    };
+
+    img.src = imageSource;
+  });
+};
 
 /**
  * Resize an image to exact LinkedIn banner dimensions (1584x396)
@@ -243,7 +333,7 @@ export const prepareForOutpainting = async (
         reject(error);
       }
     };
-    img.onerror = (err) => reject(new Error('Failed to load image for outpainting prep'));
+    img.onerror = () => reject(new Error('Failed to load image for outpainting prep'));
     img.src = imageSource;
   });
 };

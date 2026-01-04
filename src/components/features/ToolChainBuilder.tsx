@@ -232,12 +232,8 @@ export const ToolChainBuilder: React.FC<ToolChainBuilderProps> = ({
 
             case 'generate': {
               const genPrompt = String(step.params.prompt || 'random image');
-              // Generate replaces the current image completely
-              currentResult = await generateImage(genPrompt, [], '4K', true); // Force banner? Or inherit?
-              // Assuming tool chain usage implies we want to keep working on the current canvas context,
-              // but 'generate' usually starts fresh.
-              // Getting strict 1584x396 if we set isBanner=true.
-              // Let's assume yes, as this is the banner app.
+              // Generate replaces the current image completely with LinkedIn banner dimensions
+              currentResult = await generateImage(genPrompt, [], '4K', { width: 1584, height: 396 });
               break;
             }
 

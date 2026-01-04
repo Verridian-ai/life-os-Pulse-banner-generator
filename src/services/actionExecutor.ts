@@ -200,7 +200,8 @@ export class ActionExecutor {
     console.log('[ActionExecutor] Generating background:', { originalPrompt: prompt, enhancedPrompt: bannerPrompt, quality });
 
     try {
-      const imageUrl = await generateImage(bannerPrompt, [], quality as '1K' | '2K' | '4K', true);
+      // Voice agent uses LinkedIn banner dimensions by default
+      const imageUrl = await generateImage(bannerPrompt, [], quality as '1K' | '2K' | '4K', { width: 1584, height: 396 });
 
       if (!imageUrl) {
         return { success: false, error: 'Image generation returned null' };
@@ -641,17 +642,25 @@ export class ActionExecutor {
       };
     }
 
+    // Gallery and LinkedIn are now sub-modes of Studio
+    // Normalize "gallery" and "media" to "studio"
+    const normalizedTab = tab.toLowerCase();
     const tabMap: Record<string, Tab> = {
       studio: Tab.STUDIO,
-      gallery: Tab.GALLERY,
+      canvas: Tab.STUDIO,
+      gallery: Tab.STUDIO,  // Now a sub-mode of Studio
+      media: Tab.STUDIO,    // Now a sub-mode of Studio
+      linkedin: Tab.STUDIO, // Now a sub-mode of Studio
+      posts: Tab.STUDIO,    // Now a sub-mode of Studio
       brainstorm: Tab.BRAINSTORM,
+      partner: Tab.BRAINSTORM,
     };
 
-    const targetTab = tabMap[tab.toLowerCase()];
+    const targetTab = tabMap[normalizedTab];
     if (!targetTab) {
       return {
         success: false,
-        error: `Unknown tab: ${tab}. Valid tabs: studio, gallery, brainstorm`,
+        error: `Unknown tab: ${tab}. Valid tabs: studio, brainstorm`,
       };
     }
 

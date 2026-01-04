@@ -58,7 +58,7 @@ export const ABTestingPanel: React.FC<ABTestingPanelProps> = ({
             variantPrompt,
             referenceImages,
             '2K',
-            true, // isBanner
+            { width: 1584, height: 396 }, // LinkedIn banner dimensions
             [], // No edit history for variants
           );
 

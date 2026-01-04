@@ -10,24 +10,26 @@ const ChatInterface = lazy(() => import('./components/ChatInterface'));
 const ImageGallery = lazy(() => import('./components/features/ImageGallery'));
 const SettingsModal = lazy(() => import('./components/features/SettingsModal').then(m => ({ default: m.SettingsModal })));
 const AuthModal = lazy(() => import('./components/auth/AuthModal').then(m => ({ default: m.AuthModal })));
+const LinkedInContentStudio = lazy(() => import('./features/linkedin-posts').then(m => ({ default: m.LinkedInContentStudio })));
 import {
   ScreenReaderAnnouncerProvider,
   useAnnouncer,
 } from './components/accessibility/ScreenReaderAnnouncer';
 import { useKeyboardShortcuts, getDefaultShortcuts } from './hooks/useKeyboardShortcuts';
 import { generateImage, generatePromptFromRefImages as generateMagicPrompt, enhancePrompt } from './services/llm';
-import { Tab } from './constants';
+import { Tab, StudioMode } from './constants';
+import { StudioSubNav } from './components/layout/StudioSubNav';
 import { CanvasProvider, useCanvas } from './context/CanvasContext';
 import { AIProvider } from './context/AIContext';
 import { useAuth } from './context/AuthContext';
 import { migrateLocalStorageToNeon } from './services/apiKeyStorage';
-import { createImage } from './services/database';
 import { persistImageToGallery } from './utils/imagePersistence';
 // Voice Provider Imported
 import { VoiceAgentProvider, useVoiceAgent } from './context/VoiceAgentContext';
 
 const AppContent = () => {
   const [activeTab, setActiveTab] = useState<Tab>(Tab.STUDIO);
+  const [studioMode, setStudioMode] = useState<StudioMode>(StudioMode.CANVAS);
   const [showSettings, setShowSettings] = useState(false);
   const [showAuthModal, setShowAuthModal] = useState(false);
   const [showInstructions, setShowInstructions] = useState(false);
@@ -67,7 +69,7 @@ const AppContent = () => {
   const { isAuthenticated, isLoading, authUser } = useAuth();
 
   // Context hooks for shared state
-  const { bgImage, setBgImage, refImages } = useCanvas();
+  const { bgImage, setBgImage, refImages, canvasWidth, canvasHeight } = useCanvas();
 
   // Generation States
   const [genPrompt, setGenPrompt] = useState('');
@@ -104,7 +106,7 @@ const AppContent = () => {
 
       console.log(`[App] Generating with ${modelName} (${currentModel})`);
 
-      const result = await generateImage(promptToUse, refImages, genSize, true);
+      const result = await generateImage(promptToUse, refImages, genSize, { width: canvasWidth, height: canvasHeight });
       if (result) {
         setBgImage(result);
 
@@ -148,8 +150,12 @@ const AppContent = () => {
       // Show detailed error message to user
       let errorMessage = 'GENERATION FAILED';
       if (error instanceof Error) {
-        if (error.message.includes('API key')) {
-          errorMessage = 'MISSING API KEY - CHECK SETTINGS';
+        if (error.message.includes('API key') || error.message.includes('REPLICATE_KEY_MISSING')) {
+          if (error.message.includes('REPLICATE_KEY_MISSING')) {
+            errorMessage = 'REPLICATE API KEY REQUIRED - ADD IN SETTINGS';
+          } else {
+            errorMessage = 'MISSING API KEY - CHECK SETTINGS';
+          }
         } else if (error.message.includes('quota')) {
           errorMessage = 'API QUOTA EXCEEDED';
         } else if (error.message.includes('safety')) {
@@ -204,8 +210,12 @@ const AppContent = () => {
       console.error('[App] Enhance error:', error);
       let errorMessage = 'ENHANCE FAILED';
       if (error instanceof Error) {
-        if (error.message.includes('API key')) {
-          errorMessage = 'MISSING API KEY - CHECK SETTINGS';
+        if (error.message.includes('API key') || error.message.includes('REPLICATE_KEY_MISSING')) {
+          if (error.message.includes('REPLICATE_KEY_MISSING')) {
+            errorMessage = 'REPLICATE API KEY REQUIRED - ADD IN SETTINGS';
+          } else {
+            errorMessage = 'MISSING API KEY - CHECK SETTINGS';
+          }
         } else if (error.message.length < 60) {
           errorMessage = error.message.toUpperCase();
         }
@@ -260,8 +270,12 @@ const AppContent = () => {
       // Show detailed error message to user
       let errorMessage = 'EDIT FAILED';
       if (error instanceof Error) {
-        if (error.message.includes('API key')) {
-          errorMessage = 'MISSING API KEY - CHECK SETTINGS';
+        if (error.message.includes('API key') || error.message.includes('REPLICATE_KEY_MISSING')) {
+          if (error.message.includes('REPLICATE_KEY_MISSING')) {
+            errorMessage = 'REPLICATE API KEY REQUIRED - ADD IN SETTINGS';
+          } else {
+            errorMessage = 'MISSING API KEY - CHECK SETTINGS';
+          }
         } else if (error.message.includes('quota')) {
           errorMessage = 'API QUOTA EXCEEDED';
         } else if (error.message.includes('safety')) {
@@ -457,37 +471,52 @@ const AppContent = () => {
         )}
 
         {activeTab === Tab.STUDIO && (
-          <div className='flex-1 flex flex-col md:flex-row h-auto w-full relative z-10 overflow-hidden'>
-            <CanvasEditor />
+          <div className='flex-1 flex flex-col h-full w-full relative z-10 overflow-hidden'>
+            {/* Studio Sub-Navigation */}
+            <StudioSubNav currentMode={studioMode} onModeChange={setStudioMode} />
 
-            <GenerativeSidebar
-              refImages={refImages}
-              genPrompt={genPrompt}
-              setGenPrompt={setGenPrompt}
-              genSize={genSize}
-              setGenSize={setGenSize}
-              isGenerating={isGenerating}
-              onGenerate={handleGenerate}
-              isMagicPrompting={isMagicPrompting}
-              onMagicPrompt={handleMagicPrompt}
-              isEnhancing={isEnhancing}
-              onEnhancePrompt={handleEnhancePrompt}
-              editPrompt={editPrompt}
-              setEditPrompt={setEditPrompt}
-              isEditing={isEditing}
-              onEdit={handleEdit}
-              onRemoveBg={handleRemoveBg}
-              onUpscale={handleUpscale}
-              bgImage={bgImage}
-              onImageUpdate={(img) => setBgImage(img)}
-            />
+            {/* Canvas Mode - Banner Design */}
+            {studioMode === StudioMode.CANVAS && (
+              <div className='flex-1 flex flex-col md:flex-row h-auto w-full overflow-hidden'>
+                <CanvasEditor />
+                <GenerativeSidebar
+                  refImages={refImages}
+                  genPrompt={genPrompt}
+                  setGenPrompt={setGenPrompt}
+                  genSize={genSize}
+                  setGenSize={setGenSize}
+                  isGenerating={isGenerating}
+                  onGenerate={handleGenerate}
+                  isMagicPrompting={isMagicPrompting}
+                  onMagicPrompt={handleMagicPrompt}
+                  isEnhancing={isEnhancing}
+                  onEnhancePrompt={handleEnhancePrompt}
+                  editPrompt={editPrompt}
+                  setEditPrompt={setEditPrompt}
+                  isEditing={isEditing}
+                  onEdit={handleEdit}
+                  onRemoveBg={handleRemoveBg}
+                  onUpscale={handleUpscale}
+                  bgImage={bgImage}
+                  onImageUpdate={(img) => setBgImage(img)}
+                />
+              </div>
+            )}
+
+            {/* LinkedIn Mode - Posts Studio */}
+            {studioMode === StudioMode.LINKEDIN && (
+              <Suspense fallback={<div className="flex-1 flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-amber-500"></div></div>}>
+                <LinkedInContentStudio />
+              </Suspense>
+            )}
+
+            {/* Media Mode - Gallery */}
+            {studioMode === StudioMode.MEDIA && (
+              <Suspense fallback={<div className="flex-1 flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div></div>}>
+                <ImageGallery />
+              </Suspense>
+            )}
           </div>
-        )}
-
-        {activeTab === Tab.GALLERY && (
-          <Suspense fallback={<div className="flex-1 flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div></div>}>
-            <ImageGallery />
-          </Suspense>
         )}
 
         {activeTab === Tab.BRAINSTORM && (
