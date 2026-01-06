@@ -211,7 +211,7 @@
 
 ## Support
 
-- **Issues:** [GitHub Issues](https://github.com/your-repo/nanobanna-pro/issues)
+- **Issues:** [GitHub Issues](https://github.com/Verridian-ai/life-os-Pulse-banner-generator/issues)
 - **OpenAI Support:** [help.openai.com](https://help.openai.com)
 - **Documentation Feedback:** Open an issue with label `documentation`
 

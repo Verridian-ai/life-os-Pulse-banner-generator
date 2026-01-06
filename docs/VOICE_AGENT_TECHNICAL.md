@@ -15,6 +15,8 @@
 12. [Testing & Debugging](#testing--debugging)
 13. [Security Considerations](#security-considerations)
 14. [API Reference](#api-reference)
+15. [Related Documentation](#related-documentation)
+16. [External Resources](#external-resources)
 
 ## Overview
 

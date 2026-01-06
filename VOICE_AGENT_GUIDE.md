@@ -3748,7 +3748,7 @@ VITE_OPENAI_API_KEY=sk-your_key_here
 #### Reporting Bugs
 
 **Where to report:**
-- GitHub Issues: [github.com/yourusername/nanobanna-pro/issues](https://github.com/yourusername/nanobanna-pro/issues)
+- GitHub Issues: [github.com/Verridian-ai/life-os-Pulse-banner-generator/issues](https://github.com/Verridian-ai/life-os-Pulse-banner-generator/issues)
 
 **What to include:**
 
@@ -6312,7 +6312,7 @@ You: "Redo"
 ### Getting Help
 
 **App Issues:**
-- [GitHub Issues](https://github.com/yourusername/nanobanna-pro/issues) - Report bugs
+- [GitHub Issues](https://github.com/Verridian-ai/life-os-Pulse-banner-generator/issues) - Report bugs
 - Check browser console (F12) for error details
 - Include screenshots and steps to reproduce
 
