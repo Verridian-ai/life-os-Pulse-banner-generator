@@ -3949,14 +3949,29 @@ Then connect and execute efficiently
 ❌ Inefficient: "Add text" [wait] [approve] "Add more text" [wait] [approve]
 ```
 
-**3. Use Preview Wisely**
+**3. Chain Commands Effectively**
+```
+✅ Single request: "Generate a professional blue gradient background,
+   then add the text 'Marketing Director' in the center"
+
+✅ Sequential workflow: "Create a mountain landscape, upscale it to
+   balanced quality, then enhance the faces in the image"
+
+✅ Multi-step design: "Add text 'Sarah Johnson' at the top, add text
+   'Product Manager' below it, then add text 'Tech Innovator' at the bottom"
+
+❌ Avoid: Making one command at a time and waiting for each approval
+   (wastes time and increases costs)
+```
+
+**4. Use Preview Wisely**
 ```
 - Review every preview before applying
 - Reject if not quite right
 - Refine prompt and try again
 ```
 
-**4. Disconnect Promptly**
+**5. Disconnect Promptly**
 ```
 ✅ Good: Complete task → Disconnect → Switch to manual editing
 ❌ Wasteful: Stay connected while manually editing
@@ -4076,6 +4091,212 @@ Before sharing screenshots:
 - Clear transcript if needed
 - Remember: transcripts not saved
 ```
+
+### Common Workflow Examples
+
+Complete examples for typical design tasks using voice commands.
+
+**Workflow 1: Create a Professional LinkedIn Banner from Scratch**
+```
+Goal: Create a complete banner with background and text overlay
+Estimated Time: 2-3 minutes
+Commands: 3-4
+
+1. Connect to voice agent
+   Say: "Connect"
+
+2. Generate professional background
+   Say: "Generate a professional LinkedIn banner background with a
+        gradient from deep blue to teal, modern and minimalist style"
+   → Review preview → Click "Apply"
+
+3. Add your name and title
+   Say: "Add text 'Alexandra Chen' at the top center in large bold font,
+        then add text 'Senior Product Designer' below it in smaller font"
+   → Applied immediately (no preview for text)
+
+4. Upscale for quality (optional)
+   Say: "Upscale the background image to balanced quality"
+   → Review preview → Click "Apply"
+
+5. Disconnect
+   Say: "Disconnect" or click Disconnect button
+
+Result: Professional banner ready for LinkedIn
+```
+
+**Workflow 2: Enhance an Existing Image**
+```
+Goal: Improve image quality and remove background
+Estimated Time: 1-2 minutes
+Commands: 2-3
+
+1. Generate or upload background image first (using UI or voice)
+
+2. Connect to voice agent
+
+3. Remove background
+   Say: "Remove the background from the image"
+   → Review preview → Click "Apply"
+
+4. Enhance quality
+   Say: "Upscale this image to balanced quality"
+   → Review preview → Click "Apply"
+
+5. If image has faces, enhance them
+   Say: "Enhance the faces in the image"
+   → Review preview → Click "Apply"
+
+6. Disconnect when satisfied
+
+Result: High-quality image with clean background
+```
+
+**Workflow 3: A/B Test Different Banner Designs**
+```
+Goal: Create and compare multiple design variations
+Estimated Time: 3-5 minutes
+Commands: 5-6
+
+1. Connect to voice agent
+
+2. Generate first variation
+   Say: "Generate a professional background with blue gradient"
+   → Review → Click "Apply"
+   → Add text overlays as needed
+
+3. Save design to gallery
+   Say: "Navigate to gallery"
+   → Use UI to save design
+
+4. Return to studio for next variation
+   Say: "Navigate to studio"
+
+5. Generate second variation
+   Say: "Generate a minimalist background with geometric patterns"
+   → Review → Click "Apply"
+   → Add same text overlays
+
+6. Compare both designs
+   Say: "Navigate to gallery"
+   → View both designs side-by-side
+
+7. Disconnect
+
+Result: Multiple banner variations to choose from
+```
+
+**Workflow 4: Iterate on Design with AI Feedback**
+```
+Goal: Use AI analysis to improve your banner
+Estimated Time: 2-3 minutes
+Commands: 3-4
+
+1. Create initial banner (background + text)
+
+2. Connect to voice agent
+
+3. Get AI analysis
+   Say: "Analyze my banner and suggest improvements"
+   → AI provides detailed feedback in transcript
+
+4. Generate improved prompt based on feedback
+   Say: "Write an enhanced prompt for a LinkedIn banner
+        based on your analysis"
+   → AI provides optimized prompt in transcript
+
+5. Generate new background using enhanced prompt
+   Say: "Generate a background using that enhanced prompt"
+   OR
+   Say: "Generate [read the enhanced prompt from transcript]"
+   → Review preview → Click "Apply"
+
+6. Compare results
+   → If better, keep it
+   → If not, click Undo and try different approach
+
+7. Disconnect
+
+Result: Data-driven design improvement
+```
+
+**Workflow 5: Bulk Text Operations**
+```
+Goal: Add multiple text elements efficiently
+Estimated Time: 1-2 minutes
+Commands: 2-3
+
+1. Connect to voice agent
+
+2. Chain multiple text commands
+   Say: "Add text 'Michael Rodriguez' at the top in 48 point font,
+        add text 'Full-Stack Developer' in the center in 32 point font,
+        add text 'Building the Future' at the bottom in 24 point font"
+   → All three text elements added at once
+
+3. List elements to verify
+   Say: "List all elements on the canvas"
+   → AI reads back all elements with IDs and positions
+
+4. Update specific element if needed
+   Say: "Update the bottom text element to say 'Crafting Digital Experiences'"
+   → Text updated immediately
+
+5. Disconnect
+
+Result: Multiple text elements added in one voice session
+```
+
+**Workflow 6: Fix Design Mistakes Quickly**
+```
+Goal: Correct errors without manual editing
+Estimated Time: 30 seconds - 1 minute
+Commands: 1-2
+
+1. Notice error in design (wrong text, bad image, etc.)
+
+2. Connect to voice agent
+
+3. Undo the mistake
+   Say: "Undo the last action"
+   OR
+   Say: "Undo" (repeat if needed)
+
+4. Try alternative approach
+   Say: [corrected command]
+   → Review → Apply
+
+5. Disconnect
+
+Result: Quick error correction without UI clicks
+```
+
+**Pro Tips for Workflows:**
+
+💡 **Plan Your Workflow**
+- Write down your steps before connecting
+- Know exactly what you want to achieve
+- Prepare text content in advance
+
+⚡ **Optimize for Speed**
+- Chain commands when possible
+- Use "then" to link multiple operations
+- Keep voice session focused on voice tasks
+
+💰 **Optimize for Cost**
+- Generate backgrounds at standard quality first
+- Only upscale final approved designs
+- Use "reject" liberally - cheaper than undo
+
+🎯 **Optimize for Quality**
+- Start with AI prompt suggestions
+- Use banner analysis for feedback
+- Iterate with reject/refine workflow
+
+🔄 **Combine Voice + Manual**
+- Voice for generation and bulk operations
+- Manual for precise positioning and fine-tuning
+- Disconnect when switching to manual work
 
 ## Related Documentation
 
