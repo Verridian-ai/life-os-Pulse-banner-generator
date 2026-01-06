@@ -1891,69 +1891,644 @@ Say "Redo" → State 4 (redo stack empty)
 
 ### AI Analysis (4 commands)
 
-**Suggest Prompts**
+AI analysis commands help you improve your designs through intelligent suggestions, prompt enhancement, and professional feedback. These commands are perfect for getting unstuck, generating ideas, or getting expert-level feedback on your banner designs.
 
-Get creative prompt ideas for your industry/role.
+#### Suggest Prompts
 
-**Example phrases:**
+**Purpose:** Get AI-generated creative prompt ideas tailored to your industry, role, or context. Perfect for brainstorming banner concepts when you're not sure what to create or need inspiration for your professional brand.
+
+**Example Phrases:**
 - "Suggest prompts for a software developer"
 - "Give me ideas for a marketing banner"
 - "Suggest prompts for the tech industry"
+- "What are good prompts for a designer?"
+- "Give me banner ideas for a consultant"
+- "Suggest prompts for finance professionals"
+- "What should I generate for my startup banner?"
+- "Give me creative prompt ideas"
 
-**What happens:**
-- AI provides text suggestions
-- No preview (conversational)
-- Suggestions appear in transcript
+**Parameters:**
+- **Industry:** Optional industry context (e.g., "tech", "finance", "healthcare")
+  - Can be inferred from your description
+  - Helps AI tailor suggestions to your field
+- **Role:** Optional job role context (e.g., "developer", "designer", "CEO")
+  - Can be inferred from your description
+  - Personalizes suggestions to your position
+
+**What Happens:**
+1. AI receives your industry/role context
+2. Generates 3-5 tailored prompt suggestions
+3. Each suggestion optimized for LinkedIn banners
+4. Returns suggestions in conversational text format
+5. Appears in transcript (not as preview)
+6. You can use suggestions immediately with "generate" command
+
+**Expected Results:**
+- 3-5 creative, industry-specific prompt ideas
+- Detailed descriptions for each suggestion
+- Professional, LinkedIn-appropriate concepts
+- Ready-to-use prompts for generation
+- **No Preview:** Conversational response in transcript
+- **Execution Time:** ~2-5 seconds
+
+**Common Use Cases:**
+
+**Industry Exploration:**
+- "Suggest prompts for the tech industry"
+- Get tech-specific banner ideas (circuits, code, innovation themes)
+
+**Role-Specific Branding:**
+- "Give me ideas for a marketing director"
+- Get marketing-relevant concepts (campaigns, strategy, creativity)
+
+**Creative Brainstorming:**
+- "What are good banner ideas for a consultant?"
+- Get professional consulting themes (expertise, trust, results)
+
+**Startup Founders:**
+- "Suggest prompts for a startup founder"
+- Get entrepreneurial themes (innovation, growth, disruption)
+
+**Career Transitions:**
+- "Give me ideas for a new career in data science"
+- Get fresh, relevant concepts for new professional identity
+
+**Overcoming Creative Block:**
+- "I need banner ideas but don't know what to create"
+- Get diverse suggestions to spark creativity
+
+**Tips:**
+- ✅ Be specific about industry/role for better suggestions
+- ✅ Mention your niche: "suggest prompts for AI engineer"
+- ✅ Use suggestions as starting points, then customize
+- ✅ Combine suggestions: "use elements from suggestion 2 and 3"
+- ✅ Ask follow-up: "make those suggestions more creative"
+- ⚠️ Suggestions are starting points - refine for your brand
+- ❌ Don't expect perfect prompts - iteration is key
+
+**Natural Language Examples:**
+
+**Basic Request:**
+- "Suggest prompts for software developer"
+- "Give me banner ideas"
+- "What should I create?"
+
+**Specific Industry:**
+- "Suggest prompts for healthcare technology"
+- "Give me ideas for fintech startup"
+- "What are good prompts for creative agencies?"
+
+**Role-Based:**
+- "Suggest prompts for a VP of Engineering"
+- "Give me ideas for a freelance designer"
+- "What's good for a career coach banner?"
+
+**Workflow Example:**
+1. Say: "Suggest prompts for a UX designer"
+2. AI provides 5 suggestions:
+   - "Minimalist workspace with design tools and user-centered elements"
+   - "Abstract user journey flow with vibrant gradient colors"
+   - "Clean interface mockups with professional blue tones"
+   - etc.
+3. Say: "Generate the second suggestion"
+4. AI generates banner based on that idea
+5. Result: Personalized banner inspired by AI suggestions
+
+**Preview Mode:** ❌ No preview - conversational response
+
+**Cost:** ~$0.01 per request (OpenAI credits for text generation)
+
+**Pro Tip - Iterative Refinement:**
+```
+Say: "Suggest prompts for data scientist"
+Review suggestions
+Say: "Make those more creative and modern"
+Review refined suggestions
+Say: "Generate the first one with purple and blue colors"
+Result: Personalized, refined banner concept
+```
 
 ---
 
-**Write Enhanced Prompt**
+#### Write Enhanced Prompt
 
-Improve a basic prompt and insert into generation field.
+**Purpose:** Transform a basic or rough prompt into a professional, detailed, AI-optimized prompt and automatically insert it into the generation input field. Perfect for improving prompt quality without manual typing, ensuring better generation results.
 
-**Example phrases:**
+**Example Phrases:**
 - "Enhance this prompt: mountain landscape"
 - "Make this prompt better: professional office"
 - "Improve my prompt about technology"
+- "Write an enhanced prompt for a creative background"
+- "Optimize this prompt: modern design"
+- "Make this more detailed: blue gradient"
+- "Enhance the prompt: corporate professional"
+- "Improve this: minimalist workspace"
 
-**What happens:**
-- AI enhances your basic prompt
-- Writes enhanced version to generation input
+**Parameters:**
+- **Prompt:** Your basic prompt to enhance (required)
+  - Can be simple or rough description
+  - AI will expand and optimize it
+- **Industry:** Optional industry context for enhancement
+  - Helps AI add industry-specific details
+- **Style:** Optional style preference
+  - E.g., "modern", "minimalist", "creative", "corporate"
+
+**What Happens:**
+1. AI receives your basic prompt
+2. Calls prompt enhancement service (Gemini/GPT)
+3. Expands prompt with:
+   - Professional terminology
+   - LinkedIn banner optimization
+   - Style and quality descriptors
+   - Technical specifications
+4. Writes enhanced prompt to generation input field
+5. Returns confirmation with preview (first 100 chars)
+6. Prompt is ready - just say "generate" or click generate button
+
+**Expected Results:**
+- Enhanced, detailed prompt in generation field
+- Optimized for better AI image generation
+- Professional language and terminology
+- LinkedIn banner-specific guidance included
+- **No Preview:** Writes directly to input field
+- **Execution Time:** ~2-4 seconds
+- **Confirmation:** Shows first 100 characters of enhanced prompt
+
+**Common Use Cases:**
+
+**Quick Idea to Detailed Prompt:**
+- Say: "Enhance this prompt: blue background"
+- Result: "A professional LinkedIn banner with sophisticated navy blue gradient background, smooth color transitions, modern corporate aesthetic, clean and polished, ultra-wide 4:1 aspect ratio, seamless professional design"
+
+**Adding Professional Polish:**
+- Say: "Make this prompt better: office space"
+- Result: Enhanced with lighting, style, mood, professional descriptors
+
+**Industry Optimization:**
+- Say: "Enhance this for tech industry: modern background"
+- Result: Prompt includes tech-specific elements, modern design language
+
+**Style Enhancement:**
+- Say: "Improve this with minimalist style: workspace"
+- Result: Prompt emphasizes clean lines, negative space, simplicity
+
+**Saving Typing Time:**
+- Instead of typing long detailed prompts
+- Speak simple idea, AI enhances it
 - Ready to generate immediately
+
+**Learning Prompt Engineering:**
+- See how AI enhances your basic prompts
+- Learn what makes effective prompts
+- Improve your prompt-writing skills over time
+
+**Tips:**
+- ✅ Start with simple ideas - AI will expand them
+- ✅ Mention key elements: colors, mood, style
+- ✅ Specify industry for better context
+- ✅ Review enhanced prompt before generating
+- ✅ Can edit enhanced prompt manually if needed
+- ⚠️ Very vague prompts may get generic enhancements
+- ⚠️ Enhanced prompt overwrites existing input field
+- ❌ Don't expect perfection - may need manual tweaks
+
+**Natural Language Understanding:**
+
+| You Say | AI Interprets |
+|---------|--------------|
+| "Enhance this prompt: sunset" | Enhance "sunset" for LinkedIn banner |
+| "Make better: tech background" | Enhance "tech background" with tech-specific details |
+| "Improve with modern style: office" | Enhance "office" emphasizing modern style |
+
+**Workflow Examples:**
+
+**Quick Enhancement:**
+1. Say: "Enhance this prompt: gradient background"
+2. AI enhances to: "A professional LinkedIn banner featuring a smooth gradient background with rich, sophisticated color transitions..."
+3. Enhanced prompt appears in generation field
+4. Say: "Generate that"
+5. Result: High-quality banner from enhanced prompt
+
+**Style-Specific Enhancement:**
+1. Say: "Enhance this prompt with minimalist style: workspace"
+2. AI adds minimalist descriptors: clean, simple, negative space, zen
+3. Review enhanced prompt in field
+4. Say: "Generate"
+5. Result: Minimalist workspace banner
+
+**Industry-Tailored Enhancement:**
+1. Say: "Enhance this for finance industry: professional background"
+2. AI adds finance-specific elements: trust, stability, sophistication
+3. Enhanced prompt ready in field
+4. Generate professional finance banner
+
+**Learning Workflow:**
+1. Say: "Enhance this prompt: modern design"
+2. Review what AI added to make it better
+3. Learn: AI added lighting, mood, technical specs
+4. Next time: Use those elements in your own prompts
+
+**Preview Mode:** ❌ No preview - writes directly to input field
+
+**Cost:** ~$0.005-0.01 per enhancement (AI text generation)
+
+**Important Notes:**
+- **Overwrites Input:** Enhanced prompt replaces current input field content
+- **Preview First:** Confirmation shows first 100 characters
+- **Manual Editing:** Can edit enhanced prompt before generating
+- **UI Integration:** Automatically populates the generation prompt field
+
+**Pro Tip - Iterative Enhancement:**
+```
+Say: "Enhance this prompt: tech background"
+Review enhanced version
+Say: "Make that more creative and bold"
+Review second enhancement
+Say: "Generate that"
+Result: Progressively refined, high-quality prompt
+```
 
 ---
 
-**Analyze Image**
+#### Analyze Image
 
-Get creative edit suggestions and ideas.
+**Purpose:** Get AI-powered creative suggestions for improving your current banner image. The AI analyzes the image and provides two types of suggestions: magic edit ideas (modifications to current image) and new generation ideas (fresh concepts inspired by current image). Perfect for when you like an image but want to explore variations or improvements.
 
-**Example phrases:**
+**Example Phrases:**
 - "Analyze this image"
 - "What could I improve?"
 - "Give me edit suggestions"
+- "Analyze the current banner"
+- "What changes would make this better?"
+- "Give me creative ideas for this image"
+- "Suggest improvements for this banner"
+- "How can I enhance this design?"
 
-**What happens:**
-- AI analyzes current canvas image
-- Returns magic edit suggestions
-- Returns new generation ideas
-- Result in JSON format
+**Parameters:**
+- **Image URL:** URL of image to analyze (optional)
+  - If not provided, uses current canvas image
+  - Can analyze any uploaded or generated image
+
+**What Happens:**
+1. AI identifies image source (parameter or canvas)
+2. Sends image to vision AI model (Gemini/GPT-4V)
+3. AI analyzes:
+   - Visual elements and composition
+   - Color palette and mood
+   - Style and aesthetic
+   - Potential improvements
+4. Generates two types of suggestions:
+   - **Magic Edit Ideas:** Modifications to current image
+   - **Generation Ideas:** New concepts inspired by image
+5. Returns structured JSON in transcript
+6. No changes applied - purely informational
+
+**Expected Results:**
+- Structured JSON with two arrays:
+  ```json
+  {
+    "magicEditSuggestions": [
+      "Make the background more vibrant with saturated colors",
+      "Add a subtle gradient overlay for depth",
+      "Adjust lighting to be warmer and more inviting"
+    ],
+    "generationIdeas": [
+      "Similar composition with sunset color palette",
+      "Abstract version with geometric shapes",
+      "Minimalist interpretation with negative space"
+    ]
+  }
+  ```
+- 3-5 suggestions per category
+- Actionable, specific ideas
+- **No Preview:** Returns analysis data in transcript
+- **No Changes:** Read-only analysis
+- **Execution Time:** ~3-8 seconds
+
+**Common Use Cases:**
+
+**Exploring Variations:**
+- You like current banner but want to see alternatives
+- "Analyze this image" → Get variation ideas
+- Generate new versions based on suggestions
+
+**Improving Existing Design:**
+- Current design is good but not perfect
+- "What could I improve?" → Get enhancement ideas
+- Use magic edit suggestions to refine
+
+**Creative Brainstorming:**
+- Starting point is solid, need more ideas
+- "Give me creative ideas for this image"
+- Explore different aesthetic directions
+
+**Learning Design Principles:**
+- Understand what makes images effective
+- "Analyze the current banner"
+- Learn from AI's professional perspective
+
+**A/B Testing Ideas:**
+- Want to create variations for testing
+- "Suggest improvements for this banner"
+- Generate multiple versions to compare
+
+**Overcoming Design Block:**
+- Like the image but stuck on next steps
+- "Give me edit suggestions"
+- Get professional direction to continue
+
+**Tips:**
+- ✅ Works best with clear, well-composed images
+- ✅ Use suggestions as inspiration, not rules
+- ✅ Combine multiple suggestions for unique results
+- ✅ Try both magic edit and generation ideas
+- ✅ Great for learning what makes designs effective
+- ⚠️ Very abstract images may get generic suggestions
+- ⚠️ Suggestions are creative ideas, not guaranteed improvements
+- ❌ Doesn't automatically apply changes - you must execute
+
+**Natural Language Understanding:**
+
+| You Say | AI Interprets |
+|---------|--------------|
+| "Analyze this image" | Analyze current canvas image |
+| "What could I improve?" | Analyze and suggest improvements |
+| "Give me edit ideas" | Analyze for magic edit suggestions |
+| "Suggest new concepts" | Analyze for generation ideas |
+
+**Workflow Examples:**
+
+**Variation Exploration:**
+1. Say: "Generate a professional tech background"
+2. Apply generated banner
+3. Say: "Analyze this image"
+4. Review suggestions:
+   - Magic edit: "Add circuit board patterns", "Make colors cooler"
+   - Generation: "Abstract version", "Minimalist interpretation"
+5. Say: "Generate the abstract version"
+6. Result: New variation based on analysis
+
+**Iterative Improvement:**
+1. Current banner on canvas
+2. Say: "What could I improve?"
+3. Review: "Make background more vibrant"
+4. Say: "Make the background more vibrant" (magic edit)
+5. Apply improvement
+6. Say: "Analyze this image" again
+7. Iterate until satisfied
+
+**Learning Workflow:**
+1. Say: "Analyze the current banner"
+2. Study suggestions - understand what works
+3. Apply lessons: "Add gradient overlay"
+4. See improvement
+5. Learn design principles through iteration
+
+**A/B Test Creation:**
+1. Current banner: Blue professional background
+2. Say: "Give me creative ideas for this image"
+3. Get 5 generation ideas
+4. Generate each one: "Generate idea 1", "Generate idea 2"
+5. Result: 5 variations for testing
+
+**Preview Mode:** ❌ No preview - returns analysis data
+
+**Cost:** ~$0.01-0.02 per analysis (AI vision + text generation)
+
+**Output Format:**
+```json
+{
+  "magicEditSuggestions": [
+    "Specific, actionable edit idea",
+    "Another modification suggestion",
+    "Third enhancement idea"
+  ],
+  "generationIdeas": [
+    "New concept inspired by image",
+    "Alternative aesthetic direction",
+    "Creative variation idea"
+  ]
+}
+```
+
+**Important Notes:**
+- **Read-Only:** Doesn't change canvas, just provides suggestions
+- **JSON Format:** Results formatted for readability
+- **Vision AI:** Uses advanced AI vision models for analysis
+- **Context Aware:** Understands LinkedIn banner requirements
+- **Inspiration Tool:** Suggestions are creative springboards
+
+**Pro Tip - Full Workflow:**
+```
+1. Generate initial banner
+2. Say: "Analyze this image"
+3. Review magic edit suggestions
+4. Say: "Apply suggestion 1" (via magic edit)
+5. Say: "Analyze this image" again
+6. Review generation ideas
+7. Say: "Generate idea 2"
+8. Compare versions, choose best
+Total: Fully AI-assisted design refinement
+```
 
 ---
 
-**Analyze Banner**
+#### Analyze Banner
 
-Get professional feedback on your banner.
+**Purpose:** Get comprehensive professional feedback on your LinkedIn banner design. The AI acts as a professional designer, analyzing composition, color scheme, typography, visual hierarchy, and overall professional appeal. Perfect for final quality checks, learning design principles, or getting expert-level critique without hiring a designer.
 
-**Example phrases:**
+**Example Phrases:**
 - "Analyze my banner"
 - "How can I improve this design?"
 - "Give me professional feedback"
+- "What do you think of this banner?"
+- "Review my banner design"
+- "Is this banner professional enough?"
+- "Give me design critique"
+- "What should I change about this banner?"
 
-**What happens:**
-- AI analyzes composition, colors, typography
-- Suggests improvements
-- Returns professional feedback
-- Result in JSON format
+**Parameters:**
+- None (always analyzes current canvas image)
+
+**What Happens:**
+1. AI retrieves current banner from canvas
+2. Sends to vision AI for comprehensive analysis
+3. AI evaluates multiple dimensions:
+   - **Composition:** Layout, balance, visual flow
+   - **Color Scheme:** Palette, contrast, professional appeal
+   - **Typography:** Text readability, font choices, hierarchy
+   - **Visual Hierarchy:** What draws attention, focal points
+   - **Professional Appeal:** LinkedIn appropriateness, industry fit
+   - **Brand Consistency:** Cohesiveness, polish, professionalism
+4. Generates structured feedback with specific suggestions
+5. Returns detailed JSON analysis in transcript
+6. No changes applied - purely advisory
+
+**Expected Results:**
+- Comprehensive analysis in JSON format:
+  ```json
+  {
+    "composition": "Well-balanced with clear focal point...",
+    "colorScheme": "Professional blue palette creates trust...",
+    "typography": "Font is readable but could be larger...",
+    "professionalAppeal": "Strong corporate aesthetic...",
+    "suggestions": [
+      "Increase text size for better mobile readability",
+      "Add subtle texture to avoid flat appearance",
+      "Consider warmer accent color for approachability"
+    ],
+    "overallRating": "8/10 - Strong professional banner",
+    "strengths": ["Clear hierarchy", "Professional colors"],
+    "improvements": ["Text contrast", "Visual interest"]
+  }
+  ```
+- Professional, actionable feedback
+- Specific improvement suggestions
+- Strengths highlighted
+- **No Preview:** Returns analysis data in transcript
+- **No Changes:** Advisory only
+- **Execution Time:** ~5-10 seconds
+
+**Common Use Cases:**
+
+**Final Quality Check:**
+- Banner complete, need professional validation
+- "Analyze my banner" before publishing
+- Ensure professional quality
+
+**Learning Design Principles:**
+- Understand what makes effective banners
+- "Give me professional feedback"
+- Learn from expert-level critique
+
+**Pre-Launch Review:**
+- About to update LinkedIn banner
+- "Is this banner professional enough?"
+- Get final approval or adjustments
+
+**Comparing Versions:**
+- Created multiple banner versions
+- Analyze each: "Analyze my banner"
+- Switch versions, analyze again
+- Choose best based on feedback
+
+**Client Presentations:**
+- Creating banner for client
+- "Review my banner design"
+- Professional critique before delivery
+
+**Skill Development:**
+- Improve design skills over time
+- Regular analysis on your creations
+- Learn from AI feedback patterns
+
+**Tips:**
+- ✅ Use before publishing to LinkedIn
+- ✅ Pay attention to "suggestions" array - most actionable
+- ✅ Compare analysis across different versions
+- ✅ Focus on "improvements" for quick wins
+- ✅ Use "strengths" to understand what works
+- ⚠️ Feedback is opinion-based, not absolute truth
+- ⚠️ LinkedIn context assumed - may not fit other platforms
+- ❌ Don't blindly follow all suggestions - use judgment
+
+**Natural Language Understanding:**
+
+| You Say | AI Interprets |
+|---------|--------------|
+| "Analyze my banner" | Comprehensive banner analysis |
+| "How can I improve this?" | Analysis focused on improvements |
+| "Give me feedback" | Professional design critique |
+| "Is this good enough?" | Quality assessment |
+
+**Workflow Examples:**
+
+**Pre-Publish Quality Check:**
+1. Complete banner design on canvas
+2. Say: "Analyze my banner"
+3. Review feedback:
+   - Composition: ✅ Strong
+   - Typography: ⚠️ Text too small
+   - Suggestions: Increase font size to 64px
+4. Say: "Update text element to font size 64"
+5. Say: "Analyze my banner" again
+6. Confirm: Improvements reflected
+7. Publish to LinkedIn with confidence
+
+**Version Comparison:**
+1. Banner Version A on canvas
+2. Say: "Analyze my banner"
+3. Note: "Overall rating: 7/10"
+4. Switch to Version B
+5. Say: "Analyze my banner"
+6. Note: "Overall rating: 8.5/10"
+7. Choose Version B based on analysis
+
+**Learning Workflow:**
+1. Create banner as beginner
+2. Say: "Give me professional feedback"
+3. Study analysis thoroughly:
+   - Learn: "Text needs more contrast"
+   - Learn: "Color palette too busy"
+   - Learn: "Composition off-balance"
+4. Apply lessons to next design
+5. Repeat - improve skills over time
+
+**Client Approval Workflow:**
+1. Design banner for client
+2. Say: "Review my banner design"
+3. Review analysis - fix issues
+4. Present to client with AI feedback
+5. "AI analysis rated 9/10" - builds confidence
+
+**Preview Mode:** ❌ No preview - returns analysis data
+
+**Cost:** ~$0.02-0.03 per analysis (AI vision + detailed text generation)
+
+**Analysis Dimensions:**
+
+| Dimension | What AI Evaluates |
+|-----------|------------------|
+| **Composition** | Layout balance, visual flow, focal points |
+| **Color Scheme** | Palette harmony, professional appeal, contrast |
+| **Typography** | Readability, hierarchy, font appropriateness |
+| **Visual Hierarchy** | Eye flow, emphasis, information structure |
+| **Professional Appeal** | LinkedIn fit, industry appropriateness, polish |
+| **Brand Consistency** | Cohesiveness, style unity, intentionality |
+
+**Output Format:**
+```json
+{
+  "composition": "Detailed composition analysis...",
+  "colorScheme": "Color palette feedback...",
+  "typography": "Typography evaluation...",
+  "professionalAppeal": "Professional quality assessment...",
+  "suggestions": ["Specific improvement 1", "Improvement 2", "..."],
+  "overallRating": "X/10 - Brief summary",
+  "strengths": ["What works well"],
+  "improvements": ["What to enhance"]
+}
+```
+
+**Important Notes:**
+- **Expert-Level Feedback:** Professional designer perspective
+- **LinkedIn Context:** Analysis optimized for LinkedIn banners
+- **Comprehensive:** Covers all major design dimensions
+- **Actionable:** Specific, implementable suggestions
+- **Educational:** Learn design principles through feedback
+- **Non-Destructive:** Read-only analysis, no changes applied
+
+**Pro Tip - Iterative Refinement:**
+```
+1. Create initial banner
+2. Say: "Analyze my banner"
+3. Review "suggestions" array
+4. Implement top 3 suggestions via voice/manual
+5. Say: "Analyze my banner" again
+6. Compare ratings: 7/10 → 9/10
+7. Publish refined, validated banner
+Total: Professional quality through AI-guided iteration
+```
 
 ---
 
