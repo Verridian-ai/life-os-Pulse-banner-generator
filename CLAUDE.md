@@ -276,17 +276,20 @@ The application uses a **model routing system** that intelligently selects betwe
 <AuthProvider>           // Authentication (Supabase)
   <CanvasProvider>       // Canvas state
     <AIProvider>         // AI services, model routing
-      <App />
+      <VoiceAgentProvider>  // Voice agent (OpenAI Realtime API)
+        <App />
+      </VoiceAgentProvider>
     </AIProvider>
   </CanvasProvider>
 </AuthProvider>
 ```
 
-Three main React contexts:
+Four main React contexts:
 
 1. **AIContext** (`src/context/AIContext.tsx`) - Model selection, metrics, tool chains
 2. **CanvasContext** (`src/context/CanvasContext.tsx`) - Canvas state, images
 3. **AuthContext** (`src/context/AuthContext.tsx`) - Supabase auth, sessions
+4. **VoiceAgentContext** (`src/context/VoiceAgentContext.tsx`) - Voice control, OpenAI Realtime API, 17 voice commands
 
 ### Key Services
 
@@ -295,8 +298,9 @@ Three main React contexts:
 | LLM | AI orchestration | `src/services/llm.ts` |
 | ModelRouter | Model selection | `src/services/modelRouter.ts` |
 | Replicate | Image processing | `src/services/replicate.ts` |
-| ActionExecutor | Voice tool calls | `src/services/actionExecutor.ts` |
+| ActionExecutor | Voice tool calls (17 commands) | `src/services/actionExecutor.ts` |
 | Database | Supabase operations | `src/services/database.ts` |
+| OpenAIRealtimeClient | Voice agent WebSocket client | `src/services/openaiRealtimeClient.ts` |
 
 ### Database Tables (Supabase)
 
@@ -324,6 +328,37 @@ Three main React contexts:
 - `ChatInterface` - Brainstorming tab UI
 - `LiveActionPanel` - Voice agent action approval
 - `SettingsModal` - API keys, model selection
+
+### Voice Agent Architecture
+
+**Overview**: Hands-free banner creation using OpenAI Realtime API with WebSocket-based bidirectional audio streaming.
+
+**Key Files**:
+- `src/context/VoiceAgentContext.tsx` - Connection lifecycle, state management, approval workflow
+- `src/services/openaiRealtimeClient.ts` - WebSocket client, audio pipeline, ring buffer
+- `src/services/actionExecutor.ts` - 17 tool command implementations
+- `src/components/features/LiveActionPanel.tsx` - Preview mode UI, action approval
+
+**17 Available Voice Commands** (organized by category):
+
+| Category | Commands | Count |
+|----------|----------|-------|
+| Image Generation | `generate_background` | 1 |
+| Image Processing | `magic_edit`, `remove_background`, `upscale_image`, `restore_image`, `enhance_face` | 5 |
+| Canvas Manipulation | `add_text_element`, `update_element`, `delete_element`, `list_elements` | 4 |
+| Navigation | `navigate_to_tab` | 1 |
+| History Management | `undo_action`, `redo_action` | 2 |
+| AI Analysis | `suggest_prompts`, `write_enhanced_prompt`, `analyze_image`, `analyze_banner` | 4 |
+
+**Preview Mode**: 5 commands require user approval before execution (all Image Generation and Image Processing commands except analysis commands).
+
+**Documentation**: See `VOICE_AGENT_GUIDE.md` for user guide, `VOICE_COMMANDS_REFERENCE.md` for quick reference, and `docs/VOICE_AGENT_TECHNICAL.md` for technical details.
+
+**Requirements**:
+- OpenAI API key (configured in Settings → API Keys)
+- Chrome/Edge browser (recommended)
+- Microphone permissions
+- Active internet connection
 
 ---
 
@@ -388,5 +423,5 @@ Do NOT modify without explicit approval:
 
 ---
 
-*Last Updated: 2025-12-20*
-*Manual Version: 1.0.0*
+*Last Updated: 2026-01-07*
+*Manual Version: 1.0.1*
