@@ -591,35 +591,253 @@ The ActionExecutor supports 17 tools across 6 categories:
 
 ## OpenAI Realtime Client
 
+### Implementation Status
+
+**ACTIVE PRODUCTION IMPLEMENTATION** ✓
+
+The OpenAI Realtime Client is a fully-active, production-ready integration with the OpenAI Realtime API (gpt-4o-realtime-preview model, GA December 2024). This is **not a stub or placeholder**.
+
+**Key Implementation Features:**
+- ✓ WebSocket connection to `wss://api.openai.com/v1/realtime`
+- ✓ 17 registered function tools for voice commands
+- ✓ Bidirectional audio streaming (PCM16 @ 24kHz)
+- ✓ Ring buffer architecture for smooth playback
+- ✓ Server-side Voice Activity Detection (VAD)
+- ✓ Whisper-1 transcription for user speech
+- ✓ Memory-optimized with buffer reuse
+- ✓ Robust error handling and cleanup
+
+**Migration Notes:**
+
+This implementation has evolved through several optimization phases:
+
+1. **Initial Implementation:** Basic WebSocket connection with simple audio playback
+2. **Audio Quality Improvements:** Added ring buffer and continuous playback for smooth audio
+3. **Memory Optimization:** Implemented buffer reuse to prevent GC pressure (Fixes #1-5)
+4. **Robustness Enhancements:** Added pre-buffering, underrun tracking, and graceful degradation
+
+**No Migration Required:** The current implementation is production-ready. If integrating from an older version:
+- Ensure you're using `gpt-4o-realtime-preview` model (not older preview models)
+- Update to `openai-beta.realtime-v1` protocol version
+- Use the 17-tool configuration for full functionality
+
+### Class Overview
+
+```typescript
+export class OpenAIRealtimeClient {
+  // Core Properties
+  private ws: WebSocket | null = null;
+  private apiKey: string;
+  private isConnected: boolean = false;
+
+  // Audio Infrastructure
+  private audioContext: AudioContext | null = null;
+  private scriptProcessor: ScriptProcessorNode | null = null;
+  private sourceNode: MediaStreamAudioSourceNode | null = null;
+  private silentGainNode: GainNode | null = null;
+  private audioStream: MediaStream | null = null;
+  private playbackQueue: AudioPlaybackQueue | null = null;
+
+  // Performance Optimization (Buffer Reuse)
+  private decodeBuffer: Uint8Array | null = null;
+  private float32Cache: Float32Array | null = null;
+  private inputPcm16Buffer: Int16Array | null = null;
+
+  // Conversation State
+  private transcript: TranscriptEntry[] = [];
+
+  constructor(apiKey: string) {
+    this.apiKey = apiKey;
+  }
+}
+```
+
 ### Creating a Client
 
 ```typescript
 import { OpenAIRealtimeClient } from '@/services/openaiRealtimeClient';
 
+// Create client with OpenAI API key
 const client = new OpenAIRealtimeClient(apiKey);
 
+// Connect with all callback handlers
 await client.connect(
-  // onMessage: AI is speaking
+  // onMessage: AI is speaking (text deltas during response)
   (text) => {
     console.log('AI:', text);
+    // Update UI with AI response text
   },
 
-  // onStatus: Connection status
+  // onStatus: Connection status changes
   (connected) => {
     console.log('Connected:', connected);
+    // Update connection indicator in UI
   },
 
-  // onToolCall: AI wants to execute a tool
+  // onToolCall: AI wants to execute a tool (optional)
   async (toolCall) => {
     console.log('Tool call:', toolCall);
     // Execute tool and return result
+    const result = await executeToolCall(toolCall);
+    return result;
   },
 
-  // onTranscript: Conversation updates
+  // onTranscript: Conversation updates (optional)
   (entry) => {
     console.log(entry.role, ':', entry.text);
+    // Add to conversation history display
   }
 );
+
+// Connection is now active and audio is streaming
+```
+
+### Connection Lifecycle Deep Dive
+
+The `connect()` method performs a 7-step initialization sequence:
+
+#### Step 1: Microphone Access
+```typescript
+// Request microphone with audio enhancements
+this.audioStream = await navigator.mediaDevices.getUserMedia({
+  audio: {
+    echoCancellation: true,    // Remove echo for cleaner audio
+    noiseSuppression: true,    // Reduce background noise
+    sampleRate: 24000,         // Match OpenAI's expected rate
+  },
+});
+```
+
+**Error Handling:**
+- `NotAllowedError`: User denied microphone permission
+- `NotFoundError`: No microphone device available
+- Generic error: Hardware or driver issues
+
+#### Step 2: Audio Context Creation
+```typescript
+// Create audio context at 24kHz to match OpenAI
+this.audioContext = new (window.AudioContext || window.webkitAudioContext)({
+  sampleRate: 24000,
+});
+```
+
+**Browser Compatibility:**
+- Chrome/Edge: Uses `AudioContext`
+- Safari: Uses `webkitAudioContext`
+- Firefox: Uses `AudioContext` (24kHz support varies)
+
+#### Step 3: Playback Queue Initialization
+```typescript
+// Initialize robust audio playback with ring buffer
+this.playbackQueue = new AudioPlaybackQueue(this.audioContext);
+// 10-second buffer (240,000 samples at 24kHz)
+// Pre-buffers 100ms before starting playback
+```
+
+#### Step 4: WebSocket Connection
+```typescript
+const wsUrl = `wss://api.openai.com/v1/realtime?model=gpt-4o-realtime-preview`;
+
+this.ws = new WebSocket(wsUrl, [
+  'realtime',                              // Protocol identifier
+  `openai-insecure-api-key.${this.apiKey}`, // API key authentication
+  'openai-beta.realtime-v1',               // Protocol version
+]);
+```
+
+**WebSocket Headers:**
+- Uses subprotocol negotiation for API key (not standard headers)
+- WSS (WebSocket Secure) ensures encrypted transmission
+- Protocol version ensures compatibility
+
+#### Step 5: Session Configuration
+```typescript
+// Configure session with tools and modalities
+this.sendMessage({
+  type: 'session.update',
+  session: {
+    modalities: ['text', 'audio'],        // Enable both text and voice
+    instructions: '...',                   // System prompt for AI
+    voice: 'alloy',                        // Voice model (alloy, echo, fable, onyx, nova, shimmer)
+    input_audio_format: 'pcm16',          // 16-bit PCM input
+    output_audio_format: 'pcm16',         // 16-bit PCM output
+    input_audio_transcription: {
+      model: 'whisper-1',                  // Transcribe user speech
+    },
+    turn_detection: {
+      type: 'server_vad',                  // Server-side voice activity detection
+    },
+    tools: [/* 17 function definitions */], // Register all voice commands
+  },
+});
+```
+
+**Session Parameters:**
+- **modalities:** `['text', 'audio']` enables voice responses
+- **voice:** Options are `alloy` (default), `echo`, `fable`, `onyx`, `nova`, `shimmer`
+- **input_audio_transcription:** Whisper-1 provides real-time transcription
+- **turn_detection:** Server VAD determines when user stops speaking
+- **tools:** 17 functions across 6 categories (see ActionExecutor section)
+
+#### Step 6: Audio Processing Setup
+```typescript
+// Set up microphone input processing
+this.sourceNode = this.audioContext.createMediaStreamSource(this.audioStream);
+this.scriptProcessor = this.audioContext.createScriptProcessor(4096, 1, 1);
+
+// Pre-allocate buffer for performance (Fix #3)
+this.inputPcm16Buffer = new Int16Array(4096);
+
+this.scriptProcessor.onaudioprocess = (e) => {
+  const inputData = e.inputBuffer.getChannelData(0); // Float32Array
+
+  // Convert Float32 → PCM16
+  for (let i = 0; i < inputData.length; i++) {
+    const s = Math.max(-1, Math.min(1, inputData[i]));
+    this.inputPcm16Buffer[i] = s < 0 ? s * 0x8000 : s * 0x7fff;
+  }
+
+  // Encode to base64 and send
+  const base64 = this.arrayBufferToBase64(this.inputPcm16Buffer.buffer);
+  this.sendMessage({
+    type: 'input_audio_buffer.append',
+    audio: base64,
+  });
+};
+
+// Connect audio graph (must connect to destination for processing to work)
+this.silentGainNode = this.audioContext.createGain();
+this.silentGainNode.gain.value = 0; // Mute mic loopback
+this.sourceNode.connect(this.scriptProcessor);
+this.scriptProcessor.connect(this.silentGainNode);
+this.silentGainNode.connect(this.audioContext.destination);
+```
+
+**Audio Processing Notes:**
+- `ScriptProcessorNode` processes 4096 samples (~170ms at 24kHz)
+- Must connect to `destination` for `onaudioprocess` to fire
+- Silent `GainNode` prevents mic loopback while keeping graph active
+- Buffer reuse prevents garbage collection pressure
+
+#### Step 7: Message Handlers
+```typescript
+// Handle incoming WebSocket messages
+this.ws.onmessage = (event) => {
+  const message = JSON.parse(event.data);
+  this.handleMessage(message, onMessage, onToolCall, onTranscript);
+};
+
+// Handle connection errors
+this.ws.onerror = (error) => {
+  console.error('[OpenAI Realtime] WebSocket error:', error);
+  this.disconnect();
+};
+
+// Handle connection close
+this.ws.onclose = () => {
+  console.log('[OpenAI Realtime] WebSocket closed');
+  this.disconnect();
+};
 ```
 
 ### Audio Pipeline Architecture
@@ -725,22 +943,378 @@ class AudioRingBuffer {
 - 10-second buffer handles long responses
 - Smooth continuous playback without gaps
 
+### Callback Patterns
+
+The OpenAI Realtime Client uses a callback-based architecture for event handling. All callbacks are provided during `connect()`:
+
+#### onMessage Callback
+
+Called when the AI is speaking (text deltas during response).
+
+```typescript
+onMessage: (text: string) => void
+
+// Example: Update UI with streaming text
+const onMessage = (text: string) => {
+  // Append delta to current response
+  setCurrentResponse(prev => prev + text);
+
+  // Or update a message bubble
+  updateMessageBubble(text);
+};
+```
+
+**Event Source:** `response.text.delta` WebSocket message
+**Frequency:** Multiple times per AI response (streaming)
+**Use Case:** Display AI's text response in real-time
+
+#### onStatus Callback
+
+Called when connection status changes.
+
+```typescript
+onStatus: (status: boolean) => void
+
+// Example: Update connection indicator
+const onStatus = (connected: boolean) => {
+  setIsConnected(connected);
+
+  if (connected) {
+    console.log('✓ Voice session active');
+    showNotification('Voice agent connected');
+  } else {
+    console.log('✗ Voice session ended');
+    showNotification('Voice agent disconnected');
+  }
+};
+```
+
+**Event Sources:**
+- `true`: WebSocket `onopen` event
+- `false`: WebSocket `onerror` or `onclose` event
+
+**Frequency:** 2 times per session (connect + disconnect)
+**Use Case:** UI connection status indicators, error notifications
+
+#### onToolCall Callback (Optional)
+
+Called when the AI wants to execute a tool/function.
+
+```typescript
+onToolCall?: (toolCall: ToolCall) => void | Promise<void>
+
+// Example: Execute tool and handle result
+const onToolCall = async (toolCall: ToolCall) => {
+  console.log(`[Tool Call] ${toolCall.name}`, toolCall.args);
+
+  // Execute the tool
+  const result = await actionExecutor.executeToolCall(toolCall);
+
+  if (result.success) {
+    // Handle success
+    if (result.preview) {
+      // Show preview for user approval
+      setPendingAction({ toolCall, result });
+    } else {
+      // Auto-applied (no preview)
+      showNotification(`${toolCall.name} completed`);
+    }
+  } else {
+    // Handle error
+    showError(`${toolCall.name} failed: ${result.error}`);
+  }
+};
+```
+
+**Event Source:** `response.function_call_arguments.done` WebSocket message
+**Frequency:** 0-N times per user request (depends on AI's response)
+**Use Case:** Execute voice commands, trigger app functionality
+
+**Tool Call Structure:**
+```typescript
+interface ToolCall {
+  name: string;                    // Function name (e.g., 'generate_background')
+  args: Record<string, unknown>;   // Function arguments as object
+}
+
+// Example tool call:
+{
+  name: 'generate_background',
+  args: {
+    prompt: 'Mountain landscape at sunset',
+    quality: '2K'
+  }
+}
+```
+
+#### onTranscript Callback (Optional)
+
+Called when user speech or AI response is transcribed.
+
+```typescript
+onTranscript?: (entry: TranscriptEntry) => void
+
+// Example: Build conversation history
+const onTranscript = (entry: TranscriptEntry) => {
+  console.log(`[${entry.role.toUpperCase()}]: ${entry.text}`);
+
+  // Add to conversation history
+  setTranscript(prev => [...prev, entry]);
+
+  // Scroll to bottom of chat
+  scrollToLatestMessage();
+
+  // Analytics tracking
+  trackConversationEvent(entry.role, entry.text.length);
+};
+```
+
+**Event Sources:**
+- User speech: `conversation.item.input_audio_transcription.completed`
+- AI response: `response.output_item.added`
+
+**Frequency:** 1+ times per conversation turn (user speaks, AI responds)
+**Use Case:** Conversation history display, analytics, debugging
+
+**Transcript Entry Structure:**
+```typescript
+interface TranscriptEntry {
+  role: 'user' | 'assistant';  // Who is speaking
+  text: string;                 // Transcribed text
+  timestamp: number;            // Unix timestamp (ms)
+  toolCalls?: ToolCall[];       // Optional: tool calls in this turn
+}
+
+// Example user entry:
+{
+  role: 'user',
+  text: 'Generate a professional LinkedIn banner with mountains',
+  timestamp: 1704672000000
+}
+
+// Example assistant entry with tool call:
+{
+  role: 'assistant',
+  text: 'I'll create that banner for you.',
+  timestamp: 1704672001500,
+  toolCalls: [
+    {
+      name: 'generate_background',
+      args: { prompt: '...', quality: '2K' }
+    }
+  ]
+}
+```
+
 ### Transcript Management
+
+The OpenAI Realtime Client maintains an internal transcript of the conversation.
+
+#### Getting the Transcript
 
 ```typescript
 // Get full conversation history
-const transcript = client.getTranscript();
+const transcript: TranscriptEntry[] = client.getTranscript();
 
-// Clear conversation
+// Returns a copy of the internal array (safe to modify)
+transcript.forEach(entry => {
+  console.log(`[${entry.role}] ${entry.text}`);
+});
+
+// Display in UI
+setConversationHistory(transcript);
+```
+
+**Returns:** Array copy (modifications don't affect internal state)
+**Use Case:** Display conversation history, export chat logs, debugging
+
+#### Clearing the Transcript
+
+```typescript
+// Clear conversation history
 client.clearTranscript();
 
-// Transcript entry structure
+// Internal transcript array is reset
+console.log('[OpenAI Realtime] Transcript cleared');
+
+// UI should also clear
+setConversationHistory([]);
+```
+
+**Effect:** Clears only the internal transcript array
+**Note:** Does not affect the OpenAI session or audio processing
+**Use Case:** Start fresh conversation, clear sensitive data, reset state
+
+#### Transcript Entry Structure
+
+```typescript
 interface TranscriptEntry {
-  role: 'user' | 'assistant';
-  text: string;
-  timestamp: number;
-  toolCalls?: ToolCall[];
+  role: 'user' | 'assistant';  // Speaker role
+  text: string;                 // Transcribed speech
+  timestamp: number;            // Unix timestamp in milliseconds
+  toolCalls?: ToolCall[];       // Optional: associated tool calls
 }
+```
+
+**Properties:**
+- **role:** Either `'user'` (human speech) or `'assistant'` (AI response)
+- **text:** The transcribed text content
+- **timestamp:** `Date.now()` when the entry was created
+- **toolCalls:** Optional array of tool calls made during this turn
+
+#### Automatic Transcript Updates
+
+The transcript is automatically updated on these WebSocket events:
+
+```typescript
+// User speech transcribed
+case 'conversation.item.input_audio_transcription.completed':
+  const userEntry: TranscriptEntry = {
+    role: 'user',
+    text: message.transcript,
+    timestamp: Date.now(),
+  };
+  this.transcript.push(userEntry);
+  if (onTranscript) onTranscript(userEntry);
+  break;
+
+// AI response added
+case 'response.output_item.added':
+  const assistantEntry: TranscriptEntry = {
+    role: 'assistant',
+    text: extractedText,
+    timestamp: Date.now(),
+  };
+  this.transcript.push(assistantEntry);
+  if (onTranscript) onTranscript(assistantEntry);
+  break;
+```
+
+**Transcription Provider:** Whisper-1 model (via `input_audio_transcription` session config)
+**Accuracy:** High accuracy for English, good for other languages
+**Latency:** Near real-time (transcription completes shortly after user stops speaking)
+
+### Message Handling
+
+The `handleMessage()` method processes 8 types of WebSocket messages from the OpenAI Realtime API:
+
+#### Message Types
+
+| Type | Description | Action |
+|------|-------------|--------|
+| `response.audio.delta` | AI voice audio chunk | Enqueue to playback buffer |
+| `response.text.delta` | AI text response chunk | Call `onMessage` callback |
+| `response.done` | Response complete | Log metrics, cleanup |
+| `conversation.item.input_audio_transcription.completed` | User speech transcribed | Add to transcript as user entry |
+| `response.output_item.added` | AI response text | Add to transcript as assistant entry |
+| `response.function_call_arguments.done` | AI wants to call a function | Call `onToolCall` callback |
+| `error` | API error occurred | Log error, notify user |
+| `session.created` | Session initialized | Connection confirmed |
+
+#### Message Flow Diagram
+
+```
+User Speaks
+    ↓
+[Microphone captures audio]
+    ↓
+[Audio sent via input_audio_buffer.append]
+    ↓
+[Server VAD detects end of speech]
+    ↓
+[conversation.item.input_audio_transcription.completed] ← User transcript added
+    ↓
+[AI processes request]
+    ↓
+┌─────────────────────────────────────┐
+│ AI Response (multiple message types)│
+├─────────────────────────────────────┤
+│ • response.audio.delta (×N)         │ ← Audio playback
+│ • response.text.delta (×N)          │ ← Text display
+│ • response.function_call_args.done  │ ← Tool execution
+│ • response.output_item.added        │ ← Transcript update
+│ • response.done                      │ ← Completion
+└─────────────────────────────────────┘
+```
+
+### Advanced Usage Patterns
+
+#### Pattern 1: Conversation Export
+
+```typescript
+// Export conversation to JSON
+function exportConversation() {
+  const transcript = client.getTranscript();
+  const json = JSON.stringify({
+    version: '1.0',
+    model: 'gpt-4o-realtime-preview',
+    timestamp: Date.now(),
+    conversation: transcript,
+  }, null, 2);
+
+  downloadFile(json, 'voice-conversation.json');
+}
+```
+
+#### Pattern 2: Selective Tool Execution
+
+```typescript
+// Execute only approved tool categories
+const onToolCall = async (toolCall: ToolCall) => {
+  const category = getToolCategory(toolCall.name);
+
+  // Auto-approve safe tools
+  if (['navigation', 'history', 'ai_analysis'].includes(category)) {
+    await actionExecutor.executeToolCall(toolCall);
+    return;
+  }
+
+  // Require approval for image/canvas tools
+  const result = await actionExecutor.executeToolCall(toolCall);
+  setPendingAction({ toolCall, result }); // User must approve
+};
+```
+
+#### Pattern 3: Transcript Search
+
+```typescript
+// Search transcript for keywords
+function searchTranscript(query: string): TranscriptEntry[] {
+  const transcript = client.getTranscript();
+  return transcript.filter(entry =>
+    entry.text.toLowerCase().includes(query.toLowerCase())
+  );
+}
+
+// Usage
+const mentionsOfGenerate = searchTranscript('generate');
+console.log(`Found ${mentionsOfGenerate.length} mentions of "generate"`);
+```
+
+#### Pattern 4: Analytics Tracking
+
+```typescript
+// Track conversation metrics
+const onTranscript = (entry: TranscriptEntry) => {
+  // Track user queries
+  if (entry.role === 'user') {
+    trackEvent('voice_query', {
+      length: entry.text.length,
+      wordCount: entry.text.split(' ').length,
+      timestamp: entry.timestamp,
+    });
+  }
+
+  // Track tool usage
+  if (entry.toolCalls?.length) {
+    entry.toolCalls.forEach(tool => {
+      trackEvent('voice_tool_call', {
+        toolName: tool.name,
+        timestamp: entry.timestamp,
+      });
+    });
+  }
+};
 ```
 
 ## Tool Call Structure
