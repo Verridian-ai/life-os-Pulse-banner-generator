@@ -210,6 +210,14 @@ export const getModelMetadata = (): Record<string, ModelMetadata> => {
 };
 
 /**
+ * Clear the model metadata cache
+ * Useful for testing or hot-reload scenarios where cache needs to be reset
+ */
+export const clearModelMetadataCache = (): void => {
+  modelMetadataCache = null;
+};
+
+/**
  * Get cost estimate for an operation
  */
 export const estimateCost = (operation: OperationType, modelId?: string): number => {
