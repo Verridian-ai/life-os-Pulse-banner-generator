@@ -1,0 +1,34 @@
+{
+  "sandbox": {
+    "enabled": true,
+    "autoAllowBashIfSandboxed": true
+  },
+  "permissions": {
+    "defaultMode": "acceptEdits",
+    "allow": [
+      "Read(./**)",
+      "Write(./**)",
+      "Edit(./**)",
+      "Glob(./**)",
+      "Grep(./**)",
+      "Read(C:\\Users\\Danie\\Desktop\\nanobanna-pro\\.auto-claude\\worktrees\\tasks\\026-memoize-getmodelmetadata-to-prevent-expensive-obje/**)",
+      "Write(C:\\Users\\Danie\\Desktop\\nanobanna-pro\\.auto-claude\\worktrees\\tasks\\026-memoize-getmodelmetadata-to-prevent-expensive-obje/**)",
+      "Edit(C:\\Users\\Danie\\Desktop\\nanobanna-pro\\.auto-claude\\worktrees\\tasks\\026-memoize-getmodelmetadata-to-prevent-expensive-obje/**)",
+      "Glob(C:\\Users\\Danie\\Desktop\\nanobanna-pro\\.auto-claude\\worktrees\\tasks\\026-memoize-getmodelmetadata-to-prevent-expensive-obje/**)",
+      "Grep(C:\\Users\\Danie\\Desktop\\nanobanna-pro\\.auto-claude\\worktrees\\tasks\\026-memoize-getmodelmetadata-to-prevent-expensive-obje/**)",
+      "Read(C:\\Users\\Danie\\Desktop\\nanobanna-pro\\.auto-claude\\worktrees\\tasks\\026-memoize-getmodelmetadata-to-prevent-expensive-obje\\.auto-claude\\specs\\026-memoize-getmodelmetadata-to-prevent-expensive-obje/**)",
+      "Write(C:\\Users\\Danie\\Desktop\\nanobanna-pro\\.auto-claude\\worktrees\\tasks\\026-memoize-getmodelmetadata-to-prevent-expensive-obje\\.auto-claude\\specs\\026-memoize-getmodelmetadata-to-prevent-expensive-obje/**)",
+      "Edit(C:\\Users\\Danie\\Desktop\\nanobanna-pro\\.auto-claude\\worktrees\\tasks\\026-memoize-getmodelmetadata-to-prevent-expensive-obje\\.auto-claude\\specs\\026-memoize-getmodelmetadata-to-prevent-expensive-obje/**)",
+      "Bash(*)",
+      "WebFetch(*)",
+      "WebSearch(*)",
+      "mcp__context7__resolve-library-id(*)",
+      "mcp__context7__get-library-docs(*)",
+      "mcp__graphiti-memory__search_nodes(*)",
+      "mcp__graphiti-memory__search_facts(*)",
+      "mcp__graphiti-memory__add_episode(*)",
+      "mcp__graphiti-memory__get_episodes(*)",
+      "mcp__graphiti-memory__get_entity_edge(*)"
+    ]
+  }
+}
