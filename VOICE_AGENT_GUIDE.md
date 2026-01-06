@@ -14,7 +14,8 @@
 10. [Privacy & Security](#privacy--security)
 11. [Troubleshooting](#troubleshooting)
 12. [Best Practices](#best-practices)
-13. [Related Documentation](#related-documentation)
+13. [Frequently Asked Questions](#frequently-asked-questions)
+14. [Related Documentation](#related-documentation)
 
 ## Overview
 
@@ -5427,6 +5428,865 @@ But voice is better for:
 - Voice for generation and bulk operations
 - Manual for precise positioning and fine-tuning
 - Disconnect when switching to manual work
+
+## Frequently Asked Questions
+
+### Getting Started
+
+#### Q: Do I need to pay for voice features?
+
+**A:** Yes, voice features require an OpenAI API key with available credits. The OpenAI Realtime API charges:
+- **Audio streaming:** $0.06 per minute (input) + $0.24 per minute (output)
+- **Combined cost:** ~$0.30 per minute of active conversation
+- **Image operations:** Additional Replicate costs ($0.002-$0.05 per image)
+
+**First-time users:** OpenAI often provides free credits for new accounts. Check your [OpenAI Dashboard](https://platform.openai.com/usage) for current balance.
+
+**Cost control:** Disconnect when idle, use preview mode to avoid unwanted operations, and monitor your [OpenAI usage](https://platform.openai.com/usage) regularly.
+
+#### Q: Can I use voice features without an internet connection?
+
+**A:** No, voice features require continuous internet connection because:
+- Audio is streamed to OpenAI servers in real-time
+- AI processing happens on OpenAI's infrastructure
+- Image generation/enhancement uses cloud services (Replicate)
+- WebSocket connection must remain active
+
+**Recommended:** Use WiFi for longer sessions to avoid cellular data charges and ensure stable connection.
+
+#### Q: What happens if my internet disconnects during a voice session?
+
+**A:** When connection is lost:
+1. Status changes to "Disconnected" (red indicator)
+2. Current operation is interrupted and not applied
+3. Transcript history is preserved in UI
+4. No charges occur while disconnected
+5. Click "Connect" to resume with new session
+6. Previous context is not restored (fresh conversation)
+
+**Best practice:** For critical work, disconnect and save your canvas frequently to avoid losing progress.
+
+#### Q: How do I know if my microphone is working?
+
+**A:** Check these indicators:
+1. **Browser permission:** Look for microphone icon in address bar
+2. **Status indicator:** "Live Session Active" appears when connected
+3. **Transcript feedback:** Your speech appears as "You: [text]" in transcript
+4. **AI responses:** If AI responds, your mic is working
+
+**Testing:** Say "Hello" after connecting. AI should respond within 2-3 seconds.
+
+**Troubleshooting:** If no transcript appears:
+- Check browser permissions (click mic icon in address bar)
+- Try different browser (Chrome/Edge recommended)
+- Check system mic settings
+- Restart browser and reconnect
+
+### Using Voice Commands
+
+#### Q: Do I need to memorize exact command phrases?
+
+**A:** No! The AI understands natural language. You can say:
+- "Generate a mountain background" ✅
+- "Create a background with mountains" ✅
+- "I need a mountain landscape image" ✅
+- "Make me a background that shows mountains" ✅
+
+**All work equally well!** The AI extracts intent and parameters from your natural speech.
+
+**Tips for best results:**
+- Be specific about what you want
+- Include relevant details (colors, styles, positions)
+- Speak clearly at normal pace
+- Don't rush - the AI waits for you to finish
+
+#### Q: Can I edit my speech if I make a mistake?
+
+**A:** Speech cannot be edited after it's sent, but you can:
+
+**During speech:**
+- Pause and rephrase if you catch yourself
+- AI waits for natural speech pauses before responding
+
+**After speech:**
+- Say "wait" or "stop" to interrupt AI processing
+- Reject preview results and try again
+- Use "undo" command to reverse applied actions
+- Say "I meant..." to clarify or correct
+
+**Example:**
+```
+You: "Add the text 'Jhon Smith'"
+[Realizes typo after speaking]
+You: "Wait, I meant John with an 'o'"
+AI: "I'll update that for you..."
+```
+
+#### Q: What if the AI doesn't understand my command?
+
+**A:** The AI will ask for clarification:
+```
+You: "Make it better"
+AI: "I'd be happy to help improve your banner. What specifically would you like me to enhance? For example, I can upscale the image, enhance faces, improve colors, or adjust the background."
+```
+
+**If AI seems confused:**
+1. Be more specific about what you want
+2. Mention the command type (e.g., "generate background", "add text")
+3. Break complex requests into smaller steps
+4. Use examples from this guide as templates
+
+**Common causes:**
+- Vague requests ("make it nice")
+- Background noise interfering with recognition
+- Multiple unrelated requests in one sentence
+- Technical terms that sound like other words
+
+#### Q: Can I give multiple commands at once?
+
+**A:** Yes, but with limitations:
+
+**Sequential commands work well:**
+```
+You: "Generate a blue gradient background, then add the text 'Jane Doe' in white"
+AI: [Generates background] → [Shows preview] → [After approval, adds text]
+```
+
+**Best practice:**
+- Group related commands (generate + text)
+- Wait for preview approval before next image operation
+- Instant commands (text, navigation) can be batched freely
+
+**Avoid:**
+- Multiple image generations in one breath
+- Conflicting commands ("add then delete the same thing")
+- More than 2-3 operations per sentence
+
+**Why:** Preview mode requires approval between image operations, so batching too many creates confusion.
+
+### Preview Mode & Approvals
+
+#### Q: Why do some commands show a preview while others don't?
+
+**A:** Commands are categorized by cost and reversibility:
+
+**Preview Required (5 commands):**
+- Image generation (costly, important decision)
+- Image enhancement (upscale, restore, enhance face, remove background)
+- These operations use Replicate credits ($0.002-$0.05 per operation)
+
+**Instant Execution (12 commands):**
+- Canvas manipulation (text add/update/delete)
+- Navigation (tab switching)
+- History (undo/redo)
+- AI analysis (suggestions, prompts, analysis)
+- These are free or easily reversible
+
+**Why:** Preview mode prevents accidental costly operations and lets you verify results before committing.
+
+#### Q: What happens if I reject a preview?
+
+**A:** When you click "Reject":
+1. Generated image is discarded (not applied to canvas)
+2. Canvas remains unchanged
+3. **You are still charged** for the generation (API call already happened)
+4. Transcript shows rejection
+5. You can refine your request and try again
+
+**Important:** Rejection prevents unwanted canvas changes but doesn't refund API costs. Use clear, specific prompts to minimize rejections.
+
+**When to reject:**
+- Image doesn't match your vision
+- Quality is insufficient
+- Wrong content or style
+- Want to refine prompt and regenerate
+
+**After rejection:** Provide feedback to AI:
+```
+You: "That's too dark. Generate a brighter version with more sunlight"
+```
+
+#### Q: Can I see previous previews after I reject them?
+
+**A:** No, preview images are not saved after rejection. The preview panel shows only the current pending action.
+
+**Workaround:**
+- Take screenshots of previews you might want to reference
+- Save promising results to canvas, then undo if needed
+- Use Gallery tab to browse saved designs
+
+**Why:** Previews are temporary by design to keep UI clean and focused on current workflow.
+
+#### Q: How long do I have to approve or reject a preview?
+
+**A:** There's no time limit. The preview will wait indefinitely until you:
+- Click "Apply" (adds to canvas)
+- Click "Reject" (discards result)
+- Disconnect session (discards result)
+
+**While preview is showing:**
+- You can continue talking to AI (gets queued)
+- Canvas is locked (can't manually edit)
+- Other commands wait for current approval
+
+**Best practice:** Approve or reject promptly to keep workflow smooth. If you need time to decide, you can ask AI questions about the preview while it's visible.
+
+### Canvas & Design Workflow
+
+#### Q: Can I create a complete LinkedIn banner using only voice?
+
+**A:** Yes! Here's a complete workflow example:
+
+**Scenario: Professional banner for software engineer**
+
+```
+Step 1: Generate background
+You: "Generate a professional tech-themed background with blue and purple gradients"
+[Preview → Apply]
+
+Step 2: Add name
+You: "Add the text 'Alex Chen' in large white letters at the top center"
+[Instant - applied]
+
+Step 3: Add title
+You: "Add 'Senior Software Engineer' below my name in a slightly smaller font"
+[Instant - applied]
+
+Step 4: Add tagline
+You: "Add the text 'Building scalable cloud solutions' near the bottom"
+[Instant - applied]
+
+Step 5: Review
+You: "Analyze this banner and suggest improvements"
+[AI provides feedback]
+
+Step 6: Refine
+You: "Make the name text bigger, size 72"
+[Updates existing text]
+
+Result: Complete LinkedIn banner created hands-free!
+Time: ~2-3 minutes
+Cost: ~$0.015 (1 generation + text operations)
+```
+
+**You can do entirely with voice:**
+- Background generation ✅
+- Text overlays ✅
+- Element updates ✅
+- History management (undo/redo) ✅
+- Quality analysis ✅
+
+**You might prefer manual for:**
+- Precise pixel positioning
+- Fine-tuning font sizes
+- Layer ordering
+- Complex multi-element arrangements
+
+#### Q: How do I update text I already added?
+
+**A:** Use the "update element" command with specific details:
+
+**By content:**
+```
+You: "Update the text that says 'John' to say 'Jonathan'"
+You: "Change 'Developer' to 'Senior Developer'"
+```
+
+**By position:**
+```
+You: "Make the top text bigger"
+You: "Change the color of the title to blue"
+You: "Move the bottom text up"
+```
+
+**By element ID (if you know it):**
+```
+You: "Update element text-123 to say 'New Title'"
+```
+
+**What you can update:**
+- Text content
+- Font size
+- Color
+- Position (x, y)
+- Font family
+
+**Example:**
+```
+You: "Change 'Web Developer' to font size 64 and color red"
+AI: "I'll update that text element for you..."
+[Updates instantly]
+```
+
+#### Q: What if I want to undo a voice command?
+
+**A:** Use the undo command:
+
+```
+You: "Undo"
+AI: "I'll undo the last action."
+[Previous state restored]
+```
+
+**How it works:**
+- Canvas maintains history stack
+- Each applied action can be undone
+- "Redo" is also available to restore undone actions
+- Same as clicking undo button in UI
+
+**Important notes:**
+- Undo affects canvas state, not API charges
+- Rejected previews aren't in undo history
+- History is per-session (clears on page refresh)
+- Maximum undo depth: typically 50 actions
+
+**Voice undo workflow:**
+```
+You: "Add the text 'Test'"
+[Text added]
+You: "Actually, undo that"
+[Text removed]
+You: "Redo"
+[Text restored]
+```
+
+#### Q: Can I save my banner while using voice?
+
+**A:** Not directly with voice commands (saving isn't in the command set), but you can:
+
+**Option 1: Use manual save (recommended)**
+1. Say "disconnect" or click Disconnect
+2. Click "Save" button in UI
+3. Reconnect if needed for more voice work
+
+**Option 2: Keep working, save later**
+- Canvas auto-saves to browser state
+- Manual save stores to Supabase database
+- Your work persists during voice session
+
+**Why no voice save?**
+- Saving requires naming designs (text input better suited for keyboard)
+- Manual save gives you visual confirmation
+- Prevents accidental overwrites
+
+**Best practice:** Save frequently between major changes, especially before experimental operations.
+
+#### Q: What happens to my canvas if voice agent disconnects unexpectedly?
+
+**A:** Your canvas is safe:
+
+1. **Canvas state preserved:** All applied changes remain
+2. **Current preview lost:** If preview was showing, it's discarded
+3. **Transcript retained:** UI shows conversation history
+4. **No auto-save:** Must manually save to persist to database
+
+**After unexpected disconnect:**
+- Click "Save" to persist your work
+- Click "Connect" to start new voice session
+- Continue working where you left off
+- AI won't remember previous conversation context
+
+**Preventing loss:**
+- Save periodically during long sessions
+- Monitor connection status indicator
+- Use stable WiFi connection
+- Close other bandwidth-heavy apps
+
+### Technical & Compatibility
+
+#### Q: Why does voice agent require Chrome or Edge?
+
+**A:** Browser compatibility varies for WebSocket and audio APIs:
+
+**Best experience (recommended):**
+- Chrome 89+ ✅
+- Edge 89+ ✅
+- Modern Chromium-based browsers ✅
+
+**These browsers provide:**
+- Robust WebSocket implementation
+- Advanced audio processing (echo cancellation, noise suppression)
+- Efficient audio streaming
+- getUserMedia API support
+- Better performance and reliability
+
+**Other browsers:**
+- Firefox: May work but audio quality varies
+- Safari: Limited WebSocket support, audio issues
+- Mobile browsers: Not officially supported
+
+**Why it matters:**
+- Audio streaming requires precise timing
+- WebSocket stability critical for real-time interaction
+- Audio processing affects recognition accuracy
+
+**Check your browser:** Voice panel shows compatibility warning if using unsupported browser.
+
+#### Q: Can I use voice agent on my phone or tablet?
+
+**A:** Mobile support is limited:
+
+**Current status:**
+- ❌ Not officially supported
+- ⚠️ May partially work on some devices
+- 🐛 Known issues with mobile browsers
+
+**Mobile challenges:**
+- Touch keyboard interferes with microphone
+- Background tab suspension breaks WebSocket
+- Higher latency on cellular connections
+- Audio processing less reliable
+- Smaller screen limits preview visibility
+
+**Recommended:**
+- Use desktop/laptop for voice features
+- Mobile works fine for manual canvas editing
+- Access Gallery and saved designs on mobile
+
+**Future:** Mobile support may improve in future updates.
+
+#### Q: Does voice agent work offline or with local AI models?
+
+**A:** No, voice agent requires cloud connection:
+
+**Required online services:**
+- OpenAI Realtime API (voice processing)
+- Replicate API (image generation/enhancement)
+- WebSocket connection to OpenAI servers
+- Internet for real-time streaming
+
+**Why cloud-only:**
+- Realtime voice AI requires powerful GPUs
+- Models are too large for local deployment (~175B parameters)
+- Image generation needs specialized hardware
+- Continuous model updates from OpenAI
+
+**Offline alternative:**
+- Use manual canvas editing (works offline)
+- Pre-generate images then edit locally
+- Voice features return when connection restored
+
+**Privacy:** Your audio is processed by OpenAI. See [Privacy & Security](#privacy--security) section.
+
+#### Q: Why is there a delay between speaking and AI response?
+
+**A:** Typical latency is 1-3 seconds due to:
+
+**Processing steps:**
+1. **Speech capture:** 100-300ms (buffer fill)
+2. **Network upload:** 200-500ms (depends on connection)
+3. **OpenAI transcription:** 300-800ms (speech-to-text)
+4. **AI processing:** 500-1500ms (GPT-4o thinking)
+5. **Tool execution:** 0-30000ms (depends on command)
+6. **Network download:** 200-500ms (response streaming)
+7. **Audio playback:** starts streaming immediately
+
+**Total:** 1-3 seconds for simple commands, up to 30+ seconds for image generation
+
+**Factors affecting speed:**
+- Internet connection quality (WiFi vs cellular)
+- Geographic distance to servers
+- OpenAI server load
+- Command complexity
+- Image generation operations (longest delay)
+
+**Normal behavior:**
+- Simple queries: 1-2 seconds
+- Canvas operations: 1-3 seconds
+- Image generation: 10-30 seconds
+- Image enhancement: 5-15 seconds
+
+**If consistently slower:**
+- Check internet speed
+- Close other network-heavy applications
+- Try different time of day (server load varies)
+- Check [OpenAI status page](https://status.openai.com)
+
+### Cost & Billing
+
+#### Q: How much does a typical voice session cost?
+
+**A:** Costs vary by usage pattern:
+
+**Scenario 1: Quick banner creation (5 minutes)**
+- Active conversation: 5 minutes × $0.30/min = **$1.50**
+- 1 background generation: **$0.015**
+- 3 text operations: **$0.00**
+- **Total: ~$1.52**
+
+**Scenario 2: Extensive design session (15 minutes)**
+- Active conversation: 15 minutes × $0.30/min = **$4.50**
+- 3 background generations: **$0.045**
+- 2 upscale operations: **$0.014**
+- 1 face enhancement: **$0.007**
+- 5 text operations: **$0.00**
+- **Total: ~$4.57**
+
+**Scenario 3: Brainstorming only (10 minutes)**
+- Active conversation: 10 minutes × $0.30/min = **$3.00**
+- Prompt suggestions: **$0.00**
+- Banner analysis: **$0.00**
+- **Total: ~$3.00**
+
+**Cost breakdown:**
+- **OpenAI audio:** $0.30/minute (largest cost)
+- **Image generation:** $0.015 per image
+- **Image upscale:** $0.007 per image
+- **Face enhancement:** $0.007 per image
+- **Background removal:** $0.002 per image
+- **Canvas/text operations:** Free
+- **AI analysis:** Included in audio cost
+
+**Minimizing costs:**
+- Disconnect when not actively using
+- Use precise prompts to avoid regenerations
+- Batch text operations together
+- Use manual editing for simple changes
+
+#### Q: Where can I see my current usage and costs?
+
+**A:** Monitor costs at:
+
+**OpenAI Dashboard:**
+- Visit [platform.openai.com/usage](https://platform.openai.com/usage)
+- Shows daily/monthly spending
+- Real-time audio API usage
+- Billing details and limits
+
+**Nanobanna Pro (limited):**
+- No built-in cost tracking yet
+- Transcript shows which operations occurred
+- Preview mode shows operation type before charging
+
+**Replicate Dashboard:**
+- Visit [replicate.com/account](https://replicate.com/account)
+- Shows image operation costs
+- Separate from OpenAI billing
+
+**Best practice:**
+- Check OpenAI usage daily during heavy use
+- Set up billing alerts in OpenAI dashboard
+- Track sessions manually if concerned about budget
+
+#### Q: Will I be charged if I just leave the connection open without speaking?
+
+**A:** Yes, but minimal:
+
+**How OpenAI charges:**
+- **Input audio:** $0.06/minute (microphone streaming)
+- **Output audio:** $0.24/minute (AI voice responses)
+
+**Idle connection (not speaking):**
+- Microphone still streams silence: **$0.06/minute**
+- No AI responses: **$0.00/minute**
+- **Total idle: ~$0.06/minute**
+
+**After 30 minutes idle:** ~$1.80 wasted
+
+**Important:** Even when silent, the WebSocket is active and microphone streams audio to OpenAI.
+
+**Best practice:**
+- **Always disconnect when not actively using**
+- Don't leave connection open while doing manual work
+- Disconnect during breaks
+- Reconnect takes only 2-3 seconds (worth it!)
+
+**Visual reminder:** Check status bar - green dot means charges are accumulating.
+
+#### Q: What happens if I run out of OpenAI credits?
+
+**A:** Voice features stop working:
+
+**When credits depleted:**
+1. Connection fails with API error
+2. Status shows "Connection failed" (red)
+3. Error message: "Insufficient credits" or similar
+4. Transcript may show error details
+5. Manual canvas editing still works
+
+**To resolve:**
+1. Visit [OpenAI billing](https://platform.openai.com/account/billing)
+2. Add payment method or purchase credits
+3. Wait 1-2 minutes for activation
+4. Return to Nanobanna Pro
+5. Click "Connect" to resume
+
+**Preventing this:**
+- Monitor [usage dashboard](https://platform.openai.com/usage) regularly
+- Set up billing alerts in OpenAI account
+- Add auto-recharge if available
+- Keep backup payment method on file
+
+**Note:** Nanobanna Pro doesn't show credit balance - check OpenAI dashboard directly.
+
+### Privacy & Security
+
+#### Q: Who can hear my voice when using voice agent?
+
+**A:** Your audio is processed by OpenAI:
+
+**Audio flow:**
+1. Your microphone → Browser
+2. Browser → OpenAI servers (encrypted WebSocket)
+3. OpenAI → Transcription & AI processing
+4. OpenAI → Response audio back to you
+
+**Who has access:**
+- **OpenAI:** Processes your audio (required for functionality)
+- **You:** Can hear playback in browser
+- **Not stored by Nanobanna Pro:** Audio doesn't touch our servers
+
+**OpenAI's data handling:**
+- Audio transcripts may be retained (check OpenAI policy)
+- Used for service improvement (opt-out available)
+- Encrypted in transit (TLS/WSS)
+- Governed by [OpenAI Privacy Policy](https://openai.com/privacy)
+
+**Your API key means:**
+- Audio tied to YOUR OpenAI account
+- You control data retention settings
+- You can request deletion from OpenAI
+
+**Best practice:**
+- Review OpenAI privacy policy
+- Don't speak sensitive personal information
+- Use privacy-focused OpenAI account settings
+- Disconnect when discussing confidential matters
+
+#### Q: Is my OpenAI API key secure?
+
+**A:** Your key is stored securely in browser:
+
+**Storage method:**
+- Saved to browser localStorage (encrypted by browser)
+- Never transmitted to Nanobanna Pro servers
+- Used only for direct OpenAI API calls from your browser
+- Cleared if you clear browser data
+
+**Security measures:**
+- Keys never logged or displayed in full
+- Direct browser-to-OpenAI connection (no intermediary)
+- HTTPS/WSS encryption in transit
+- Settings UI obscures key after entry
+
+**Risks to be aware of:**
+- Browser extensions can access localStorage
+- Malware on your computer could steal keys
+- Shared computers may expose keys
+- Key visible in Settings UI (click to reveal)
+
+**Best practices:**
+- Use OpenAI keys only on trusted computers
+- Don't use shared/public computers for API key entry
+- Rotate keys periodically
+- Monitor [OpenAI usage](https://platform.openai.com/usage) for suspicious activity
+- Revoke compromised keys immediately at [OpenAI dashboard](https://platform.openai.com/api-keys)
+
+**If compromised:**
+1. Revoke old key in OpenAI dashboard
+2. Generate new key
+3. Update in Nanobanna Pro Settings
+4. Check usage logs for unauthorized use
+
+#### Q: Can other users see my canvas or designs?
+
+**A:** No, designs are private:
+
+**Privacy model:**
+- Row-Level Security (RLS) enabled on database
+- Designs tied to your user ID (Supabase auth)
+- Only you can read/write your designs
+- No public gallery or sharing features
+
+**Who can access your data:**
+- **You:** Full access to your designs
+- **Nanobanna Pro admin:** Database access (for support only)
+- **Supabase:** Hosts your data (governed by their privacy policy)
+
+**Not accessible:**
+- Other Nanobanna Pro users cannot see your designs
+- Designs not used for AI training
+- No social features expose your work
+
+**Voice-specific:**
+- Voice transcripts not stored in database
+- AI conversations ephemeral (lost on disconnect)
+- Generated images saved to your account only
+
+**Future:** Sharing features may be added with explicit opt-in controls.
+
+### Troubleshooting Common Scenarios
+
+#### Q: Voice agent connects but doesn't respond to my speech
+
+**Possible causes:**
+
+**1. Microphone not selected:**
+- Browser may use wrong input device
+- Check browser mic settings (click mic icon in address bar)
+- Select correct microphone
+- Refresh and reconnect
+
+**2. Background noise too high:**
+- Noise suppression has limits
+- Move to quieter location
+- Use headset with boom microphone
+- Close windows/doors
+
+**3. Speech too quiet:**
+- AI may not detect voice activity
+- Speak at normal conversation volume
+- Check microphone sensitivity in system settings
+- Move mic closer (if external)
+
+**4. Browser tab in background:**
+- Some browsers throttle background tabs
+- Keep Nanobanna Pro tab active and visible
+- Don't minimize window during use
+
+**5. WebSocket connection dropped:**
+- Status may show connected but WebSocket failed
+- Click Disconnect, wait 3 seconds, Reconnect
+- Check browser console (F12) for errors
+
+**Testing microphone:**
+1. Use browser's built-in mic test
+2. Try voice recording in other apps
+3. Check system sound settings
+4. Restart browser if issues persist
+
+#### Q: AI keeps misunderstanding my commands
+
+**Common issues and solutions:**
+
+**Issue: Accent or pronunciation**
+- AI trained on diverse accents but may struggle with some
+- Speak slightly slower and enunciate clearly
+- Use alternative phrasing if word consistently misheard
+- Spell out ambiguous words: "Add text S-M-I-T-H"
+
+**Issue: Background noise**
+- Cross-talk from TV, music, other people
+- Use headphones to prevent speaker feedback
+- Mute other audio sources
+- Move to quieter location
+
+**Issue: Vague commands**
+- "Make it better" → AI doesn't know what to improve
+- "Add text" → Missing the actual text content
+- Be specific: "Add the text 'Jane Doe' in white at the top center"
+
+**Issue: Complex sentences**
+- Long run-on sentences confuse parsing
+- Break into smaller commands
+- One primary action per sentence
+
+**Issue: Technical jargon**
+- Some technical terms may be misheard
+- Use common alternatives when possible
+- Spell out acronyms if misheard
+
+**Improvement tips:**
+- Review transcript to see how AI heard you
+- Adjust phrasing based on what works
+- Use example phrases from this guide
+- Combine voice with manual editing for complex work
+
+#### Q: Preview images are low quality or not what I expected
+
+**Image quality issues:**
+
+**Cause: Vague prompts**
+```
+❌ Bad: "Generate a background"
+✅ Good: "Generate a professional tech background with blue gradient, modern geometric patterns, and soft lighting"
+```
+
+**Cause: Wrong quality tier assumed**
+- AI defaults to "standard" quality
+- Specify if you want higher: "Generate in high quality"
+- Or use manual settings in UI before voice command
+
+**Cause: Model limitations**
+- AI image generation has creative interpretation
+- Results vary even with same prompt
+- Reject and refine if not satisfactory
+
+**Content mismatch:**
+
+**Cause: Ambiguous descriptions**
+```
+❌ "Generate a banner with mountains"
+   → Could be realistic, cartoon, abstract, etc.
+
+✅ "Generate a realistic mountain landscape with snow-capped peaks at sunset, photographic style"
+   → Much clearer intent
+```
+
+**Cause: AI hallucination**
+- AI may add unexpected elements
+- Use negative prompts: "...without text or watermarks"
+- Reject and add constraints
+
+**Solutions:**
+1. **Be hyper-specific:** Style, colors, mood, composition, lighting
+2. **Use reference examples:** "Like a professional LinkedIn background"
+3. **Iterate with feedback:** "Too dark, make it brighter"
+4. **Check preview carefully** before applying
+5. **Use AI suggestions:** "Suggest a prompt for a tech professional banner"
+
+**Cost-saving tip:** Use "suggest prompts" or "write enhanced prompt" commands (free) to get AI-crafted descriptions before generating (costs money).
+
+#### Q: Voice agent disconnects randomly during use
+
+**Common causes:**
+
+**1. Unstable internet connection**
+- WiFi signal weak or intermittent
+- ISP connection dropping
+- Move closer to router
+- Switch to wired connection if possible
+- Close bandwidth-heavy apps (streaming, downloads)
+
+**2. Browser tab suspended**
+- Laptop went to sleep
+- Browser background tab throttling
+- Keep tab active and visible
+- Disable aggressive battery saving
+
+**3. WebSocket timeout**
+- Long periods of silence
+- AI may disconnect after inactivity
+- Speak occasionally to keep alive
+- Or disconnect manually when taking breaks
+
+**4. OpenAI server issues**
+- Rare but possible service disruptions
+- Check [OpenAI status page](https://status.openai.com)
+- Wait and retry if ongoing incident
+
+**5. API key issues**
+- Key revoked or expired
+- Billing problems on OpenAI account
+- Credits depleted
+- Check [OpenAI dashboard](https://platform.openai.com/account)
+
+**Preventing disconnects:**
+- Use stable WiFi (not cellular)
+- Keep browser tab active
+- Monitor connection status indicator
+- Don't let computer sleep during sessions
+- Refresh page if connection becomes unstable
+
+**If persistent:**
+- Clear browser cache and cookies
+- Try different browser (Chrome/Edge)
+- Disable browser extensions temporarily
+- Check firewall/antivirus settings
+
+---
+
+**More questions?** Check the [Troubleshooting](#troubleshooting) section or review [Related Documentation](#related-documentation) for additional resources.
 
 ## Related Documentation
 
