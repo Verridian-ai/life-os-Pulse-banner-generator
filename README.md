@@ -31,9 +31,16 @@ Nanobanna Pro is the ultimate AI-powered design tool for creating professional L
 
 #### 🎙️ Voice-Powered Creation
 
+Powered by [OpenAI Realtime API](https://platform.openai.com/docs/guides/realtime):
+
 - **Gemini Live Audio** - Natural voice conversations with AI
-- **Voice Commands** - "Upscale this image to 4K", "Remove the background"
+- **Voice Commands** - 17 available commands for hands-free design workflows
 - **Hands-Free Design** - Complete banner creation using only your voice
+- **Real-Time Processing** - Instant AI responses with bidirectional audio streaming
+- **Preview Mode** - Approve image operations before execution for cost control
+
+📖 **[Complete Voice Agent User Guide →](./VOICE_AGENT_GUIDE.md)**
+⚡ **[Quick Command Reference →](./VOICE_COMMANDS_REFERENCE.md)**
 
 #### 🖼️ Professional Image Processing
 
@@ -120,6 +127,8 @@ See `database/README.md` for detailed instructions.
 ## 📚 Documentation
 
 - **[WIKI](./WIKI.md)** - Complete setup guide, architecture, and deployment
+- **[Voice Agent User Guide](./VOICE_AGENT_GUIDE.md)** - Comprehensive voice commands documentation
+- **[Voice Commands Reference](./VOICE_COMMANDS_REFERENCE.md)** - Quick reference for all 17 voice commands
 - **[Replicate Models Guide](./REPLICATE_MODELS.md)** - Comprehensive Replicate integration documentation
 - **[Contributing Guide](./CONTRIBUTING.md)** - How to contribute
 
