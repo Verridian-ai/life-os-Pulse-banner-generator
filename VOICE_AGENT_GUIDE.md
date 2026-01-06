@@ -3323,6 +3323,560 @@ VITE_OPENAI_API_KEY=sk-your_key_here
 
 ---
 
+### Account & Billing Issues
+
+#### "Insufficient credits" or "Quota exceeded"
+
+**Causes:**
+- OpenAI account has no credits
+- Monthly spending limit reached
+- API key rate limited
+- Organization quota exceeded
+
+**Solutions:**
+
+1. **Check OpenAI usage:**
+   - Visit [platform.openai.com/usage](https://platform.openai.com/usage)
+   - View current usage and limits
+   - Check if credits exhausted
+
+2. **Add credits:**
+   - Go to [platform.openai.com/account/billing](https://platform.openai.com/account/billing)
+   - Add payment method if needed
+   - Purchase additional credits
+   - Wait 1-2 minutes for credits to activate
+
+3. **Check rate limits:**
+   - Realtime API has per-minute limits
+   - Wait 60 seconds and try again
+   - Check [platform.openai.com/account/limits](https://platform.openai.com/account/limits)
+
+4. **Organization limits:**
+   - Contact organization admin
+   - Request quota increase
+   - Check organization billing settings
+
+---
+
+#### "API key invalid" or "Unauthorized"
+
+**Causes:**
+- API key revoked or deleted
+- Key doesn't have Realtime API access
+- Key belongs to different account
+- Typo in key configuration
+
+**Solutions:**
+
+1. **Verify API key:**
+   - Check it starts with `sk-`
+   - No extra spaces or characters
+   - Copied completely (keys are ~51 characters)
+
+2. **Generate new key:**
+   - Visit [platform.openai.com/api-keys](https://platform.openai.com/api-keys)
+   - Click "Create new secret key"
+   - Name it (e.g., "Nanobanna Voice")
+   - Copy new key
+   - Update in Settings
+
+3. **Check API access:**
+   - Ensure account has Realtime API access
+   - Some accounts need tier upgrade
+   - Check [platform.openai.com/account/limits](https://platform.openai.com/account/limits)
+
+4. **Update configuration:**
+   - Open Settings (⚙️ icon)
+   - Delete old key
+   - Paste new key
+   - Save and reconnect
+
+---
+
+#### "Rate limit exceeded"
+
+**Causes:**
+- Too many requests in short time
+- Multiple sessions running
+- API limits for your tier
+- Shared organization limits
+
+**Solutions:**
+
+1. **Wait and retry:**
+   - Rate limits reset after 1 minute
+   - Disconnect and wait 60 seconds
+   - Reconnect and try again
+
+2. **Check for multiple sessions:**
+   - Only one voice session per API key
+   - Close other tabs with Nanobanna
+   - Check other devices using same key
+
+3. **Upgrade tier:**
+   - Visit [platform.openai.com/account/limits](https://platform.openai.com/account/limits)
+   - View current tier and limits
+   - Consider tier upgrade if frequent issues
+
+4. **Use separate keys:**
+   - Create separate keys for different projects
+   - Avoids conflict with other applications
+   - Better usage tracking
+
+---
+
+### Session Management Issues
+
+#### "Session disconnected unexpectedly"
+
+**Causes:**
+- Network interruption
+- OpenAI service issue
+- Browser tab backgrounded (mobile)
+- Computer sleep/hibernate
+- Inactivity timeout
+
+**Solutions:**
+
+1. **Reconnect immediately:**
+   - Click "Connect" button
+   - Session state preserved on server briefly
+   - Transcript cleared but canvas unchanged
+
+2. **Check network:**
+   - Ensure WiFi/internet stable
+   - Switch networks if unstable
+   - Disable VPN if causing issues
+
+3. **Keep tab active:**
+   - Don't minimize or background
+   - Keep computer awake during sessions
+   - Disable auto-sleep while using voice
+
+4. **If issue persists:**
+   - Check [status.openai.com](https://status.openai.com)
+   - Try different network
+   - Contact support if widespread
+
+---
+
+#### "Lost connection mid-command"
+
+**Causes:**
+- Network dropped during execution
+- Server timeout (long operations)
+- Browser crashed
+- Session expired
+
+**Solutions:**
+
+1. **Check command status:**
+   - Look for preview panel
+   - Check if operation completed
+   - View transcript for last message
+
+2. **If operation incomplete:**
+   - Reconnect voice agent
+   - Retry the command
+   - Check canvas for partial changes
+
+3. **If operation completed:**
+   - Result may already be applied
+   - Check canvas elements/image
+   - Reconnect to continue
+
+4. **For long operations:**
+   - Upscaling/restoration can take 30+ seconds
+   - Don't disconnect while processing
+   - Wait for preview before disconnecting
+
+---
+
+#### "Multiple tabs interfering"
+
+**Cause:** Multiple Nanobanna tabs competing for voice agent resources
+
+**Solutions:**
+
+1. **Use single tab:**
+   - Close duplicate Nanobanna tabs
+   - Keep only one instance active
+   - Bookmark for easy access
+
+2. **If multiple tabs needed:**
+   - Only connect voice in one tab
+   - Use others for reference/comparison
+   - Disconnect before switching tabs
+
+3. **Clear confused state:**
+   - Disconnect all instances
+   - Close all Nanobanna tabs
+   - Open fresh tab
+   - Connect and verify working
+
+---
+
+#### "Transcript showing old messages"
+
+**Cause:** Transcript persists during connected session
+
+**Solutions:**
+
+1. **This is normal behavior:**
+   - Transcript shows full conversation
+   - Helps track what was done
+   - Clears on disconnect
+
+2. **To clear transcript:**
+   - Click "Disconnect"
+   - Wait for disconnection
+   - Click "Connect" to start fresh
+
+3. **If transcript too long:**
+   - Disconnect periodically
+   - Start fresh session for new task
+   - Reduces memory usage
+
+---
+
+### Image-Specific Errors
+
+#### "No image available" or "Canvas is empty"
+
+**Causes:**
+- Trying to upscale/edit with no background
+- Background not generated yet
+- Image failed to load
+- Canvas cleared
+
+**Solutions:**
+
+1. **Generate background first:**
+   - Say: "Generate a professional background"
+   - Wait for generation and apply
+   - Then try enhancement commands
+
+2. **Check canvas:**
+   - Look for background in canvas
+   - Ensure image loaded properly
+   - Try refreshing if image missing
+
+3. **Upload reference:**
+   - Use "Upload Reference" button
+   - Select image file
+   - Then retry enhancement commands
+
+4. **Command order:**
+   - ✅ Generate → Upscale → Enhance
+   - ❌ Upscale first (no image to upscale)
+
+---
+
+#### "Image too large to process"
+
+**Causes:**
+- Generated image exceeds service limits
+- Uploaded reference too large
+- Browser memory constraints
+
+**Solutions:**
+
+1. **Use "fast" quality:**
+   - Say: "Upscale to fast quality"
+   - Faster and handles larger images
+   - Good for testing/iteration
+
+2. **Reduce upload size:**
+   - Resize reference images before upload
+   - Target: under 2048x2048 pixels
+   - Use image editing software to resize
+
+3. **Try different service:**
+   - Some operations have higher limits
+   - Generate new background (smaller)
+   - Apply enhancements to new image
+
+4. **Refresh and retry:**
+   - Disconnect voice agent
+   - Refresh browser
+   - Reconnect and try again
+   - Browser may have freed memory
+
+---
+
+#### "Service timeout" or "Operation timed out"
+
+**Causes:**
+- Replicate model processing too long
+- Network latency
+- Server overloaded
+- Image complexity
+
+**Solutions:**
+
+1. **Retry the operation:**
+   - Say the command again
+   - Sometimes succeeds on second try
+   - Check preview panel for completion
+
+2. **Use faster quality:**
+   - "Fast" upscale: ~5 seconds
+   - "Balanced" upscale: ~10 seconds
+   - "Best" upscale: ~30+ seconds
+   - Choose based on urgency
+
+3. **Check network:**
+   - Ensure stable internet connection
+   - Switch to wired connection if possible
+   - Close bandwidth-heavy apps
+
+4. **Wait and retry:**
+   - Replicate models can be busy
+   - Wait 1-2 minutes
+   - Try again during off-peak hours
+
+---
+
+#### "Unsupported image format"
+
+**Causes:**
+- Reference image in wrong format
+- Corrupted image file
+- Animated/multi-frame image
+
+**Solutions:**
+
+1. **Use supported formats:**
+   - ✅ PNG, JPEG, JPG, WebP
+   - ❌ GIF, BMP, TIFF, SVG
+   - Convert to PNG/JPEG if needed
+
+2. **Convert image:**
+   - Use online converter or image editor
+   - Export as PNG (best quality)
+   - Or JPEG (smaller file size)
+
+3. **For animated GIF:**
+   - Extract single frame
+   - Use first frame or best frame
+   - Save as PNG
+
+4. **If corruption suspected:**
+   - Try re-downloading image
+   - Open in image editor and re-save
+   - Upload fresh copy
+
+---
+
+### Advanced Troubleshooting
+
+#### Using Browser Developer Tools
+
+**When to use:**
+- Persistent issues not resolved above
+- Strange behavior or errors
+- Preparing bug report
+
+**How to access:**
+
+**Chrome/Edge:**
+1. Press `F12` or `Ctrl+Shift+I` (Windows/Linux)
+2. Or `Cmd+Option+I` (Mac)
+3. Click "Console" tab
+
+**Firefox:**
+1. Press `F12` or `Ctrl+Shift+K` (Windows/Linux)
+2. Or `Cmd+Option+K` (Mac)
+3. Click "Console" tab
+
+**Safari:**
+1. Safari → Preferences → Advanced
+2. Enable "Show Develop menu"
+3. Develop → Show JavaScript Console
+
+**What to look for:**
+
+1. **Red error messages:**
+   - Scroll through console output
+   - Look for errors (red text)
+   - Note error message text
+
+2. **Network errors:**
+   - Click "Network" tab
+   - Look for failed requests (red)
+   - Check status codes (400, 500 series)
+
+3. **Voice agent specific:**
+   - Search for `[Live]` or `[VoiceAgent]`
+   - Check connection status messages
+   - Note any error details
+
+---
+
+#### Collecting Debug Information
+
+**For bug reports, collect:**
+
+1. **Browser information:**
+   - Browser name and version
+   - Operating system
+   - Extensions enabled
+
+2. **Error details:**
+   - Exact error message
+   - When it occurred
+   - What command triggered it
+
+3. **Console logs:**
+   - Open developer tools (F12)
+   - Screenshot console errors
+   - Include full error stack trace
+
+4. **Steps to reproduce:**
+   - Numbered list of steps
+   - What you expected
+   - What actually happened
+
+5. **Session details:**
+   - Connected successfully?
+   - How long into session?
+   - Previous commands that worked?
+
+---
+
+#### Reporting Bugs
+
+**Where to report:**
+- GitHub Issues: [github.com/yourusername/nanobanna-pro/issues](https://github.com/yourusername/nanobanna-pro/issues)
+
+**What to include:**
+
+1. **Clear title:**
+   - ✅ "Voice agent: Cannot upscale images - service timeout"
+   - ❌ "It doesn't work"
+
+2. **Description:**
+   - What you were trying to do
+   - What happened instead
+   - Error messages (exact text)
+
+3. **Steps to reproduce:**
+   ```
+   1. Connect voice agent
+   2. Say "Generate professional background"
+   3. After applying, say "Upscale to best quality"
+   4. Error: "Service timeout after 30 seconds"
+   ```
+
+4. **Environment:**
+   - Browser: Chrome 120.0.6099.130
+   - OS: Windows 11
+   - Voice Agent Version: [from README.md]
+
+5. **Screenshots:**
+   - Error messages
+   - Console logs (if applicable)
+   - Preview panel state
+
+6. **Expected behavior:**
+   - What should have happened
+   - If it worked before, when
+
+---
+
+#### Emergency Reset Procedures
+
+**When everything else fails:**
+
+**Level 1 - Soft Reset:**
+1. Disconnect voice agent
+2. Refresh browser page (F5)
+3. Reconnect voice agent
+4. Try command again
+
+**Level 2 - Clear Browser State:**
+1. Disconnect voice agent
+2. Open Settings (⚙️)
+3. Remove and re-add API key
+4. Close Settings
+5. Refresh page (F5)
+6. Reconnect and test
+
+**Level 3 - Clear Browser Data:**
+1. Close all Nanobanna tabs
+2. Clear browser cache and cookies:
+   - Chrome: Settings → Privacy → Clear browsing data
+   - Select "Cached images and files"
+   - Time range: "Last hour"
+   - Click "Clear data"
+3. Close and restart browser
+4. Open Nanobanna fresh
+5. Reconfigure API key in Settings
+6. Test voice connection
+
+**Level 4 - Fresh Browser Profile:**
+1. Create new browser profile:
+   - Chrome: Settings → Profiles → Add
+   - Name it "Nanobanna Testing"
+2. In new profile, go to Nanobanna
+3. Configure API key
+4. Test voice agent
+5. If works: issue was browser extensions/data
+6. If fails: report as bug
+
+**Level 5 - Different Browser:**
+1. Download Chrome/Edge if not installed
+2. Open Nanobanna in fresh browser
+3. Configure API key
+4. Test voice agent
+5. If works: original browser has issue
+6. If fails: may be network/account issue
+
+---
+
+### Getting Additional Help
+
+**Before asking for help:**
+
+1. ✅ Read this troubleshooting guide thoroughly
+2. ✅ Try relevant solutions above
+3. ✅ Check browser console for errors
+4. ✅ Search GitHub Issues for similar problems
+5. ✅ Try different browser if possible
+
+**When asking for help:**
+
+1. **Include context:**
+   - What you're trying to accomplish
+   - What solutions you've already tried
+   - Full error messages (not paraphrased)
+
+2. **Be specific:**
+   - ❌ "Voice doesn't work"
+   - ✅ "Voice agent connects but doesn't hear my microphone input - tested in Chrome 120 on Windows 11, microphone works in other apps"
+
+3. **Provide evidence:**
+   - Screenshots of errors
+   - Console logs
+   - Steps to reproduce
+
+4. **Follow up:**
+   - Respond to troubleshooting questions
+   - Report if solutions work
+   - Close issue when resolved
+
+**Community Support:**
+- GitHub Discussions: General questions
+- GitHub Issues: Bug reports
+- Discord/Slack: Real-time help (if available)
+
+**Professional Support:**
+- For OpenAI API issues: support@openai.com
+- For Replicate issues: support@replicate.com
+- For browser issues: Browser vendor support
+
+---
+
 ## Best Practices
 
 ### Speaking Tips
