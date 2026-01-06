@@ -6346,6 +6346,6 @@ A: Disconnect when idle, use appropriate quality tiers, batch commands. See [Cos
 ---
 
 **Last Updated:** 2026-01-07
-**App Version:** 2.0
+**Voice Agent Version:** 1.0.0
 **Voice Agent Status:** ✅ Production Ready
 **Document Version:** 1.0.0
