@@ -177,6 +177,49 @@ describe('ModelRouter Service', () => {
 
       expect(cost2).toBe(cost1);
     });
+
+    it('should return consistent costs across multiple calls with memoized data', () => {
+      // Test multiple different models to ensure cache works for all
+      const models = [
+        MODELS.textBasic,
+        MODELS.textThinking,
+        MODELS.imageGen,
+        MODELS.openrouter.gpt52,
+        MODELS.openrouter.minimaxM2,
+      ];
+
+      // Get costs for all models (populates cache)
+      const firstPassCosts = models.map((modelId) => estimateCost('text', modelId));
+
+      // Get costs again (should use cached metadata)
+      const secondPassCosts = models.map((modelId) => estimateCost('text', modelId));
+
+      // Third pass to be thorough
+      const thirdPassCosts = models.map((modelId) => estimateCost('text', modelId));
+
+      // All passes should return identical results
+      expect(secondPassCosts).toEqual(firstPassCosts);
+      expect(thirdPassCosts).toEqual(firstPassCosts);
+    });
+
+    it('should work correctly after cache invalidation', () => {
+      // Get initial cost with fresh cache
+      const costBefore = estimateCost('text', MODELS.textBasic);
+      expect(typeof costBefore).toBe('number');
+
+      // Clear cache
+      clearModelMetadataCache();
+
+      // Get cost again (should recreate metadata but return same value)
+      const costAfter = estimateCost('text', MODELS.textBasic);
+      expect(costAfter).toBe(costBefore);
+
+      // Clear again and test with different model
+      clearModelMetadataCache();
+      const gptCost = estimateCost('text', MODELS.openrouter.gpt52);
+      expect(typeof gptCost).toBe('number');
+      expect(gptCost).toBeGreaterThanOrEqual(0);
+    });
   });
 
   describe('filterModelsByCapability', () => {
@@ -237,6 +280,87 @@ describe('ModelRouter Service', () => {
 
       expect(models2).toEqual(models1);
     });
+
+    it('should return consistent results across multiple capability queries with memoized data', () => {
+      // Test multiple capabilities to ensure cache works for all
+      const capabilities: Array<'text' | 'vision' | 'thinking' | 'image_gen' | 'image_upscale'> = [
+        'text',
+        'vision',
+        'thinking',
+        'image_gen',
+        'image_upscale',
+      ];
+
+      // First pass - populates cache
+      const firstPassResults = capabilities.map((cap) => filterModelsByCapability(cap));
+
+      // Second pass - should use cached metadata
+      const secondPassResults = capabilities.map((cap) => filterModelsByCapability(cap));
+
+      // Third pass - verify consistency
+      const thirdPassResults = capabilities.map((cap) => filterModelsByCapability(cap));
+
+      // All passes should return identical results
+      expect(secondPassResults).toEqual(firstPassResults);
+      expect(thirdPassResults).toEqual(firstPassResults);
+
+      // Verify each result set has the correct capability
+      firstPassResults.forEach((models, index) => {
+        const capability = capabilities[index];
+        expect(models.length).toBeGreaterThan(0);
+        models.forEach((model) => {
+          expect(model.capabilities).toContain(capability);
+        });
+      });
+    });
+
+    it('should work correctly after cache invalidation', () => {
+      // Get models with fresh cache
+      const modelsBefore = filterModelsByCapability('text');
+      expect(modelsBefore.length).toBeGreaterThan(0);
+      const countBefore = modelsBefore.length;
+
+      // Clear cache
+      clearModelMetadataCache();
+
+      // Get models again (should recreate metadata but return same results)
+      const modelsAfter = filterModelsByCapability('text');
+      expect(modelsAfter.length).toBe(countBefore);
+      expect(modelsAfter).toEqual(modelsBefore);
+
+      // Clear again and test with different capability
+      clearModelMetadataCache();
+      const visionModels = filterModelsByCapability('vision');
+      expect(visionModels.length).toBeGreaterThan(0);
+      visionModels.forEach((model) => {
+        expect(model.capabilities).toContain('vision');
+      });
+    });
+
+    it('should return same array structure with memoized data', () => {
+      // First call
+      const firstCall = filterModelsByCapability('text');
+      const firstModelIds = firstCall.map((m) => m.id);
+
+      // Second call with cached metadata
+      const secondCall = filterModelsByCapability('text');
+      const secondModelIds = secondCall.map((m) => m.id);
+
+      // Third call
+      const thirdCall = filterModelsByCapability('text');
+      const thirdModelIds = thirdCall.map((m) => m.id);
+
+      // Model IDs should be identical across calls
+      expect(secondModelIds).toEqual(firstModelIds);
+      expect(thirdModelIds).toEqual(firstModelIds);
+
+      // Verify structure of returned models
+      firstCall.forEach((model) => {
+        expect(model.id).toBeDefined();
+        expect(model.capabilities).toBeDefined();
+        expect(Array.isArray(model.capabilities)).toBe(true);
+      });
+    });
   });
 
   describe('getModelWithFallback', () => {
@@ -264,6 +388,107 @@ describe('ModelRouter Service', () => {
       const result2 = getModelWithFallback('text', MODELS.textBasic);
 
       expect(result2).toBe(result1);
+    });
+
+    it('should return consistent results across multiple calls with memoized data', () => {
+      // Test with valid preferred models
+      const testCases = [
+        { taskType: 'text' as const, preferredModel: MODELS.textBasic },
+        { taskType: 'reasoning' as const, preferredModel: MODELS.textThinking },
+        { taskType: 'vision' as const, preferredModel: MODELS.textBasic },
+        { taskType: 'image_gen' as const, preferredModel: MODELS.imageGen },
+        { taskType: 'coding' as const, preferredModel: MODELS.openrouter.minimaxM2 },
+      ];
+
+      // First pass - populates cache
+      const firstPassResults = testCases.map(({ taskType, preferredModel }) =>
+        getModelWithFallback(taskType, preferredModel)
+      );
+
+      // Second pass - should use cached metadata
+      const secondPassResults = testCases.map(({ taskType, preferredModel }) =>
+        getModelWithFallback(taskType, preferredModel)
+      );
+
+      // Third pass - verify consistency
+      const thirdPassResults = testCases.map(({ taskType, preferredModel }) =>
+        getModelWithFallback(taskType, preferredModel)
+      );
+
+      // All passes should return identical results
+      expect(secondPassResults).toEqual(firstPassResults);
+      expect(thirdPassResults).toEqual(firstPassResults);
+
+      // Verify expected results
+      testCases.forEach(({ preferredModel }, index) => {
+        expect(firstPassResults[index]).toBe(preferredModel);
+      });
+    });
+
+    it('should handle fallback correctly with memoized data', () => {
+      // First attempt with invalid model (populates cache)
+      const fallback1 = getModelWithFallback('text', 'invalid-model-1');
+      expect(fallback1).toBe(MODELS.textBasic);
+
+      // Second attempt with different invalid model (uses cached metadata)
+      const fallback2 = getModelWithFallback('text', 'invalid-model-2');
+      expect(fallback2).toBe(MODELS.textBasic);
+
+      // Third attempt with valid model (uses cached metadata)
+      const valid = getModelWithFallback('text', MODELS.openrouter.gpt52);
+      expect(valid).toBe(MODELS.openrouter.gpt52);
+
+      // Fourth attempt back to invalid (uses cached metadata)
+      const fallback3 = getModelWithFallback('text', 'invalid-model-3');
+      expect(fallback3).toBe(MODELS.textBasic);
+    });
+
+    it('should work correctly after cache invalidation', () => {
+      // Get model with fresh cache
+      const modelBefore = getModelWithFallback('text', MODELS.textBasic);
+      expect(modelBefore).toBe(MODELS.textBasic);
+
+      // Clear cache
+      clearModelMetadataCache();
+
+      // Get model again (should recreate metadata but return same result)
+      const modelAfter = getModelWithFallback('text', MODELS.textBasic);
+      expect(modelAfter).toBe(MODELS.textBasic);
+
+      // Clear again and test with fallback scenario
+      clearModelMetadataCache();
+      const fallbackModel = getModelWithFallback('reasoning', 'non-existent');
+      expect(fallbackModel).toBe(MODELS.textThinking);
+    });
+
+    it('should handle auto-selection correctly with memoized data', () => {
+      // Test auto-selection without preferred model
+      const taskTypes: Array<'text' | 'reasoning' | 'vision' | 'coding' | 'image_gen'> = [
+        'text',
+        'reasoning',
+        'vision',
+        'coding',
+        'image_gen',
+      ];
+
+      // First pass - populates cache
+      const firstPass = taskTypes.map((taskType) => getModelWithFallback(taskType));
+
+      // Second pass - uses cached metadata
+      const secondPass = taskTypes.map((taskType) => getModelWithFallback(taskType));
+
+      // Third pass
+      const thirdPass = taskTypes.map((taskType) => getModelWithFallback(taskType));
+
+      // All passes should return identical results
+      expect(secondPass).toEqual(firstPass);
+      expect(thirdPass).toEqual(firstPass);
+
+      // Verify all results are valid model IDs
+      firstPass.forEach((modelId) => {
+        expect(typeof modelId).toBe('string');
+        expect(modelId.length).toBeGreaterThan(0);
+      });
     });
   });
 
