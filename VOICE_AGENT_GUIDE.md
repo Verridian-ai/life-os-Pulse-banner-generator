@@ -816,67 +816,570 @@ Enhanced faces are applied as **profile images**, not background images. This me
 
 ### Canvas Manipulation (4 commands)
 
-**Add Text Element**
+Canvas manipulation commands let you add, modify, and manage text and other elements on your LinkedIn banner. These commands execute **immediately** without preview mode, making them perfect for quick edits and text overlays.
 
-Add text to the canvas.
+#### Add Text Element
 
-**Example phrases:**
+**Purpose:** Add text to your canvas with customizable position, size, color, and font. Perfect for adding your name, job title, tagline, or any text overlay to your LinkedIn banner.
+
+**Example Phrases:**
 - "Add the text 'John Smith'"
 - "Add my name to the canvas"
 - "Put 'Web Developer' in the center"
+- "Add the text 'Marketing Director' at the top"
+- "Create text that says 'Let's Connect'"
+- "Add 'Innovation Expert' to the banner"
+- "Put the text 'Creative Problem Solver' below center"
+- "Add my tagline 'Building the Future'"
 
-**What happens:**
-- Creates text element
-- Default: center position, white color, 48px
-- Applied immediately (no preview)
+**Parameters:**
+- **Text:** The content to display (required)
+  - Any string up to reasonable length
+  - Truncated in confirmation if > 50 characters
+- **X Position:** Horizontal position in pixels (optional)
+  - Default: `792` (horizontal center for 1584px banner)
+  - Range: 0 to 1584
+- **Y Position:** Vertical position in pixels (optional)
+  - Default: `198` (vertical center for 396px banner)
+  - Range: 0 to 396
+- **Font Size:** Text size in pixels (optional)
+  - Default: `48px`
+  - Typical range: 24-96px
+- **Color:** Text color (optional)
+  - Default: `#ffffff` (white)
+  - Any valid hex color (e.g., "#3B82F6" for blue)
+- **Font Family:** Font name (optional)
+  - Default: `"Inter"`
+  - Available: System fonts + loaded web fonts
+
+**What Happens:**
+1. AI receives your text and optional parameters
+2. Creates a new text element with unique ID (`text-{timestamp}`)
+3. Applies default styling:
+   - Font weight: 600 (semi-bold)
+   - Text align: center
+   - Position: center of banner (unless specified)
+4. Adds element to canvas immediately
+5. Returns confirmation message
+6. Element is now editable and movable
+
+**Expected Results:**
+- Text appears on canvas at specified or default position
+- White color on dark backgrounds, visible and professional
+- Center-aligned by default for easy positioning
+- Element ID generated for future updates/deletion
+- **No Preview:** Applied immediately to canvas
+- **Execution Time:** Instant (<100ms)
+
+**Common Use Cases:**
+
+**Personal Branding:**
+- "Add the text 'Sarah Johnson'"
+- "Put 'Chief Technology Officer' below center"
+- "Add 'Tech Leader | Speaker | Mentor'"
+
+**Professional Titles:**
+- "Add 'Senior Software Engineer at Google'"
+- "Put 'Founder & CEO' in the top right"
+- "Add 'Product Design Specialist'"
+
+**Taglines & Values:**
+- "Add the text 'Innovating for Impact'"
+- "Put 'Passionate About User Experience'"
+- "Add 'Building Tomorrow's Solutions Today'"
+
+**Contact Information:**
+- "Add 'Connect: sarah@example.com'"
+- "Put 'LinkedIn.com/in/yourprofile'"
+- "Add 'Schedule a call: calendly.com/yourname'"
+
+**Call to Action:**
+- "Add 'Let's Collaborate!'"
+- "Put 'Open to New Opportunities'"
+- "Add 'Hiring Software Engineers'"
+
+**Tips:**
+- ✅ Default center position works great for names and titles
+- ✅ Use "Add text... at the top/bottom" for natural positioning
+- ✅ Text defaults to white - works well on dark backgrounds
+- ✅ Can be updated or moved after creation
+- ✅ Use quotation marks for clarity: "Add the text 'Hello World'"
+- ⚠️ Very long text may overflow - use shorter phrases
+- ⚠️ For custom colors, use update command after creation
+- ❌ Can't specify exact color in voice easily - update it separately
+
+**Natural Language Examples:**
+
+**Basic Addition:**
+- "Add my name John Smith"
+- "Put the text Web Developer on the banner"
+- "Create text that says Let's Connect"
+
+**With Positioning:**
+- "Add Senior Engineer at the top"
+- "Put my email address at the bottom"
+- "Add my title in the center"
+
+**Multi-Step Workflow:**
+1. Say: "Add the text 'Alex Rivera'"
+2. Say: "Add the text 'Product Designer' below that"
+3. Say: "Add 'Building user-centric solutions' at the bottom"
+4. Result: Professional 3-line text layout
+
+**Preview Mode:** ❌ No preview - executes immediately
+
+**Cost:** Free (no API calls)
+
+**Undo:** Use "Undo that" to remove if needed
+
+**Important Notes:**
+- **Element IDs:** Each text element gets a unique ID (e.g., `text-1735689123456`)
+- **Finding IDs:** Use "List elements" command to see all IDs
+- **Updating:** Use "Update element" to change text, color, size, position
+- **Deleting:** Use "Delete element [ID]" to remove
+- **Manual Editing:** Can also drag/edit text elements manually in UI
 
 ---
 
-**Update Element**
+#### Update Element
 
-Modify existing canvas elements.
+**Purpose:** Modify properties of existing canvas elements including text content, position, size, color, and font. Perfect for refining your design without recreating elements.
 
-**Example phrases:**
+**Example Phrases:**
 - "Make the text larger"
 - "Change the color to blue"
 - "Move the text to the top"
+- "Update the text to say 'Senior Developer'"
+- "Make the font size 64 pixels"
+- "Change the text color to red"
+- "Move element text-123 to the right"
+- "Update the title to be bold"
 
-**What happens:**
-- Updates specified element properties
-- Applied immediately
-- Confirm in transcript
+**Parameters:**
+- **Element ID:** Unique identifier of element to update (required)
+  - Format: `text-{timestamp}` or other element type prefix
+  - Get ID via "List elements" command
+- **Properties:** Object with properties to update (required)
+  - Any valid `BannerElement` property
+  - Partial update - only specified properties change
+  - Common properties:
+    - `text`: New text content
+    - `x`, `y`: New position
+    - `fontSize`: New size in pixels
+    - `color`: New hex color
+    - `fontFamily`: New font
+    - `fontWeight`: Weight (400-900)
+    - `textAlign`: Alignment (left, center, right)
+
+**What Happens:**
+1. AI identifies element ID from your command
+2. Extracts properties to update from natural language
+3. Calls update function with ID and properties
+4. Canvas updates element immediately
+5. Returns confirmation with element ID
+6. Changes visible instantly
+
+**Expected Results:**
+- Element updates with new properties immediately
+- Only specified properties change (partial update)
+- Other properties remain unchanged
+- **No Preview:** Changes apply instantly
+- **Execution Time:** Instant (<100ms)
+- Undo available if needed
+
+**Common Use Cases:**
+
+**Change Text Content:**
+- "Update the text to say 'Chief Technology Officer'"
+- "Change the title to 'Senior Product Designer'"
+- "Update element text-123 text to 'New Title'"
+
+**Adjust Size:**
+- "Make the text larger"
+- "Increase the font size to 72 pixels"
+- "Make the title bigger"
+- "Reduce the font size"
+
+**Change Color:**
+- "Change the text color to blue"
+- "Make it red"
+- "Update the color to #3B82F6"
+- "Change element text-123 color to gold"
+
+**Reposition:**
+- "Move the text to the top"
+- "Shift it to the right"
+- "Move element text-123 down"
+- "Center the text"
+
+**Multiple Properties:**
+- "Make the text larger and blue"
+- "Move it to the top and make it white"
+- "Change the text to 'Hello' and make it bigger"
+
+**Tips:**
+- ✅ Use "List elements" first to find element IDs
+- ✅ AI understands natural language: "make it bigger" = increase fontSize
+- ✅ Can update multiple properties in one command
+- ✅ Partial updates preserve other properties
+- ✅ Undo available if update not as expected
+- ⚠️ Need element ID for specific element updates
+- ⚠️ "The text" refers to most recent or only text element
+- ❌ Can't update non-existent elements (ID must exist)
+
+**Natural Language Understanding:**
+
+The AI translates natural phrases to property updates:
+
+| You Say | AI Updates |
+|---------|-----------|
+| "Make it larger" | `{ fontSize: <increased> }` |
+| "Change color to blue" | `{ color: "#0000FF" }` |
+| "Move to top" | `{ y: <small value> }` |
+| "Make it bold" | `{ fontWeight: "700" }` |
+| "Center it" | `{ x: 792, textAlign: "center" }` |
+
+**Workflow Examples:**
+
+**Refine Text Design:**
+1. Say: "Add the text 'John Smith'"
+2. Say: "List elements" (get ID: `text-1234567890`)
+3. Say: "Make the text larger and change color to navy blue"
+4. Say: "Move it to the top"
+5. Result: Refined, positioned text element
+
+**Quick Corrections:**
+1. Say: "Add the text 'Product Manger'" (typo!)
+2. Say: "Update the text to say 'Product Manager'"
+3. Result: Typo fixed without recreating element
+
+**Style Iteration:**
+1. Say: "Add my name Alex Rivera"
+2. Say: "Make it bigger" → Review
+3. Say: "Change color to gold" → Review
+4. Say: "Move it up a bit" → Perfect!
+
+**Preview Mode:** ❌ No preview - executes immediately
+
+**Cost:** Free (no API calls)
+
+**Undo:** Use "Undo that" to revert changes
+
+**Important Notes:**
+- **Element Context:** Saying "the text" works if only one text element exists
+- **Multiple Elements:** Specify element ID when multiple elements present
+- **AI Intelligence:** AI infers properties from natural language
+- **Property Validation:** Invalid properties ignored by canvas
+- **Visual Feedback:** See changes immediately on canvas
+
+**Finding Element IDs:**
+Say: "List elements" to get output like:
+```json
+[
+  {
+    "id": "text-1735689123456",
+    "type": "text",
+    "content": "John Smith",
+    "position": {"x": 792, "y": 198}
+  }
+]
+```
+Then use ID in update: "Update element text-1735689123456 color to blue"
 
 ---
 
-**Delete Element**
+#### Delete Element
 
-Remove elements from canvas.
+**Purpose:** Remove elements from your canvas. Clean up unwanted text, images, or other elements quickly with voice commands.
 
-**Example phrases:**
+**Example Phrases:**
 - "Delete the text element"
 - "Remove that element"
 - "Delete element text-123"
+- "Remove the title"
+- "Delete element text-1735689123456"
+- "Remove all text"
+- "Clear the text elements"
+- "Delete that"
 
-**What happens:**
-- Removes element by ID
-- Applied immediately
-- Can undo if needed
+**Parameters:**
+- **Element ID:** Unique identifier of element to delete (required)
+  - Format: `text-{timestamp}` or other element type
+  - Get ID via "List elements" command
+  - Can reference "the text" if only one element
+
+**What Happens:**
+1. AI identifies element ID from your command
+2. Calls delete function with element ID
+3. Canvas removes element permanently
+4. Returns confirmation with deleted element ID
+5. Element disappears from canvas immediately
+6. Can be undone with "Undo action"
+
+**Expected Results:**
+- Element removed from canvas instantly
+- Deletion is permanent (unless undone)
+- Canvas updates immediately
+- **No Preview:** Executes immediately
+- **No Confirmation:** Deletes right away (use undo if mistake)
+- **Execution Time:** Instant (<100ms)
+
+**Common Use Cases:**
+
+**Remove Specific Element:**
+- "Delete element text-1735689123456"
+- "Remove element text-987654321"
+- "Delete that text element"
+
+**Clean Up Mistakes:**
+- "Delete that" (removes most recent)
+- "Remove the title" (AI finds title element)
+- "Delete the text I just added"
+
+**Iterate on Design:**
+1. Say: "Add the text 'Draft Title'"
+2. Review → Not quite right
+3. Say: "Delete that"
+4. Say: "Add the text 'Final Title'"
+
+**Clear Canvas:**
+- "Remove all text elements" (if multiple, may need to repeat)
+- "Delete the text"
+- "Clear the elements"
+
+**Tips:**
+- ✅ Use "List elements" to find IDs before deleting
+- ✅ "Delete that" works for recently added elements
+- ✅ Can always undo with "Undo that"
+- ✅ Specific IDs prevent accidental deletion
+- ⚠️ "The text" deletes first/only text element found
+- ⚠️ Deletion is immediate - no confirmation dialog
+- ⚠️ Multiple elements need multiple delete commands
+- ❌ Can't delete multiple elements in one command (yet)
+
+**Natural Language Understanding:**
+
+| You Say | AI Interprets |
+|---------|--------------|
+| "Delete the text" | Deletes first text element |
+| "Remove that element" | Deletes most recent element |
+| "Delete element text-123" | Deletes specific element by ID |
+| "Clear the title" | Finds and deletes element with title-like text |
+
+**Workflow Examples:**
+
+**Safe Deletion:**
+1. Say: "List elements" → See all IDs
+2. Say: "Delete element text-1735689123456"
+3. Confirm: Element removed
+4. If mistake: "Undo that"
+
+**Quick Iteration:**
+1. Say: "Add the text 'Option A'"
+2. Review → Don't like it
+3. Say: "Delete that"
+4. Say: "Add the text 'Option B'"
+5. Result: Quick design iteration
+
+**Cleanup After Testing:**
+1. Say: "Add test text" (testing layout)
+2. Say: "Add more test text" (testing multiple elements)
+3. Say: "List elements" (see all test elements)
+4. Say: "Delete element text-111"
+5. Say: "Delete element text-222"
+6. Result: Clean canvas
+
+**Preview Mode:** ❌ No preview - executes immediately
+
+**Cost:** Free (no API calls)
+
+**Undo:** ✅ Can undo deletion with "Undo that" or "Undo action"
+
+**Important Notes:**
+- **Permanent Action:** Deletion can't be recovered except via undo
+- **Undo History:** Deletion adds to undo history
+- **Element Context:** Be specific with IDs to avoid wrong deletion
+- **Multiple Elements:** Need to delete one at a time currently
+- **Visual Confirmation:** Element disappears immediately as confirmation
+
+**Safety Tips:**
+1. **List First:** Use "List elements" to verify ID before deleting
+2. **Undo Ready:** Know you can undo if you delete wrong element
+3. **Specific IDs:** Use exact ID for critical deletions
+4. **Test Elements:** Use obvious text like "TEST" for elements you'll delete
+
+**Error Handling:**
+- **Invalid ID:** AI reports element not found
+- **No Elements:** AI reports nothing to delete
+- **Wrong Reference:** "The text" might delete unexpected element
 
 ---
 
-**List Elements**
+#### List Elements
 
-Show all canvas elements.
+**Purpose:** Display all current canvas elements with their IDs, types, content, and positions. Essential for finding element IDs before updating or deleting elements.
 
-**Example phrases:**
+**Example Phrases:**
 - "List all elements"
 - "What's on the canvas?"
 - "Show me the current elements"
+- "List elements"
+- "What elements do I have?"
+- "Show canvas elements"
+- "Give me element IDs"
+- "What's on my banner?"
 
-**What happens:**
-- Returns JSON list of elements
-- Shows IDs, types, positions
-- Useful for finding element IDs
+**Parameters:**
+- None (always lists all canvas elements)
+
+**What Happens:**
+1. AI calls canvas to retrieve all elements
+2. Formats each element into summary object:
+   - `id`: Unique element identifier
+   - `type`: Element type (text, image, etc.)
+   - `content`: Text content (truncated to 30 chars) or image URL
+   - `position`: X and Y coordinates
+3. Returns formatted JSON array
+4. JSON formatted with 2-space indentation for readability
+5. Displayed in transcript
+
+**Expected Results:**
+- JSON array listing all elements
+- Each element shows: ID, type, content preview, position
+- Text content truncated to 30 characters if longer
+- Formatted for easy reading
+- **No Preview:** Returns data in transcript
+- **No Canvas Change:** Read-only operation
+- **Execution Time:** Instant (<100ms)
+
+**Example Output:**
+```json
+[
+  {
+    "id": "text-1735689123456",
+    "type": "text",
+    "content": "John Smith",
+    "position": {"x": 792, "y": 198}
+  },
+  {
+    "id": "text-1735689123789",
+    "type": "text",
+    "content": "Senior Product Designer",
+    "position": {"x": 792, "y": 260}
+  },
+  {
+    "id": "image-1735689124000",
+    "type": "image",
+    "content": "https://...",
+    "position": {"x": 0, "y": 0}
+  }
+]
+```
+
+**Common Use Cases:**
+
+**Find Element IDs:**
+- Before updating: "List elements" → Get ID → "Update element text-123..."
+- Before deleting: "List elements" → Get ID → "Delete element text-123"
+- Verify element exists before operating on it
+
+**Canvas Inspection:**
+- "What's on the canvas?" → See all elements
+- "Show me what elements I have" → Review current state
+- "List elements" → Understand canvas composition
+
+**Debugging:**
+- Element not updating? → "List elements" → Verify ID
+- Can't find element? → "List elements" → Check if it exists
+- Multiple elements? → "List elements" → See all IDs
+
+**Design Review:**
+- "Show me the current elements" → Review structure
+- Check element positions → Plan new element placement
+- Verify text content → Ensure accuracy
+
+**Tips:**
+- ✅ Use before updating or deleting elements
+- ✅ Returns JSON - easy to read in transcript
+- ✅ Shows position for layout planning
+- ✅ Content preview helps identify elements
+- ✅ Type field shows element category
+- ✅ Read-only - safe to run anytime
+- ⚠️ Long text truncated to 30 chars in preview
+- ⚠️ Many elements = long output
+- ❌ Doesn't modify canvas - just reports
+
+**Workflow Examples:**
+
+**Update Workflow:**
+1. Say: "List elements"
+2. See: `text-1735689123456` is "John Smith"
+3. Say: "Update element text-1735689123456 to say 'Jane Smith'"
+4. Result: Correct element updated
+
+**Delete Workflow:**
+1. Say: "List elements"
+2. See multiple text elements with IDs
+3. Say: "Delete element text-1735689123456"
+4. Result: Specific element deleted
+
+**Layout Planning:**
+1. Say: "List elements"
+2. See: Element at position {x: 792, y: 198}
+3. Say: "Add text 'New Element' at position y 300"
+4. Result: New element positioned below existing
+
+**Audit Canvas:**
+1. Say: "List elements"
+2. Review: 5 text elements, 1 background image
+3. Decision: "Delete element text-111" (clean up old element)
+4. Say: "List elements" again → Verify deletion
+
+**Preview Mode:** ❌ No preview - returns data in transcript
+
+**Cost:** Free (no API calls)
+
+**Output Format:**
+- **Formatted JSON:** Easy to read and parse
+- **Element Summary:** Only essential properties shown
+- **Truncated Content:** Long text shortened with "..."
+- **Position Object:** Shows {x, y} coordinates
+
+**Important Notes:**
+- **Essential Tool:** Key command for working with existing elements
+- **Safe Operation:** Read-only, doesn't change canvas
+- **Transcript Output:** Results appear in voice transcript panel
+- **ID Reference:** Copy IDs from output for update/delete commands
+- **Canvas State:** Shows current state, updates on re-run
+
+**Understanding Output:**
+
+**Element ID:**
+- Format: `{type}-{timestamp}`
+- Example: `text-1735689123456`
+- Unique identifier for each element
+- Use in update/delete commands
+
+**Element Type:**
+- `text`: Text elements (most common)
+- `image`: Image elements (backgrounds, overlays)
+- Future: shapes, icons, etc.
+
+**Content Preview:**
+- **Text elements:** Shows actual text (max 30 chars)
+- **Image elements:** Shows image URL
+- **Truncation:** "..." indicates truncated content
+
+**Position:**
+- `x`: Horizontal position (0-1584 for banner)
+- `y`: Vertical position (0-396 for banner)
+- Center: {x: 792, y: 198}
+
+**Pro Tips:**
+1. **Keep IDs handy:** Note IDs for elements you'll modify
+2. **Regular checks:** List elements after major changes
+3. **Verify before delete:** Always list before deleting to confirm ID
+4. **Layout reference:** Use positions to plan new element placement
 
 ---
 
