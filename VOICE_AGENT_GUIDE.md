@@ -1385,52 +1385,507 @@ Then use ID in update: "Update element text-1735689123456 color to blue"
 
 ### Navigation (1 command)
 
-**Navigate to Tab**
+Navigation commands let you switch between different areas of the application hands-free. Perfect for quickly moving between design workspace, saved designs, and brainstorming tools without interrupting your workflow.
 
-Switch between application tabs.
+#### Navigate to Tab
 
-**Example phrases:**
+**Purpose:** Switch between application tabs using voice commands. Move seamlessly between Studio (canvas editor), Gallery (saved designs), and Brainstorm (AI chat) without touching your mouse.
+
+**Example Phrases:**
 - "Go to the gallery"
 - "Navigate to studio"
 - "Switch to brainstorm tab"
+- "Take me to the gallery"
+- "Open the studio"
+- "Show me the brainstorm page"
+- "Go to studio tab"
+- "Switch to gallery"
 
-**What happens:**
-- Changes active tab
-- Applied immediately
-- Tab names: studio, gallery, brainstorm
+**Parameters:**
+- **Tab Name:** The destination tab (required)
+  - `studio` - Canvas editor with generation tools
+  - `gallery` - Browse and load saved designs
+  - `brainstorm` - AI chat for ideation and planning
+
+**What Happens:**
+1. AI identifies target tab from your command
+2. Application switches to the specified tab immediately
+3. Content for that tab loads/becomes active
+4. Voice session continues (stays connected)
+5. You can continue issuing commands in new tab
+
+**Expected Results:**
+- Tab changes instantly (< 100ms)
+- Previous tab state preserved in background
+- Voice connection remains active
+- Can navigate back anytime
+- **No Preview:** Executes immediately
+- **Execution Time:** Instant
+
+**Common Use Cases:**
+
+**Design to Gallery Workflow:**
+- "Go to the gallery" (browse saved designs)
+- Review saved banners
+- "Go back to studio" (return to editing)
+
+**Brainstorm to Design:**
+- "Switch to brainstorm" (ideation session)
+- Chat with AI about design ideas
+- "Navigate to studio" (implement ideas)
+
+**Quick Reviews:**
+- "Show me the gallery" (check previous work)
+- Select design for reference
+- "Take me to studio" (continue current work)
+
+**Multi-Step Workflows:**
+- Working in studio → Need inspiration
+- "Go to gallery" → Review past designs
+- "Switch to brainstorm" → Get AI suggestions
+- "Navigate to studio" → Apply new ideas
+
+**Tips:**
+- ✅ Voice session stays active across tabs
+- ✅ Can navigate while voice agent connected
+- ✅ All tab states preserved when switching
+- ✅ Natural language: "go to", "switch to", "navigate to" all work
+- ✅ Tab names case-insensitive (Studio, studio, STUDIO all work)
+- ⚠️ Some commands only work in specific tabs (e.g., canvas commands need studio)
+- ⚠️ Switching tabs doesn't pause ongoing operations
+- ❌ Can't navigate to non-existent tabs
+
+**Natural Language Understanding:**
+
+| You Say | AI Interprets |
+|---------|--------------|
+| "Go to the gallery" | Navigate to `gallery` tab |
+| "Take me to studio" | Navigate to `studio` tab |
+| "Open brainstorm" | Navigate to `brainstorm` tab |
+| "Show me my saved designs" | Navigate to `gallery` tab |
+| "Go back to the editor" | Navigate to `studio` tab |
+
+**Workflow Examples:**
+
+**Design Review Process:**
+1. Say: "Go to the gallery"
+2. Browse saved designs (voice stays connected)
+3. Say: "Navigate to studio"
+4. Say: "Generate a design similar to my saved banner"
+5. Result: Efficient workflow without manual navigation
+
+**Brainstorming Session:**
+1. Say: "Switch to brainstorm"
+2. Say: "Suggest prompts for a tech executive"
+3. Review suggestions
+4. Say: "Go to studio"
+5. Say: "Generate a professional tech background with those ideas"
+6. Result: Seamless ideation to implementation
+
+**Quick Reference Check:**
+1. Working in studio
+2. Say: "Show me the gallery" (quick peek at past work)
+3. Review for inspiration
+4. Say: "Go back to studio" (return to current work)
+5. Continue design with new insights
+
+**Preview Mode:** ❌ No preview - executes immediately
+
+**Cost:** Free (no API calls)
+
+**Tab-Specific Features:**
+
+**Studio Tab:**
+- Canvas editor visible
+- Generation controls active
+- All canvas commands available
+- Image processing commands work
+- Undo/redo applies to canvas changes
+
+**Gallery Tab:**
+- Saved designs grid view
+- Load/delete design options
+- View design metadata
+- Canvas commands not applicable
+- Can generate in gallery (creates new design)
+
+**Brainstorm Tab:**
+- Full-screen AI chat interface
+- Conversation-focused layout
+- AI analysis commands work best here
+- Canvas not visible (but preserved)
+- Ideal for planning before designing
+
+**Important Notes:**
+- **Persistent Connection:** Voice session continues across tabs
+- **State Preservation:** Each tab maintains its state
+- **Command Context:** Some commands only work in specific tabs
+- **Seamless Workflow:** Navigate freely without disconnecting
+- **Multi-Tab Strategy:** Use brainstorm for ideas, studio for design, gallery for review
 
 ---
 
 ### History Management (2 commands)
 
-**Undo Action**
+History management commands let you undo and redo canvas changes, giving you complete control over your design history. Perfect for experimenting, fixing mistakes, and iterating on your design without fear of losing progress.
 
-Undo the last canvas change.
+#### Undo Action
 
-**Example phrases:**
+**Purpose:** Reverse the last change made to your canvas. Undo text additions, deletions, updates, and applied image operations. Works like Ctrl+Z but with your voice, allowing hands-free design iteration.
+
+**Example Phrases:**
 - "Undo that"
 - "Go back"
 - "Undo the last change"
+- "Undo"
+- "Revert that"
+- "Go back one step"
+- "Undo the last action"
+- "Take that back"
+- "Undo my last change"
 
-**What happens:**
-- Reverts last canvas action
-- Applied immediately
-- Can redo if needed
+**Parameters:**
+- None (always undoes the most recent action)
+
+**What Happens:**
+1. AI calls undo function on canvas context
+2. Canvas reverts to previous state in history stack
+3. Most recent change is removed from canvas
+4. Change is moved to redo stack (can be redone)
+5. Canvas updates immediately
+6. Confirmation returned to voice transcript
+
+**Expected Results:**
+- Last canvas change reversed instantly
+- Canvas returns to previous state
+- Undo history stack decreases by 1
+- Redo stack gains 1 entry (change can be redone)
+- **No Preview:** Executes immediately
+- **Execution Time:** Instant (<100ms)
+- Can continue to undo multiple times
+
+**What Can Be Undone:**
+
+**Canvas Operations:**
+- ✅ Text element additions (add_text_element)
+- ✅ Text element updates (update_element)
+- ✅ Text element deletions (delete_element)
+- ✅ Background changes (apply from preview)
+- ✅ Image additions/updates
+- ✅ Any change that modifies canvas state
+
+**What Cannot Be Undone:**
+- ❌ Read-only operations (list_elements, analyze)
+- ❌ Navigation between tabs
+- ❌ Preview generations (only undo if applied)
+- ❌ Rejected preview actions (never applied)
+- ❌ Voice connection/disconnection
+
+**Common Use Cases:**
+
+**Fixing Mistakes:**
+- Say: "Add the text 'Senoir Developer'" (typo!)
+- Realize mistake immediately
+- Say: "Undo that"
+- Say: "Add the text 'Senior Developer'" (correct)
+
+**Experimental Changes:**
+- Say: "Make the text really large"
+- Review → Too big
+- Say: "Undo that"
+- Say: "Make it slightly larger"
+
+**Accidental Deletions:**
+- Say: "Delete element text-123"
+- Realize wrong element deleted
+- Say: "Undo that" (element restored)
+- Say: "List elements" (verify correct ID)
+- Say: "Delete element text-456" (correct element)
+
+**Iterative Design:**
+- Say: "Change background to blue"
+- Apply → Review → Not quite right
+- Say: "Undo that"
+- Say: "Change background to navy blue with gradient"
+- Apply → Better!
+
+**Quick Comparisons:**
+- Say: "Add the text 'Innovation Expert'"
+- Review with text
+- Say: "Undo that"
+- Review without text
+- Decide: "Redo that" (keep it)
+
+**Tips:**
+- ✅ Can undo multiple times in sequence
+- ✅ Each undo goes back one step in history
+- ✅ Undo works on both manual and voice changes
+- ✅ Undo stack preserved during voice session
+- ✅ Safe to experiment - always reversible
+- ⚠️ Undo stack cleared on page refresh
+- ⚠️ Cannot undo beyond first canvas state
+- ⚠️ Undoing doesn't consume API credits
+- ❌ Cannot undo read-only operations
+
+**Natural Language Understanding:**
+
+| You Say | AI Interprets |
+|---------|--------------|
+| "Undo that" | Undo last action |
+| "Go back" | Undo last action |
+| "Revert that change" | Undo last action |
+| "Take that back" | Undo last action |
+| "Undo the text" | Undo last action (AI doesn't undo specific element, just last action) |
+
+**Workflow Examples:**
+
+**Safe Experimentation:**
+1. Say: "Add the text 'CEO'"
+2. Say: "Make it really large"
+3. Review → Too bold
+4. Say: "Undo that" (back to normal size)
+5. Say: "Make it slightly larger" (better)
+6. Result: Iterated safely without recreating
+
+**Mistake Recovery:**
+1. Say: "Delete the text"
+2. Realize: Wrong element deleted
+3. Say: "Undo that" (element restored)
+4. Say: "List elements" (find correct ID)
+5. Say: "Delete element text-123456" (correct element)
+6. Result: Mistake recovered instantly
+
+**Design Comparison:**
+1. Current canvas with blue background
+2. Say: "Change background to red" → Apply
+3. Review → Prefer blue
+4. Say: "Undo that"
+5. Blue background restored
+6. Result: Easy A/B testing
+
+**Multi-Step Undo:**
+1. Added text element
+2. Changed color to gold
+3. Moved to top
+4. Say: "Undo that" (position reverts)
+5. Say: "Undo that" (color reverts)
+6. Say: "Undo that" (text removed)
+7. Result: Complete reversal of sequence
+
+**Preview Mode:** ❌ No preview - executes immediately
+
+**Cost:** Free (no API calls)
+
+**Undo Stack Behavior:**
+- **Stack Size:** Typically stores 20-50 previous states
+- **Stack Order:** Last-in, first-out (LIFO)
+- **Persistence:** Cleared on page refresh
+- **Sharing:** Undo stack is per-session, not shared
+
+**Important Notes:**
+- **Instant Reversal:** Changes undo immediately
+- **Redo Available:** Undone actions can be redone
+- **Multiple Undos:** Can undo many times sequentially
+- **Cross-Source:** Undoes both manual and voice changes
+- **Safe Experimentation:** Try anything, always reversible
 
 ---
 
-**Redo Action**
+#### Redo Action
 
-Redo a previously undone action.
+**Purpose:** Reapply a previously undone change to your canvas. Perfect for when you undo too many times or change your mind about a reversed action. Works like Ctrl+Y but with voice commands.
 
-**Example phrases:**
+**Example Phrases:**
 - "Redo that"
 - "Bring it back"
 - "Redo the last change"
+- "Redo"
+- "Put it back"
+- "Redo the last undo"
+- "Bring that back"
+- "Restore that"
+- "Re-apply that change"
 
-**What happens:**
-- Re-applies undone action
-- Applied immediately
+**Parameters:**
+- None (always redoes the most recently undone action)
+
+**What Happens:**
+1. AI calls redo function on canvas context
+2. Canvas retrieves last undone change from redo stack
+3. Change is re-applied to canvas
+4. Change moves back to undo stack (can be undone again)
+5. Canvas updates immediately
+6. Confirmation returned to voice transcript
+
+**Expected Results:**
+- Last undone change re-applied instantly
+- Canvas returns to state before undo
+- Redo stack decreases by 1
+- Undo stack gains 1 entry (can be undone again)
+- **No Preview:** Executes immediately
+- **Execution Time:** Instant (<100ms)
+- Can continue to redo multiple times (if multiple undos)
+
+**What Can Be Redone:**
+
+**Undone Operations:**
+- ✅ Any operation that was undone
+- ✅ Text element changes
+- ✅ Background updates
+- ✅ Applied image operations
+- ✅ Multiple redos if multiple undos
+
+**What Cannot Be Redone:**
+- ❌ Operations that were never undone
+- ❌ Redo stack cleared if new change made
+- ❌ Rejected previews (never applied)
+- ❌ Read-only operations
+
+**Common Use Cases:**
+
+**Undo Too Far:**
+- Say: "Undo that"
+- Say: "Undo that"
+- Say: "Undo that" → Oops, went too far
+- Say: "Redo that" → Back to desired state
+
+**Changed Mind:**
+- Say: "Add the text 'Innovation'"
+- Say: "Undo that" → Remove text
+- Review → Actually, keep it
+- Say: "Redo that" → Text restored
+
+**Compare States:**
+- Say: "Undo that" → See previous state
+- Compare designs
+- Say: "Redo that" → Return to current
+- Decision: Keep current version
+
+**Sequential Redo:**
+- Undid 3 changes
+- Say: "Redo that" → Redo first
+- Say: "Redo that" → Redo second
+- Say: "Redo that" → Redo third
+- Result: All changes restored in order
+
+**Tips:**
+- ✅ Can redo multiple times if multiple undos
+- ✅ Each redo re-applies one undo in sequence
+- ✅ Redo stack maintained during voice session
+- ✅ Safely toggle between states with undo/redo
+- ✅ No cost to undo/redo operations
+- ⚠️ Redo stack cleared if new change made after undo
+- ⚠️ Redo only available immediately after undo
+- ⚠️ Redo stack cleared on page refresh
+- ❌ Cannot redo if nothing has been undone
+
+**Natural Language Understanding:**
+
+| You Say | AI Interprets |
+|---------|--------------|
+| "Redo that" | Redo last undone action |
+| "Bring it back" | Redo last undone action |
+| "Put it back" | Redo last undone action |
+| "Restore that change" | Redo last undone action |
+
+**Workflow Examples:**
+
+**Undo/Redo Toggle:**
+1. Say: "Add the text 'CEO'"
+2. Say: "Undo that" (text removed)
+3. Review canvas without text
+4. Say: "Redo that" (text restored)
+5. Review canvas with text
+6. Decision: Keep text (it's restored)
+
+**Overshoot Recovery:**
+1. Made 5 canvas changes
+2. Say: "Undo that" (undo 1)
+3. Say: "Undo that" (undo 2)
+4. Say: "Undo that" (undo 3)
+5. Realize: Went too far
+6. Say: "Redo that" (redo 1)
+7. Result: Back to desired state
+
+**A/B Comparison:**
+1. Current state: Blue background
+2. Say: "Undo that" (previous: Red background)
+3. Compare red vs blue
+4. Say: "Redo that" (back to blue)
+5. Confirm: Blue is better
+6. Result: Informed design decision
+
+**Sequential Restoration:**
+1. Undid 3 text additions
+2. Say: "Redo that" (restore first text)
+3. Say: "Redo that" (restore second text)
+4. Decision: Keep these 2, not the third
+5. Result: Selective restoration
+
+**Preview Mode:** ❌ No preview - executes immediately
+
+**Cost:** Free (no API calls)
+
+**Redo Stack Behavior:**
+- **Stack Creation:** Built from undo operations
+- **Stack Clearing:** Cleared when new change made
+- **Stack Size:** Limited by number of recent undos
+- **Stack Order:** Last undone redone first (LIFO)
+
+**Understanding Undo/Redo Relationship:**
+
+**Scenario 1: Simple Undo/Redo**
+```
+State 1: Empty canvas
+State 2: Add text "Hello"
+Say "Undo" → Back to State 1
+Say "Redo" → Back to State 2
+```
+
+**Scenario 2: Redo Stack Cleared**
+```
+State 1: Empty canvas
+State 2: Add text "Hello"
+Say "Undo" → Back to State 1 (redo available)
+Say "Add text 'World'" → State 3 (redo stack cleared)
+Say "Redo" → Nothing happens (redo stack empty)
+```
+
+**Scenario 3: Multiple Undo/Redo**
+```
+State 1 → State 2 → State 3 → State 4
+Say "Undo" → State 3 (can redo to 4)
+Say "Undo" → State 2 (can redo to 3, then 4)
+Say "Redo" → State 3 (can still redo to 4)
+Say "Redo" → State 4 (redo stack empty)
+```
+
+**Important Notes:**
+- **Redo Availability:** Only available after undo
+- **Stack Clearing:** New changes clear redo stack
+- **Multiple Redos:** Can redo sequentially
+- **Complementary:** Works with undo for full history control
+- **No Side Effects:** Redoing is free and instant
+
+**Best Practices:**
+
+**Design Iteration:**
+1. Make changes freely
+2. Undo to compare previous states
+3. Redo to restore if better
+4. Iterate until perfect
+
+**Safe Exploration:**
+1. Try bold experimental changes
+2. Undo if not working
+3. Keep redo option available
+4. Restore if changed mind
+
+**Version Comparison:**
+1. Use undo to go back
+2. Review previous versions
+3. Use redo to return
+4. Make informed decisions
 
 ---
 
