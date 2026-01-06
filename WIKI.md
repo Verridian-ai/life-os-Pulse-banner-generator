@@ -17,9 +17,10 @@
 7. [Deployment to Vercel](#deployment-to-vercel)
 8. [Deployment Modes](#deployment-modes)
 9. [API Keys & Configuration](#api-keys--configuration)
-10. [Troubleshooting](#troubleshooting)
-11. [Development Guide](#development-guide)
-12. [Contributing](#contributing)
+10. [Voice Agent Setup](#voice-agent-setup)
+11. [Troubleshooting](#troubleshooting)
+12. [Development Guide](#development-guide)
+13. [Contributing](#contributing)
 
 ---
 
@@ -595,6 +596,323 @@ https://openrouter.ai/keys
 
 **Get Key:**
 https://replicate.com/account/api-tokens
+
+---
+
+## Voice Agent Setup
+
+### Overview
+
+The Voice Agent enables **hands-free banner design** using natural voice commands. Speak to create backgrounds, edit images, add text, and more - powered by **OpenAI's Realtime API** with 17 available voice commands.
+
+**Key Capabilities:**
+
+- 🎙️ **Natural Language Commands** - Speak naturally, no memorization required
+- 🤖 **17 Voice Commands** - Image generation, editing, canvas manipulation, AI analysis
+- 👁️ **Preview Mode** - Review actions before execution for safety
+- 🔄 **Real-Time Processing** - Sub-second response times
+- 🎨 **Full Design Workflow** - Create complete banners entirely by voice
+
+**Use Cases:**
+
+- Rapid prototyping and A/B testing
+- Accessibility for visually impaired designers
+- Multitasking (design while reviewing other work)
+- Learning tool for AI-assisted design
+
+---
+
+### Prerequisites
+
+Before using the Voice Agent, ensure you have:
+
+#### 1. OpenAI API Key
+
+**Required for:** Voice agent functionality (OpenAI Realtime API)
+
+**Get Key:**
+https://platform.openai.com/api-keys
+
+**Pricing:**
+
+- **Audio Input:** $0.06 per million audio tokens (~$0.36/hour of speech)
+- **Audio Output:** $0.24 per million audio tokens (~$1.44/hour of AI speech)
+- **Text Processing:** GPT-4o rates (~$0.0025/1K tokens)
+
+**Typical Costs:**
+
+- 5-minute session: ~$0.05-$0.10
+- 30-minute design workflow: ~$0.30-$0.60
+
+**Rate Limits:**
+
+- Free tier: Limited to 20 requests/min
+- Tier 1 ($5+ spent): 500 requests/min
+- Tier 4 ($1000+ spent): Unlimited
+
+#### 2. Browser Compatibility
+
+**Recommended Browsers:**
+
+- ✅ **Chrome 89+** - Full support, best performance
+- ✅ **Edge 89+** - Full support, best performance
+- ⚠️ **Firefox 94+** - Works, some audio issues possible
+- ⚠️ **Safari 15+** - Limited support, may have bugs
+
+**Why Chrome/Edge?**
+
+- Best WebRTC and Web Audio API support
+- Lowest latency for real-time audio
+- Most tested configuration
+
+#### 3. Microphone Access
+
+**Requirements:**
+
+- Working microphone (built-in or external)
+- HTTPS connection (required for microphone permissions)
+- Microphone permission granted to the application
+
+**Testing Your Microphone:**
+
+```bash
+# Test in browser
+1. Open browser settings
+2. Go to Privacy & Security → Microphone
+3. Test your microphone
+4. Ensure volume is adequate
+```
+
+---
+
+### Quick Setup (5 Minutes)
+
+#### Step 1: Get OpenAI API Key
+
+1. Go to https://platform.openai.com/api-keys
+2. Sign up or log in
+3. Click **"Create new secret key"**
+4. Copy the key (starts with `sk-...`)
+5. **Save it securely** - you won't see it again
+
+**Important:**
+- Add billing information in OpenAI dashboard
+- Set usage limits to prevent unexpected charges
+- Monitor usage at https://platform.openai.com/usage
+
+#### Step 2: Add API Key to Nanobanna Pro
+
+**For Pilot Mode (Shared Key):**
+
+Add to `.env.local` or Vercel environment variables:
+
+```env
+VITE_OPENAI_API_KEY=sk-your-openai-key-here
+```
+
+**For User-Hosted Mode (Per-User Keys):**
+
+1. Log into Nanobanna Pro
+2. Click **Settings** (gear icon)
+3. Navigate to **"Voice Agent"** section
+4. Paste your OpenAI API key
+5. Click **"Save"**
+6. Keys are stored encrypted in `user_preferences` table
+
+#### Step 3: Grant Microphone Permission
+
+1. Open Nanobanna Pro in Chrome/Edge
+2. Click the **microphone icon** in Studio tab
+3. Browser will prompt for microphone access
+4. Click **"Allow"**
+5. If denied, update browser settings:
+   - Chrome: Settings → Privacy → Microphone → Add nanobanna.com
+   - Edge: Settings → Cookies and site permissions → Microphone → Add
+
+#### Step 4: Connect Voice Agent
+
+1. In **Studio** tab, click the **microphone button**
+2. Wait for "Connected" status (green indicator)
+3. Speak: **"Hello, can you hear me?"**
+4. AI responds confirming connection
+5. Try: **"Generate a professional background with blue gradient"**
+
+**Connection Status:**
+
+- 🔴 **Disconnected** - Click microphone to connect
+- 🟡 **Connecting...** - Wait a few seconds
+- 🟢 **Connected** - Ready for voice commands
+- 🔵 **Processing** - AI is working on your command
+
+---
+
+### Configuration Options
+
+#### Preview Mode (Recommended)
+
+**What It Does:**
+Shows a preview panel for destructive actions (image generation, deletion) before executing.
+
+**Enable/Disable:**
+
+```typescript
+// In Settings UI or voice command
+"Enable preview mode"
+"Disable preview mode" // Auto-execute commands
+```
+
+**Preview Mode Commands:**
+
+- ✅ **Approve** - Execute the action
+- ❌ **Reject** - Cancel and do nothing
+- 🗨️ **Modify** - Speak adjustments before approving
+
+#### Transcript Logging
+
+**Purpose:** Records conversation history for debugging and reference.
+
+**Access Transcript:**
+
+```typescript
+// Developer Console
+voiceAgent.getTranscript()
+```
+
+**Privacy:**
+- Transcripts stored client-side only
+- Not sent to server (except API calls)
+- Cleared on disconnect or page refresh
+
+#### Auto-Disconnect Timeout
+
+**Default:** Disconnects after 30 minutes of inactivity to save costs.
+
+**Override:**
+
+```env
+VITE_VOICE_AGENT_TIMEOUT=1800000 # 30 minutes in ms
+```
+
+---
+
+### Available Voice Commands
+
+Nanobanna Pro supports **17 voice commands** across 6 categories:
+
+| Category | Commands | Example |
+|----------|----------|---------|
+| **Image Generation** | 1 command | "Generate a blue gradient background" |
+| **Image Processing** | 5 commands | "Upscale this image to 4K" |
+| **Canvas Manipulation** | 4 commands | "Add text saying 'Welcome' in the center" |
+| **Navigation** | 1 command | "Go to the gallery tab" |
+| **History** | 2 commands | "Undo that change" |
+| **AI Analysis** | 4 commands | "Suggest prompts for a tech banner" |
+
+**For Complete Command Reference:**
+
+- 📘 **Comprehensive Guide:** [VOICE_AGENT_GUIDE.md](./VOICE_AGENT_GUIDE.md)
+- 📋 **Quick Reference:** [VOICE_COMMANDS_REFERENCE.md](./VOICE_COMMANDS_REFERENCE.md)
+- 📄 **Printable Cheat Sheet:** [docs/VOICE_COMMANDS_CHEATSHEET.md](./docs/VOICE_COMMANDS_CHEATSHEET.md)
+- 🔧 **Technical Documentation:** [docs/VOICE_AGENT_TECHNICAL.md](./docs/VOICE_AGENT_TECHNICAL.md)
+
+---
+
+### Example Workflow
+
+Here's a complete banner creation using only voice:
+
+```
+1. "Generate a professional background with gradient from blue to purple"
+   → AI generates image in ~5 seconds
+
+2. "Upscale this image to 4K quality"
+   → Image enhanced to 4K resolution
+
+3. "Add text saying 'John Smith' at the top center in bold"
+   → Text element created on canvas
+
+4. "Add text saying 'Software Engineer' below that in smaller font"
+   → Subtitle added
+
+5. "Analyze this banner and suggest improvements"
+   → AI provides design feedback
+
+6. "Generate an enhanced prompt based on that feedback"
+   → AI creates optimized prompt
+
+7. "Generate a new background using that enhanced prompt"
+   → New iteration created
+
+Total Time: ~3 minutes | Cost: ~$0.15
+```
+
+---
+
+### Troubleshooting Voice Agent
+
+#### Voice agent won't connect
+
+**Solutions:**
+
+1. Check OpenAI API key is valid and has credits
+2. Verify microphone permission granted
+3. Use Chrome or Edge browser (not Safari/Firefox)
+4. Check browser console for errors
+5. Try disconnecting and reconnecting
+
+#### AI doesn't hear me
+
+**Solutions:**
+
+1. Check microphone volume in system settings
+2. Test microphone in browser settings
+3. Speak clearly at normal volume
+4. Reduce background noise
+5. Try a different microphone
+
+#### Commands not executing
+
+**Solutions:**
+
+1. Check if Preview Mode is enabled (approve actions in panel)
+2. Ensure command syntax is correct (see VOICE_COMMANDS_REFERENCE.md)
+3. Wait for AI to finish processing previous command
+4. Check API credits not exhausted
+5. Review transcript to see what AI heard
+
+#### High costs / unexpected charges
+
+**Solutions:**
+
+1. Disconnect when not actively using voice agent
+2. Set spending limits in OpenAI dashboard
+3. Monitor usage at https://platform.openai.com/usage
+4. Use preview mode to avoid accidental commands
+5. Review VOICE_COMMANDS_REFERENCE.md for cost-per-command
+
+**For More Issues:**
+See [Troubleshooting section in VOICE_AGENT_GUIDE.md](./VOICE_AGENT_GUIDE.md#troubleshooting)
+
+---
+
+### Best Practices
+
+1. **Start with Preview Mode** - Prevents accidental actions while learning
+2. **Speak Naturally** - No need to memorize exact phrases
+3. **Use Descriptive Language** - More detail = better results
+4. **Chain Commands** - "Generate a background, then upscale it, then add text"
+5. **Monitor Costs** - Check OpenAI usage dashboard regularly
+6. **Grant Full Permissions** - Microphone access required for functionality
+7. **Use Chrome/Edge** - Best compatibility and performance
+
+---
+
+### Security Notes
+
+- **API Keys:** Stored encrypted in database, never exposed to client
+- **Audio Data:** Processed by OpenAI, not stored by Nanobanna Pro
+- **Microphone Access:** Used only when voice agent is active
+- **Transcripts:** Stored client-side only, cleared on disconnect
 
 ---
 
