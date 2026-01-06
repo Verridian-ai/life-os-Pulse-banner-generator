@@ -344,101 +344,473 @@ Voice commands are organized by category. For complete details including paramet
 
 ### Image Generation (1 command)
 
-**Generate Background**
+#### Generate Background
 
-Create a LinkedIn banner background from description.
+**Purpose:** Generate a professional LinkedIn banner background from a text description. The AI creates custom, high-quality banner images optimized for LinkedIn's 4:1 aspect ratio (1584x396 pixels).
 
-**Example phrases:**
+**Example Phrases:**
 - "Generate a professional office background"
 - "Create a gradient background in blue and purple"
 - "Make a minimalist background with geometric shapes"
+- "Generate a tech-themed banner with circuit boards"
+- "Create a nature background with mountains and sunset"
+- "Generate a modern abstract background in corporate colors"
+- "Make a professional banner with a city skyline"
+- "Create a creative background with artistic elements"
 
-**What happens:**
-- AI generates 1584x396 LinkedIn banner
-- Shows preview (~15 seconds)
-- Apply to set as canvas background
+**Parameters:**
+- **Prompt:** Your description of the desired background (required)
+- **Quality:** Image quality level (optional)
+  - `1K` - Standard quality, faster generation (~10 seconds)
+  - `2K` - High quality, balanced speed (~15 seconds) - **Default**
+  - `4K` - Maximum quality, slower generation (~20-25 seconds)
+
+**What Happens:**
+1. AI receives your prompt
+2. Automatically enhances prompt for LinkedIn banner optimization
+3. Adds technical guidance to prevent collage/panel layouts
+4. Generates single cohesive 1584x396 ultra-wide image
+5. Shows **preview** with generated banner
+6. Waits for your approval (Apply/Reject)
+
+**Expected Results:**
+- Professional LinkedIn banner (1584x396 pixels, 4:1 aspect ratio)
+- Single cohesive design (not panels or collages)
+- Ultra-wide seamless composition
+- High-quality, sharp image
+- Generation time:
+  - 1K: ~10 seconds
+  - 2K: ~15 seconds (default)
+  - 4K: ~20-25 seconds
+
+**Prompt Enhancement:**
+Your prompt is automatically enhanced to prevent common issues:
+- Original: "Professional office background"
+- Enhanced: "A single cohesive LinkedIn banner image, ultra-wide 4:1 aspect ratio, professional office background, seamless design, no panels, no divisions, no collage, single unified composition"
+
+This ensures you get a proper LinkedIn banner, not a collage of images.
+
+**Common Use Cases:**
+- **Professional themes:** "Corporate office with modern design"
+- **Industry-specific:** "Tech startup with code and digital elements"
+- **Abstract designs:** "Gradient with geometric shapes and professional colors"
+- **Nature themes:** "Mountain landscape with warm sunset tones"
+- **Minimalist:** "Clean minimal design with subtle texture"
+- **Creative fields:** "Artistic background with creative tools and inspiration"
+
+**Style Keywords:**
+Enhance your prompts with these modifiers:
+- **Professional:** "corporate", "business", "clean", "polished"
+- **Modern:** "contemporary", "minimalist", "sleek", "futuristic"
+- **Creative:** "artistic", "vibrant", "dynamic", "innovative"
+- **Warm:** "friendly", "inviting", "warm tones", "approachable"
+- **Technical:** "tech", "digital", "geometric", "structured"
+
+**Tips:**
+- ✅ Be descriptive about colors, mood, and elements
+- ✅ Mention your industry or role for context
+- ✅ Specify style: modern, minimal, corporate, creative, etc.
+- ✅ Include desired mood: professional, energetic, calm, innovative
+- ✅ Mention any key elements: gradients, patterns, imagery
+- ✅ Use quality adjectives: "professional", "clean", "polished"
+- ⚠️ Avoid requesting text/logos (add those separately)
+- ⚠️ Don't request multiple panels or collages
+- ❌ Avoid overly complex multi-element requests
+
+**Example Prompts That Work Well:**
+
+**For Tech Professionals:**
+- "Modern tech background with circuit patterns and blue tones, professional and clean"
+- "Minimalist coding background with subtle code snippets and dark theme"
+- "Abstract digital network with nodes and connections, corporate blue"
+
+**For Creatives:**
+- "Artistic workspace with design tools, warm lighting, creative energy"
+- "Vibrant gradient background with flowing shapes, modern and bold"
+- "Minimalist creative background with subtle texture and warm tones"
+
+**For Business:**
+- "Professional corporate background with geometric patterns, navy and gold"
+- "Modern office environment with natural light, professional atmosphere"
+- "Abstract business background with clean lines and corporate colors"
+
+**For Consultants/Coaches:**
+- "Warm professional background with soft gradients, approachable and friendly"
+- "Minimalist design with subtle patterns, calm and professional"
+- "Modern workspace with natural elements, professional yet personal"
+
+**Quality Comparison:**
+
+| Quality | Resolution | Generation Time | Best For | Cost |
+|---------|-----------|-----------------|----------|------|
+| 1K | Standard | ~10 seconds | Quick tests, iterations | $0.01 |
+| 2K | High | ~15 seconds | Most use cases | $0.015 |
+| 4K | Maximum | ~20-25 seconds | Final banners, print | $0.025 |
+
+**Preview Mode:** ✅ Always shows preview before applying
+
+**Cost:** $0.01-0.025 per generation (Gemini/OpenRouter credits, varies by model)
+
+**Iterative Design Workflow:**
+1. Say: "Generate a professional tech background with blue tones"
+2. Review preview, then say: "Make it more minimal and modern"
+3. Review again, then say: "Add subtle geometric patterns"
+4. Keep iterating until perfect!
+5. Each iteration uses the previous image as reference
+
+**Pro Tip - Combining Generation with Enhancement:**
+After generating, you can chain commands:
+- "Generate a mountain landscape, then upscale to best quality"
+- "Create a corporate background, then add the text 'John Smith'"
+- Total workflow: Generate → Review → Upscale → Add text → Done!
+
+**Troubleshooting:**
+
+**Issue: Generated image has multiple panels**
+- Solution: Be more specific about "single image", or say "seamless composition"
+- The system adds anti-collage guidance, but very specific prompts help
+
+**Issue: Text appears in generated image**
+- Solution: Don't request text in prompt. Generate background first, then add text with voice command
+- Example: Instead of "Banner with 'CEO'", say "Professional background" then "Add text CEO"
+
+**Issue: Generation takes too long**
+- Solution: Use 1K quality for testing, save 4K for final version
+- 2K (default) is best balance for most cases
+
+**Issue: Result doesn't match prompt**
+- Solution: Be more descriptive and specific
+- Include style keywords, color preferences, mood
+- Try iterating: "Make it more [specific adjustment]"
 
 ---
 
 ### Image Processing (5 commands)
 
-**Magic Edit**
+Image processing commands use AI to edit, enhance, and transform your images. All these commands support **Preview Mode** - you'll see the result before it's applied to your canvas.
 
-Edit existing images using AI-powered inpainting.
+#### Magic Edit
 
-**Example phrases:**
+**Purpose:** Edit existing images using AI-powered inpainting and transformation. Change colors, add/remove elements, modify styles, or transform backgrounds.
+
+**Example Phrases:**
 - "Change the background to a sunset"
 - "Make it more modern and minimalist"
 - "Add mountains in the background"
+- "Replace the sky with dramatic clouds"
+- "Make the colors warmer and more vibrant"
+- "Add a professional bokeh effect"
+- "Change the mood to be more energetic"
 
-**What happens:**
-- Uses current canvas image
-- Applies AI edits based on description
-- Shows preview for approval
+**Parameters:**
+- **Image:** Uses current canvas image by default (can specify image URL)
+- **Prompt:** Your edit instructions (required)
+- **Mask:** Optional - for targeted edits to specific areas
+
+**What Happens:**
+1. AI analyzes your current canvas image
+2. Applies intelligent edits based on your description
+3. Preserves important elements while modifying others
+4. Shows **preview** (~10-20 seconds processing time)
+5. Waits for your approval (Apply/Reject)
+
+**Expected Results:**
+- Natural-looking edits that blend seamlessly
+- Maintains image resolution and quality
+- Works best with clear, specific instructions
+- Can make multiple passes for iterative improvements
+
+**Common Use Cases:**
+- **Background changes:** "Change the office background to a beach"
+- **Style transformations:** "Make it look like a watercolor painting"
+- **Color adjustments:** "Make the colors cooler and more professional"
+- **Element additions:** "Add a cityscape in the background"
+- **Mood changes:** "Make it brighter and more optimistic"
+
+**Tips:**
+- ✅ Be specific about what you want changed
+- ✅ Mention what to preserve: "Keep the text, but change the background"
+- ✅ Use descriptive language for better results
+- ✅ Iterate: Make small changes and build on them
+- ❌ Avoid vague requests like "make it better"
+
+**Preview Mode:** ✅ Always shows preview before applying
+
+**Cost:** $0.005-0.015 per edit (Replicate credits)
 
 ---
 
-**Remove Background**
+#### Remove Background
 
-Remove background from images, creating transparent PNG.
+**Purpose:** Remove the background from an image, creating a transparent PNG. Perfect for isolating subjects, creating overlays, or preparing images for compositing.
 
-**Example phrases:**
+**Example Phrases:**
 - "Remove the background"
 - "Remove background from current image"
 - "Make the background transparent"
+- "Cut out the subject"
+- "Remove the background and save as PNG"
+- "Isolate the main subject"
 
-**What happens:**
-- Processes current canvas image
-- Returns transparent PNG
-- Result appears in preview
+**Parameters:**
+- **Image URL:** Uses current canvas image by default (can specify URL)
+
+**What Happens:**
+1. AI detects subject(s) in the image
+2. Creates precise edge detection
+3. Removes background completely
+4. Returns transparent PNG
+5. Shows result in preview panel
+6. Waits for approval
+
+**Expected Results:**
+- Clean cutout with transparent background
+- Preserves subject details and edges
+- Works with people, objects, products, logos
+- Processing time: ~5-10 seconds
+- Output format: PNG with alpha channel
+
+**Common Use Cases:**
+- **Profile pictures:** Remove distracting backgrounds
+- **Product photos:** Isolate items for professional presentation
+- **Logo extraction:** Extract logos from backgrounds
+- **Compositing:** Prepare images to overlay on new backgrounds
+- **Banner elements:** Create reusable design elements
+
+**Tips:**
+- ✅ Works best with clear subject-background contrast
+- ✅ Good lighting improves edge quality
+- ✅ Ideal for single subjects (people, products)
+- ⚠️ Complex hair/fur may have imperfect edges
+- ⚠️ Very similar subject/background colors are challenging
+
+**Preview Mode:** ✅ Shows transparent PNG preview with checkered background
+
+**Cost:** $0.003 per image (Replicate credits)
 
 ---
 
-**Upscale Image**
+#### Upscale Image
 
-Enhance image resolution using AI upscaling.
+**Purpose:** Enhance image resolution using AI upscaling. Increases image size while adding intelligent detail, sharpness, and clarity. Great for preparing low-res images for high-quality banners.
 
-**Example phrases:**
+**Example Phrases:**
 - "Upscale the current image"
 - "Upscale to best quality"
 - "Make the image higher resolution"
+- "Increase the resolution"
+- "Upscale this image to 4K"
+- "Make this image sharper and clearer"
+- "Enhance the image quality"
 
-**What happens:**
-- Upscales 2x resolution
-- Quality tier: fast/balanced/best
-- Shows preview for approval
+**Parameters:**
+- **Image URL:** The image to upscale (required)
+- **Mode:** Quality/speed tradeoff (optional)
+  - `fast` - Quick upscale (~10 seconds)
+  - `balanced` - Good quality (~20 seconds) - **Default**
+  - `best` - Highest quality (~30-40 seconds)
+
+**What Happens:**
+1. AI analyzes image content
+2. Applies intelligent upscaling (typically 2x resolution)
+3. Adds realistic details and sharpness
+4. Reduces compression artifacts
+5. Shows **preview** with quality comparison
+6. Waits for approval
+
+**Expected Results:**
+- 2x resolution increase (1920x1080 → 3840x2160)
+- Enhanced details and textures
+- Sharper edges and text
+- Reduced blur and pixelation
+- Maintains natural appearance
+- Processing time varies by mode:
+  - Fast: ~10 seconds
+  - Balanced: ~20 seconds
+  - Best: ~30-40 seconds
+
+**Common Use Cases:**
+- **Low-res sources:** Improve quality of small images
+- **Social media exports:** Prepare images for LinkedIn's display resolution
+- **Print preparation:** Create high-res versions for print
+- **Quality improvement:** Rescue blurry or compressed images
+- **Detail enhancement:** Bring out fine details in photos
+
+**Mode Comparison:**
+
+| Mode | Speed | Quality | Best For |
+|------|-------|---------|----------|
+| Fast | ~10s | Good | Quick previews, testing ideas |
+| Balanced | ~20s | Very Good | Most use cases, daily work |
+| Best | ~30-40s | Excellent | Final deliverables, print |
+
+**Tips:**
+- ✅ Use "balanced" mode for most cases (best quality/time ratio)
+- ✅ Upscale before adding text (better final quality)
+- ✅ Works great on photos, illustrations, graphics
+- ✅ Can upscale multiple times for extreme resolution needs
+- ⚠️ Best mode uses more credits - save for final versions
+- ❌ Can't fix completely destroyed/corrupted images
+
+**Preview Mode:** ✅ Shows upscaled result with side-by-side comparison
+
+**Cost:**
+- Fast: $0.005 per image
+- Balanced: $0.010 per image
+- Best: $0.015 per image
+(Replicate credits)
 
 ---
 
-**Restore Image**
+#### Restore Image
 
-Restore old or damaged photos.
+**Purpose:** Restore old, damaged, or low-quality photos using AI. Fixes artifacts, removes noise, improves clarity, and enhances colors. Ideal for vintage photos or degraded images.
 
-**Example phrases:**
+**Example Phrases:**
 - "Restore this image"
 - "Fix the quality of this photo"
 - "Enhance this old photo"
+- "Restore the damaged image"
+- "Clean up this noisy image"
+- "Fix the compression artifacts"
+- "Restore the vintage photo"
 
-**What happens:**
-- Fixes artifacts, blur, noise
-- Improves clarity and color
-- Shows restored preview
+**Parameters:**
+- **Image URL:** The image to restore (required)
+
+**What Happens:**
+1. AI analyzes image quality issues
+2. Removes noise, artifacts, and compression damage
+3. Enhances clarity and sharpness
+4. Improves color balance and contrast
+5. Reconstructs missing/damaged details
+6. Shows **preview** with before/after comparison
+7. Waits for approval
+
+**Expected Results:**
+- Cleaner, clearer image
+- Reduced noise and grain
+- Fixed compression artifacts (JPEG blocks, banding)
+- Better color balance
+- Enhanced details and textures
+- More professional appearance
+- Processing time: ~15-25 seconds
+
+**Common Use Cases:**
+- **Vintage photos:** Restore old family photos or historical images
+- **Compressed images:** Fix over-compressed social media downloads
+- **Scanned photos:** Improve quality of scanned prints
+- **Noisy images:** Clean up high-ISO or low-light photos
+- **Damaged files:** Repair corrupted or partially damaged images
+- **Screenshot enhancement:** Improve quality of screenshot banners
+
+**What Gets Fixed:**
+- ✅ JPEG compression artifacts and blocking
+- ✅ Color banding and posterization
+- ✅ Digital noise and grain
+- ✅ Blur and lack of sharpness
+- ✅ Poor contrast and washed-out colors
+- ✅ Dust, scratches (to some degree)
+- ⚠️ Severe damage may have limited improvement
+- ❌ Cannot restore completely missing content
+
+**Tips:**
+- ✅ Works great on compressed social media images
+- ✅ Excellent for improving screenshot quality
+- ✅ Can be combined with upscale for maximum quality
+- ✅ Use before adding text/overlays for best results
+- ⚠️ Very old photos may need multiple passes
+- ⚠️ Extreme damage has limits on what can be recovered
+
+**Preview Mode:** ✅ Shows restored result with quality comparison
+
+**Cost:** $0.008 per image (Replicate credits)
+
+**Pro Workflow:**
+Say: "Restore this image, then upscale to best quality"
+- Result: Cleaned and enhanced high-resolution image
+- Cost: ~$0.023 total (restore + upscale best)
+- Time: ~45-60 seconds
+- Quality: Professional-grade output
 
 ---
 
-**Enhance Face**
+#### Enhance Face
 
-Improve facial features in portraits.
+**Purpose:** Enhance facial features in portraits and profile pictures. Improves skin texture, sharpens features, and creates professional-quality headshots. Ideal for LinkedIn banner profile pictures.
 
-**Example phrases:**
+**Example Phrases:**
 - "Enhance the face"
 - "Improve the portrait quality"
 - "Make the face clearer"
+- "Enhance the facial features"
+- "Improve the headshot quality"
+- "Make the portrait more professional"
+- "Sharpen the facial details"
 
-**What happens:**
-- Enhances facial details
-- Improves skin texture
-- Shows enhanced preview
+**Parameters:**
+- **Image URL:** Image containing the face to enhance (required)
+
+**What Happens:**
+1. AI detects faces in the image
+2. Analyzes facial features and quality
+3. Enhances skin texture and clarity
+4. Sharpens eyes, eyebrows, and features
+5. Improves lighting and color balance on face
+6. Shows **preview** with enhanced result
+7. Waits for approval
+
+**Expected Results:**
+- Clearer, more defined facial features
+- Professional-looking skin texture
+- Sharper eyes and details
+- Better facial lighting
+- Natural enhancement (not over-processed)
+- Maintains natural appearance
+- Processing time: ~10-15 seconds
+- **Note:** Applied as 'profile' image type (not background)
+
+**Common Use Cases:**
+- **Profile pictures:** Enhance headshots for LinkedIn banners
+- **Group photos:** Improve faces in team photos
+- **Low-res portraits:** Rescue blurry or low-quality headshots
+- **Screenshot headshots:** Enhance faces from video calls/screenshots
+- **Professional branding:** Create polished personal images
+- **Quick touch-ups:** Professional look without photo editing skills
+
+**What Gets Enhanced:**
+- ✅ Facial clarity and sharpness
+- ✅ Skin texture and tone
+- ✅ Eye definition and brightness
+- ✅ Facial features and structure
+- ✅ Overall facial lighting
+- ✅ Natural color balance
+- ⚠️ Results depend on input quality
+- ❌ Cannot fix extreme blur or very low resolution
+
+**Tips:**
+- ✅ Works best with frontal or 3/4 view faces
+- ✅ Input images should be at least 512x512 pixels
+- ✅ Good lighting in source improves results
+- ✅ Combine with restore for old photos
+- ✅ Use for profile pictures in banner overlays
+- ⚠️ Side profiles or partial faces may have mixed results
+- ⚠️ Sunglasses or obscured faces are challenging
+- ❌ Cannot change facial features, only enhance existing ones
+
+**Preview Mode:** ✅ Shows enhanced face preview
+
+**Cost:** $0.007 per image (Replicate credits)
+
+**Profile Picture Workflow:**
+1. Say: "Restore this image" (clean up quality)
+2. Say: "Enhance the face" (improve facial features)
+3. Say: "Upscale to balanced" (increase resolution)
+4. Result: Professional-grade profile picture ready for banner
+5. Total cost: ~$0.025 | Total time: ~45 seconds
+
+**Important Note:**
+Enhanced faces are applied as **profile images**, not background images. This means they appear as overlay elements on your banner rather than replacing the background. Perfect for creating professional headshot overlays on your LinkedIn banner design.
 
 ---
 
