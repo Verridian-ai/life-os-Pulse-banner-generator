@@ -2475,7 +2475,7 @@ Clears the conversation transcript.
 
 ---
 
-**Last Updated:** January 2026
-**Voice Agent Version:** 1.0
+**Last Updated:** 2026-01-07
+**Voice Agent Version:** 1.0.0
 **OpenAI Realtime API:** gpt-4o-realtime-preview
-**Document Version:** 1.0
+**Document Version:** 1.0.0
