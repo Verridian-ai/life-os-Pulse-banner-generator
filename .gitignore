@@ -36,3 +36,6 @@ nul
 
 # Vercel (migrated to Cloud Run)
 .vercel/
+
+# Auto Claude data directory
+.auto-claude/

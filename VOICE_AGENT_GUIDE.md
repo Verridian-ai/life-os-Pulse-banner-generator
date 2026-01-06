@@ -4094,182 +4094,1312 @@ Before sharing screenshots:
 
 ### Common Workflow Examples
 
-Complete examples for typical design tasks using voice commands.
+Complete step-by-step examples for typical design tasks using voice commands. Each workflow includes expected AI responses, visual cues, timing, and costs.
 
-**Workflow 1: Create a Professional LinkedIn Banner from Scratch**
+---
+
+#### Workflow 1: Create a Professional LinkedIn Banner from Scratch
+
+**Goal:** Create a complete banner with background and text overlay
+**Estimated Time:** 2-3 minutes
+**Commands:** 3-4
+**Estimated Cost:** $0.10-0.15 (connection + 1 generation + 1 upscale)
+
+**Prerequisites:**
+- OpenAI API key configured
+- Browser with microphone permissions
+- Quiet environment for clear voice recognition
+
+**Step-by-Step Instructions:**
+
+**Step 1: Start Voice Session**
 ```
-Goal: Create a complete banner with background and text overlay
-Estimated Time: 2-3 minutes
-Commands: 3-4
-
-1. Connect to voice agent
-   Say: "Connect"
-
-2. Generate professional background
-   Say: "Generate a professional LinkedIn banner background with a
-        gradient from deep blue to teal, modern and minimalist style"
-   → Review preview → Click "Apply"
-
-3. Add your name and title
-   Say: "Add text 'Alexandra Chen' at the top center in large bold font,
-        then add text 'Senior Product Designer' below it in smaller font"
-   → Applied immediately (no preview for text)
-
-4. Upscale for quality (optional)
-   Say: "Upscale the background image to balanced quality"
-   → Review preview → Click "Apply"
-
-5. Disconnect
-   Say: "Disconnect" or click Disconnect button
-
-Result: Professional banner ready for LinkedIn
+👤 You say: "Hello, I want to create a LinkedIn banner"
+🎤 Action: Click "Connect" button
+🟢 You see: Status changes to "🟢 Live Session Active"
+🤖 AI responds: "Hello! I'd be happy to help you create a LinkedIn banner.
+                  What kind of design are you looking for?"
+⏱️ Time: ~2-3 seconds
+💰 Cost: Session start ($0.06/minute begins)
 ```
 
-**Workflow 2: Enhance an Existing Image**
+**Step 2: Generate Professional Background**
 ```
-Goal: Improve image quality and remove background
-Estimated Time: 1-2 minutes
-Commands: 2-3
-
-1. Generate or upload background image first (using UI or voice)
-
-2. Connect to voice agent
-
-3. Remove background
-   Say: "Remove the background from the image"
-   → Review preview → Click "Apply"
-
-4. Enhance quality
-   Say: "Upscale this image to balanced quality"
-   → Review preview → Click "Apply"
-
-5. If image has faces, enhance them
-   Say: "Enhance the faces in the image"
-   → Review preview → Click "Apply"
-
-6. Disconnect when satisfied
-
-Result: High-quality image with clean background
+👤 You say: "Generate a professional LinkedIn banner background with a
+             gradient from deep blue to teal, modern and minimalist style"
+🤖 AI responds: "I'll generate that background for you now. This will take
+                 about 10-15 seconds."
+⚙️ You see: Tool badge appears in transcript: "🔧 generate_background"
+⏳ Wait: ~10-15 seconds for image generation
+✨ Preview appears: Shows generated image with Apply/Reject buttons
+👀 Review: Check if the gradient and style match your vision
+✅ Action: Click "Apply" to add to canvas OR "Reject" to try again
+🎨 Result: Background image appears on canvas
+⏱️ Time: ~15-20 seconds total
+💰 Cost: ~$0.05 for generation
 ```
 
-**Workflow 3: A/B Test Different Banner Designs**
+**Troubleshooting - Step 2:**
+- If preview doesn't appear: Check for error message in transcript
+- If AI doesn't understand: Simplify to "Generate a blue gradient background"
+- If quality is poor: Try "Reject" and add more details like "high resolution, professional"
+- If timeout occurs: Check internet connection, try again with shorter prompt
+
+**Step 3: Add Text Elements**
 ```
-Goal: Create and compare multiple design variations
-Estimated Time: 3-5 minutes
-Commands: 5-6
-
-1. Connect to voice agent
-
-2. Generate first variation
-   Say: "Generate a professional background with blue gradient"
-   → Review → Click "Apply"
-   → Add text overlays as needed
-
-3. Save design to gallery
-   Say: "Navigate to gallery"
-   → Use UI to save design
-
-4. Return to studio for next variation
-   Say: "Navigate to studio"
-
-5. Generate second variation
-   Say: "Generate a minimalist background with geometric patterns"
-   → Review → Click "Apply"
-   → Add same text overlays
-
-6. Compare both designs
-   Say: "Navigate to gallery"
-   → View both designs side-by-side
-
-7. Disconnect
-
-Result: Multiple banner variations to choose from
+👤 You say: "Add text 'Alexandra Chen' at the top center in large bold font,
+             then add text 'Senior Product Designer' below it in smaller font"
+🤖 AI responds: "I've added both text elements to your banner."
+⚙️ You see: Two tool badges: "🔧 add_text_element" (appears twice)
+🎨 Result: Text appears immediately on canvas (no preview for text)
+       - "Alexandra Chen" appears at top in large, bold font
+       - "Senior Product Designer" appears below in smaller font
+⏱️ Time: ~2-3 seconds per text element
+💰 Cost: Included in session time (no additional charge)
 ```
 
-**Workflow 4: Iterate on Design with AI Feedback**
+**Troubleshooting - Step 3:**
+- If text placement is wrong: Say "Update the top text to be positioned at coordinates 400, 150"
+- If font size is wrong: Say "Make the name text larger, 64 points"
+- If text is hard to read: Say "Make the text white with a black outline"
+- To fix mistakes: Say "Delete the bottom text element" then re-add it
+
+**Step 4: Upscale for Quality (Optional but Recommended)**
 ```
-Goal: Use AI analysis to improve your banner
-Estimated Time: 2-3 minutes
-Commands: 3-4
-
-1. Create initial banner (background + text)
-
-2. Connect to voice agent
-
-3. Get AI analysis
-   Say: "Analyze my banner and suggest improvements"
-   → AI provides detailed feedback in transcript
-
-4. Generate improved prompt based on feedback
-   Say: "Write an enhanced prompt for a LinkedIn banner
-        based on your analysis"
-   → AI provides optimized prompt in transcript
-
-5. Generate new background using enhanced prompt
-   Say: "Generate a background using that enhanced prompt"
-   OR
-   Say: "Generate [read the enhanced prompt from transcript]"
-   → Review preview → Click "Apply"
-
-6. Compare results
-   → If better, keep it
-   → If not, click Undo and try different approach
-
-7. Disconnect
-
-Result: Data-driven design improvement
+👤 You say: "Upscale the background image to balanced quality"
+🤖 AI responds: "I'll upscale your background to balanced quality. This will
+                 take about 15-20 seconds."
+⚙️ You see: Tool badge "🔧 upscale_image"
+⏳ Wait: ~15-20 seconds for upscaling
+✨ Preview appears: Shows higher resolution version
+👀 Review: Zoom in to check quality improvement
+✅ Action: Click "Apply" to replace background
+🎨 Result: Higher resolution background (2x-4x original)
+⏱️ Time: ~20-25 seconds total
+💰 Cost: ~$0.03 for upscaling
 ```
 
-**Workflow 5: Bulk Text Operations**
+**Pro Tip:** Only upscale final approved designs to save costs. Standard quality is often sufficient for testing.
+
+**Step 5: Final Review and Save**
 ```
-Goal: Add multiple text elements efficiently
-Estimated Time: 1-2 minutes
-Commands: 2-3
-
-1. Connect to voice agent
-
-2. Chain multiple text commands
-   Say: "Add text 'Michael Rodriguez' at the top in 48 point font,
-        add text 'Full-Stack Developer' in the center in 32 point font,
-        add text 'Building the Future' at the bottom in 24 point font"
-   → All three text elements added at once
-
-3. List elements to verify
-   Say: "List all elements on the canvas"
-   → AI reads back all elements with IDs and positions
-
-4. Update specific element if needed
-   Say: "Update the bottom text element to say 'Crafting Digital Experiences'"
-   → Text updated immediately
-
-5. Disconnect
-
-Result: Multiple text elements added in one voice session
+👤 You say: "Analyze my banner and tell me what you think"
+🤖 AI responds: [Detailed analysis with suggestions for improvement]
+📝 Review: Read AI feedback in transcript
+✨ Optional: Make adjustments based on feedback
+💾 Save: Use UI to save design to gallery
 ```
 
-**Workflow 6: Fix Design Mistakes Quickly**
+**Step 6: Disconnect**
 ```
-Goal: Correct errors without manual editing
-Estimated Time: 30 seconds - 1 minute
-Commands: 1-2
-
-1. Notice error in design (wrong text, bad image, etc.)
-
-2. Connect to voice agent
-
-3. Undo the mistake
-   Say: "Undo the last action"
-   OR
-   Say: "Undo" (repeat if needed)
-
-4. Try alternative approach
-   Say: [corrected command]
-   → Review → Apply
-
-5. Disconnect
-
-Result: Quick error correction without UI clicks
+👤 You say: "That looks perfect, thank you! Disconnect."
+🤖 AI responds: "Great! Your banner looks professional. Disconnecting now."
+🎤 Action: Voice session ends
+🔴 You see: Status changes to "🔴 Disconnected"
+⏱️ Total Time: 2-3 minutes
+💰 Total Cost: ~$0.10-0.15
 ```
+
+**Final Result:**
+✅ Professional LinkedIn banner with gradient background
+✅ Custom text overlay with name and title
+✅ High resolution (if upscaled)
+✅ Ready to download and use on LinkedIn
+
+**Next Steps:**
+- Download banner using export button
+- Test on LinkedIn profile
+- Save design to gallery for future edits
+- Create variations using A/B testing workflow (see Workflow 3)
+
+---
+
+#### Workflow 2: Enhance an Existing Image
+
+**Goal:** Improve image quality and remove background from uploaded image
+**Estimated Time:** 1-2 minutes
+**Commands:** 2-3
+**Estimated Cost:** $0.08-0.12 (connection + 2-3 operations)
+
+**Prerequisites:**
+- Image already on canvas (uploaded or generated)
+- Image should be clear enough for processing
+- Works best with photos of people, products, or objects
+
+**Step-by-Step Instructions:**
+
+**Step 1: Prepare Your Image**
+```
+🖼️ Action: Upload or generate an image using the canvas UI
+👀 Verify: Image appears on canvas
+💡 Tip: For best results, use images with clear subjects and minimal blur
+```
+
+**Step 2: Connect Voice Agent**
+```
+👤 You say: "Connect"
+🎤 Action: Click "Connect" button
+🟢 You see: Status changes to "🟢 Live Session Active"
+🤖 AI responds: "Connected. How can I help you today?"
+⏱️ Time: ~2-3 seconds
+💰 Cost: Session start ($0.06/minute begins)
+```
+
+**Step 3: Remove Background**
+```
+👤 You say: "Remove the background from the image"
+🤖 AI responds: "I'll remove the background for you. This will take about
+                 8-10 seconds."
+⚙️ You see: Tool badge "🔧 remove_background"
+⏳ Wait: ~8-10 seconds for processing
+✨ Preview appears: Shows image with transparent background
+👀 Review: Check edges are clean, no artifacts
+       - Zoom in to check edge quality
+       - Look for any parts of subject that were removed
+       - Check for halos or rough edges
+✅ Action: Click "Apply" if good OR "Reject" to try alternative
+🎨 Result: Image with clean transparent background
+⏱️ Time: ~10-15 seconds total
+💰 Cost: ~$0.025 for background removal
+```
+
+**Troubleshooting - Step 3:**
+- If subject partially removed: Original image may have unclear edges
+- If background not fully removed: Try again, sometimes requires 2 passes
+- If artifacts appear: Use "restore_image" command first to clean up the image
+- For complex backgrounds: Consider using "magic_edit" for manual refinement
+
+**Step 4: Upscale for Quality**
+```
+👤 You say: "Upscale this image to balanced quality"
+🤖 AI responds: "I'll upscale your image to balanced quality. This will
+                 enhance the resolution while maintaining details."
+⚙️ You see: Tool badge "🔧 upscale_image"
+⏳ Wait: ~15-20 seconds for upscaling
+✨ Preview appears: Shows higher resolution version
+👀 Review: Compare before/after quality
+       - Check sharpness improved
+       - Verify no new artifacts introduced
+       - Zoom to 100% to see detail improvement
+✅ Action: Click "Apply" to use high-res version
+🎨 Result: 2x-4x higher resolution image
+⏱️ Time: ~20-25 seconds total
+💰 Cost: ~$0.03 for upscaling
+```
+
+**Quality Tip:** For maximum quality, upscale BEFORE removing background. Then remove background from the high-res version.
+
+**Step 5: Enhance Faces (If Applicable)**
+```
+👤 You say: "Enhance the faces in the image"
+🤖 AI responds: "I'll enhance the facial features in your image. This will
+                 improve clarity and detail."
+⚙️ You see: Tool badge "🔧 enhance_face"
+⏳ Wait: ~12-15 seconds for face enhancement
+✨ Preview appears: Shows enhanced facial features
+👀 Review: Check face looks natural
+       - Skin tone should look realistic
+       - Eyes should be sharper but not unnatural
+       - No over-smoothing or AI artifacts
+✅ Action: Click "Apply" if natural OR "Reject" if over-processed
+🎨 Result: Professional-quality portrait
+⏱️ Time: ~15-18 seconds total
+💰 Cost: ~$0.025 for face enhancement
+```
+
+**When to Use Face Enhancement:**
+- Professional headshots for LinkedIn
+- Team photos that need to look polished
+- Portrait-style banners
+- Any image where face is the focal point
+
+**When NOT to Use:**
+- No faces in the image (will fail)
+- Artistic/stylized looks where you want grain/texture
+- Images that are already very high quality
+
+**Step 6: Optional - Restore Old/Damaged Photos**
+```
+👤 You say: "Restore this image to fix any damage or blur"
+🤖 AI responds: "I'll restore your image to improve overall quality."
+⚙️ You see: Tool badge "🔧 restore_image"
+⏳ Wait: ~12-15 seconds for restoration
+✨ Preview appears: Shows cleaned and sharpened version
+👀 Review: Check if artifacts, blur, or noise reduced
+✅ Action: Click "Apply" to use restored version
+🎨 Result: Cleaner, sharper image
+⏱️ Time: ~15-18 seconds total
+💰 Cost: ~$0.025 for restoration
+```
+
+**Step 7: Disconnect**
+```
+👤 You say: "Disconnect"
+🤖 AI responds: "Disconnecting now. Your image looks great!"
+🔴 You see: Status changes to "🔴 Disconnected"
+⏱️ Total Time: 1-2 minutes
+💰 Total Cost: ~$0.08-0.12
+```
+
+**Final Result:**
+✅ Clean transparent background
+✅ High resolution (2x-4x original)
+✅ Enhanced facial features (if applicable)
+✅ Professional quality ready for use
+
+**Recommended Enhancement Order:**
+1. **Restore** (if image is damaged/blurry)
+2. **Upscale** (improve resolution)
+3. **Enhance Face** (if portrait)
+4. **Remove Background** (last, for cleanest edges)
+
+**Next Steps:**
+- Export image with transparent background
+- Use in banner designs or other projects
+- Save to gallery for future use
+- Combine with other images or text overlays
+
+---
+
+#### Workflow 3: A/B Test Different Banner Designs
+
+**Goal:** Create and compare multiple design variations for data-driven design decisions
+**Estimated Time:** 3-5 minutes per variation
+**Commands:** 5-6 per variation
+**Estimated Cost:** $0.15-0.25 per variation (2 variations = ~$0.30-0.50 total)
+
+**Use Cases:**
+- Testing different visual styles with your audience
+- Creating seasonal variations
+- Comparing professional vs. creative approaches
+- Finding the most effective design before investing in promotion
+
+**Prerequisites:**
+- Clear idea of 2-3 design directions to test
+- Text content prepared in advance
+- OpenAI API key configured
+
+**Step-by-Step Instructions:**
+
+**Phase 1: Create First Variation (Professional Style)**
+
+**Step 1: Connect and Start**
+```
+🎤 Action: Click "Connect"
+👤 You say: "I want to create multiple LinkedIn banner variations to A/B test"
+🤖 AI responds: "Great idea! A/B testing helps you find the most effective
+                 design. Let's start with your first variation. What style
+                 would you like to try first?"
+⏱️ Time: ~2-3 seconds
+```
+
+**Step 2: Generate First Background**
+```
+👤 You say: "Generate a professional LinkedIn banner background with a blue
+             gradient from navy to cyan, corporate and trustworthy style"
+🤖 AI responds: "I'll create a professional blue gradient background for you."
+⚙️ You see: Tool badge "🔧 generate_background"
+⏳ Wait: ~10-15 seconds
+✨ Preview appears: Professional blue gradient design
+👀 Review: Does this match the "professional" style you want to test?
+✅ Action: Click "Apply"
+🎨 Result: Variation A background applied
+⏱️ Time: ~15-20 seconds
+💰 Cost: ~$0.05
+```
+
+**Step 3: Add Consistent Text Elements**
+```
+👤 You say: "Add text 'Marcus Williams' at the top in 56 point bold white font,
+             then add text 'Digital Marketing Strategist' in the center in
+             36 point white font"
+🤖 AI responds: "I've added both text elements to your banner."
+⚙️ You see: Tool badges "🔧 add_text_element" (x2)
+🎨 Result: Text overlays added
+⏱️ Time: ~3-5 seconds
+💰 Cost: Included in session time
+📝 Important: Save these exact text specifications for consistency across variations!
+```
+
+**Step 4: Save Variation A**
+```
+👤 You say: "Navigate to gallery"
+🤖 AI responds: "Taking you to the gallery now."
+🎨 Result: Gallery tab opens
+🖱️ Action: Click "Save Design" button in UI
+📝 Name: Type "Banner Variation A - Professional Blue" in the dialog
+💾 Save: Click save button
+⏱️ Time: ~5-10 seconds (manual UI interaction)
+```
+
+**Phase 2: Create Second Variation (Creative Style)**
+
+**Step 5: Return to Studio**
+```
+👤 You say: "Navigate to studio"
+🤖 AI responds: "Returning to the studio."
+🎨 Result: Studio tab opens with clean canvas
+⏱️ Time: ~2-3 seconds
+💡 Tip: Voice session stays connected during navigation!
+```
+
+**Step 6: Generate Second Background**
+```
+👤 You say: "Generate a creative LinkedIn banner background with geometric
+             patterns and abstract shapes, vibrant colors, modern and energetic"
+🤖 AI responds: "I'll create a creative geometric background for you."
+⚙️ You see: Tool badge "🔧 generate_background"
+⏳ Wait: ~10-15 seconds
+✨ Preview appears: Creative geometric design
+👀 Review: Does this contrast well with Variation A?
+✅ Action: Click "Apply"
+🎨 Result: Variation B background applied
+⏱️ Time: ~15-20 seconds
+💰 Cost: ~$0.05
+```
+
+**Step 7: Add Same Text Elements (Consistency is Key)**
+```
+👤 You say: "Add text 'Marcus Williams' at the top in 56 point bold white font,
+             then add text 'Digital Marketing Strategist' in the center in
+             36 point white font"
+🤖 AI responds: "I've added the same text elements to maintain consistency."
+🎨 Result: Identical text on different background
+⏱️ Time: ~3-5 seconds
+💰 Cost: Included in session time
+```
+
+**Pro Tip:** For true A/B testing, only change ONE variable (background style). Keep text, positioning, and other elements identical.
+
+**Step 8: Save Variation B**
+```
+👤 You say: "Navigate to gallery"
+🎨 Result: Gallery tab opens
+🖱️ Action: Save design as "Banner Variation B - Creative Geometric"
+💾 Save: Click save button
+```
+
+**Phase 3: Optional - Create Third Variation (Minimalist Style)**
+
+**Step 9: Create Minimalist Variation (Optional)**
+```
+👤 You say: "Navigate to studio"
+🎨 Result: Clean canvas
+👤 You say: "Generate a minimalist LinkedIn banner background, white space with
+             subtle texture, one accent color in coral, clean and simple"
+🤖 AI responds: "Creating a minimalist design for you."
+✨ Preview: Minimalist design with coral accent
+✅ Action: Click "Apply"
+👤 You say: [Add same text elements as before]
+👤 You say: "Navigate to gallery"
+🖱️ Action: Save as "Banner Variation C - Minimalist Coral"
+⏱️ Additional Time: ~2-3 minutes
+💰 Additional Cost: ~$0.10-0.15
+```
+
+**Phase 4: Compare and Analyze**
+
+**Step 10: Side-by-Side Comparison**
+```
+📍 Location: Gallery tab
+👀 View: All variations displayed in grid
+🖱️ Action: Click each design to view full-size
+📊 Compare:
+   - Which has better visual hierarchy?
+   - Which is more eye-catching?
+   - Which better represents your brand?
+   - Which text is more readable?
+```
+
+**Step 11: Get AI Analysis**
+```
+👤 You say: "Which of these banner designs do you think is most effective
+             for a digital marketing professional on LinkedIn?"
+🤖 AI responds: [Detailed analysis comparing visual hierarchy, color psychology,
+                 professionalism, and target audience appeal]
+📝 Review: Consider AI feedback along with your own judgment
+```
+
+**Step 12: Disconnect**
+```
+👤 You say: "Thank you, that's very helpful. Disconnect."
+🔴 Status: Disconnected
+⏱️ Total Time: 3-5 minutes per variation (6-15 minutes for 3 variations)
+💰 Total Cost: ~$0.30-0.50 for 3 complete variations
+```
+
+**Final Result:**
+✅ 2-3 professional banner variations
+✅ Consistent text elements across all versions
+✅ Different visual styles to test
+✅ AI analysis of effectiveness
+✅ All saved to gallery for future reference
+
+**A/B Testing Best Practices:**
+
+**1. Control Your Variables**
+- Change only ONE element per variation (background style, color scheme, layout)
+- Keep text content identical across variations
+- Use same font sizes and positioning
+- Test one variable at a time
+
+**2. Test Meaningfully Different Options**
+❌ Bad: Navy blue vs. Royal blue (too similar)
+✅ Good: Professional gradient vs. Creative geometric vs. Minimalist
+
+**3. Document Your Tests**
+- Save each variation with clear, descriptive names
+- Note the specific difference in each variation
+- Track performance metrics (profile views, engagement)
+- Keep notes on what you learn
+
+**4. Real-World Testing Strategy**
+```
+Week 1: Use Variation A - Track profile views/engagement
+Week 2: Use Variation B - Track profile views/engagement
+Week 3: Use Variation C - Track profile views/engagement
+Result: Choose best performer based on data
+```
+
+**5. Cost Optimization for A/B Testing**
+💡 Generate all variations at standard quality
+💡 Only upscale the winning design
+💡 Disconnect between variations to save session time
+💡 Use "Reject" liberally during generation
+
+**Next Steps:**
+- Deploy variations on LinkedIn (change weekly)
+- Track metrics (profile views, connection requests, post engagement)
+- Analyze performance data
+- Iterate on winning design
+- Create new variations based on what you learned
+
+**Advanced A/B Testing:**
+- Test different text positioning (top vs. center vs. bottom)
+- Test with vs. without headshot overlay
+- Test warm vs. cool color schemes
+- Test minimalist vs. detailed backgrounds
+
+---
+
+#### Workflow 4: Iterate on Design with AI Feedback
+
+**Goal:** Use AI analysis to improve your banner through iterative refinement
+**Estimated Time:** 2-3 minutes per iteration
+**Commands:** 3-4 per iteration
+**Estimated Cost:** $0.08-0.12 per iteration
+
+**When to Use This Workflow:**
+- Your initial design doesn't feel quite right
+- You want professional feedback on design choices
+- You're learning design principles
+- You want to optimize for LinkedIn effectiveness
+
+**Prerequisites:**
+- Initial banner created (background + text)
+- Open to making changes based on AI feedback
+- Understanding that AI feedback is suggestions, not rules
+
+**Step-by-Step Instructions:**
+
+**Step 1: Create Initial Banner**
+```
+🎨 Action: Create a basic banner using UI or voice commands
+👀 Result: Banner with background and text elements on canvas
+💡 Tip: Don't worry about perfection - this is just the starting point!
+```
+
+**Step 2: Connect Voice Agent**
+```
+🎤 Action: Click "Connect"
+👤 You say: "I need help improving my LinkedIn banner design"
+🤖 AI responds: "I'd be happy to help you improve your banner. Let me take
+                 a look at what you have so far."
+⏱️ Time: ~2-3 seconds
+```
+
+**Step 3: Get Comprehensive AI Analysis**
+```
+👤 You say: "Analyze my banner and suggest improvements"
+🤖 AI responds: "Let me analyze your banner design..."
+⚙️ You see: Tool badge "🔧 analyze_banner"
+⏳ Wait: ~3-5 seconds for analysis
+📊 AI provides detailed feedback covering:
+
+   Visual Hierarchy Analysis:
+   - "Your name is prominently displayed at the top - good!"
+   - "Consider making your title slightly larger for better balance"
+
+   Color Psychology:
+   - "The blue gradient conveys professionalism and trust"
+   - "Consider adding a warm accent color to increase approachability"
+
+   Composition:
+   - "Text is well-centered but could use more whitespace"
+   - "Background is slightly busy - might compete with text"
+
+   LinkedIn-Specific Advice:
+   - "Profile photo will overlap top-left corner - avoid placing text there"
+   - "Banner displays differently on mobile - ensure text is in safe zone"
+
+   Overall Impression:
+   - Professionalism: 8/10
+   - Readability: 7/10
+   - Visual Impact: 6/10
+
+   Top 3 Improvements:
+   1. Simplify background to improve text readability
+   2. Increase whitespace around text elements
+   3. Add subtle accent color for visual interest
+
+⏱️ Time: ~5-10 seconds for complete analysis
+💰 Cost: ~$0.01 (text generation, no image processing)
+📝 Review: Read entire analysis carefully
+```
+
+**Pro Tip:** Take notes on the feedback. The transcript will clear when you disconnect, so save important insights!
+
+**Step 4: Generate Enhanced Prompt**
+```
+👤 You say: "Write an enhanced prompt for a LinkedIn banner based on your analysis"
+🤖 AI responds: "Based on my analysis, here's an optimized prompt..."
+⚙️ You see: Tool badge "🔧 write_enhanced_prompt"
+⏳ Wait: ~3-5 seconds
+📝 AI provides enhanced prompt:
+
+   "Generate a professional LinkedIn banner with a simplified blue gradient
+   background (navy to cyan), more whitespace, and a subtle coral accent element
+   in the bottom right corner. The design should be minimalist and clean with
+   most of the center area left open for text overlay. Ensure high contrast
+   between background and text areas. Modern, professional, and optimized for
+   mobile viewing with safe zones for profile photo overlay in top-left."
+
+⏱️ Time: ~5-10 seconds
+💰 Cost: ~$0.01 (text generation)
+💡 Tip: This enhanced prompt incorporates all the AI's suggestions!
+```
+
+**Step 5: Generate Improved Background**
+```
+👤 You say: "Generate a background using that enhanced prompt"
+   OR (if you want to customize further)
+👤 You say: "Generate a professional LinkedIn banner with a simplified blue
+             gradient, more whitespace, and a coral accent element"
+
+🤖 AI responds: "I'll generate the improved background based on those
+                 specifications."
+⚙️ You see: Tool badge "🔧 generate_background"
+⏳ Wait: ~10-15 seconds
+✨ Preview appears: New design with improvements applied
+👀 Review: Compare with original - do you see the improvements?
+   - Is the background simpler?
+   - Is there more whitespace?
+   - Is the text more readable?
+   - Does the accent color add visual interest?
+✅ Action: Click "Apply" if improved OR "Reject" to try different approach
+🎨 Result: Improved background replaces original
+⏱️ Time: ~15-20 seconds
+💰 Cost: ~$0.05 for generation
+```
+
+**Step 6: Compare Before and After**
+```
+👤 You say: "How does this new design compare to the original?"
+🤖 AI responds: [Detailed comparison highlighting improvements]
+📊 Consider:
+   - Is text more readable now?
+   - Does it feel more professional?
+   - Is the visual hierarchy clearer?
+   - Would you be proud to use this on LinkedIn?
+```
+
+**Step 7: Further Refinement (If Needed)**
+```
+Option A: Need more changes?
+👤 You say: "The background is better but the text still needs work. Suggest
+             improvements for the text layout"
+🤖 AI responds: [Specific text improvement suggestions]
+👤 You say: "Update the title text to be 48 points and move it down 20 pixels"
+⚙️ Action: Text updated immediately
+
+Option B: Happy with result?
+👤 You say: "This looks much better! Analyze the final design"
+🤖 AI responds: [Final analysis showing improvements]
+📊 Compare scores:
+   Before: Professionalism 8/10, Readability 7/10, Impact 6/10
+   After: Professionalism 9/10, Readability 9/10, Impact 8/10
+```
+
+**Step 8: Save and Disconnect**
+```
+💾 Action: Save improved design to gallery
+👤 You say: "Thank you for the feedback! Disconnect."
+🤖 AI responds: "You're welcome! Your banner looks much more professional now."
+🔴 Status: Disconnected
+⏱️ Total Time: 2-3 minutes per iteration
+💰 Total Cost: ~$0.08-0.12 per iteration
+```
+
+**Final Result:**
+✅ Data-driven design improvements
+✅ Better visual hierarchy
+✅ Improved readability
+✅ More effective for LinkedIn
+✅ Learning experience for future designs
+
+**Iterative Improvement Cycle:**
+```
+1. Create → 2. Analyze → 3. Get Suggestions → 4. Implement → 5. Compare
+                            ↓                                    ↓
+                            ← ← ← ← ← ← ← ← ← ← ← ← ← ← ← ← ← ←
+
+Repeat until satisfied (usually 1-3 iterations)
+```
+
+**What to Expect from AI Analysis:**
+
+✅ **AI is Good At:**
+- Identifying visual hierarchy issues
+- Suggesting color psychology improvements
+- Spotting readability problems
+- LinkedIn-specific best practices
+- Composition and balance feedback
+
+⚠️ **AI May Not Consider:**
+- Your specific brand guidelines
+- Your personal style preferences
+- Your target audience specifics
+- Industry-specific conventions
+- Cultural context
+
+**Pro Tips for Iterative Design:**
+
+💡 **Make One Change at a Time**
+- Don't try to fix everything at once
+- Implement one suggestion, review, then continue
+- Easier to identify what actually improved the design
+
+💡 **Use Undo Freely**
+- If a change doesn't work, immediately say "Undo"
+- No cost to undo actions
+- Experiment without fear
+
+💡 **Save Versions**
+- Save design before major changes
+- Create "Before" and "After" versions in gallery
+- Easy to revert if needed
+
+💡 **Combine AI Feedback with Your Judgment**
+- AI provides suggestions, not mandates
+- You know your brand best
+- Use feedback as input, not directives
+
+💡 **Learn and Apply**
+- Note which suggestions improved your design
+- Apply these principles to future banners
+- Build your design intuition over time
+
+**Common Improvement Patterns:**
+
+**Issue: Text Hard to Read**
+→ Simplify background
+→ Increase text size
+→ Add text shadow or outline
+→ Use higher contrast colors
+
+**Issue: Looks Unprofessional**
+→ Reduce color count (2-3 max)
+→ Increase whitespace
+→ Use more conservative fonts
+→ Simplify visual elements
+
+**Issue: Boring/Forgettable**
+→ Add accent color
+→ Include subtle texture
+→ Improve composition asymmetry
+→ Add tasteful visual interest
+
+**Issue: Cluttered**
+→ Remove unnecessary elements
+→ Increase spacing between elements
+→ Simplify background
+→ Reduce text amount
+
+**Next Steps:**
+- Apply learned principles to new designs
+- Create personal design checklist
+- Test improved design on LinkedIn
+- Iterate based on real-world feedback
+
+---
+
+#### Workflow 5: Bulk Text Operations
+
+**Goal:** Add multiple text elements efficiently in a single voice session
+**Estimated Time:** 1-2 minutes
+**Commands:** 2-3
+**Estimated Cost:** $0.06-0.08 (primarily session time, text operations are lightweight)
+
+**When to Use This Workflow:**
+- Creating complete banner with multiple text layers
+- Adding contact information (name, title, email, website)
+- Creating text-heavy designs efficiently
+- Updating multiple text elements at once
+
+**Prerequisites:**
+- Background image already on canvas (optional but recommended)
+- Text content prepared in advance
+- Clear idea of text placement
+
+**Step-by-Step Instructions:**
+
+**Step 1: Connect Voice Agent**
+```
+🎤 Action: Click "Connect"
+👤 You say: "I want to add multiple text elements to my banner"
+🤖 AI responds: "I can help you add multiple text elements efficiently.
+                 You can describe all the text you want in one sentence."
+🟢 Status: Live Session Active
+⏱️ Time: ~2-3 seconds
+```
+
+**Step 2: Add Multiple Text Elements in One Command**
+```
+👤 You say: "Add text 'Michael Rodriguez' at the top in 48 point bold font,
+             add text 'Full-Stack Developer' in the center in 32 point font,
+             add text 'Building the Future' at the bottom in 24 point italic font"
+
+🤖 AI responds: "I'll add all three text elements for you now."
+⚙️ You see: Three tool badges appear: "🔧 add_text_element" (x3)
+🎨 Result: Three text elements appear on canvas:
+   - "Michael Rodriguez" at top (48pt, bold)
+   - "Full-Stack Developer" at center (32pt, regular)
+   - "Building the Future" at bottom (24pt, italic)
+⏱️ Time: ~5-8 seconds total for all three elements
+💰 Cost: Included in session time (no additional charge)
+```
+
+**Understanding Natural Language Processing:**
+The AI understands:
+✅ "Add text [content] at the [position] in [size] [style] font"
+✅ "Add [content] at the top, then add [content] in the middle"
+✅ "Put [content] at coordinates X, Y in [size] points"
+✅ "Add [content] with [color] color and [font] font"
+
+**Step 3: Verify All Elements**
+```
+👤 You say: "List all elements on the canvas"
+🤖 AI responds: "Here are all the elements currently on your canvas..."
+⚙️ You see: Tool badge "🔧 list_elements"
+📝 AI reads back:
+
+   "Element 1: Text 'Michael Rodriguez'
+    - Position: (400, 100)
+    - Font Size: 48 points
+    - Style: Bold
+    - Color: Black
+
+   Element 2: Text 'Full-Stack Developer'
+    - Position: (400, 300)
+    - Font Size: 32 points
+    - Style: Normal
+    - Color: Black
+
+   Element 3: Text 'Building the Future'
+    - Position: (400, 500)
+    - Font Size: 24 points
+    - Style: Italic
+    - Color: Black"
+
+⏱️ Time: ~2-3 seconds
+💰 Cost: Included in session time
+💡 Use: Verify all text is correct before making changes
+```
+
+**Step 4: Update Specific Element**
+```
+👤 You say: "Update the bottom text element to say 'Crafting Digital Experiences'"
+🤖 AI responds: "I'll update that text for you."
+⚙️ You see: Tool badge "🔧 update_element"
+🎨 Result: Bottom text changes immediately
+   - Old: "Building the Future"
+   - New: "Crafting Digital Experiences"
+⏱️ Time: ~2-3 seconds
+💰 Cost: Included in session time
+```
+
+**Alternative Update Methods:**
+```
+By Position:
+👤 "Update the top text to 'Alexandra Chen'"
+👤 "Change the center text size to 40 points"
+👤 "Make the bottom text color white"
+
+By Content:
+👤 "Update the text that says 'Building the Future' to 'Crafting Experiences'"
+
+Multiple Updates:
+👤 "Make the top text bold and increase its size to 56 points"
+```
+
+**Step 5: Advanced Text Operations**
+
+**Add Contact Information:**
+```
+👤 You say: "Add text 'email: m.rodriguez@example.com' at the bottom left in
+             16 point font, then add text 'linkedin.com/in/mrodriguez' at the
+             bottom right in 16 point font"
+🎨 Result: Contact info added to both bottom corners
+💡 Use: Professional contact details on banner
+```
+
+**Create Text Hierarchy:**
+```
+👤 You say: "Add text 'EXPERT IN' at the top in 20 point light font, then add
+             text 'FULL-STACK DEVELOPMENT' below it in 40 point bold font, then
+             add text 'React • Node.js • Python • AWS' below that in 24 point font"
+🎨 Result: Three-level text hierarchy
+💡 Use: Skill showcase with visual emphasis
+```
+
+**Add Tagline with Styling:**
+```
+👤 You say: "Add text 'Turning ideas into reality' at the center in 32 point
+             italic font with white color and a subtle shadow"
+🎨 Result: Styled tagline with emphasis
+💡 Use: Memorable personal motto
+```
+
+**Step 6: Delete Elements (If Needed)**
+```
+👤 You say: "Delete the bottom text element"
+🤖 AI responds: "I'll remove that text element."
+⚙️ You see: Tool badge "🔧 delete_element"
+🎨 Result: Bottom text removed from canvas
+⏱️ Time: ~2-3 seconds
+💰 Cost: Included in session time
+
+Alternative deletion commands:
+👤 "Delete all text elements" - Removes all text
+👤 "Delete the text that says 'Building the Future'" - Removes specific text
+👤 "Remove the top three elements" - Removes multiple elements
+```
+
+**Step 7: Disconnect**
+```
+👤 You say: "That's perfect, thank you! Disconnect."
+🤖 AI responds: "Great! Your text layout looks professional."
+🔴 Status: Disconnected
+⏱️ Total Time: 1-2 minutes
+💰 Total Cost: ~$0.06-0.08
+```
+
+**Final Result:**
+✅ Multiple text elements added efficiently
+✅ All text verified and correct
+✅ Professional text hierarchy
+✅ Contact information included (if desired)
+✅ Ready for export or further editing
+
+**Bulk Text Operation Patterns:**
+
+**Pattern 1: Professional Banner (3 elements)**
+```
+- Name (top, large, bold)
+- Title (center, medium)
+- Tagline (bottom, small, italic)
+```
+
+**Pattern 2: Contact Card (5+ elements)**
+```
+- Name (top, large)
+- Title (below name)
+- Email (bottom left, small)
+- LinkedIn (bottom center, small)
+- Website (bottom right, small)
+```
+
+**Pattern 3: Skills Showcase (4 elements)**
+```
+- Category label (top, small, light)
+- Main skill (center, large, bold)
+- Supporting skills (below, medium)
+- Availability (bottom, small)
+```
+
+**Pattern 4: Personal Brand (2 elements)**
+```
+- Name/Brand (center-left, very large)
+- Tagline/Mission (center-right, medium, italic)
+```
+
+**Pro Tips for Bulk Text Operations:**
+
+💡 **Prepare Text Content First**
+- Write all text in a document before starting
+- Know exact wording to avoid updates
+- Consider character limits (shorter is better)
+
+💡 **Use Consistent Formatting**
+- Stick to 2-3 font sizes maximum
+- Use bold for emphasis, italic for subtlety
+- Maintain consistent spacing
+
+💡 **Leverage Natural Language**
+- Don't memorize exact commands
+- Speak naturally: "then add..." works great
+- AI understands context and relative positions
+
+💡 **Verify Before Finalizing**
+- Always use "List all elements" to verify
+- Check spelling, positioning, sizing
+- Easier to fix now than after disconnect
+
+💡 **Use Update, Not Delete-and-Recreate**
+- Updates are faster than delete + add
+- Updates preserve positioning
+- Updates maintain element IDs for easier reference
+
+**Common Use Cases:**
+
+**Use Case 1: Quick Name Tag**
+```
+Time: 30 seconds
+👤 "Add text 'Jane Doe' at the center in 60 point bold"
+Result: Simple, centered name
+```
+
+**Use Case 2: Professional Banner**
+```
+Time: 1 minute
+👤 "Add 'Jane Doe' at top, 'Product Manager' at center, 'Innovating at Scale' at bottom"
+Result: Complete 3-tier banner
+```
+
+**Use Case 3: Detailed Profile**
+```
+Time: 2 minutes
+👤 Add name, title, 3 skills, email, LinkedIn URL (7 elements total)
+Result: Information-rich professional banner
+```
+
+**Troubleshooting:**
+
+**Issue: Text overlaps or is misaligned**
+Solution: Use specific coordinates:
+👤 "Update the top text to position 400, 150"
+
+**Issue: Wrong element updated**
+Solution: Be more specific:
+👤 "Update the text that says [exact content]"
+OR "List elements" first to verify IDs
+
+**Issue: Text too small or too large**
+Solution: Update font size:
+👤 "Make the center text 40 points"
+
+**Issue: Need to start over**
+Solution: Delete all and restart:
+👤 "Delete all text elements"
+Then re-add elements correctly
+
+**Next Steps:**
+- Fine-tune positioning using UI if needed
+- Add visual elements (icons, shapes) using UI
+- Save design to gallery
+- Export for LinkedIn
+
+---
+
+#### Workflow 6: Fix Design Mistakes Quickly
+
+**Goal:** Correct errors without manual editing using voice commands
+**Estimated Time:** 30 seconds - 1 minute
+**Commands:** 1-2
+**Estimated Cost:** $0.03-0.06 (minimal session time + any regeneration if needed)
+
+**When to Use This Workflow:**
+- Accidentally added wrong text
+- Generated image doesn't match expectation
+- Applied wrong transformation
+- Deleted wrong element
+- Need to quickly iterate on design choices
+
+**Why This Workflow is Powerful:**
+✅ Faster than manual UI correction
+✅ No need to remember exact settings
+✅ Can undo multiple steps quickly
+✅ Free undo operations (no API cost)
+✅ Maintains design workflow momentum
+
+**Step-by-Step Instructions:**
+
+**Scenario A: Wrong Text Added**
+
+**Step 1: Identify the Mistake**
+```
+🎨 Canvas: Shows "John Smtih" (typo!) at top
+😬 Problem: Spelled name wrong
+💡 Solution: Use voice to fix it
+```
+
+**Step 2: Connect and Fix**
+```
+🎤 Action: Click "Connect" (if not already connected)
+👤 You say: "Update the top text to 'John Smith'"
+🤖 AI responds: "I'll fix that typo for you."
+⚙️ You see: Tool badge "🔧 update_element"
+🎨 Result: Text corrected immediately
+⏱️ Time: ~3-5 seconds
+💰 Cost: Included in session time
+✅ Fixed: No need to delete and recreate!
+```
+
+**Scenario B: Wrong Image Generated**
+
+**Step 1: Identify the Mistake**
+```
+🖼️ Canvas: Shows mountains instead of cityscape
+😬 Problem: Generated wrong background
+💡 Solution: Reject or undo, then regenerate
+```
+
+**Step 2: Quick Fix - Undo**
+```
+If you already clicked "Apply":
+👤 You say: "Undo the last action"
+🤖 AI responds: "Undoing the last action."
+⚙️ You see: Tool badge "🔧 undo_action"
+🎨 Result: Previous background restored (or blank canvas if it was first action)
+⏱️ Time: ~1-2 seconds
+💰 Cost: FREE - undo has no API cost!
+```
+
+**Step 3: Try Again with Better Prompt**
+```
+👤 You say: "Generate a cityscape background with modern skyscrapers at sunset"
+🤖 AI responds: "I'll generate a cityscape for you this time."
+⏳ Wait: ~10-15 seconds
+✨ Preview: Shows correct cityscape
+✅ Action: Click "Apply"
+🎨 Result: Correct background applied
+⏱️ Time: ~15-20 seconds
+💰 Cost: ~$0.05 for new generation
+```
+
+**Scenario C: Applied Wrong Enhancement**
+
+**Step 1: Identify the Mistake**
+```
+🖼️ Canvas: Image upscaled to creative mode (too stylized)
+😬 Problem: Wanted balanced mode, got creative mode
+💡 Solution: Undo and reapply correct mode
+```
+
+**Step 2: Undo the Enhancement**
+```
+👤 You say: "Undo"
+🤖 AI responds: "Undoing."
+🎨 Result: Returns to pre-upscaled image
+⏱️ Time: ~1-2 seconds
+💰 Cost: FREE
+```
+
+**Step 3: Reapply Correctly**
+```
+👤 You say: "Upscale the image to balanced quality"
+⏳ Wait: ~15-20 seconds
+✨ Preview: Balanced quality version
+✅ Action: Click "Apply"
+🎨 Result: Correct enhancement applied
+⏱️ Time: ~20-25 seconds
+💰 Cost: ~$0.03
+```
+
+**Scenario D: Deleted Wrong Element**
+
+**Step 1: Identify the Mistake**
+```
+🎨 Canvas: Deleted the title instead of the tagline
+😬 Problem: Wrong text element removed
+💡 Solution: Undo immediately
+```
+
+**Step 2: Undo and Be More Specific**
+```
+👤 You say: "Undo"
+🤖 AI responds: "Undoing the deletion."
+🎨 Result: Deleted text restored
+⏱️ Time: ~1-2 seconds
+💰 Cost: FREE
+
+Now be more specific:
+👤 You say: "Delete the text that says 'Building the Future'"
+🤖 AI responds: "Deleting that specific text element."
+🎨 Result: Correct element deleted
+⏱️ Time: ~2-3 seconds
+💰 Cost: Included in session time
+✅ Fixed: Deleted the right element this time!
+```
+
+**Scenario E: Multiple Mistakes to Undo**
+
+**Step 1: Undo Multiple Times**
+```
+👤 You say: "Undo"
+🎨 Result: Last action undone
+👤 You say: "Undo"
+🎨 Result: Second-to-last action undone
+👤 You say: "Undo"
+🎨 Result: Third-to-last action undone
+⏱️ Time: ~1-2 seconds per undo
+💰 Cost: FREE for all undos
+💡 Tip: Can undo up to 20 actions in history stack
+```
+
+**Step 2: Alternatively, Undo Multiple at Once**
+```
+👤 You say: "Undo the last 3 actions"
+🤖 AI responds: "Undoing the last 3 actions."
+🎨 Result: Last 3 actions reverted
+⏱️ Time: ~2-3 seconds
+💰 Cost: FREE
+```
+
+**Scenario F: Want to Redo After Undoing**
+
+**Step 1: Changed Your Mind**
+```
+🎨 Canvas: Undid an action but now want it back
+💭 Thought: "Actually, that looked better before"
+💡 Solution: Use redo command
+```
+
+**Step 2: Redo the Action**
+```
+👤 You say: "Redo"
+🤖 AI responds: "Redoing the action."
+🎨 Result: Action reapplied
+⏱️ Time: ~1-2 seconds
+💰 Cost: FREE
+💡 Note: Redo stack clears if you perform new action after undo
+```
+
+**Advanced Error Recovery Strategies:**
+
+**Strategy 1: Preview Mode Protection**
+```
+Best Practice: ALWAYS review previews before clicking "Apply"
+- Don't rush to click Apply
+- Check all details carefully
+- Use Reject freely - it's free and fast
+- Better to reject than to undo later
+```
+
+**Strategy 2: Iterative Refinement**
+```
+1. Generate/process → Review → Reject if not perfect
+2. Adjust prompt → Generate again → Review → Reject if still not right
+3. Refine further → Generate → Review → Apply when perfect
+Cost: Only pay for final applied result (rejects are free to AI operations side)
+```
+
+**Strategy 3: Use Specific Language**
+```
+❌ Vague: "Delete that text"
+✅ Specific: "Delete the text that says 'Building the Future'"
+
+❌ Vague: "Update it"
+✅ Specific: "Update the top text to 'Alexandra Chen'"
+
+❌ Vague: "Undo that"
+✅ Specific: "Undo the last background generation"
+```
+
+**Strategy 4: List Elements Before Deleting**
+```
+1. Say: "List all elements on the canvas"
+2. Review: AI reads all elements with IDs and content
+3. Delete: "Delete element 3" OR "Delete the text that says [exact content]"
+Result: No mistakes, precise deletion
+```
+
+**Pro Tips for Quick Error Recovery:**
+
+💡 **Stay Connected**
+- Keep voice session active while working
+- Faster to fix mistakes during session
+- No reconnection delay
+
+💡 **Use Undo Liberally**
+- Undo is free (no API cost)
+- Faster than delete + recreate
+- Preserves action history
+
+💡 **Reject Bad Previews**
+- Rejecting is free (no charge if you don't apply)
+- Try multiple variations risk-free
+- Only pay for final applied result
+
+💡 **Learn from Mistakes**
+- Note what prompts didn't work
+- Refine prompting technique
+- Build personal prompt library
+
+💡 **Disconnect to Reset**
+- If heavily confused, disconnect and reconnect
+- Fresh start with clear transcript
+- Clears potential context confusion
+
+**Common Mistakes and Quick Fixes:**
+
+| Mistake | Quick Fix | Time | Cost |
+|---------|-----------|------|------|
+| Typo in text | "Update the [position] text to '[correct text]'" | 3s | Free |
+| Wrong image generated | "Undo" → Regenerate with better prompt | 20s | $0.05 |
+| Deleted wrong element | "Undo" immediately | 2s | Free |
+| Applied wrong quality tier | "Undo" → Reapply correct tier | 25s | $0.03 |
+| Too many changes to undo | "Undo the last [number] actions" | 3s | Free |
+| Can't remember what you did | "List all elements" to review canvas | 3s | Free |
+
+**Keyboard Shortcuts Equivalent (But Voice is Faster!):**
+
+| Voice Command | Keyboard Alternative | Winner |
+|---------------|---------------------|--------|
+| "Undo" | Ctrl+Z | 🎤 Voice (hands-free) |
+| "Redo" | Ctrl+Y | 🎤 Voice (hands-free) |
+| "Delete [element]" | Click + Delete key | 🎤 Voice (more precise) |
+| "Update [text]" | Double-click + type | 🎤 Voice (faster) |
+
+**When to Use Manual UI Instead:**
+
+Sometimes UI is better:
+- Precise pixel-level positioning adjustments
+- Complex multi-element selection
+- Visual color picker (hard to describe colors verbally)
+- Drawing custom shapes
+
+But voice is better for:
+✅ Quick text changes
+✅ Undoing actions
+✅ Regenerating images
+✅ Applying enhancements
+✅ Bulk operations
+
+**Final Result:**
+✅ Mistakes corrected in seconds
+✅ No manual UI navigation needed
+✅ Design momentum maintained
+✅ Minimal cost (undo is free!)
+✅ Faster iteration cycles
+
+**Next Steps:**
+- Continue refining design
+- Save once satisfied
+- Remember successful prompts for future use
+- Build personal "what works" prompt library
+
+---
 
 **Pro Tips for Workflows:**
 
