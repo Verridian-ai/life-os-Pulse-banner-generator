@@ -5,6 +5,9 @@ import type { ModelMetadata } from '../types/ai';
 
 export type OperationType = 'text' | 'vision' | 'reasoning' | 'image_gen' | 'image_edit' | 'coding';
 
+// Module-level cache for model metadata to prevent expensive object creation
+let modelMetadataCache: Record<string, ModelMetadata> | null = null;
+
 /**
  * Select the best model for a given operation type
  * Supports both automatic selection and manual override
@@ -57,9 +60,16 @@ export const selectModelForTask = (
 
 /**
  * Get model metadata for display and comparison
+ * Uses memoization to prevent expensive object recreation
  */
 export const getModelMetadata = (): Record<string, ModelMetadata> => {
-  return {
+  // Return cached metadata if available
+  if (modelMetadataCache !== null) {
+    return modelMetadataCache;
+  }
+
+  // Create and cache the metadata object
+  modelMetadataCache = {
     [MODELS.textBasic]: {
       id: MODELS.textBasic,
       provider: 'openrouter',
@@ -195,6 +205,8 @@ export const getModelMetadata = (): Record<string, ModelMetadata> => {
       qualityScore: 90,
     },
   };
+
+  return modelMetadataCache;
 };
 
 /**
