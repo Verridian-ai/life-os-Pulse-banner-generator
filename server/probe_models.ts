@@ -21,11 +21,10 @@ async function testModels() {
     for (const m of models) {
         console.log(`Testing ${m.name}: ${m.id}`);
         let url = `https://api.replicate.com/v1/models/${m.id}/predictions`;
-        let body: any = { input: { default: true } }; // Dummy input
 
         // If it has version hash (:)
         if (m.id.includes(':')) {
-            const [slug, version] = m.id.split(':');
+            const [slug] = m.id.split(':');
             // Actually, API for version is v1/predictions with version in body usually, 
             // BUT v1/models/{owner}/{name}/versions/{version}/predictions
             // OR standard v1/predictions with "version": "..."

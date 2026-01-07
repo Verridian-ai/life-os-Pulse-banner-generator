@@ -1,0 +1,30 @@
+{
+  "pr_number": 5,
+  "repo": "Verridian-ai/life-os-Pulse-banner-generator",
+  "created_at": "2026-01-06T13:20:32.445Z",
+  "updated_at": "2026-01-06T13:22:43.929Z",
+  "is_followup": false,
+  "phases": {
+    "context": {
+      "phase": "context",
+      "status": "pending",
+      "started_at": null,
+      "completed_at": null,
+      "entries": []
+    },
+    "analysis": {
+      "phase": "analysis",
+      "status": "pending",
+      "started_at": null,
+      "completed_at": null,
+      "entries": []
+    },
+    "synthesis": {
+      "phase": "synthesis",
+      "status": "pending",
+      "started_at": null,
+      "completed_at": null,
+      "entries": []
+    }
+  }
+}

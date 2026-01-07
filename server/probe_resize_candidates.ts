@@ -16,45 +16,45 @@ const apiKey = process.env.REPLICATE_API_KEY;
 // 'image-resize' is too generic.
 // Let's try probing 'stability-ai/stable-diffusion-inpainting' for outpainting to size.
 
-async function testModel(modelId: string, input: any) {
-    if (!apiKey) { console.error("No API key"); return; }
-    console.log(`Testing ${modelId}...`);
-
-    try {
-        const resp = await fetch(`https://api.replicate.com/v1/models/${modelId}/predictions`, {
-            method: 'POST',
-            headers: {
-                'Authorization': `Token ${apiKey}`,
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({ input })
-        });
-
-        if (resp.status !== 201) {
-            console.log(`Failed to start: ${resp.status} - ${await resp.text()}`);
-            return;
-        }
-
-        const data = await resp.json();
-        console.log(`Started: ${data.id}`);
-        // Poll for result
-        let pred = data;
-        let checks = 0;
-        while (pred.status !== 'succeeded' && pred.status !== 'failed' && pred.status !== 'canceled' && checks < 20) {
-            process.stdout.write('.');
-            await new Promise(r => setTimeout(r, 2000));
-            const pollResp = await fetch(pred.urls.get, {
-                headers: { 'Authorization': `Token ${apiKey}` }
-            });
-            pred = await pollResp.json();
-            checks++;
-        }
-        console.log(`\nResult: ${pred.status}`);
-        if (pred.status === 'succeeded') console.log(`Output: ${pred.output}`);
-    } catch (e) {
-        console.error(e);
-    }
-}
+// async function _testModel() {
+//     if (!apiKey) { console.error("No API key"); return; }
+//     console.log(`Testing ${modelId}...`);
+//
+//     try {
+//         const resp = await fetch(`https://api.replicate.com/v1/models/${modelId}/predictions`, {
+//             method: 'POST',
+//             headers: {
+//                 'Authorization': `Token ${apiKey}`,
+//                 'Content-Type': 'application/json'
+//             },
+//             body: JSON.stringify({ input })
+//         });
+//
+//         if (resp.status !== 201) {
+//             console.log(`Failed to start: ${resp.status} - ${await resp.text()}`);
+//             return;
+//         }
+//
+//         const data = await resp.json();
+//         console.log(`Started: ${data.id}`);
+//         // Poll for result
+//         let pred = data;
+//         let checks = 0;
+//         while (pred.status !== 'succeeded' && pred.status !== 'failed' && pred.status !== 'canceled' && checks < 20) {
+//             process.stdout.write('.');
+//             await new Promise(r => setTimeout(r, 2000));
+//             const pollResp = await fetch(pred.urls.get, {
+//                 headers: { 'Authorization': `Token ${apiKey}` }
+//             });
+//             pred = await pollResp.json();
+//             checks++;
+//         }
+//         console.log(`\nResult: ${pred.status}`);
+//         if (pred.status === 'succeeded') console.log(`Output: ${pred.output}`);
+//     } catch (e) {
+//         console.error(e);
+//     }
+// }
 
 // Probing 3 different approaches
 async function run() {

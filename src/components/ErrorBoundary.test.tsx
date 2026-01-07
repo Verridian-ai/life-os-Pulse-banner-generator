@@ -49,8 +49,9 @@ describe('ErrorBoundary', () => {
       </ErrorBoundary>,
     );
 
-    // Should show error details or reload button
-    const errorElement = screen.getByRole('alert') || screen.getByText(/error/i);
-    expect(errorElement).toBeInTheDocument();
+    // Should show error details
+    const errorAlert = screen.getByRole('alert');
+    expect(errorAlert).toBeInTheDocument();
+    expect(screen.getByText(/test error/i)).toBeInTheDocument();
   });
 });

@@ -1,0 +1,34 @@
+{
+  "sandbox": {
+    "enabled": true,
+    "autoAllowBashIfSandboxed": true
+  },
+  "permissions": {
+    "defaultMode": "acceptEdits",
+    "allow": [
+      "Read(./**)",
+      "Write(./**)",
+      "Edit(./**)",
+      "Glob(./**)",
+      "Grep(./**)",
+      "Read(C:\\Users\\Danie\\Desktop\\nanobanna-pro\\.auto-claude\\worktrees\\tasks\\022-document-react-context-architecture-and-provider-h/**)",
+      "Write(C:\\Users\\Danie\\Desktop\\nanobanna-pro\\.auto-claude\\worktrees\\tasks\\022-document-react-context-architecture-and-provider-h/**)",
+      "Edit(C:\\Users\\Danie\\Desktop\\nanobanna-pro\\.auto-claude\\worktrees\\tasks\\022-document-react-context-architecture-and-provider-h/**)",
+      "Glob(C:\\Users\\Danie\\Desktop\\nanobanna-pro\\.auto-claude\\worktrees\\tasks\\022-document-react-context-architecture-and-provider-h/**)",
+      "Grep(C:\\Users\\Danie\\Desktop\\nanobanna-pro\\.auto-claude\\worktrees\\tasks\\022-document-react-context-architecture-and-provider-h/**)",
+      "Read(C:\\Users\\Danie\\Desktop\\nanobanna-pro\\.auto-claude\\worktrees\\tasks\\022-document-react-context-architecture-and-provider-h\\.auto-claude\\specs\\022-document-react-context-architecture-and-provider-h/**)",
+      "Write(C:\\Users\\Danie\\Desktop\\nanobanna-pro\\.auto-claude\\worktrees\\tasks\\022-document-react-context-architecture-and-provider-h\\.auto-claude\\specs\\022-document-react-context-architecture-and-provider-h/**)",
+      "Edit(C:\\Users\\Danie\\Desktop\\nanobanna-pro\\.auto-claude\\worktrees\\tasks\\022-document-react-context-architecture-and-provider-h\\.auto-claude\\specs\\022-document-react-context-architecture-and-provider-h/**)",
+      "Bash(*)",
+      "WebFetch(*)",
+      "WebSearch(*)",
+      "mcp__context7__resolve-library-id(*)",
+      "mcp__context7__get-library-docs(*)",
+      "mcp__graphiti-memory__search_nodes(*)",
+      "mcp__graphiti-memory__search_facts(*)",
+      "mcp__graphiti-memory__add_episode(*)",
+      "mcp__graphiti-memory__get_episodes(*)",
+      "mcp__graphiti-memory__get_entity_edge(*)"
+    ]
+  }
+}

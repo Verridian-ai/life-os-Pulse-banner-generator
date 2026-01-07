@@ -1,0 +1,130 @@
+{
+  "documentation_gaps": [
+    {
+      "id": "doc-001",
+      "type": "documentation_gaps",
+      "title": "Add Voice Agent User Guide and Command Reference",
+      "description": "The voice-powered design system (VoiceAgentContext, liveClient.ts, actionExecutor.ts) enables hands-free banner creation but has no user-facing documentation. Users cannot discover available voice commands like 'generate background', 'remove background', 'upscale image', or 'add text element'. The ActionExecutor supports 15+ tool commands but these are only documented in code comments.",
+      "rationale": "Voice control is a flagship feature mentioned in README.md ('Voice-Powered Creation', 'Hands-Free Design'). Without documentation, users must guess commands or read source code. This creates a significant onboarding barrier for the primary target audience (non-technical Careersy Community members).",
+      "category": "examples",
+      "targetAudience": "users",
+      "affectedAreas": [
+        "src/services/actionExecutor.ts",
+        "src/context/VoiceAgentContext.tsx",
+        "src/services/liveClient.ts",
+        "src/components/features/LiveActionPanel.tsx"
+      ],
+      "currentDocumentation": "README mentions voice features exist but provides no command reference. ActionExecutor has inline comments describing each tool but these are not user-accessible.",
+      "proposedContent": "Create docs/guides/VOICE_COMMANDS.md with: (1) Getting Started with Voice - mic setup, browser requirements (2) Full command reference table with examples ('Generate a blue tech background', 'Upscale this image to 4K') (3) Troubleshooting common issues (mic permissions, connectivity) (4) Best practices for voice prompts",
+      "priority": "high",
+      "estimatedEffort": "medium"
+    },
+    {
+      "id": "doc-002",
+      "type": "documentation_gaps",
+      "title": "Document React Context Architecture and Provider Hierarchy",
+      "description": "The application uses 5 React contexts (AIContext, CanvasContext, AuthContext, VoiceAgentContext, plus canvas sub-contexts) but there's no documentation explaining their relationships, what state each manages, or the required provider nesting order. Developers must read App.tsx and trace imports to understand the architecture.",
+      "rationale": "New contributors frequently make mistakes with context ordering or duplicate context usage. The WIKI.md architecture section shows a high-level diagram but doesn't cover the context system. This gap causes onboarding friction and bugs from incorrect context usage.",
+      "category": "architecture",
+      "targetAudience": "developers",
+      "affectedAreas": [
+        "src/context/AIContext.tsx",
+        "src/context/CanvasContext.tsx",
+        "src/context/AuthContext.tsx",
+        "src/context/VoiceAgentContext.tsx",
+        "src/context/canvas/",
+        "src/App.tsx"
+      ],
+      "currentDocumentation": "Individual context files have brief header comments. WIKI.md has architecture diagram but doesn't cover contexts. No documentation of AIContextType interface or hook usage patterns.",
+      "proposedContent": "Add 'Context Architecture' section to WIKI.md explaining: (1) What each context manages (AIContext=model selection/metrics, CanvasContext=canvas state, etc.) (2) Required provider nesting order with code example (3) When to use useAI() vs useCanvas() vs useAuth() (4) Common patterns and anti-patterns",
+      "priority": "high",
+      "estimatedEffort": "small"
+    },
+    {
+      "id": "doc-003",
+      "type": "documentation_gaps",
+      "title": "Create Agent System Architecture README",
+      "description": "The src/services/agents/ directory contains a sophisticated multi-agent orchestration system (BaseAgent, ImageGenerationAgent, PromptEnhancementAgent, PartnerAgent, ModelRouterAgent) with excellent JSDoc on individual files, but no high-level documentation explaining how agents work together, when to use agent mode vs direct API calls, or how to create new agents.",
+      "rationale": "The agent system is a key architectural pattern for the application. llm.ts has a 'useAgent' parameter but developers don't know when to use it. The BaseAgent class has extensive documentation but no guide explaining the overall system design or extension patterns.",
+      "category": "architecture",
+      "targetAudience": "developers",
+      "affectedAreas": [
+        "src/services/agents/BaseAgent.ts",
+        "src/services/agents/ImageGenerationAgent.ts",
+        "src/services/agents/PromptEnhancementAgent.ts",
+        "src/services/agents/PartnerAgent.ts",
+        "src/services/agents/ModelRouterAgent.ts",
+        "src/services/agents/types.ts",
+        "src/services/llm.ts"
+      ],
+      "currentDocumentation": "BaseAgent.ts has excellent module-level JSDoc. Individual agents have @example blocks. No overview documentation exists. CLAUDE.md mentions agents but focuses on orchestrator agents, not application agents.",
+      "proposedContent": "Create src/services/agents/README.md with: (1) Agent system overview and design philosophy (2) Agent lifecycle diagram (initialize -> execute -> shutdown) (3) When to use useAgent=true in llm.ts calls (4) How to create a new agent with code template (5) Message flow and retry logic explanation",
+      "priority": "medium",
+      "estimatedEffort": "medium"
+    },
+    {
+      "id": "doc-004",
+      "type": "documentation_gaps",
+      "title": "Document Backend API Routes and Request/Response Schemas",
+      "description": "The frontend makes calls to /api/ai/* endpoints (chat, image/generate, image/edit, image/upscale, prompt/enhance, etc.) through api.ts, but there's no documentation of the expected request payloads, response formats, error codes, or rate limiting behavior. Developers must trace code or guess API contracts.",
+      "rationale": "The API layer is critical for understanding the application flow. llm.ts shows various endpoint calls but developers can't quickly reference what parameters are required or optional. This is especially problematic when debugging failed requests or adding new features.",
+      "category": "api_docs",
+      "targetAudience": "developers",
+      "affectedAreas": [
+        "src/services/api.ts",
+        "src/services/llm.ts",
+        "api/",
+        "server/src/index.ts"
+      ],
+      "currentDocumentation": "No API documentation exists. Endpoint behavior must be inferred from llm.ts calls and server implementation. Error handling is ad-hoc.",
+      "proposedContent": "Create docs/api/API_REFERENCE.md documenting: (1) Each /api/ai/* endpoint with method, path, request body schema, response schema (2) Error codes and their meanings (KEY_MISSING, RATE_LIMITED, etc.) (3) Provider-specific behavior (openrouter vs replicate vs gemini) (4) Authentication requirements (how BYOK keys are passed)",
+      "priority": "medium",
+      "estimatedEffort": "medium"
+    },
+    {
+      "id": "doc-005",
+      "type": "documentation_gaps",
+      "title": "Add TypeScript Type System Documentation",
+      "description": "Types are split across multiple files (types/ai.ts, types/database.ts, types/index.ts, types/replicate.ts, services/agents/types.ts) without documentation explaining the organization, when to import from which file, or the relationship between similar types (e.g., ModelMetadata vs AIContextType).",
+      "rationale": "Developers frequently import from wrong type files or duplicate types. The split between ai.ts and agents/types.ts is confusing since both contain AI-related types. Constants.ts also exports types alongside MODELS constants. This causes inconsistent imports and confusion.",
+      "category": "api_docs",
+      "targetAudience": "developers",
+      "affectedAreas": [
+        "src/types/ai.ts",
+        "src/types/database.ts",
+        "src/types/index.ts",
+        "src/types/replicate.ts",
+        "src/services/agents/types.ts",
+        "src/constants.ts"
+      ],
+      "currentDocumentation": "Types have inline documentation for individual interfaces but no overview of the type system organization. No guidance on where to add new types or which file to import from.",
+      "proposedContent": "Create src/types/README.md explaining: (1) Type file organization (ai.ts=context types, database.ts=Supabase types, etc.) (2) Import conventions with examples (3) Type hierarchy diagram showing relationships (4) Guidelines for adding new types (5) Cross-reference with agents/types.ts vs types/ai.ts",
+      "priority": "low",
+      "estimatedEffort": "small"
+    }
+  ],
+  "metadata": {
+    "filesAnalyzed": 95,
+    "documentedFunctions": 67,
+    "undocumentedFunctions": 28,
+    "readmeLastUpdated": "2025-12-20",
+    "existingDocs": [
+      "README.md",
+      "WIKI.md",
+      "CLAUDE.md",
+      "REPLICATE_MODELS.md"
+    ],
+    "wellDocumentedFiles": [
+      "src/services/agents/BaseAgent.ts",
+      "src/services/modelRouter.ts",
+      "src/services/llm.ts"
+    ],
+    "underdocumentedAreas": [
+      "Voice agent system",
+      "React context architecture",
+      "Backend API contracts",
+      "Type system organization"
+    ],
+    "generatedAt": "2026-01-06T21:40:00Z"
+  }
+}

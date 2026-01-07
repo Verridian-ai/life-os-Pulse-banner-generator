@@ -1,0 +1,28 @@
+{
+  "file_path": "src/components/ChatInterface/hooks/useAutoScroll.ts",
+  "main_branch_history": [],
+  "task_views": {
+    "003-extract-chatinterface-tsx-into-smaller-focused-com": {
+      "task_id": "003-extract-chatinterface-tsx-into-smaller-focused-com",
+      "branch_point": {
+        "commit_hash": "ebdf6e38abd27054d01757c7f14894a93246a91b",
+        "content": "",
+        "timestamp": "2026-01-07T01:20:44.464777"
+      },
+      "worktree_state": {
+        "content": "import { useRef, useEffect } from 'react';\nimport { ChatMessage } from '@/types';\nimport type { UseAutoScrollReturn } from '../types';\n\n/**\n * Custom hook for auto-scrolling to bottom of chat\n * Scrolls smoothly when messages change or loading state changes\n *\n * @param messages - Array of chat messages to monitor\n * @param loading - Loading state to monitor\n * @returns Object containing bottomRef to attach to scroll target element\n */\nexport function useAutoScroll(\n  messages: ChatMessage[],\n  loading: boolean\n): UseAutoScrollReturn {\n  const bottomRef = useRef<HTMLDivElement>(null);\n\n  /**\n   * Auto-scroll to bottom when messages or loading state changes\n   * Triggered on both new messages and loading state changes\n   * Uses smooth scrolling behavior for better UX\n   */\n  useEffect(() => {\n    bottomRef.current?.scrollIntoView({ behavior: 'smooth' });\n  }, [messages, loading]);\n\n  return {\n    bottomRef,\n  };\n}\n",
+        "last_modified": "2026-01-07T01:20:45.603421"
+      },
+      "task_intent": {
+        "title": "003-extract-chatinterface-tsx-into-smaller-focused-com",
+        "description": "ChatInterface.tsx at 791 lines combines too many responsibilities: chat UI rendering, message state management, conversation persistence, tool execution handling, file attachment processing, and API key validation. The component has 15+ useState hooks indicating excessive state coupling.",
+        "from_plan": true
+      },
+      "commits_behind_main": 7,
+      "status": "active",
+      "merged_at": null
+    }
+  },
+  "created_at": "2026-01-07T01:20:45.125299",
+  "last_updated": "2026-01-07T01:20:45.174228"
+}

@@ -1,7 +1,8 @@
 // A/B Testing Panel - Generate and compare design variants
 
 import React, { useState } from 'react';
-import { generateImage } from '../../services/llm';
+import { useToast } from '@/hooks/useToast';
+import { generateImage } from '../../services/imageGenerationService';
 import type { BrandProfile } from '../../types/ai';
 
 interface ABTestingPanelProps {
@@ -24,6 +25,7 @@ export const ABTestingPanel: React.FC<ABTestingPanelProps> = ({
   brandProfile: _brandProfile,
   onSelectVariant,
 }) => {
+  const toast = useToast();
   const [variants, setVariants] = useState<Variant[]>([]);
   const [isGenerating, setIsGenerating] = useState(false);
   const [selectedVariant, setSelectedVariant] = useState<string | null>(null);
@@ -39,7 +41,7 @@ export const ABTestingPanel: React.FC<ABTestingPanelProps> = ({
 
   const generateVariants = async () => {
     if (!basePrompt) {
-      alert('Please enter a prompt first');
+      toast.error('Please enter a prompt first');
       return;
     }
 
@@ -76,7 +78,7 @@ export const ABTestingPanel: React.FC<ABTestingPanelProps> = ({
         }
       }
     } catch (error: unknown) {
-      alert(
+      toast.error(
         `Failed to generate variants: ${error instanceof Error ? error.message : 'Unknown error'}`,
       );
     } finally {
@@ -100,9 +102,10 @@ export const ABTestingPanel: React.FC<ABTestingPanelProps> = ({
   };
 
   const handleClearVariants = () => {
-    if (confirm('Clear all variants?')) {
+    if (window.confirm('Clear all variants?')) {
       setVariants([]);
       setSelectedVariant(null);
+      toast.success('Variants cleared');
     }
   };
 
@@ -123,8 +126,8 @@ export const ABTestingPanel: React.FC<ABTestingPanelProps> = ({
               onClick={() => setVariantCount(count as 3 | 5)}
               disabled={isGenerating}
               className={`flex-1 py-2 px-4 rounded-lg text-sm font-bold transition ${variantCount === count
-                  ? 'bg-blue-600 text-white'
-                  : 'bg-zinc-800 text-zinc-400 hover:bg-zinc-700'
+                ? 'bg-blue-600 text-white'
+                : 'bg-zinc-800 text-zinc-400 hover:bg-zinc-700'
                 }`}
             >
               {count} Variants
@@ -168,8 +171,8 @@ export const ABTestingPanel: React.FC<ABTestingPanelProps> = ({
               <div
                 key={variant.id}
                 className={`relative group cursor-pointer rounded-xl overflow-hidden border-2 transition ${selectedVariant === variant.id
-                    ? 'border-blue-500 shadow-[0_0_20px_rgba(59,130,246,0.5)]'
-                    : 'border-white/10 hover:border-white/30'
+                  ? 'border-blue-500 shadow-[0_0_20px_rgba(59,130,246,0.5)]'
+                  : 'border-white/10 hover:border-white/30'
                   }`}
                 onClick={() => handleSelectVariant(variant.id)}
               >

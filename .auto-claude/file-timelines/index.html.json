@@ -1,0 +1,28 @@
+{
+  "file_path": "index.html",
+  "main_branch_history": [],
+  "task_views": {
+    "020-implement-content-security-policy-csp-headers": {
+      "task_id": "020-implement-content-security-policy-csp-headers",
+      "branch_point": {
+        "commit_hash": "ebdf6e38abd27054d01757c7f14894a93246a91b",
+        "content": "<!DOCTYPE html>\n<html lang=\"en\">\n\n<head>\n  <meta charset=\"UTF-8\" />\n  <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes\" />\n  <title>Nanobanna Pro</title>\n  <link rel=\"icon\" type=\"image/svg+xml\" href=\"/favicon.svg\" />\n  <link href=\"https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap\"\n    rel=\"stylesheet\">\n  <link href=\"https://fonts.googleapis.com/icon?family=Material+Icons\" rel=\"stylesheet\">\n</head>\n\n<body class=\"bg-black text-white min-h-screen\">\n  <div id=\"root\" class=\"w-full h-full\"></div>\n  <!-- Filter out noisy browser extension errors -->\n  <script src=\"/console-filter.js\"></script>\n  <script type=\"module\" src=\"/src/index.tsx\"></script>\n</body>\n\n</html>",
+        "timestamp": "2026-01-07T00:06:14.652768"
+      },
+      "worktree_state": {
+        "content": "<!DOCTYPE html>\n<html lang=\"en\">\n\n<head>\n  <meta charset=\"UTF-8\" />\n  <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes\" />\n\n  <!--\n    Content Security Policy (CSP) - Fallback for Static Deployments\n\n    This meta tag provides CSP protection when the application is served statically\n    (e.g., from CDN, static hosting) without server-side headers. Server-provided\n    CSP headers take precedence over this meta tag.\n\n    Policy Summary:\n    - script-src: Only same-origin scripts (no inline, no eval)\n    - style-src: Same-origin + Google Fonts + inline styles (React components)\n    - img-src: Self, blob/data URIs, AI CDNs (Replicate, Google Cloud Storage)\n    - font-src: Self + Google Fonts\n    - connect-src: Self + AI APIs (OpenRouter, Replicate, Gemini, OpenAI) + Cloud Run backend\n    - frame-ancestors: None (clickjacking protection)\n    - upgrade-insecure-requests: Force HTTPS\n\n    Note: This policy is production-safe and conservative. Development environment\n    uses more permissive server-side policy to support Vite HMR.\n  -->\n  <meta\n    http-equiv=\"Content-Security-Policy\"\n    content=\"default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; img-src 'self' blob: data: https://*.replicate.delivery https://*.googleusercontent.com https://storage.googleapis.com; font-src 'self' https://fonts.googleapis.com https://fonts.gstatic.com; connect-src 'self' https://openrouter.ai https://api.replicate.com https://generativelanguage.googleapis.com wss://api.openai.com https://*.run.app; frame-ancestors 'none'; base-uri 'self'; form-action 'self'; object-src 'none'; upgrade-insecure-requests;\"\n  />\n\n  <title>Nanobanna Pro</title>\n  <link rel=\"icon\" type=\"image/svg+xml\" href=\"/favicon.svg\" />\n  <link href=\"https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap\"\n    rel=\"stylesheet\">\n  <link href=\"https://fonts.googleapis.com/icon?family=Material+Icons\" rel=\"stylesheet\">\n</head>\n\n<body class=\"bg-black text-white min-h-screen\">\n  <div id=\"root\" class=\"w-full h-full\"></div>\n  <!-- Filter out noisy browser extension errors -->\n  <script src=\"/console-filter.js\"></script>\n  <script type=\"module\" src=\"/src/index.tsx\"></script>\n</body>\n\n</html>",
+        "last_modified": "2026-01-07T00:56:45.186697"
+      },
+      "task_intent": {
+        "title": "Implement Content Security Policy (CSP) Headers",
+        "description": "Add comprehensive Content Security Policy headers to protect against XSS attacks while allowing the application to function with external AI services and dynamic content.",
+        "from_plan": true
+      },
+      "commits_behind_main": 7,
+      "status": "active",
+      "merged_at": null
+    }
+  },
+  "created_at": "2026-01-07T00:06:14.841293",
+  "last_updated": "2026-01-07T00:06:14.879407"
+}

@@ -3,6 +3,8 @@ import { ActionExecutor } from './actionExecutor';
 import type { ToolCall, OnUpdateCallback } from './actionExecutor';
 
 // Mock services
+import { Mock } from 'vitest';
+
 vi.mock('./llm', () => ({
   generateImage: vi.fn(),
 }));
@@ -15,6 +17,8 @@ vi.mock('./replicate', () => ({
     faceEnhance: vi.fn(),
   })),
 }));
+
+const mockGetReplicateService = getReplicateService as Mock;
 
 import { generateImage } from './llm';
 import { getReplicateService } from './replicate';
@@ -117,7 +121,7 @@ describe('ActionExecutor', () => {
   });
 
   describe('executeToolCall - magic_edit', () => {
-    it('should return error for magic_edit', async () => {
+    it('should execute magic_edit successfully', async () => {
       const toolCall: ToolCall = {
         name: 'magic_edit',
         args: {
@@ -126,15 +130,20 @@ describe('ActionExecutor', () => {
         },
       };
 
+      const mockService = {
+        magicEdit: vi.fn().mockResolvedValue('https://example.com/edited.png'),
+      };
+      mockGetReplicateService.mockReturnValueOnce(mockService);
+
       const result = await executor.executeToolCall(toolCall);
 
-      expect(result.success).toBe(false);
-      expect(result.error).toContain('Studio tab');
+      expect(result.success).toBe(true);
+      expect(result.result).toBe('https://example.com/edited.png');
     });
   });
 
   describe('executeToolCall - remove_background', () => {
-    it('should return not implemented error', async () => {
+    it('should execute remove_background successfully', async () => {
       const toolCall: ToolCall = {
         name: 'remove_background',
         args: {
@@ -142,10 +151,15 @@ describe('ActionExecutor', () => {
         },
       };
 
+      const mockService = {
+        removeBg: vi.fn().mockResolvedValue('https://example.com/nobg.png'),
+      };
+      mockGetReplicateService.mockReturnValueOnce(mockService);
+
       const result = await executor.executeToolCall(toolCall);
 
-      expect(result.success).toBe(false);
-      expect(result.error).toContain('not yet implemented');
+      expect(result.success).toBe(true);
+      expect(result.imageUrl).toBe('https://example.com/nobg.png');
     });
   });
 
@@ -162,8 +176,7 @@ describe('ActionExecutor', () => {
       const mockService = {
         upscale: vi.fn().mockResolvedValue('https://example.com/upscaled.png'),
       };
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      vi.mocked(getReplicateService).mockReturnValueOnce(mockService as any);
+      mockGetReplicateService.mockReturnValueOnce(mockService);
 
       const result = await executor.executeToolCall(toolCall);
 
@@ -176,8 +189,7 @@ describe('ActionExecutor', () => {
       const mockService = {
         upscale: vi.fn().mockRejectedValue(new Error('Upscale failed')),
       };
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      vi.mocked(getReplicateService).mockReturnValueOnce(mockService as any);
+      mockGetReplicateService.mockReturnValueOnce(mockService);
 
       const result = await executor.executeToolCall(toolCall);
 
@@ -189,8 +201,7 @@ describe('ActionExecutor', () => {
       const mockService = {
         upscale: vi.fn().mockResolvedValue('https://example.com/upscaled.png'),
       };
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      vi.mocked(getReplicateService).mockReturnValueOnce(mockService as any);
+      mockGetReplicateService.mockReturnValueOnce(mockService);
 
       await executor.executeToolCall({
         name: 'upscale_image',
@@ -206,8 +217,7 @@ describe('ActionExecutor', () => {
       const mockService = {
         restore: vi.fn().mockResolvedValue('https://example.com/restored.png'),
       };
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      vi.mocked(getReplicateService).mockReturnValueOnce(mockService as any);
+      mockGetReplicateService.mockReturnValueOnce(mockService);
 
       const result = await executor.executeToolCall({
         name: 'restore_image',
@@ -222,8 +232,7 @@ describe('ActionExecutor', () => {
       const mockService = {
         restore: vi.fn().mockRejectedValue(new Error('Restore failed')),
       };
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      vi.mocked(getReplicateService).mockReturnValueOnce(mockService as any);
+      mockGetReplicateService.mockReturnValueOnce(mockService);
 
       const result = await executor.executeToolCall({
         name: 'restore_image',
@@ -240,8 +249,7 @@ describe('ActionExecutor', () => {
       const mockService = {
         faceEnhance: vi.fn().mockResolvedValue('https://example.com/enhanced.png'),
       };
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      vi.mocked(getReplicateService).mockReturnValueOnce(mockService as any);
+      mockGetReplicateService.mockReturnValueOnce(mockService);
 
       const result = await executor.executeToolCall({
         name: 'enhance_face',
@@ -257,8 +265,7 @@ describe('ActionExecutor', () => {
       const mockService = {
         faceEnhance: vi.fn().mockRejectedValue(new Error('Enhance failed')),
       };
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      vi.mocked(getReplicateService).mockReturnValueOnce(mockService as any);
+      mockGetReplicateService.mockReturnValueOnce(mockService);
 
       const result = await executor.executeToolCall({
         name: 'enhance_face',

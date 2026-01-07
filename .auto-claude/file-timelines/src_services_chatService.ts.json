@@ -1,0 +1,45 @@
+{
+  "file_path": "src/services/chatService.ts",
+  "main_branch_history": [],
+  "task_views": {
+    "001-split-llm-ts-into-domain-specific-service-modules": {
+      "task_id": "001-split-llm-ts-into-domain-specific-service-modules",
+      "branch_point": {
+        "commit_hash": "ebdf6e38abd27054d01757c7f14894a93246a91b",
+        "content": "",
+        "timestamp": "2026-01-07T00:26:02.723391"
+      },
+      "worktree_state": {
+        "content": "/**\n * Chat Service\n * Handles all chat completion operations for Nano Banana Pro\n *\n * Responsibilities:\n * - Design chat responses with history and image support\n * - Agent responses with screenshot context\n * - Deep thinking responses\n * - Search responses via Perplexity\n * - Prompt generation from reference images\n */\n\nimport { MODELS, DESIGN_SYSTEM_INSTRUCTION } from '../constants';\nimport { Part } from '../types';\nimport { api } from './api';\nimport {\n  ChatMessage,\n  OpenRouterContentItem,\n  PROFILE_ZONE_CONSTRAINT\n} from './llm-types';\n\n// ============================================================================\n// Chat Completion Functions\n// ============================================================================\n\n/**\n * Generate design chat response with conversation history and image support\n *\n * @param prompt - User's current message\n * @param images - Array of image URLs to include in the message\n * @param history - Conversation history (Gemini format)\n * @returns Chat response with text and grounding metadata\n */\nexport const generateDesignChatResponse = async (\n  prompt: string,\n  images: string[] = [],\n  history: { role: string; parts: Part[] }[] = [],\n) => {\n  // Construct messages on client to maintain state control, but send to server for execution\n  const messages: ChatMessage[] = history.map((h) => ({\n    role: h.role === 'model' ? 'assistant' : 'user',\n    content: h.parts.map(p => p.text ? { type: 'text', text: p.text } : { type: 'image_url', image_url: { url: p.inlineData ? `data:${p.inlineData.mimeType};base64,${p.inlineData.data}` : '' } }).filter(Boolean) as OpenRouterContentItem[]\n  }));\n\n  const currentContent: OpenRouterContentItem[] = [{ type: 'text', text: prompt }];\n  images.forEach(img => currentContent.push({ type: 'image_url', image_url: { url: img } }));\n  messages.push({ role: 'user', content: currentContent });\n\n  const systemContent: OpenRouterContentItem[] = [{ type: 'text', text: DESIGN_SYSTEM_INSTRUCTION + PROFILE_ZONE_CONSTRAINT }];\n  messages.unshift({ role: 'system', content: systemContent });\n\n  // Call Backend API\n  const response = await api.post<{ text: string }>('/api/ai/chat', {\n    messages,\n    model: MODELS.openrouter.glm47, // Updated to user requested model\n    provider: 'openrouter'\n  });\n\n  return { text: response.text, groundingMetadata: null };\n};\n\n/**\n * Generate agent response with screenshot context\n * Used for voice agent interactions with visual context\n *\n * @param userTranscript - User's voice/text input\n * @param currentScreenshot - Optional screenshot for visual context\n * @param history - Conversation history\n * @returns Agent response text\n */\nexport const generateAgentResponse = async (\n  userTranscript: string,\n  currentScreenshot: string | null,\n  history: { role: string; parts: Part[] }[] = [],\n) => {\n  const messages: ChatMessage[] = history.map(h => ({ role: h.role === 'model' ? 'assistant' : 'user', content: h.parts?.[0]?.text || '' }));\n\n  const content: OpenRouterContentItem[] = [{ type: 'text', text: userTranscript }];\n  if (currentScreenshot) content.push({ type: 'image_url', image_url: { url: currentScreenshot } });\n\n  messages.push({ role: 'user', content });\n  messages.unshift({ role: 'system', content: \"You are Nano, an expert design partner. You are helpful, enthusiastic, and concise.\" });\n\n  const response = await api.post<{ text: string }>('/api/ai/chat', {\n    messages,\n    model: MODELS.openrouter.glm47,\n    provider: 'openrouter'\n  });\n\n  return { text: response.text };\n};\n\n/**\n * Generate deep thinking response for complex queries\n *\n * @param prompt - User's question or problem to analyze\n * @returns Thinking response with reasoning\n */\nexport const generateThinkingResponse = async (prompt: string) => {\n  const messages = [{ role: 'system', content: 'You are a deep thinking assistant.' }, { role: 'user', content: prompt }];\n\n  const response = await api.post<{ text: string }>('/api/ai/chat', {\n    messages,\n    model: MODELS.openrouter.glm47,\n    provider: 'openrouter'\n  });\n\n  return { text: response.text, groundingMetadata: null };\n};\n\n/**\n * Generate search response using Perplexity's deep research model\n * Searches the web for latest trends, data, and insights\n *\n * @param prompt - Search query or research topic\n * @param history - Conversation history\n * @returns Search response with web-sourced information\n */\nexport const generateSearchResponse = async (prompt: string, history: { role: string; parts: Part[] }[] = []) => {\n  // Construct messages for Perplexity (Online Model)\n  // Perplexity works best with standard OpenAI-like message format\n  const messages: ChatMessage[] = history.map((h) => ({\n    role: h.role === 'model' ? 'assistant' : 'user',\n    content: h.parts.map(p => p.text ? { type: 'text', text: p.text } : null).filter(Boolean) as OpenRouterContentItem[]\n  }));\n\n  // Add current prompt\n  messages.push({ role: 'user', content: [{ type: 'text', text: prompt }] });\n\n  // Add system instruction for search behavior\n  messages.unshift({\n    role: 'system',\n    content: [{ type: 'text', text: \"You are an expert Trend Researcher for LinkedIn branding. Search the web for the latest trends, data, and visual styles. Be specific, cite sources if possible, and focus on actionable insights for banner design.\" }]\n  });\n\n  // Call Backend API with Perplexity Model\n  const response = await api.post<{ text: string }>('/api/ai/chat', {\n    messages,\n    model: MODELS.openrouter.sonarDeepResearch,\n    provider: 'openrouter'\n  });\n\n  return { text: response.text, groundingMetadata: null };\n};\n\n/**\n * Generate prompt from reference images\n * Analyzes images and creates a design prompt based on visual content\n *\n * @param images - Array of reference image URLs\n * @param userHint - User's hint or direction for the analysis\n * @returns Generated prompt based on image analysis\n */\nexport const generatePromptFromRefImages = async (images: string[], userHint: string) => {\n  const content: OpenRouterContentItem[] = [{ type: 'text', text: `Analyze these reference images. Hint: ${userHint}. Return a prompt.` }];\n  images.forEach(img => content.push({ type: 'image_url', image_url: { url: img } }));\n\n  const response = await api.post<{ text: string }>('/api/ai/chat', {\n    messages: [{ role: 'user', content }],\n    model: MODELS.openrouter.glm47,\n    provider: 'openrouter'\n  });\n  return response.text;\n};\n",
+        "last_modified": "2026-01-07T00:28:39.021988"
+      },
+      "task_intent": {
+        "title": "001-split-llm-ts-into-domain-specific-service-modules",
+        "description": "The file src/services/llm.ts has grown to 434 lines and handles multiple unrelated concerns: chat completions (design, agent, search, thinking), image generation, prompt enhancement, image editing/analysis, and agent workflow orchestration. This violates single responsibility and makes the file difficult to navigate.",
+        "from_plan": true
+      },
+      "commits_behind_main": 7,
+      "status": "active",
+      "merged_at": null
+    },
+    "022-document-react-context-architecture-and-provider-h": {
+      "task_id": "022-document-react-context-architecture-and-provider-h",
+      "branch_point": {
+        "commit_hash": "ebdf6e38abd27054d01757c7f14894a93246a91b",
+        "content": "",
+        "timestamp": "2026-01-07T01:05:48.102959"
+      },
+      "worktree_state": null,
+      "task_intent": {
+        "title": "022-document-react-context-architecture-and-provider-h",
+        "description": "",
+        "from_plan": false
+      },
+      "commits_behind_main": 7,
+      "status": "active",
+      "merged_at": null
+    }
+  },
+  "created_at": "2026-01-07T00:26:02.947068",
+  "last_updated": "2026-01-07T01:05:49.403525"
+}

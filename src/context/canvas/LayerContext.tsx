@@ -2,7 +2,7 @@ import React, { createContext, useContext, useCallback, ReactNode } from 'react'
 
 import { BannerElement } from '../../types';
 
-import { useElements } from './ElementsContext';
+import { ElementsContext } from './ElementsContext';
 
 /**
  * LayerContext - Layer ordering operations
@@ -32,14 +32,18 @@ export { LayerContext };
 // Provider Props
 type LayerProviderProps = {
   children: ReactNode;
+  value?: LayerContextType;
 };
 
 // Provider Component
-export function LayerProvider({ children }: LayerProviderProps): React.ReactElement {
-  const { setElements } = useElements();
+export function LayerProvider({ children, value: initialValue }: LayerProviderProps): React.ReactElement {
+  // Use useContext directly to avoid throwing and allow conditional behavior
+  const elementsContext = React.useContext(ElementsContext);
+  const setElements = elementsContext?.setElements;
 
   const bringForward = useCallback(
     (id: string) => {
+      if (!setElements) return;
       setElements((prev: BannerElement[]) => {
         const index = prev.findIndex((el) => el.id === id);
         if (index === -1 || index === prev.length - 1) return prev;
@@ -53,6 +57,7 @@ export function LayerProvider({ children }: LayerProviderProps): React.ReactElem
 
   const sendBackward = useCallback(
     (id: string) => {
+      if (!setElements) return;
       setElements((prev: BannerElement[]) => {
         const index = prev.findIndex((el) => el.id === id);
         if (index <= 0) return prev;
@@ -66,6 +71,7 @@ export function LayerProvider({ children }: LayerProviderProps): React.ReactElem
 
   const bringToFront = useCallback(
     (id: string) => {
+      if (!setElements) return;
       setElements((prev: BannerElement[]) => {
         const index = prev.findIndex((el) => el.id === id);
         if (index === -1 || index === prev.length - 1) return prev;
@@ -80,6 +86,7 @@ export function LayerProvider({ children }: LayerProviderProps): React.ReactElem
 
   const sendToBack = useCallback(
     (id: string) => {
+      if (!setElements) return;
       setElements((prev: BannerElement[]) => {
         const index = prev.findIndex((el) => el.id === id);
         if (index <= 0) return prev;
@@ -97,6 +104,7 @@ export function LayerProvider({ children }: LayerProviderProps): React.ReactElem
     sendBackward,
     bringToFront,
     sendToBack,
+    ...initialValue,
   };
 
   return <LayerContext.Provider value={value}>{children}</LayerContext.Provider>;

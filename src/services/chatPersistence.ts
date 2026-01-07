@@ -1,5 +1,6 @@
 import { api } from './api';
 import { uploadImage, getPublicUrl } from './storage';
+import type { ToolCall, ToolResult, ChatSettings } from '@/types/api';
 
 // Types (Keep existing interfaces)
 export interface ChatConversation {
@@ -21,8 +22,8 @@ export interface ChatMessage {
   userId: string;
   role: 'user' | 'assistant' | 'system';
   content: string;
-  toolCalls?: any[];
-  toolResults?: any[];
+  toolCalls?: ToolCall[];
+  toolResults?: ToolResult[];
   images?: string[];
   generatedImages?: string[];
   modelUsed?: string;
@@ -42,13 +43,8 @@ export interface VoiceTranscript {
   createdAt: string;
 }
 
-export interface ChatSettings {
-  auto_save: boolean;
-  save_images: boolean;
-  default_mode: 'design' | 'search' | 'voice';
-  voice_provider: 'gemini' | 'openai';
-  auto_approve_actions: boolean;
-}
+// Re-export ChatSettings from types/api for consistency
+export type { ChatSettings };
 
 // Conversation Operations
 
@@ -56,8 +52,8 @@ export const createConversation = async (mode: 'design' | 'search' | 'voice' = '
   try {
     const { conversation } = await api.post<{ conversation: ChatConversation }>('/api/chat/conversations', { mode, title });
     return conversation;
-  } catch (e) {
-    console.error('Create conversation failed', e);
+  } catch {
+    console.error('Create conversation failed');
     return null;
   }
 };
@@ -71,7 +67,7 @@ export const getConversations = async (options?: { mode?: string; includeArchive
 
     const { conversations } = await api.get<{ conversations: ChatConversation[] }>(`/api/chat/conversations?${params.toString()}`);
     return conversations;
-  } catch (e) {
+  } catch {
     return [];
   }
 };
@@ -80,21 +76,21 @@ export const getConversation = async (id: string) => {
   try {
     const { conversation } = await api.get<{ conversation: ChatConversation }>(`/api/chat/conversations/${id}`);
     return conversation;
-  } catch (e) { return null; }
+  } catch { return null; }
 };
 
 export const updateConversation = async (id: string, updates: Partial<ChatConversation>) => {
   try {
     const { conversation } = await api.patch<{ conversation: ChatConversation }>(`/api/chat/conversations/${id}`, updates);
     return conversation;
-  } catch (e) { return null; }
+  } catch { return null; }
 };
 
 export const deleteConversation = async (id: string) => {
   try {
     await api.delete(`/api/chat/conversations/${id}`);
     return true;
-  } catch (e) { return false; }
+  } catch { return false; }
 };
 
 export const archiveConversation = (id: string) => updateConversation(id, { isArchived: true });
@@ -110,14 +106,14 @@ export const addMessage = async (conversationId: string, message: Partial<ChatMe
   try {
     const { message: newTask } = await api.post<{ message: ChatMessage }>(`/api/chat/conversations/${conversationId}/messages`, message);
     return newTask;
-  } catch (e) { return null; }
+  } catch { return null; }
 }
 
-export const getMessages = async (conversationId: string, options?: { limit?: number; offset?: number; order?: 'asc' | 'desc' }) => {
+export const getMessages = async (conversationId: string, _options?: { limit?: number; offset?: number; order?: 'asc' | 'desc' }) => {
   try {
     const { messages } = await api.get<{ messages: ChatMessage[] }>(`/api/chat/conversations/${conversationId}/messages`);
     return messages;
-  } catch (e) { return []; }
+  } catch { return []; }
 }
 
 export const getConversationWithMessages = async (conversationId: string) => {
@@ -131,23 +127,23 @@ export const getConversationWithMessages = async (conversationId: string) => {
 export const getChatSettings = async () => {
   // Map to user preferences
   try {
-    const { preferences } = await api.get<{ preferences: any }>('/api/user/preferences');
-    return preferences?.chat_settings || { auto_save: true, default_mode: 'design' };
-  } catch (e) { return null; }
+    const { preferences } = await api.get<{ preferences: { chat_settings?: ChatSettings } }>('/api/user/preferences');
+    return preferences?.chat_settings || { auto_save: true, default_mode: 'design' as const };
+  } catch { return null; }
 }
 
 export const updateChatSettings = async (settings: Partial<ChatSettings>) => {
   try {
     await api.patch('/api/user/preferences', { chat_settings: settings });
     return true;
-  } catch (e) { return false; }
+  } catch { return false; }
 }
 
-export const saveVoiceTranscript = async (transcript: any) => {
+export const saveVoiceTranscript = async (transcript: Partial<VoiceTranscript>) => {
   try {
     const { data } = await api.post<{ data: VoiceTranscript }>('/api/chat/transcripts', transcript);
     return data;
-  } catch (e) { return null; }
+  } catch { return null; }
 }
 
 // Export functions using Storage service

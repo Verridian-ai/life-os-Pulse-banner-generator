@@ -1,3 +1,5 @@
+import type { RequestBody } from '@/types/api';
+
 const API_URL = import.meta.env.PROD
     ? '' // Relative path for unified deployment
     : `http://${window.location.hostname}:3000`;
@@ -6,7 +8,7 @@ type RequestMethod = 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE';
 
 interface ApiRequestOptions {
     method?: RequestMethod;
-    body?: any;
+    body?: RequestBody;
     headers?: Record<string, string>;
 }
 
@@ -17,6 +19,9 @@ export class ApiError extends Error {
         this.status = status;
     }
 }
+
+// Request deduplication map
+const pendingRequests = new Map<string, Promise<unknown>>();
 
 async function request<T>(endpoint: string, options: ApiRequestOptions = {}): Promise<T> {
     const { method = 'GET', body, headers = {} } = options;
@@ -35,40 +40,59 @@ async function request<T>(endpoint: string, options: ApiRequestOptions = {}): Pr
     }
 
     // Handle relative vs absolute URLs
-    // If we serve frontend from the same domain as backend (e.g. via Nginx or similar), relative is fine.
-    // But typically we have separated deployments here.
     const url = endpoint.startsWith('http') ? endpoint : `${API_URL}${endpoint}`;
 
-    const response = await fetch(url, config);
+    // Generate a unique key for deduplication
+    // Key includes method, full URL, and stringified body to distinguish requests
+    const cacheKey = `${method}:${url}:${config.body || ''}`;
 
-    if (!response.ok) {
-        let errorMessage = 'An unknown error occurred';
+    // If a request is already pending, return the existing promise
+    if (pendingRequests.has(cacheKey)) {
+        return pendingRequests.get(cacheKey) as Promise<T>;
+    }
+
+    const requestPromise = (async () => {
         try {
-            const errorData = await response.json();
-            errorMessage = errorData.error || response.statusText;
-        } catch (e) {
-            errorMessage = await response.text();
+            const response = await fetch(url, config);
+
+            if (!response.ok) {
+                let errorMessage = 'An unknown error occurred';
+                try {
+                    const errorData = await response.json();
+                    errorMessage = errorData.error || response.statusText;
+                } catch {
+                    errorMessage = await response.text();
+                }
+                throw new ApiError(errorMessage, response.status);
+            }
+
+            // Handle empty responses (e.g. 204)
+            if (response.status === 204) {
+                return {} as T;
+            }
+
+            try {
+                return await response.json();
+            } catch {
+                // Fallback if not JSON
+                return {} as T;
+            }
+        } finally {
+            // Remove from pending requests map when complete (success or failure)
+            pendingRequests.delete(cacheKey);
         }
-        throw new ApiError(errorMessage, response.status);
-    }
+    })();
 
-    // Handle empty responses (e.g. 204)
-    if (response.status === 204) {
-        return {} as T;
-    }
+    // Store the pending request
+    pendingRequests.set(cacheKey, requestPromise);
 
-    try {
-        return await response.json();
-    } catch (e) {
-        // Fallback if not JSON
-        return {} as T;
-    }
+    return requestPromise;
 }
 
 export const api = {
     get: <T>(endpoint: string) => request<T>(endpoint, { method: 'GET' }),
-    post: <T>(endpoint: string, body: any) => request<T>(endpoint, { method: 'POST', body }),
-    patch: <T>(endpoint: string, body: any) => request<T>(endpoint, { method: 'PATCH', body }),
-    put: <T>(endpoint: string, body: any) => request<T>(endpoint, { method: 'PUT', body }),
-    delete: <T>(endpoint: string, body?: any) => request<T>(endpoint, { method: 'DELETE', body }),
+    post: <T>(endpoint: string, body: RequestBody) => request<T>(endpoint, { method: 'POST', body }),
+    patch: <T>(endpoint: string, body: RequestBody) => request<T>(endpoint, { method: 'PATCH', body }),
+    put: <T>(endpoint: string, body: RequestBody) => request<T>(endpoint, { method: 'PUT', body }),
+    delete: <T>(endpoint: string, body?: RequestBody) => request<T>(endpoint, { method: 'DELETE', body }),
 };

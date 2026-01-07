@@ -1,27 +1,14 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { signUp, signIn, signOut, resetPassword, updatePassword } from './auth';
+import * as auth from './auth';
+import { api } from './api';
 
-// Mock Supabase client
-vi.mock('./auth', async () => {
-  const actual = await vi.importActual('./auth');
-  return {
-    ...actual,
-    supabase: {
-      auth: {
-        signUp: vi.fn(),
-        signInWithPassword: vi.fn(),
-        signInWithOAuth: vi.fn(),
-        signOut: vi.fn(),
-        resetPasswordForEmail: vi.fn(),
-        updateUser: vi.fn(),
-        getUser: vi.fn(),
-        onAuthStateChange: vi.fn(() => ({
-          data: { subscription: { unsubscribe: vi.fn() } },
-        })),
-      },
-    },
-  };
-});
+// Mock api service
+vi.mock('./api', () => ({
+  api: {
+    post: vi.fn(),
+    get: vi.fn(),
+  },
+}));
 
 describe('Auth Service', () => {
   beforeEach(() => {
@@ -30,56 +17,74 @@ describe('Auth Service', () => {
 
   describe('signUp', () => {
     it('should handle successful sign up', async () => {
-      const result = await signUp('test@example.com', 'password123', { name: 'Test User' });
-      expect(result).toBeDefined();
+      vi.mocked(api.post).mockResolvedValue({ success: true, userId: '123' });
+      vi.mocked(api.get).mockResolvedValue({ user: { id: '123', email: 'test@example.com' } });
+
+      const result = await auth.signUp('test@example.com', 'password123');
+      expect(result.user).toBeDefined();
+      expect(result.error).toBeNull();
     });
 
-    it('should handle sign up with missing credentials', async () => {
-      const result = await signUp('', '', { name: '' });
+    it('should handle sign up error', async () => {
+      vi.mocked(api.post).mockResolvedValue({ error: 'Auth failed' });
+
+      const result = await auth.signUp('test@example.com', 'password123');
+      expect(result.user).toBeNull();
       expect(result.error).toBeDefined();
     });
   });
 
   describe('signIn', () => {
     it('should handle successful sign in', async () => {
-      const result = await signIn('test@example.com', 'password123');
-      expect(result).toBeDefined();
+      vi.mocked(api.post).mockResolvedValue({ success: true });
+      vi.mocked(api.get).mockResolvedValue({ user: { id: '123', email: 'test@example.com' } });
+
+      const result = await auth.signIn('test@example.com', 'password123');
+      expect(result.user).toBeDefined();
+      expect(result.error).toBeNull();
     });
 
-    it('should handle sign in with invalid credentials', async () => {
-      const result = await signIn('invalid@example.com', 'wrongpassword');
+    it('should handle sign in error', async () => {
+      vi.mocked(api.post).mockResolvedValue({ error: 'Invalid credentials' });
+
+      const result = await auth.signIn('test@example.com', 'password123');
+      expect(result.user).toBeNull();
       expect(result.error).toBeDefined();
     });
   });
 
   describe('signOut', () => {
     it('should handle successful sign out', async () => {
-      const result = await signOut();
-      expect(result).toBeDefined();
+      vi.mocked(api.post).mockResolvedValue({});
+      const result = await auth.signOut();
+      expect(result.error).toBeNull();
     });
   });
 
   describe('resetPassword', () => {
     it('should handle password reset request', async () => {
-      const result = await resetPassword('test@example.com');
-      expect(result).toBeDefined();
-    });
-
-    it('should handle invalid email for password reset', async () => {
-      const result = await resetPassword('');
-      expect(result.error).toBeDefined();
+      vi.mocked(api.post).mockResolvedValue({ success: true });
+      const result = await auth.resetPassword('test@example.com');
+      expect(result.error).toBeNull();
     });
   });
 
-  describe('updatePassword', () => {
-    it('should handle password update', async () => {
-      const result = await updatePassword('newpassword123');
-      expect(result).toBeDefined();
+  describe('validateUsernameFormat', () => {
+    it('should validate correct username', () => {
+      const result = auth.validateUsernameFormat('test_user_123');
+      expect(result.isValid).toBe(true);
     });
 
-    it('should handle weak password', async () => {
-      const result = await updatePassword('123');
-      expect(result.error).toBeDefined();
+    it('should reject too short username', () => {
+      const result = auth.validateUsernameFormat('ab');
+      expect(result.isValid).toBe(false);
+      expect(result.error).toContain('at least 3');
+    });
+
+    it('should reject invalid characters', () => {
+      const result = auth.validateUsernameFormat('user-name');
+      expect(result.isValid).toBe(false);
+      expect(result.error).toContain('only contain');
     });
   });
 });

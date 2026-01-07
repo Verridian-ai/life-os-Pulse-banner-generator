@@ -462,7 +462,18 @@ export const getUserImages = async (filters?: {
     params.append('limit', String(filters?.limit || 50));
     params.append('offset', String(filters?.offset || 0));
 
-    const response = await api.get<{ images: Array<any> }>(`/api/images?${params.toString()}`);
+    const response = await api.get<{ images: Array<{
+    id: string;
+    storage_url: string;
+    prompt: string;
+    model_used: string;
+    quality: string;
+    generation_type: string;
+    tags: string[];
+    created_at: string;
+    is_favorite: boolean;
+    file_name: string;
+  }> }>(`/api/images?${params.toString()}`);
     console.log(`[Database] Retrieved ${response?.images?.length || 0} images`);
     return response?.images || [];
   } catch (error) {
@@ -521,7 +532,18 @@ export const searchImagesByTags = async (
   try {
     const params = new URLSearchParams();
     params.append('tags', tags.join(','));
-    const response = await api.get<{ images: Array<any> }>(`/api/images/search?${params.toString()}`);
+    const response = await api.get<{ images: Array<{
+    id: string;
+    storage_url: string;
+    prompt: string;
+    model_used: string;
+    quality: string;
+    generation_type: string;
+    tags: string[];
+    created_at: string;
+    is_favorite: boolean;
+    file_name: string;
+  }> }>(`/api/images/search?${params.toString()}`);
     return response?.images || [];
   } catch (error) {
     console.error('[Database] Search images error:', error);

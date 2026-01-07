@@ -10,18 +10,24 @@ Object.defineProperty(window, 'matchMedia', {
     matches: false,
     media: query,
     onchange: null,
-    addListener: () => {}, // Deprecated
-    removeListener: () => {}, // Deprecated
-    addEventListener: () => {},
-    removeEventListener: () => {},
-    dispatchEvent: () => {},
+    addListener: () => { }, // Deprecated
+    removeListener: () => { }, // Deprecated
+    addEventListener: () => { },
+    removeEventListener: () => { },
+    dispatchEvent: () => { },
   }),
 });
+
+import { AuthProvider } from './context/AuthContext';
 
 describe('App', () => {
   it('renders without crashing', () => {
     // Basic smoke test
-    render(<App />);
+    render(
+      <AuthProvider>
+        <App />
+      </AuthProvider>
+    );
     // Check for a known element, e.g., the sidebar title or something generic
     // Since App is complex and requires context which it provides itself, this should work.
     // If it fails, we know we have environment issues.

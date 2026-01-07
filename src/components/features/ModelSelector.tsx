@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { useAI } from '../../context/AIContext';
 import { fetchOpenRouterModels } from '../../services/openrouter';
+import { getUserAPIKeys } from '../../services/apiKeyStorage';
 import { MODELS } from '../../constants';
 
 interface ModelSelectorProps {
@@ -26,7 +27,8 @@ export const ModelSelector: React.FC<ModelSelectorProps> = ({ onModelChange }) =
   const loadOpenRouterModels = async () => {
     setIsLoadingModels(true);
     try {
-      const apiKey = localStorage.getItem('openrouter_api_key') || '';
+      const keys = await getUserAPIKeys();
+      const apiKey = keys.openrouter_api_key || '';
       if (!apiKey) {
         console.warn('OpenRouter API key not found');
         return;

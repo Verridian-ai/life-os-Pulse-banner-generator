@@ -2,15 +2,16 @@
 
 import React, { useState } from 'react';
 
+import { generateImage } from '../../services/imageGenerationService';
 import {
-  generateImage,
   upscaleImage,
   removeBackground,
   restoreImage,
   editImage
-} from '../../services/llm';
+} from '../../services/imageEditService';
 
 import { useAI } from '../../context/AIContext';
+import { useToast } from '@/hooks/useToast';
 
 import type { ToolChain, ChainStep } from '../../types/ai';
 
@@ -105,6 +106,7 @@ export const ToolChainBuilder: React.FC<ToolChainBuilderProps> = ({
   onChainComplete,
 }) => {
   const { activeChain, setActiveChain, chainProgress } = useAI();
+  const toast = useToast();
   const [chainSteps, setChainSteps] = useState<
     { tool: ToolType; params: Record<string, string | number | boolean> }[]
   >([]);
@@ -159,12 +161,12 @@ export const ToolChainBuilder: React.FC<ToolChainBuilderProps> = ({
 
   const executeChain = async () => {
     if (!currentImage) {
-      alert('No image to process. Generate or upload an image first.');
+      toast.error('No image to process. Generate or upload an image first.');
       return;
     }
 
     if (chainSteps.length === 0) {
-      alert('Add at least one step to the chain');
+      toast.error('Add at least one step to the chain');
       return;
     }
 
@@ -276,7 +278,7 @@ export const ToolChainBuilder: React.FC<ToolChainBuilderProps> = ({
       if (failedStep) failedStep.status = 'failed';
 
       setActiveChain(failedChain);
-      alert(`Chain execution failed: ${errorMessage}`);
+      toast.error(`Chain execution failed: ${errorMessage}`);
     } finally {
       setIsExecuting(false);
       // Don't auto-clear immediately so user can see result/status
@@ -285,9 +287,10 @@ export const ToolChainBuilder: React.FC<ToolChainBuilderProps> = ({
   };
 
   const clearChain = () => {
-    if (confirm('Clear all steps?')) {
+    if (window.confirm('Clear all steps?')) {
       setChainSteps([]);
       setChainName('Custom Chain');
+      toast.success('Chain cleared');
     }
   };
 

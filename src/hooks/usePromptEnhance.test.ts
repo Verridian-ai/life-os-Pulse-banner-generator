@@ -1,9 +1,9 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import { renderHook, act, waitFor } from '@testing-library/react';
+import { renderHook, act } from '@testing-library/react';
 import { usePromptEnhance } from './usePromptEnhance';
 
 // Mock the LLM service
-vi.mock('@/services/llm', () => ({
+vi.mock('@/services/promptService', () => ({
   enhancePrompt: vi.fn(),
 }));
 
@@ -14,12 +14,12 @@ describe('usePromptEnhance', () => {
 
   beforeEach(async () => {
     vi.clearAllMocks();
-    consoleLogSpy = vi.spyOn(console, 'log').mockImplementation(() => {});
-    consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+    consoleLogSpy = vi.spyOn(console, 'log').mockImplementation(() => { });
+    consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => { });
 
     // Get the mocked function
-    const llmModule = await import('@/services/llm');
-    mockEnhancePrompt = llmModule.enhancePrompt as ReturnType<typeof vi.fn>;
+    const promptModule = await import('../services/promptService');
+    mockEnhancePrompt = promptModule.enhancePrompt as ReturnType<typeof vi.fn>;
   });
 
   afterEach(() => {

@@ -3,6 +3,7 @@ import { signUp, resetPassword } from '../../services/auth';
 import { validateUsernameFormat, checkUsernameAvailability } from '../../services/auth';
 import { debounce } from '../../utils/debounce';
 import { useAuth } from '../../context/AuthContext';
+import { useFocusTrap } from '../../hooks/useFocusTrap';
 
 interface AuthModalProps {
   isOpen: boolean;
@@ -25,6 +26,9 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onSuccess
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
+
+  // Use Focus Trap
+  const modalRef = useFocusTrap(isOpen, onClose);
 
   // Debounced username availability check
   // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -150,17 +154,29 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onSuccess
   if (!isOpen) return null;
 
   return (
-    <div className='fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4'>
-      <div className='bg-zinc-900 border border-white/10 rounded-3xl p-8 w-full max-w-md shadow-2xl relative max-h-[90vh] overflow-y-auto'>
+    <div 
+      className='fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4'
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="auth-modal-title"
+    >
+      <div 
+        ref={modalRef}
+        className='bg-zinc-900 border border-white/10 rounded-3xl p-8 w-full max-w-md shadow-2xl relative max-h-[90vh] overflow-y-auto'
+      >
         <button
           onClick={onClose}
           className='absolute top-4 right-4 text-zinc-500 hover:text-white transition'
+          aria-label="Close modal"
         >
           <span className='material-icons'>close</span>
         </button>
 
         <div className='text-center mb-8'>
-          <h2 className='text-2xl font-black text-white uppercase tracking-wider mb-2'>
+          <h2 
+            id="auth-modal-title"
+            className='text-2xl font-black text-white uppercase tracking-wider mb-2'
+          >
             {mode === 'signin'
               ? 'Welcome Back'
               : mode === 'signup'

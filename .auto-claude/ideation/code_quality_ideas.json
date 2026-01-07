@@ -1,0 +1,140 @@
+{
+  "code_quality": [
+    {
+      "id": "cq-001",
+      "type": "code_quality",
+      "title": "Split llm.ts into domain-specific service modules",
+      "description": "The file src/services/llm.ts has grown to 790 lines and handles multiple unrelated concerns: chat completions (design, agent, search, thinking), image generation, prompt enhancement, image editing/analysis, and agent workflow orchestration. This violates single responsibility and makes the file difficult to navigate.",
+      "rationale": "Large files with mixed responsibilities increase cognitive load, make testing harder, cause merge conflicts, and reduce code discoverability. Splitting into focused modules enables better separation of concerns, easier testing, and clearer API boundaries.",
+      "category": "large_files",
+      "severity": "major",
+      "affectedFiles": ["src/services/llm.ts"],
+      "currentState": "Single 790-line file handling: chat completions (5 functions), image generation (1 complex function with fallback chain), image operations (7 functions: edit, analyze, remove bg, upscale, outpaint, restore, analyze canvas), prompt enhancement, and agent workflow functions",
+      "proposedChange": "Split into focused service modules:\n- src/services/ai/chat.ts - Chat completion functions (generateDesignChatResponse, generateAgentResponse, etc.)\n- src/services/ai/imageGeneration.ts - Image generation with fallback chain\n- src/services/ai/imageOperations.ts - Image editing, analysis, upscale, restore, remove bg\n- src/services/ai/promptEnhancement.ts - Prompt enhancement logic\n- src/services/ai/agentWorkflows.ts - Agent-based workflow orchestration (generateWithAgents)\n- src/services/ai/index.ts - Barrel export for backward compatibility",
+      "codeExample": "// Current (all in llm.ts):\nexport const generateDesignChatResponse = async (...) => {...}\nexport const generateImage = async (...) => {...}\nexport const enhancePrompt = async (...) => {...}\nexport const editImage = async (...) => {...}\n\n// Proposed structure:\n// src/services/ai/chat.ts\nexport const generateDesignChatResponse = async (...) => {...}\nexport const generateAgentResponse = async (...) => {...}\n\n// src/services/ai/index.ts\nexport * from './chat';\nexport * from './imageGeneration';\nexport * from './imageOperations';",
+      "bestPractice": "Single Responsibility Principle - each module should have one reason to change. AI chat, image generation, and image processing are distinct domains that evolve independently.",
+      "metrics": {
+        "lineCount": 790,
+        "complexity": null,
+        "duplicateLines": null,
+        "testCoverage": null
+      },
+      "estimatedEffort": "medium",
+      "breakingChange": false,
+      "prerequisites": ["Ensure comprehensive test coverage for llm.ts before refactoring", "Update all import statements via search-replace"]
+    },
+    {
+      "id": "cq-002",
+      "type": "code_quality",
+      "title": "Refactor actionExecutor.ts giant switch statement using command pattern",
+      "description": "The ActionExecutor class in src/services/actionExecutor.ts contains a 90-line switch statement in executeToolCall() that handles 17 different tool types. This violates open/closed principle - adding new tools requires modifying the switch statement, increasing risk of bugs.",
+      "rationale": "Giant switch statements are a code smell indicating missing polymorphism. The command pattern allows adding new tools without modifying existing code, improves testability of individual tools, and makes the codebase more maintainable.",
+      "category": "code_smells",
+      "severity": "major",
+      "affectedFiles": ["src/services/actionExecutor.ts"],
+      "currentState": "797-line file with a massive switch statement handling: generate_background, magic_edit, remove_background, upscale_image, restore_image, enhance_face, suggest_prompts, write_enhanced_prompt, add_text_element, update_element, delete_element, list_elements, navigate_to_tab, undo_action, redo_action, analyze_image, analyze_banner",
+      "proposedChange": "Refactor using command pattern:\n1. Create a ToolHandler interface: { name: string; execute: (args) => Promise<ActionResult> }\n2. Create individual handler classes or functions for each tool\n3. Use a registry Map<string, ToolHandler> instead of switch\n4. Move tool handlers to src/services/actionExecutor/handlers/*.ts",
+      "codeExample": "// Current switch statement:\nswitch (toolCall.name) {\n  case 'generate_background':\n    return await this.generateBackground(...);\n  case 'magic_edit':\n    return await this.magicEdit(...);\n  // 15 more cases...\n}\n\n// Proposed command pattern:\ninterface ToolHandler {\n  execute(args: Record<string, unknown>, ctx: ExecutorContext): Promise<ActionResult>;\n}\n\nconst handlers: Map<string, ToolHandler> = new Map([\n  ['generate_background', new GenerateBackgroundHandler()],\n  ['magic_edit', new MagicEditHandler()],\n  // etc.\n]);\n\nasync executeToolCall(toolCall: ToolCall): Promise<ActionResult> {\n  const handler = this.handlers.get(toolCall.name);\n  if (!handler) return { success: false, error: `Unknown tool: ${toolCall.name}` };\n  return handler.execute(toolCall.args, this.context);\n}",
+      "bestPractice": "Open/Closed Principle & Command Pattern - Classes should be open for extension but closed for modification. New tools can be added without changing existing code.",
+      "metrics": {
+        "lineCount": 797,
+        "complexity": null,
+        "duplicateLines": null,
+        "testCoverage": null
+      },
+      "estimatedEffort": "medium",
+      "breakingChange": false,
+      "prerequisites": ["Ensure actionExecutor.test.ts covers all 17 tool types before refactoring"]
+    },
+    {
+      "id": "cq-003",
+      "type": "code_quality",
+      "title": "Extract ChatInterface.tsx into smaller focused components",
+      "description": "ChatInterface.tsx at 791 lines combines too many responsibilities: chat UI rendering, message state management, conversation persistence, tool execution handling, file attachment processing, and API key validation. The component has 15+ useState hooks indicating excessive state coupling.",
+      "rationale": "Large React components are harder to test, maintain, and reuse. Extracting focused sub-components improves code organization, enables component-level testing, and makes the codebase easier to understand for new developers.",
+      "category": "large_files",
+      "severity": "major",
+      "affectedFiles": ["src/components/ChatInterface.tsx"],
+      "currentState": "791-line monolithic component with:\n- 15+ useState hooks (input, attachedImages, mode, loading, processingFiles, etc.)\n- Inline message rendering logic\n- File upload handling\n- Conversation persistence logic\n- Tool execution callbacks\n- Mode switching (design/search)",
+      "proposedChange": "Extract into focused components:\n- src/components/chat/ChatContainer.tsx - Main container with message list\n- src/components/chat/ChatInput.tsx - Input field with file upload\n- src/components/chat/ChatMessage.tsx - Individual message rendering\n- src/components/chat/ChatModeToggle.tsx - Design/Search mode switcher\n- src/components/chat/ConversationList.tsx - History sidebar\n- src/hooks/useChatPersistence.ts - Extract persistence logic as custom hook\n- src/hooks/useChatToolExecution.ts - Extract tool execution as custom hook",
+      "codeExample": "// Current ChatInterface.tsx (simplified):\nconst ChatInterface = ({ onGenerateFromPrompt }) => {\n  const [input, setInput] = useState('');\n  const [messages, setMessages] = useState([]);\n  // 13 more useState hooks...\n  \n  // 200+ lines of handlers and effects\n  \n  return (\n    <div>\n      {/* 300+ lines of JSX */}\n    </div>\n  );\n};\n\n// Proposed structure:\n// ChatContainer.tsx\nconst ChatContainer = () => {\n  const persistence = useChatPersistence();\n  const toolExecution = useChatToolExecution();\n  \n  return (\n    <ChatProvider value={{ persistence, toolExecution }}>\n      <ConversationList />\n      <MessageList />\n      <ChatInput />\n    </ChatProvider>\n  );\n};",
+      "bestPractice": "Single Responsibility Principle for React components. Extract custom hooks for complex state logic. Keep components under 200-300 lines for maintainability.",
+      "metrics": {
+        "lineCount": 791,
+        "complexity": null,
+        "duplicateLines": null,
+        "testCoverage": null
+      },
+      "estimatedEffort": "large",
+      "breakingChange": false,
+      "prerequisites": ["Add comprehensive tests for current ChatInterface behavior", "Document component API before splitting"]
+    },
+    {
+      "id": "cq-004",
+      "type": "code_quality",
+      "title": "Extract reusable urlToDataUri helper to shared utilities",
+      "description": "The urlToDataUri helper function in ImageToolsPanel.tsx (lines 21-55) handles URL-to-base64 conversion with CORS fallback logic. This utility is likely needed in multiple places for image processing but is currently embedded in a component file.",
+      "rationale": "Utility functions embedded in component files reduce discoverability and lead to duplication. Moving to a shared utility enables reuse, centralized testing, and consistent behavior across the codebase.",
+      "category": "duplication",
+      "severity": "minor",
+      "affectedFiles": [
+        "src/components/features/ImageToolsPanel.tsx",
+        "src/utils/imageUtils.ts"
+      ],
+      "currentState": "35-line urlToDataUri function in ImageToolsPanel.tsx handles:\n- Data URI passthrough\n- External URL CORS fetch with blob conversion\n- Relative URL fetch with blob conversion\n- Error fallback returning original URL",
+      "proposedChange": "Move urlToDataUri to src/utils/imageUtils.ts (already exists) alongside related image utilities. Export it for use across components that process images:\n- ImageToolsPanel.tsx\n- Any future components needing image data URI conversion\n- Potential use in services/replicate.ts",
+      "codeExample": "// Current (embedded in ImageToolsPanel.tsx):\nconst urlToDataUri = async (url: string): Promise<string> => {\n  if (url.startsWith('data:')) return url;\n  // 30+ lines of fetch logic...\n};\n\n// Proposed (in src/utils/imageUtils.ts):\nexport async function urlToDataUri(url: string): Promise<string> {\n  if (url.startsWith('data:')) return url;\n  // Same logic, properly exported and tested\n}\n\n// In ImageToolsPanel.tsx:\nimport { urlToDataUri } from '@/utils/imageUtils';",
+      "bestPractice": "DRY (Don't Repeat Yourself) - Extract common logic into reusable utilities. Keep component files focused on rendering logic.",
+      "metrics": {
+        "lineCount": 35,
+        "complexity": null,
+        "duplicateLines": 35,
+        "testCoverage": null
+      },
+      "estimatedEffort": "small",
+      "breakingChange": false,
+      "prerequisites": ["Add unit tests for urlToDataUri covering all edge cases (data URI, CORS success, CORS failure, relative URL)"]
+    },
+    {
+      "id": "cq-005",
+      "type": "code_quality",
+      "title": "Add missing test coverage for critical service modules",
+      "description": "While 21 test files exist, several critical services lack dedicated tests or have minimal coverage. Key services like apiKeyStorage.ts, brandEngine.ts, chatPersistence.ts, liveClient.ts, and modelRouter.ts have no corresponding test files despite handling sensitive data and core business logic.",
+      "rationale": "Critical services handling authentication, API keys, and AI model routing need comprehensive test coverage to prevent regressions. Testing these services ensures reliability and makes refactoring safer.",
+      "category": "testing",
+      "severity": "major",
+      "affectedFiles": [
+        "src/services/apiKeyStorage.ts",
+        "src/services/brandEngine.ts",
+        "src/services/chatPersistence.ts",
+        "src/services/liveClient.ts",
+        "src/services/modelRouter.ts",
+        "src/services/storage.ts",
+        "src/services/emailService.ts"
+      ],
+      "currentState": "21 test files exist covering:\n- Core contexts (AIContext, AuthContext, CanvasContext)\n- Key services (replicate, openrouter, actionExecutor, auth, llm, database)\n- Key components (ChatInterface, ImageGallery, ImageToolsPanel, GenerativeSidebar)\n\nMissing tests for:\n- apiKeyStorage.ts - Handles sensitive API key storage/retrieval\n- brandEngine.ts - Brand consistency logic\n- chatPersistence.ts - Chat history database operations\n- liveClient.ts - Voice/realtime client\n- modelRouter.ts - AI model selection and fallback logic\n- storage.ts - General storage utilities",
+      "proposedChange": "Create test files for untested services with focus on:\n1. src/services/apiKeyStorage.test.ts - Test key storage, retrieval, migration, encryption\n2. src/services/modelRouter.test.ts - Test model selection, fallback chains, capability checks\n3. src/services/chatPersistence.test.ts - Test CRUD operations, message persistence\n4. src/services/brandEngine.test.ts - Test brand color extraction, consistency scoring",
+      "codeExample": "// Example: src/services/modelRouter.test.ts\nimport { describe, it, expect, vi } from 'vitest';\nimport { selectModel, getModelCapabilities } from './modelRouter';\n\ndescribe('modelRouter', () => {\n  it('should select Gemini for image generation when available', () => {\n    const model = selectModel('image_generation', { hasGeminiKey: true });\n    expect(model.provider).toBe('gemini');\n  });\n  \n  it('should fallback to Replicate when Gemini unavailable', () => {\n    const model = selectModel('image_generation', { hasGeminiKey: false, hasReplicateKey: true });\n    expect(model.provider).toBe('replicate');\n  });\n});",
+      "bestPractice": "Test-Driven Quality - Critical services handling security, persistence, and AI routing require comprehensive test coverage. Aim for 80%+ coverage on core business logic.",
+      "metrics": {
+        "lineCount": null,
+        "complexity": null,
+        "duplicateLines": null,
+        "testCoverage": null
+      },
+      "estimatedEffort": "medium",
+      "breakingChange": false,
+      "prerequisites": ["Set up test utilities for mocking Supabase client and API calls"]
+    }
+  ],
+  "metadata": {
+    "filesAnalyzed": 95,
+    "largeFilesFound": 7,
+    "duplicateBlocksFound": 1,
+    "lintingConfigured": true,
+    "testsPresent": true,
+    "testFilesCount": 21,
+    "typescriptStrict": true,
+    "generatedAt": "2026-01-06T21:45:00.000Z"
+  }
+}

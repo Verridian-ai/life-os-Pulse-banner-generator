@@ -1,0 +1,28 @@
+{
+  "file_path": "src/components/ChatInterface/components/ChatInput.tsx",
+  "main_branch_history": [],
+  "task_views": {
+    "003-extract-chatinterface-tsx-into-smaller-focused-com": {
+      "task_id": "003-extract-chatinterface-tsx-into-smaller-focused-com",
+      "branch_point": {
+        "commit_hash": "ebdf6e38abd27054d01757c7f14894a93246a91b",
+        "content": "",
+        "timestamp": "2026-01-07T01:20:44.464777"
+      },
+      "worktree_state": {
+        "content": "import React from 'react';\nimport { ChatInputProps } from '../types';\n\n/**\n * ChatInput Component\n *\n * Renders the chat input area including:\n * - Textarea for message input with proper styling\n * - File upload button for attaching images\n * - Attached image preview with remove buttons\n * - Send button\n * - Enter key submission (Shift+Enter for new line)\n */\nexport const ChatInput: React.FC<ChatInputProps> = ({\n  value,\n  onChange,\n  onSend,\n  loading,\n  mode,\n  attachedImages,\n  onImageUpload,\n  onRemoveImage,\n  processingFiles,\n  fileInputRef,\n}) => {\n\n  const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {\n    if (e.key === 'Enter' && !e.shiftKey) {\n      e.preventDefault();\n      onSend();\n    }\n  };\n\n  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {\n    if (e.target.files) {\n      onImageUpload(e.target.files);\n    }\n  };\n\n  return (\n    <div className='p-4 md:p-6 bg-black/20 border-t border-white/5 backdrop-blur-md'>\n      {/* Attached Image Preview */}\n      {attachedImages.length > 0 && (\n        <div className='flex gap-2 mb-4 overflow-x-auto pb-2'>\n          {attachedImages.map((img, idx) => (\n            <div key={idx} className='relative group shrink-0'>\n              <img\n                src={img}\n                alt='preview'\n                className='h-20 w-20 object-cover rounded-xl border border-white/10 shadow-md'\n              />\n              <button\n                onClick={() => onRemoveImage(idx)}\n                className='absolute -top-2 -right-2 bg-zinc-800 text-white border border-zinc-700 rounded-full w-6 h-6 flex items-center justify-center text-xs shadow-lg hover:bg-red-500 transition'\n              >\n                \u00d7\n              </button>\n            </div>\n          ))}\n        </div>\n      )}\n\n      <div className='flex gap-4 items-end'>\n        {/* File Upload Button */}\n        <button\n          onClick={() => fileInputRef.current?.click()}\n          disabled={processingFiles}\n          className='h-12 w-12 rounded-full bg-zinc-800 border border-white/5 text-zinc-400 hover:text-white transition disabled:opacity-50 shrink-0 flex items-center justify-center shadow-[4px_4px_8px_rgba(0,0,0,0.5),-4px_-4px_8px_rgba(255,255,255,0.05)] hover:scale-[1.05] active:scale-[0.95]'\n          title='Upload references'\n        >\n          {processingFiles ? (\n            <span className='material-icons animate-spin text-lg'>refresh</span>\n          ) : (\n            <span className='material-icons text-xl drop-shadow-md'>add_photo_alternate</span>\n          )}\n        </button>\n\n        {/* Hidden File Input */}\n        <input\n          type='file'\n          id='chat-file-upload'\n          aria-label='Upload images'\n          multiple\n          ref={fileInputRef}\n          className='hidden'\n          accept='image/*'\n          onChange={handleFileChange}\n        />\n\n        {/* Message Input Textarea */}\n        <div className='flex-1 relative'>\n          <textarea\n            className='w-full bg-black/40 border border-white/10 rounded-3xl px-6 py-3.5 text-white font-bold placeholder-zinc-500 focus:outline-none focus:border-white/20 focus:bg-black/60 resize-none h-[52px] max-h-[120px] shadow-[inset_0_2px_6px_rgba(0,0,0,0.5)] transition-all'\n            placeholder={mode === 'design' ? 'CHAT WITH NANO...' : 'SEARCH TRENDS...'}\n            aria-label='Chat message'\n            value={value}\n            onChange={(e) => onChange(e.target.value)}\n            onKeyDown={handleKeyDown}\n          />\n        </div>\n\n        {/* Send Button */}\n        <button\n          onClick={onSend}\n          disabled={loading || (!value.trim() && attachedImages.length === 0)}\n          className={`h-12 w-12 rounded-full font-bold transition flex items-center justify-center shrink-0 ${\n            loading\n              ? 'bg-zinc-700 opacity-50'\n              : 'bg-white text-black shadow-[0_0_15px_rgba(255,255,255,0.2)] hover:scale-[1.05] active:scale-[0.95]'\n          }`}\n        >\n          <span className='material-icons drop-shadow-sm'>arrow_upward</span>\n        </button>\n      </div>\n    </div>\n  );\n};\n",
+        "last_modified": "2026-01-07T01:20:45.595500"
+      },
+      "task_intent": {
+        "title": "003-extract-chatinterface-tsx-into-smaller-focused-com",
+        "description": "ChatInterface.tsx at 791 lines combines too many responsibilities: chat UI rendering, message state management, conversation persistence, tool execution handling, file attachment processing, and API key validation. The component has 15+ useState hooks indicating excessive state coupling.",
+        "from_plan": true
+      },
+      "commits_behind_main": 7,
+      "status": "active",
+      "merged_at": null
+    }
+  },
+  "created_at": "2026-01-07T01:20:44.694196",
+  "last_updated": "2026-01-07T01:20:44.736723"
+}

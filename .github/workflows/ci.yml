@@ -75,7 +75,6 @@ jobs:
         run: npm ci
 
       - name: Run tests with coverage
-        if: false # Temporarily disabled - pre-existing test failures
         run: npx vitest run --coverage
 
       - name: Upload coverage reports

@@ -1,4 +1,7 @@
-import React, { useState, useEffect, memo } from 'react';
+import React, { useState, useEffect, useCallback, memo } from 'react';
+import { useToast } from '../../hooks/useToast';
+import { api } from '../../services/api';
+import { PromptLibrary } from './PromptLibrary';
 import { BTN_BASE, BTN_NEU_SOLID } from '../../styles';
 import { ImageToolsPanel } from './ImageToolsPanel';
 import { EnhanceButton } from '../ui/EnhanceButton';
@@ -66,6 +69,26 @@ const GenerativeSidebarComponent: React.FC<GenerativeSidebarProps> = ({
   const [activeMode, setActiveMode] = useState<SidebarMode>(() => {
     return (localStorage.getItem('nanobanna-sidebar-mode') as SidebarMode) || 'generate';
   });
+  const [showPromptLibrary, setShowPromptLibrary] = useState(false);
+  const [isSavingPrompt, setIsSavingPrompt] = useState(false);
+  const toast = useToast();
+
+  const handleSavePrompt = useCallback(async () => {
+    if (!genPrompt.trim()) return;
+    setIsSavingPrompt(true);
+    try {
+      await api.post('/api/prompts', {
+        prompt: genPrompt,
+        title: genPrompt.substring(0, 20) + '...',
+        category: 'general'
+      });
+      toast.info('✓ PROMPT SAVED TO LIBRARY');
+    } catch {
+      toast.error('Failed to save prompt');
+    } finally {
+      setIsSavingPrompt(false);
+    }
+  }, [genPrompt, toast]);
 
   // Save mode selection to localStorage
   useEffect(() => {
@@ -230,60 +253,97 @@ const GenerativeSidebarComponent: React.FC<GenerativeSidebarProps> = ({
 
       {/* Generation Card - Only show in generate mode */}
       {activeMode === 'generate' && (
-        <div className='bg-black/40 p-3 sm:p-5 rounded-2xl sm:rounded-3xl border border-white/5 hover:border-pink-500/30 transition-colors group relative overflow-hidden'>
+        <div className='bg-black/40 p-3 sm:p-5 rounded-2xl sm:rounded-3xl border border-white/5 hover:border-pink-500/30 transition-colors group relative overflow-hidden flex flex-col'>
           <div className='absolute top-0 right-0 w-24 h-24 bg-pink-500/10 blur-2xl rounded-full -mr-10 -mt-10 pointer-events-none'></div>
 
-          <label className='flex justify-between text-[9px] sm:text-[10px] font-black text-zinc-400 mb-3 sm:mb-4 uppercase tracking-widest relative z-10'>
-            <span>Background Gen</span>
-          </label>
-
-          {/* Prompt Enhancement Buttons Row - Responsive: stack on mobile, row on sm+ */}
-          <div className='flex flex-col xs:flex-row gap-2 sm:gap-3 mb-3 sm:mb-4'>
-            {/* Enhance Prompt Button */}
+          <div className='flex justify-between items-center mb-3 sm:mb-4 relative z-10'>
+            <label className='text-[9px] sm:text-[10px] font-black text-zinc-400 uppercase tracking-widest'>
+              Background Gen
+            </label>
             <button
-              onClick={onEnhancePrompt}
-              disabled={isEnhancing || !genPrompt.trim()}
-              className={`flex-1 ${BTN_BASE} ${genPrompt.trim() ? 'bg-gradient-to-br from-purple-600 to-pink-600 text-white hover:from-purple-500 hover:to-pink-500 shadow-lg shadow-purple-500/20' : 'bg-black/20 text-zinc-600 border border-white/5 cursor-not-allowed shadow-none'}`}
+              onClick={() => setShowPromptLibrary(!showPromptLibrary)}
+              className={`text-zinc-500 hover:text-purple-400 transition flex items-center gap-1 ${showPromptLibrary ? 'text-purple-400' : ''}`}
+              title="Prompt Library"
             >
-              {isEnhancing ? (
-                <>
-                  <div className='w-3 h-3 sm:w-4 sm:h-4 border-2 border-white/30 border-t-white rounded-full animate-spin'></div>
-                  <span>Enhancing...</span>
-                </>
-              ) : (
-                <>
-                  <span className='material-icons text-sm sm:text-base'>auto_fix_high</span>
-                  <span>Prompt Enhance</span>
-                </>
-              )}
-            </button>
-
-            {/* Magic Prompt Button */}
-            <button
-              onClick={onMagicPrompt}
-              disabled={isMagicPrompting || refImages.length === 0}
-              className={`flex-1 ${BTN_BASE} ${refImages.length > 0 ? BTN_NEU_SOLID : 'bg-black/20 text-zinc-600 border border-white/5 cursor-not-allowed shadow-none'}`}
-            >
-              {isMagicPrompting ? (
-                <>
-                  <div className='w-3 h-3 sm:w-4 sm:h-4 border-2 border-white/30 border-t-white rounded-full animate-spin'></div>
-                  <span>Analyzing...</span>
-                </>
-              ) : (
-                <>
-                  <span className='material-icons text-sm sm:text-base'>auto_awesome</span>
-                  <span>Magic Prompt</span>
-                </>
-              )}
+              <span className='material-icons text-sm'>auto_stories</span>
+              <span className='text-[9px] font-bold uppercase'>Library</span>
             </button>
           </div>
 
-          <textarea
-            className='w-full bg-zinc-900/50 border border-white/10 rounded-xl sm:rounded-2xl p-2.5 sm:p-3 md:p-4 text-xs md:text-sm font-medium text-white focus:border-pink-500 focus:outline-none resize-none h-20 sm:h-24 md:h-32 mb-3 sm:mb-4 placeholder-zinc-600 shadow-[inset_0_2px_4px_rgba(0,0,0,0.5)] transition-all relative z-10'
-            placeholder={isCompact ? "Describe your vision..." : "Describe your vision (e.g., 'A futuristic city skyline in purple and teal')..."}
-            value={genPrompt}
-            onChange={(e) => setGenPrompt(e.target.value)}
-          />
+          {showPromptLibrary ? (
+            <div className='h-[350px] relative z-10'>
+              <PromptLibrary 
+                onSelect={(p) => { setGenPrompt(p); setShowPromptLibrary(false); }}
+                onClose={() => setShowPromptLibrary(false)}
+              />
+            </div>
+          ) : (
+            <>
+              {/* Prompt Enhancement Buttons Row - Responsive: stack on mobile, row on sm+ */}
+              <div className='flex flex-col xs:flex-row gap-2 sm:gap-3 mb-3 sm:mb-4 relative z-10'>
+                {/* Enhance Prompt Button */}
+                <button
+                  onClick={onEnhancePrompt}
+                  disabled={isEnhancing || !genPrompt.trim()}
+                  className={`flex-1 ${BTN_BASE} ${genPrompt.trim() ? 'bg-gradient-to-br from-purple-600 to-pink-600 text-white hover:from-purple-500 hover:to-pink-500 shadow-lg shadow-purple-500/20' : 'bg-black/20 text-zinc-600 border border-white/5 cursor-not-allowed shadow-none'}`}
+                >
+                  {isEnhancing ? (
+                    <>
+                      <div className='w-3 h-3 sm:w-4 sm:h-4 border-2 border-white/30 border-t-white rounded-full animate-spin'></div>
+                      <span>Enhancing...</span>
+                    </>
+                  ) : (
+                    <>
+                      <span className='material-icons text-sm sm:text-base'>auto_fix_high</span>
+                      <span>Prompt Enhance</span>
+                    </>
+                  )}
+                </button>
+
+                {/* Magic Prompt Button */}
+                <button
+                  onClick={onMagicPrompt}
+                  disabled={isMagicPrompting || refImages.length === 0}
+                  className={`flex-1 ${BTN_BASE} ${refImages.length > 0 ? BTN_NEU_SOLID : 'bg-black/20 text-zinc-600 border border-white/5 cursor-not-allowed shadow-none'}`}
+                >
+                  {isMagicPrompting ? (
+                    <>
+                      <div className='w-3 h-3 sm:w-4 sm:h-4 border-2 border-white/30 border-t-white rounded-full animate-spin'></div>
+                      <span>Analyzing...</span>
+                    </>
+                  ) : (
+                    <>
+                      <span className='material-icons text-sm sm:text-base'>auto_awesome</span>
+                      <span>Magic Prompt</span>
+                    </>
+                  )}
+                </button>
+              </div>
+
+              <div className='relative z-10'>
+                <textarea
+                  className='w-full bg-zinc-900/50 border border-white/10 rounded-xl sm:rounded-2xl p-2.5 sm:p-3 md:p-4 text-xs md:text-sm font-medium text-white focus:border-pink-500 focus:outline-none resize-none h-20 sm:h-24 md:h-32 mb-3 sm:mb-4 placeholder-zinc-600 shadow-[inset_0_2px_4px_rgba(0,0,0,0.5)] transition-all'
+                  placeholder={isCompact ? "Describe your vision..." : "Describe your vision (e.g., 'A futuristic city skyline in purple and teal')..."}
+                  value={genPrompt}
+                  onChange={(e) => setGenPrompt(e.target.value)}
+                />
+                
+                {/* Save Prompt Button Overlay */}
+                {genPrompt.trim() && (
+                  <button 
+                    onClick={handleSavePrompt}
+                    disabled={isSavingPrompt}
+                    className='absolute bottom-6 right-2 p-2 text-zinc-500 hover:text-pink-400 transition bg-black/40 rounded-lg backdrop-blur-sm'
+                    title="Save to Library"
+                  >
+                    <span className={`material-icons text-sm ${isSavingPrompt ? 'animate-spin' : ''}`}>
+                      {isSavingPrompt ? 'sync' : 'bookmark_add'}
+                    </span>
+                  </button>
+                )}
+              </div>
+            </>
+          )}
 
           {/* Generation Suggestions */}
           {generationSuggestions.length > 0 && (

@@ -1,0 +1,28 @@
+{
+  "file_path": "src/components/ChatInterface/constants.ts",
+  "main_branch_history": [],
+  "task_views": {
+    "003-extract-chatinterface-tsx-into-smaller-focused-com": {
+      "task_id": "003-extract-chatinterface-tsx-into-smaller-focused-com",
+      "branch_point": {
+        "commit_hash": "ebdf6e38abd27054d01757c7f14894a93246a91b",
+        "content": "",
+        "timestamp": "2026-01-07T01:20:44.464777"
+      },
+      "worktree_state": {
+        "content": "import type { ChatMessage } from '@/types';\n\n/**\n * ChatInterface Constants\n *\n * Shared constants used across ChatInterface components\n */\n\n// =============================================================================\n// Button Style Constants (Neumorphic Design System)\n// =============================================================================\n\n/**\n * Base button styles for neumorphic buttons\n * Responsive heights and spacing with uppercase text styling\n */\nexport const BTN_BASE =\n  'h-10 md:h-12 px-4 md:px-6 rounded-full font-black uppercase tracking-wider text-[10px] md:text-xs transition-all flex items-center justify-center gap-2 drop-shadow-[0_1px_1px_rgba(0,0,0,0.8)] whitespace-nowrap';\n\n/**\n * Inactive blue button style (mode toggle, unselected state)\n * Dark background with blue text and subtle glow on hover\n */\nexport const BTN_BLUE_INACTIVE =\n  'bg-zinc-900 text-blue-500 shadow-[4px_4px_8px_rgba(0,0,0,0.5),-4px_-4px_8px_rgba(255,255,255,0.05)] border border-blue-500/20 hover:text-blue-400 hover:border-blue-500/50 hover:shadow-[0_0_15px_rgba(59,130,246,0.2)]';\n\n/**\n * Active blue button style (mode toggle, selected state)\n * Gradient background with blue glow and slight scale increase\n */\nexport const BTN_BLUE_ACTIVE =\n  'bg-gradient-to-br from-blue-600 to-cyan-700 text-white shadow-[0_0_20px_rgba(37,99,235,0.4)] border border-blue-400/30 scale-[1.02]';\n\n/**\n * White neumorphic button style (generate buttons)\n * White background with shadow and hover effects\n */\nexport const BTN_NEU_WHITE =\n  'bg-white text-black shadow-[0_0_15px_rgba(255,255,255,0.2)] hover:bg-zinc-200 active:scale-[0.98]';\n\n// =============================================================================\n// Chat Message Constants\n// =============================================================================\n\n/**\n * Initial message shown when starting a new chat\n * Introduces NANO and explains the interface\n */\nexport const INITIAL_MESSAGE: ChatMessage = {\n  role: 'model',\n  text: 'HELLO! I AM NANO, YOUR PRO LINKEDIN BANNER STRATEGIST. \\n\\nUPLOAD YOUR LOGO, PROFILE PICTURE, OR ANY REFERENCE IMAGES, AND WE CAN DISCUSS A DESIGN THAT PERFECTLY MATCHES YOUR BRAND COLORS AND STYLE.',\n};\n",
+        "last_modified": "2026-01-07T01:20:45.601440"
+      },
+      "task_intent": {
+        "title": "003-extract-chatinterface-tsx-into-smaller-focused-com",
+        "description": "ChatInterface.tsx at 791 lines combines too many responsibilities: chat UI rendering, message state management, conversation persistence, tool execution handling, file attachment processing, and API key validation. The component has 15+ useState hooks indicating excessive state coupling.",
+        "from_plan": true
+      },
+      "commits_behind_main": 7,
+      "status": "active",
+      "merged_at": null
+    }
+  },
+  "created_at": "2026-01-07T01:20:45.036112",
+  "last_updated": "2026-01-07T01:20:45.078911"
+}

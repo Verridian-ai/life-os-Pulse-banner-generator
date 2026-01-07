@@ -29,7 +29,7 @@ export class ErrorBoundary extends Component<Props, State> {
   public render() {
     if (this.state.hasError) {
       return (
-        <div className='p-5 text-red-600 bg-white'>
+        <div className='p-5 text-red-600 bg-white' role="alert">
           <h1>Something went wrong.</h1>
           <details className='whitespace-pre-wrap'>
             {this.state.error && this.state.error.toString()}

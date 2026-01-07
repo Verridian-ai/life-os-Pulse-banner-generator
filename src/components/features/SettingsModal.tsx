@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { getUserAPIKeys, saveUserAPIKeys } from '../../services/apiKeyStorage';
 import { testOpenRouterKey, testReplicateKey } from '../../services/apiKeyValidator';
+import { useFocusTrap } from '../../hooks/useFocusTrap';
 
 // Common OpenRouter Models (Text) - Updated with Latest Models (Dec 2025)
 // Moved outside component to avoid useEffect dependency issues
@@ -107,6 +108,9 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
   const [testError, setTestError] = useState<string>('');
   const [isSaving, setIsSaving] = useState(false);
   const [saved, setSaved] = useState(false);
+
+  // Use Focus Trap
+  const modalRef = useFocusTrap(isOpen, onClose);
 
   // Load settings on mount
   useEffect(() => {
@@ -280,17 +284,29 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
   if (!isOpen) return null;
 
   return (
-    <div className='fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4'>
-      <div className='bg-zinc-900 border border-white/10 rounded-3xl p-6 w-full max-w-md max-h-[90vh] overflow-y-auto shadow-2xl relative'>
+    <div 
+      className='fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4'
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="settings-modal-title"
+    >
+      <div 
+        ref={modalRef}
+        className='bg-zinc-900 border border-white/10 rounded-3xl p-6 w-full max-w-md max-h-[90vh] overflow-y-auto shadow-2xl relative'
+      >
         <button
           type='button'
           onClick={onClose}
           className='absolute top-4 right-4 text-zinc-500 hover:text-white transition'
+          aria-label="Close settings"
         >
           <span className='material-icons'>close</span>
         </button>
 
-        <h2 className='text-xl font-black text-white uppercase tracking-wider mb-6 flex items-center gap-2'>
+        <h2 
+          id="settings-modal-title"
+          className='text-xl font-black text-white uppercase tracking-wider mb-6 flex items-center gap-2'
+        >
           <span className='material-icons text-purple-500'>settings</span>
           AI Settings
         </h2>

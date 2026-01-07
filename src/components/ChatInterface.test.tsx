@@ -1,17 +1,48 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
+import '@testing-library/jest-dom';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import ChatInterface from './ChatInterface';
 import * as apiKeyStorage from '../services/apiKeyStorage';
-import * as llm from '../services/llm';
 
 // Mock dependencies
 vi.mock('../services/apiKeyStorage', () => ({
   getUserAPIKeys: vi.fn(),
 }));
 
-vi.mock('../services/llm', () => ({
+vi.mock('../services/chatService', () => ({
   generateDesignChatResponse: vi.fn(),
   generateSearchResponse: vi.fn(),
+}));
+
+vi.mock('../services/chatPersistence', () => ({
+  createConversation: vi.fn().mockResolvedValue('mock-conv-id'),
+  saveMessage: vi.fn(),
+  getConversations: vi.fn().mockResolvedValue([]),
+  deleteConversation: vi.fn(),
+  getConversationMessages: vi.fn().mockResolvedValue([]),
+}));
+
+// Mock Contexts
+vi.mock('../context/CanvasContext', () => ({
+  useCanvas: () => ({
+    setBgImage: vi.fn(),
+  }),
+}));
+
+vi.mock('../context/AuthContext', () => ({
+  useAuth: () => ({
+    user: { id: 'test-user' },
+  }),
+}));
+
+// Mock ChatAgent
+const mockChat = vi.fn();
+vi.mock('@/services/chatAgent', () => ({
+  ChatAgent: vi.fn().mockImplementation(function () {
+    return {
+      chat: mockChat,
+    };
+  }),
 }));
 
 describe('ChatInterface', () => {
@@ -19,6 +50,7 @@ describe('ChatInterface', () => {
 
   beforeEach(() => {
     vi.clearAllMocks();
+    mockChat.mockResolvedValue('Response from ChatAgent');
 
     // Mock scrollIntoView
     Element.prototype.scrollIntoView = vi.fn();
@@ -27,9 +59,9 @@ describe('ChatInterface', () => {
   describe('API Key Validation', () => {
     it('should show error when no API keys are configured', async () => {
       vi.mocked(apiKeyStorage.getUserAPIKeys).mockResolvedValue({
-        openrouter_api_key: null,
-        gemini_api_key: null,
-        replicate_api_key: null,
+        openrouter_api_key: undefined,
+        gemini_api_key: undefined,
+        replicate_api_key: undefined,
       });
 
       render(<ChatInterface onGenerateFromPrompt={mockOnGenerateFromPrompt} />);
@@ -52,13 +84,11 @@ describe('ChatInterface', () => {
     it('should send message when OpenRouter API key is configured', async () => {
       vi.mocked(apiKeyStorage.getUserAPIKeys).mockResolvedValue({
         openrouter_api_key: 'test-openrouter-key',
-        gemini_api_key: null,
-        replicate_api_key: null,
+        gemini_api_key: undefined,
+        replicate_api_key: undefined,
       });
 
-      vi.mocked(llm.generateDesignChatResponse).mockResolvedValue({
-        text: 'Response from AI',
-      });
+      mockChat.mockResolvedValue('Response from AI');
 
       render(<ChatInterface onGenerateFromPrompt={mockOnGenerateFromPrompt} />);
 
@@ -70,19 +100,15 @@ describe('ChatInterface', () => {
       fireEvent.click(sendButton);
 
       await waitFor(() => {
-        expect(llm.generateDesignChatResponse).toHaveBeenCalled();
+        expect(mockChat).toHaveBeenCalled();
       });
     });
 
     it('should send message when Gemini API key is configured', async () => {
       vi.mocked(apiKeyStorage.getUserAPIKeys).mockResolvedValue({
-        openrouter_api_key: null,
+        openrouter_api_key: undefined,
         gemini_api_key: 'test-gemini-key',
-        replicate_api_key: null,
-      });
-
-      vi.mocked(llm.generateDesignChatResponse).mockResolvedValue({
-        text: 'Response from AI',
+        replicate_api_key: undefined,
       });
 
       render(<ChatInterface onGenerateFromPrompt={mockOnGenerateFromPrompt} />);
@@ -95,7 +121,7 @@ describe('ChatInterface', () => {
       fireEvent.click(sendButton);
 
       await waitFor(() => {
-        expect(llm.generateDesignChatResponse).toHaveBeenCalled();
+        expect(mockChat).toHaveBeenCalled();
       });
     });
   });
@@ -104,13 +130,13 @@ describe('ChatInterface', () => {
     beforeEach(() => {
       vi.mocked(apiKeyStorage.getUserAPIKeys).mockResolvedValue({
         openrouter_api_key: 'test-key',
-        gemini_api_key: null,
-        replicate_api_key: null,
+        gemini_api_key: undefined,
+        replicate_api_key: undefined,
       });
     });
 
     it('should show API key error message on 401 unauthorized', async () => {
-      vi.mocked(llm.generateDesignChatResponse).mockRejectedValue(
+      mockChat.mockRejectedValue(
         new Error('Unauthorized: Invalid API key'),
       );
 
@@ -130,7 +156,7 @@ describe('ChatInterface', () => {
     });
 
     it('should show quota exceeded error on 429 rate limit', async () => {
-      vi.mocked(llm.generateDesignChatResponse).mockRejectedValue(
+      mockChat.mockRejectedValue(
         new Error('Rate limit exceeded'),
       );
 
@@ -149,7 +175,7 @@ describe('ChatInterface', () => {
     });
 
     it('should show network error message on connection failure', async () => {
-      vi.mocked(llm.generateDesignChatResponse).mockRejectedValue(
+      mockChat.mockRejectedValue(
         new Error('Network connection failed'),
       );
 
@@ -169,7 +195,7 @@ describe('ChatInterface', () => {
     });
 
     it('should show generic error message for unknown errors', async () => {
-      vi.mocked(llm.generateDesignChatResponse).mockRejectedValue(
+      mockChat.mockRejectedValue(
         new Error('Something went wrong'),
       );
 
@@ -192,15 +218,13 @@ describe('ChatInterface', () => {
     beforeEach(() => {
       vi.mocked(apiKeyStorage.getUserAPIKeys).mockResolvedValue({
         openrouter_api_key: 'test-key',
-        gemini_api_key: null,
-        replicate_api_key: null,
+        gemini_api_key: undefined,
+        replicate_api_key: undefined,
       });
     });
 
     it('should display user message in chat', async () => {
-      vi.mocked(llm.generateDesignChatResponse).mockResolvedValue({
-        text: 'AI response',
-      });
+      mockChat.mockResolvedValue('AI response');
 
       render(<ChatInterface onGenerateFromPrompt={mockOnGenerateFromPrompt} />);
 
@@ -215,9 +239,7 @@ describe('ChatInterface', () => {
     });
 
     it('should clear input after sending message', async () => {
-      vi.mocked(llm.generateDesignChatResponse).mockResolvedValue({
-        text: 'AI response',
-      });
+      mockChat.mockResolvedValue('AI response');
 
       render(<ChatInterface onGenerateFromPrompt={mockOnGenerateFromPrompt} />);
 

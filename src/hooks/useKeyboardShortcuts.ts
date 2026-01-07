@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 
 export interface KeyboardShortcut {
   key: string;
@@ -115,6 +115,26 @@ export const formatShortcut = (shortcut: KeyboardShortcut): string => {
 };
 
 /**
+ * Hook to manage keyboard shortcuts modal state
+ * Returns modal state and shortcuts array
+ */
+export const useKeyboardShortcutsModal = (): {
+  isModalOpen: boolean;
+  openModal: () => void;
+  closeModal: () => void;
+  toggleModal: () => void;
+} => {
+  const [isModalOpen, setIsModalOpen] = useState(false);
+
+  return {
+    isModalOpen,
+    openModal: () => setIsModalOpen(true),
+    closeModal: () => setIsModalOpen(false),
+    toggleModal: () => setIsModalOpen((prev) => !prev),
+  };
+};
+
+/**
  * Default shortcuts for the app
  */
 export const getDefaultShortcuts = (handlers: {
@@ -125,12 +145,22 @@ export const getDefaultShortcuts = (handlers: {
   onRedo?: () => void;
   onOpenSettings?: () => void;
   onSave?: () => void;
+  onSwitchToStudio?: () => void;
+  onSwitchToGallery?: () => void;
+  onSwitchToBrainstorm?: () => void;
+  onShowShortcuts?: () => void;
+  onDuplicate?: () => void;
+  onDelete?: () => void;
+  onZoomIn?: () => void;
+  onZoomOut?: () => void;
+  onToggleSafeZones?: () => void;
+  onExport?: () => void;
 }): KeyboardShortcut[] => {
   const shortcuts: KeyboardShortcut[] = [];
 
   if (handlers.onGenerate) {
     shortcuts.push({
-      key: 'g',
+      key: 'Enter',
       ctrl: true,
       callback: handlers.onGenerate,
       description: 'Generate image',
@@ -187,7 +217,113 @@ export const getDefaultShortcuts = (handlers: {
       key: 's',
       ctrl: true,
       callback: handlers.onSave,
-      description: 'Save/Export',
+      description: 'Save project',
+    });
+  }
+
+  // Tab switching shortcuts
+  if (handlers.onSwitchToStudio) {
+    shortcuts.push({
+      key: '1',
+      ctrl: true,
+      callback: handlers.onSwitchToStudio,
+      description: 'Switch to Studio tab',
+    });
+  }
+
+  if (handlers.onSwitchToGallery) {
+    shortcuts.push({
+      key: '2',
+      ctrl: true,
+      callback: handlers.onSwitchToGallery,
+      description: 'Switch to Gallery tab',
+    });
+  }
+
+  if (handlers.onSwitchToBrainstorm) {
+    shortcuts.push({
+      key: '3',
+      ctrl: true,
+      callback: handlers.onSwitchToBrainstorm,
+      description: 'Switch to Brainstorm tab',
+    });
+  }
+
+  // Show shortcuts modal
+  if (handlers.onShowShortcuts) {
+    shortcuts.push({
+      key: '?',
+      callback: handlers.onShowShortcuts,
+      description: 'Show keyboard shortcuts',
+    });
+  }
+
+  // Duplicate element
+  if (handlers.onDuplicate) {
+    shortcuts.push({
+      key: 'd',
+      ctrl: true,
+      callback: handlers.onDuplicate,
+      description: 'Duplicate selected element',
+    });
+  }
+
+  // Delete element
+  if (handlers.onDelete) {
+    shortcuts.push({
+      key: 'Delete',
+      callback: handlers.onDelete,
+      description: 'Delete selected element',
+    });
+    shortcuts.push({
+      key: 'Backspace',
+      callback: handlers.onDelete,
+      description: 'Delete selected element',
+    });
+  }
+
+  // Zoom controls
+  if (handlers.onZoomIn) {
+    shortcuts.push({
+      key: '+',
+      ctrl: true,
+      callback: handlers.onZoomIn,
+      description: 'Zoom in',
+    });
+    shortcuts.push({
+      key: '=',
+      ctrl: true,
+      callback: handlers.onZoomIn,
+      description: 'Zoom in',
+    });
+  }
+
+  if (handlers.onZoomOut) {
+    shortcuts.push({
+      key: '-',
+      ctrl: true,
+      callback: handlers.onZoomOut,
+      description: 'Zoom out',
+    });
+  }
+
+  // Toggle safe zones
+  if (handlers.onToggleSafeZones) {
+    shortcuts.push({
+      key: ';',
+      ctrl: true,
+      callback: handlers.onToggleSafeZones,
+      description: 'Toggle safe zones',
+    });
+  }
+
+  // Quick export
+  if (handlers.onExport) {
+    shortcuts.push({
+      key: 'e',
+      ctrl: true,
+      callback: handlers.onExport,
+      description: 'Export design',
     });
   }
 

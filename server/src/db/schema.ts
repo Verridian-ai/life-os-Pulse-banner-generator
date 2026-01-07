@@ -91,6 +91,43 @@ export const userApiKeys = pgTable('user_api_keys', {
 });
 
 // ============================================================================
+// TEAMS & BRAND PROFILES
+// ============================================================================
+
+export const teams = pgTable('teams', {
+    id: uuid('id').defaultRandom().primaryKey(),
+    name: text('name').notNull(),
+    ownerId: text('owner_id').notNull().references(() => users.id, { onDelete: 'cascade' }),
+    createdAt: timestamp('created_at').defaultNow(),
+    updatedAt: timestamp('updated_at').defaultNow(),
+});
+
+export const teamMembers = pgTable('team_members', {
+    id: uuid('id').defaultRandom().primaryKey(),
+    teamId: uuid('team_id').notNull().references(() => teams.id, { onDelete: 'cascade' }),
+    userId: text('user_id').notNull().references(() => users.id, { onDelete: 'cascade' }),
+    role: text('role').notNull().default('member'), // 'owner', 'admin', 'member'
+    joinedAt: timestamp('joined_at').defaultNow(),
+});
+
+export const brandProfiles = pgTable('brand_profiles', {
+    id: uuid('id').defaultRandom().primaryKey(),
+    teamId: uuid('team_id').references(() => teams.id, { onDelete: 'cascade' }), // Optional: can be personal or team
+    userId: text('user_id').references(() => users.id, { onDelete: 'cascade' }), // If personal
+    name: text('name').notNull().default('My Brand'),
+    
+    colors: jsonb('colors').default([]), // [{ hex: '#...', name: 'Primary', usage: 'main' }]
+    fonts: jsonb('fonts').default([]),   // [{ family: 'Inter', usage: 'heading' }]
+    logoUrl: text('logo_url'),
+    
+    styleKeywords: text('style_keywords').array(),
+    isDefault: boolean('is_default').default(false),
+    
+    createdAt: timestamp('created_at').defaultNow(),
+    updatedAt: timestamp('updated_at').defaultNow(),
+});
+
+// ============================================================================
 // CHAT & CONVERSATIONS
 // ============================================================================
 
@@ -166,7 +203,85 @@ export const images = pgTable('images', {
 });
 
 // ============================================================================
+// PROMPT LIBRARY
+// ============================================================================
+
+export const promptLibrary = pgTable('prompt_library', {
+    id: uuid('id').defaultRandom().primaryKey(),
+    userId: text('user_id').notNull().references(() => users.id, { onDelete: 'cascade' }),
+    prompt: text('prompt').notNull(),
+    title: text('title').default('Untitled Prompt'),
+    category: text('category').default('general'),
+    tags: text('tags').array().default([]),
+    isFavorite: boolean('is_favorite').default(false),
+    isPublic: boolean('is_public').default(false),
+    usageCount: integer('usage_count').default(0),
+    createdAt: timestamp('created_at').defaultNow(),
+    updatedAt: timestamp('updated_at').defaultNow(),
+});
+
+// ============================================================================
+
+// SHARING & COMMENTS
+
+// ============================================================================
+
+
+
+export const sharedLinks = pgTable('shared_links', {
+
+    id: uuid('id').defaultRandom().primaryKey(),
+
+    designId: uuid('design_id').notNull(), // Assuming designs table exists or will exist, referencing loosely for now or TODO: add designs table
+
+    token: text('token').notNull().unique(),
+
+    expiresAt: timestamp('expires_at'),
+
+    canComment: boolean('can_comment').default(true),
+
+    createdAt: timestamp('created_at').defaultNow(),
+
+});
+
+
+
+export const comments = pgTable('comments', {
+
+    id: uuid('id').defaultRandom().primaryKey(),
+
+    designId: uuid('design_id').notNull(),
+
+    userId: text('user_id').references(() => users.id, { onDelete: 'set null' }), // Optional: registered user
+
+    authorName: text('author_name').default('Anonymous'), // For guest comments
+
+    content: text('content').notNull(),
+
+    
+
+    // Pin position (percentage 0-100)
+
+    x: numeric('x'),
+
+    y: numeric('y'),
+
+    
+
+    isResolved: boolean('is_resolved').default(false),
+
+    createdAt: timestamp('created_at').defaultNow(),
+
+    updatedAt: timestamp('updated_at').defaultNow(),
+
+});
+
+
+
+// ============================================================================
+
 // EMAIL VERIFICATION & PASSWORD RESET
+
 // ============================================================================
 
 export const emailVerificationTokens = pgTable('email_verification_tokens', {

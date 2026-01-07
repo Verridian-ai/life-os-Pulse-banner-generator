@@ -96,6 +96,7 @@ export default defineConfig(({ mode }) => {
       globals: true,
       environment: 'jsdom',
       setupFiles: './src/setupTests.ts',
+      exclude: ['**/node_modules/**', 'dist/**', '.idea/**', '.git/**', '.cache/**', '.auto-claude/**'],
       coverage: {
         provider: 'v8',
         reporter: ['text', 'json', 'html', 'lcov'],

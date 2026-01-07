@@ -1,7 +1,7 @@
 import { Hono } from 'hono';
 import { db } from '../db';
 import { images } from '../db/schema';
-import { eq, and, desc, like, or } from 'drizzle-orm';
+import { eq, and, desc, like } from 'drizzle-orm';
 import { authMiddleware } from '../lib/auth';
 
 export const imageRouter = new Hono();
@@ -14,7 +14,7 @@ imageRouter.get('/', async (c) => {
     const user = c.get('user');
     const { search, type, favorites, limit, offset } = c.req.query();
 
-    let conditions = [eq(images.userId, user.id)];
+    const conditions = [eq(images.userId, user.id)];
 
     if (search) {
         conditions.push(like(images.prompt, `%${search}%`));
@@ -67,7 +67,6 @@ imageRouter.get('/serve', async (c) => {
     }
 
     try {
-        const { getStorageClient } = await import('../lib/gcs');
         // We need to export getStorageClient or access bucket differently. 
         // Actually, gcs.ts doesn't export the bucket directly, but it has helper functions.
         // Let's add a verify/stream helper in gcs.ts or just allow raw access?
@@ -82,7 +81,7 @@ imageRouter.get('/serve', async (c) => {
         c.header('Content-Type', contentType || 'image/png');
         c.header('Cache-Control', 'public, max-age=31536000'); // Cache for 1 year
 
-        return c.body(stream as any);
+        return c.body(stream as unknown as ReadableStream);
 
     } catch (error) {
         console.error('Serve Image Error:', error);
@@ -191,7 +190,7 @@ imageRouter.post('/:id/toggle-favorite', async (c) => {
             .returning();
 
         return c.json({ success: true, isFavorite: updated.isFavorite });
-    } catch (error) {
+    } catch {
         return c.json({ error: 'Failed to toggle favorite' }, 500);
     }
 });
@@ -204,7 +203,7 @@ imageRouter.delete('/:id', async (c) => {
     try {
         await db.delete(images).where(and(eq(images.id, id), eq(images.userId, user.id)));
         return c.json({ success: true });
-    } catch (error) {
+    } catch {
         return c.json({ error: 'Failed to delete image' }, 500);
     }
 });

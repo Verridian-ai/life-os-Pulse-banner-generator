@@ -1,8 +1,9 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { useCanvas } from '../../../context/CanvasContext';
-import { restoreImage, editImage, removeBackground } from '../../../services/llm';
-import { BTN_PRIMARY, BTN_NEU_SOLID, BTN_SECONDARY } from '../../../styles';
+import { useToast } from '@/hooks/useToast';
+import { BTN_PRIMARY } from '../../../styles';
 import { EnhanceButton } from '../../ui/EnhanceButton';
+import { useFocusTrap } from '../../../hooks/useFocusTrap';
 
 interface ProfileEditorModalProps {
     isOpen: boolean;
@@ -19,7 +20,11 @@ export const ProfileEditorModal: React.FC<ProfileEditorModalProps> = ({
     initialImage,
 }) => {
     const { setProfilePic } = useCanvas();
+    const toast = useToast();
     const canvasRef = useRef<HTMLCanvasElement>(null);
+
+    // Use Focus Trap
+    const modalRef = useFocusTrap(isOpen, onClose);
 
     // Image State
     const [imgObj, setImgObj] = useState<HTMLImageElement | null>(null);
@@ -32,7 +37,6 @@ export const ProfileEditorModal: React.FC<ProfileEditorModalProps> = ({
     // Operation State
     const [isProcessing, setIsProcessing] = useState(false);
     const [editPrompt, setEditPrompt] = useState('');
-    const [activeTab, setActiveTab] = useState<'crop' | 'enhance' | 'edit'>('crop');
     const [statusMsg, setStatusMsg] = useState('');
 
     // Drag State
@@ -195,9 +199,10 @@ export const ProfileEditorModal: React.FC<ProfileEditorModalProps> = ({
                     setScale(1);
                 };
             }
-        } catch (e: any) {
+        } catch (e: unknown) {
             console.error(e);
-            alert('Enhancement failed: ' + (e.message || 'Unknown error'));
+            const errorMessage = e instanceof Error ? e.message : 'Unknown error';
+            toast.error('Enhancement failed: ' + errorMessage);
         } finally {
             setIsProcessing(false);
             setStatusMsg('');
@@ -229,9 +234,10 @@ export const ProfileEditorModal: React.FC<ProfileEditorModalProps> = ({
                     setScale(1);
                 };
             }
-        } catch (e: any) {
+        } catch (e: unknown) {
             console.error(e);
-            alert('Edit failed: ' + (e.message || 'Unknown error'));
+            const errorMessage = e instanceof Error ? e.message : 'Unknown error';
+            toast.error('Edit failed: ' + errorMessage);
         } finally {
             setIsProcessing(false);
             setStatusMsg('');
@@ -260,8 +266,16 @@ export const ProfileEditorModal: React.FC<ProfileEditorModalProps> = ({
     if (!isOpen) return null;
 
     return (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/80 backdrop-blur-md">
-            <div className="bg-zinc-900 border border-zinc-700 rounded-3xl w-full max-w-4xl max-h-[90vh] flex overflow-hidden shadow-2xl">
+        <div 
+            className="fixed inset-0 z-[100] flex items-center justify-center bg-black/80 backdrop-blur-md"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="profile-editor-title"
+        >
+            <div 
+                ref={modalRef}
+                className="bg-zinc-900 border border-zinc-700 rounded-3xl w-full max-w-4xl max-h-[90vh] flex overflow-hidden shadow-2xl"
+            >
 
                 {/* Left: Preview / Canvas */}
                 <div className="flex-1 bg-black/50 p-8 flex items-center justify-center relative">
@@ -292,7 +306,10 @@ export const ProfileEditorModal: React.FC<ProfileEditorModalProps> = ({
                 {/* Right: Controls */}
                 <div className="w-[350px] bg-zinc-900 border-l border-white/10 flex flex-col">
                     <div className="p-6 border-b border-white/10 flex justify-between items-center">
-                        <h2 className="text-white font-black text-lg uppercase tracking-wide">
+                        <h2 
+                            id="profile-editor-title"
+                            className="text-white font-black text-lg uppercase tracking-wide"
+                        >
                             Profile Perfector
                         </h2>
                         <button onClick={onClose} className="text-zinc-500 hover:text-white material-icons">close</button>

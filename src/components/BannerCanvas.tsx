@@ -1,4 +1,4 @@
-import React, { useRef, useEffect, useState, useImperativeHandle, forwardRef, memo } from 'react';
+import React, { useRef, useEffect, useState, useImperativeHandle, forwardRef, memo, useCallback } from 'react';
 import { BANNER_WIDTH, BANNER_HEIGHT } from '../constants';
 import { BannerElement } from '../types';
 
@@ -77,10 +77,32 @@ const BannerCanvasComponent = forwardRef<BannerCanvasHandle, BannerCanvasProps>(
       Record<string, { x: number; y: number; w: number; h: number; rotation: number }>
     >({});
 
+    // Image cache to prevent recreating Image objects on every render
+    const imageCache = useRef<Map<string, HTMLImageElement>>(new Map());
+
     const [dragState, setDragState] = useState<DragState | null>(null);
     const [cursor, setCursor] = useState('default');
     const [isEnhancingProfile, setIsEnhancingProfile] = useState(false);
     const [isRemovingBgProfile, setIsRemovingBgProfile] = useState(false);
+    const [renderVersion, setRenderVersion] = useState(0);
+
+    const forceUpdate = useCallback(() => setRenderVersion(v => v + 1), []);
+
+    // Helper function to get or create cached images
+    const getCachedImage = useCallback((src: string): HTMLImageElement => {
+      if (imageCache.current.has(src)) {
+        return imageCache.current.get(src)!;
+      }
+      const img = new Image();
+      img.crossOrigin = 'anonymous';
+      img.src = src;
+      img.onload = () => {
+        console.log('[BannerCanvas] Image loaded:', src.substring(0, 30));
+        forceUpdate();
+      };
+      imageCache.current.set(src, img);
+      return img;
+    }, [forceUpdate]);
 
     // Internal render function that can be called with different options
     const renderCanvas = (
@@ -100,8 +122,7 @@ const BannerCanvasComponent = forwardRef<BannerCanvasHandle, BannerCanvasProps>(
       };
 
       if (backgroundImage) {
-        const img = new Image();
-        img.src = backgroundImage;
+        const img = getCachedImage(backgroundImage);
         if (img.complete) {
           drawImageProp(ctx, img, 0, 0, BANNER_WIDTH, BANNER_HEIGHT);
           drawContent();
@@ -140,12 +161,14 @@ const BannerCanvasComponent = forwardRef<BannerCanvasHandle, BannerCanvasProps>(
       const ctx = canvas.getContext('2d');
       if (!ctx) return;
 
-      const img = new Image();
-      if (backgroundImage) img.src = backgroundImage;
-
-      // Trigger render
-      if (backgroundImage && !img.complete) {
-        img.onload = () => renderCanvas(ctx, showSafeZones, true);
+      // Use cached image for backgroundImage
+      if (backgroundImage) {
+        const img = getCachedImage(backgroundImage);
+        if (!img.complete) {
+          img.onload = () => renderCanvas(ctx, showSafeZones, true);
+        } else {
+          renderCanvas(ctx, showSafeZones, true);
+        }
       } else {
         renderCanvas(ctx, showSafeZones, true);
       }
@@ -153,7 +176,15 @@ const BannerCanvasComponent = forwardRef<BannerCanvasHandle, BannerCanvasProps>(
       document.fonts.ready.then(() => renderCanvas(ctx, showSafeZones, true));
 
       // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [backgroundImage, elements, showSafeZones, profilePic, selectedElementId]);
+    }, [backgroundImage, elements, showSafeZones, profilePic, selectedElementId, renderVersion]);
+
+    // Cleanup image cache on unmount
+    useEffect(() => {
+      const cache = imageCache.current;
+      return () => {
+        cache.clear();
+      };
+    }, []);
 
     const drawImageProp = (
       ctx: CanvasRenderingContext2D,
@@ -385,8 +416,7 @@ const BannerCanvasComponent = forwardRef<BannerCanvasHandle, BannerCanvasProps>(
           // Reset opacity
           ctx.globalAlpha = 1;
         } else {
-          const img = new Image();
-          img.src = el.content;
+          const img = getCachedImage(el.content);
           if (img.complete) {
             ctx.drawImage(img, el.x, el.y, width, height);
           } else {

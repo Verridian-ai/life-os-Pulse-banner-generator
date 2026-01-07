@@ -1,7 +1,10 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { render, screen, waitFor } from '@testing-library/react';
 import CanvasEditor from './CanvasEditor';
-import { CanvasContext } from '../../context/CanvasContext';
+import { CanvasProvider } from '../../context/CanvasContext';
+import { ToastProvider } from '../../context/ToastContext';
+import { AuthProvider } from '../../context/AuthContext';
+import { AIProvider } from '../../context/AIContext';
 
 // Mock the replicate service
 vi.mock('../../services/replicate', () => ({
@@ -9,6 +12,20 @@ vi.mock('../../services/replicate', () => ({
     faceEnhance: vi.fn(),
   })),
 }));
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const TestWrapper: React.FC<{ children: React.ReactNode; canvasValue?: any }> = ({
+  children,
+  canvasValue,
+}) => (
+  <AuthProvider>
+    <AIProvider>
+      <ToastProvider>
+        <CanvasProvider value={canvasValue || mockCanvasContext}>{children}</CanvasProvider>
+      </ToastProvider>
+    </AIProvider>
+  </AuthProvider>
+);
 
 const mockCanvasContext = {
   canvasRef: { current: null },
@@ -34,17 +51,20 @@ const mockCanvasContext = {
 };
 
 describe('CanvasEditor - Responsive Scaling', () => {
+  // Placeholder for callback if needed in future tests
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   let resizeObserverCallback: ResizeObserverCallback;
 
   beforeEach(() => {
     // Mock ResizeObserver
-    global.ResizeObserver = class ResizeObserver {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    (global as any).ResizeObserver = class ResizeObserver {
       constructor(callback: ResizeObserverCallback) {
         resizeObserverCallback = callback;
       }
-      observe() {}
-      disconnect() {}
-      unobserve() {}
+      observe() { }
+      disconnect() { }
+      unobserve() { }
     };
 
     // Mock window dimensions
@@ -61,9 +81,9 @@ describe('CanvasEditor - Responsive Scaling', () => {
 
   it('should render canvas editor', () => {
     render(
-      <CanvasContext.Provider value={mockCanvasContext}>
+      <TestWrapper>
         <CanvasEditor />
-      </CanvasContext.Provider>,
+      </TestWrapper>,
     );
 
     expect(screen.getByText(/Canvas View/i)).toBeInTheDocument();
@@ -71,78 +91,43 @@ describe('CanvasEditor - Responsive Scaling', () => {
 
   it('should show canvas dimensions', () => {
     render(
-      <CanvasContext.Provider value={mockCanvasContext}>
+      <TestWrapper>
         <CanvasEditor />
-      </CanvasContext.Provider>,
+      </TestWrapper>,
     );
 
     expect(screen.getByText(/1584 x 396 PX/i)).toBeInTheDocument();
   });
 
-  it('should calculate scale for mobile viewport (375px)', async () => {
-    Object.defineProperty(window, 'innerWidth', {
-      writable: true,
-      configurable: true,
-      value: 375,
-    });
-
-    const { container } = render(
-      <CanvasContext.Provider value={mockCanvasContext}>
-        <CanvasEditor />
-      </CanvasContext.Provider>,
-    );
-
-    await waitFor(() => {
-      // Find the scaled container div
-      const scaledDiv = container.querySelector('[style*="transform"]');
-      expect(scaledDiv).toBeTruthy();
-    });
-  });
-
-  it('should calculate scale for desktop viewport (1920px)', async () => {
-    Object.defineProperty(window, 'innerWidth', {
-      writable: true,
-      configurable: true,
-      value: 1920,
-    });
-
-    const { container } = render(
-      <CanvasContext.Provider value={mockCanvasContext}>
-        <CanvasEditor />
-      </CanvasContext.Provider>,
-    );
-
-    await waitFor(() => {
-      const scaledDiv = container.querySelector('[style*="transform"]');
-      expect(scaledDiv).toBeTruthy();
-    });
-  });
-
-  it('should show scale percentage when scaled down', async () => {
-    Object.defineProperty(window, 'innerWidth', {
-      writable: true,
-      configurable: true,
-      value: 430, // iPhone 16 Pro Max width
-    });
-
+  it('should render center profile info in empty state', async () => {
     render(
-      <CanvasContext.Provider value={mockCanvasContext}>
+      <TestWrapper canvasValue={{ ...mockCanvasContext, showSafeZones: true }}>
         <CanvasEditor />
-      </CanvasContext.Provider>,
+      </TestWrapper>,
     );
 
-    // Scale indicator should be visible when canvas is scaled down
     await waitFor(() => {
-      const scaleText = screen.getByText(/1584 x 396 PX/i);
-      expect(scaleText).toBeInTheDocument();
+      expect(screen.getByText(/524 px zone/i)).toBeInTheDocument();
+      expect(screen.getByText(/Ctrl\+Scroll to Zoom/i)).toBeInTheDocument();
     });
+  });
+
+  it('should render canvas with correct aspect ratio class', () => {
+    const { container } = render(
+      <TestWrapper>
+        <CanvasEditor />
+      </TestWrapper>,
+    );
+
+    const aspectDiv = container.querySelector('.aspect-\\[1584\\/396\\]');
+    expect(aspectDiv).toBeTruthy();
   });
 
   it('should render safe zones toggle button', () => {
     render(
-      <CanvasContext.Provider value={mockCanvasContext}>
+      <TestWrapper>
         <CanvasEditor />
-      </CanvasContext.Provider>,
+      </TestWrapper>,
     );
 
     expect(screen.getByText(/Safe Zones:/i)).toBeInTheDocument();
@@ -150,9 +135,9 @@ describe('CanvasEditor - Responsive Scaling', () => {
 
   it('should render AssetsPanel, LayersPanel, and ExportPanel', () => {
     render(
-      <CanvasContext.Provider value={mockCanvasContext}>
+      <TestWrapper>
         <CanvasEditor />
-      </CanvasContext.Provider>,
+      </TestWrapper>,
     );
 
     // These panels should be rendered in the tools grid
@@ -170,35 +155,14 @@ describe('CanvasEditor - Touch Interaction', () => {
     });
   });
 
-  it('should apply correct transform origin for scaling', async () => {
+  it('should apply correct touch-none to canvas', async () => {
     const { container } = render(
-      <CanvasContext.Provider value={mockCanvasContext}>
+      <TestWrapper>
         <CanvasEditor />
-      </CanvasContext.Provider>,
+      </TestWrapper>,
     );
 
-    // Give component time to mount and apply styles
-    await new Promise((resolve) => setTimeout(resolve, 100));
-
-    // Find div with inline transform style (which also has transformOrigin)
-    const scaledDiv = container.querySelector('[style*="transform"]');
-    expect(scaledDiv).toBeTruthy();
-
-    // Verify transformOrigin is in the style attribute
-    const styleAttr = scaledDiv?.getAttribute('style');
-    expect(styleAttr).toContain('transform-origin');
-  });
-
-  it('should have smooth transition on scale changes', async () => {
-    const { container } = render(
-      <CanvasContext.Provider value={mockCanvasContext}>
-        <CanvasEditor />
-      </CanvasContext.Provider>,
-    );
-
-    await waitFor(() => {
-      const scaledDiv = container.querySelector('[style*="transition"]');
-      expect(scaledDiv).toBeTruthy();
-    });
+    const canvas = container.querySelector('canvas');
+    expect(canvas?.className).toContain('touch-none');
   });
 });

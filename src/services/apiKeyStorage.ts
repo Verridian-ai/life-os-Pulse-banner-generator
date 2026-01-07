@@ -2,6 +2,7 @@
 // Manages secure storage and retrieval of user API keys
 
 import { api } from './api';
+import type { ApiKeysResponse, VoiceKeyResponse } from '@/types/api';
 
 export interface UserAPIKeys {
   gemini_api_key?: string; // Masked (****xxxx) - for display only
@@ -33,7 +34,7 @@ export async function getUserAPIKeys(): Promise<UserAPIKeys> {
 
   try {
     // Call the backend API to get user's API keys
-    const response = await api.get<{ apiKeys: any; hasProductKeys?: boolean }>('/api/user/api-keys');
+    const response = await api.get<{ apiKeys: ApiKeysResponse; hasProductKeys?: boolean }>('/api/user/api-keys');
 
     if (response) {
       console.log('[API Keys] ✓ Loaded keys from Neon (masked for display)');
@@ -79,7 +80,7 @@ export async function getVoiceAPIKey(): Promise<{ voiceKey: string } | { error: 
   console.log('[API Keys] getVoiceAPIKey() called');
 
   try {
-    const response = await api.get<{ voiceKey?: string; error?: string; requiresKey?: boolean }>('/api/user/voice-key');
+    const response = await api.get<VoiceKeyResponse>('/api/user/voice-key');
 
     if (response.voiceKey) {
       console.log('[API Keys] ✓ Voice key retrieved');

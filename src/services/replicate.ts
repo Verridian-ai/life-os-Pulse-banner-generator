@@ -14,7 +14,7 @@ export class ReplicateService {
     this.onProgress = onProgress;
   }
 
-  private async callEndpoint(endpoint: string, body: Record<string, any>): Promise<string> {
+  private async callEndpoint(endpoint: string, body: Record<string, unknown>): Promise<string> {
     try {
       // Simulate starting progress
       this.onProgress?.(10);
@@ -68,7 +68,7 @@ export class ReplicateService {
   /**
    * Enhance quality / Upscale (Real-ESRGAN/Upscale)
    */
-  async upscale(image: string, quality: ReplicateQuality = 'balanced', faceEnhance: boolean = false): Promise<string> {
+  async upscale(image: string, _quality: ReplicateQuality = 'balanced', faceEnhance: boolean = false): Promise<string> {
     return this.callEndpoint('upscale', {
       image,
       scale: 2, // Standard 2x for quality enhancement

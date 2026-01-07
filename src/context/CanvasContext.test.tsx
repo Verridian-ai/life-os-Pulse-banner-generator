@@ -277,8 +277,8 @@ describe('CanvasContext', () => {
       // If we get here, the test should fail
       expect(true).toBe(false);
     } catch (error: unknown) {
-      expect(error instanceof Error ? error.message : '').toContain(
-        'useCanvas must be used within CanvasProvider',
+      expect(error instanceof Error ? error.message : '').toMatch(
+        /must be used within (CanvasProvider|CanvasStateProvider)/,
       );
     } finally {
       console.error = consoleError;

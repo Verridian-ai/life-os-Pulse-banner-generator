@@ -3,15 +3,8 @@
 
 import React, { useState, useEffect, useRef } from 'react';
 import { useCanvas } from '../../context/CanvasContext';
-import { useAI } from '../../context/AIContext';
-import { getReplicateService } from '../../services/replicate';
-import { BTN_NEU_SOLID } from '../../styles';
+import { getReplicateService, ReplicateService } from '../../services/replicate';
 import { EnhanceButton } from '../ui/EnhanceButton';
-
-interface ImageToolsPanelProps {
-  // Props are now largely handled via Context, but keeping for compatibility if needed
-}
-
 
 // Helper to ensure image is a Data URI (Replicate needs URI, and relative paths fail)
 const urlToDataUri = async (url: string): Promise<string> => {
@@ -29,7 +22,7 @@ const urlToDataUri = async (url: string): Promise<string> => {
         reader.onerror = reject;
         reader.readAsDataURL(blob);
       });
-    } catch (e) {
+    } catch {
       return url; // Usage as public URL
     }
   }
@@ -50,18 +43,17 @@ const urlToDataUri = async (url: string): Promise<string> => {
   }
 };
 
-export const ImageToolsPanel: React.FC<ImageToolsPanelProps> = () => {
+export const ImageToolsPanel: React.FC = () => {
   const {
     bgImage,
     setBgImage,
     selectedElementId,
     elements,
     updateElement,
-    profilePic,
     setProfilePic,
     addToHistory,
   } = useCanvas();
-  const { setReplicateOperation } = useAI();
+  // setReplicateOperation was unused
 
   const [activeContext, setActiveContext] = useState<'banner' | 'profile' | 'layer' | null>(null);
   const [isProcessing, setIsProcessing] = useState(false);
@@ -96,7 +88,7 @@ export const ImageToolsPanel: React.FC<ImageToolsPanelProps> = () => {
   // Handle Replicate Operations
   const runOperation = async (
     name: string,
-    operationFn: (service: any) => Promise<string>,
+    operationFn: (service: ReplicateService) => Promise<string>,
     target: 'banner' | 'profile' | 'layer' = 'banner'
   ) => {
     setIsProcessing(true);
@@ -118,9 +110,10 @@ export const ImageToolsPanel: React.FC<ImageToolsPanelProps> = () => {
       }
 
       console.log(`[Replicate] ${name} Success:`, resultUrl);
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error(`[Replicate] ${name} Failed:`, err);
-      setError(err.message || 'Operation failed');
+      const errorMessage = err instanceof Error ? err.message : 'Operation failed';
+      setError(errorMessage);
     } finally {
       setIsProcessing(false);
       setProcessingLabel('');
@@ -140,6 +133,7 @@ export const ImageToolsPanel: React.FC<ImageToolsPanelProps> = () => {
     // Convert to Data URI so Replicate accepts it (handles relative paths)
     const validImage = await urlToDataUri(image);
 
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     runOperation('Enhance Quality', (s) => s.upscale(validImage, 'balanced'), target as any);
   };
 
@@ -155,6 +149,7 @@ export const ImageToolsPanel: React.FC<ImageToolsPanelProps> = () => {
     // Convert to Data URI
     const validImage = await urlToDataUri(image);
 
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     runOperation('Magic Edit', (s) => s.magicEdit(validImage, magicPrompt), target as any);
     setShowMagicInput(false);
     setMagicPrompt('');
