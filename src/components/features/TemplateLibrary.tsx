@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { BANNER_TEMPLATES, BannerTemplate } from '../../constants/templates';
 import { useCanvas } from '../../context/CanvasContext';
+import { useAI } from '../../context/AIContext';
 import { useToast } from '../../hooks/useToast';
 import { INPUT_NEU } from '../../styles';
 
@@ -10,6 +11,7 @@ interface TemplateLibraryProps {
 
 export const TemplateLibrary: React.FC<TemplateLibraryProps> = ({ onClose }) => {
   const { setBgImage, setElements, setSelectedElementId } = useCanvas();
+  const { setPrompt } = useAI();
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedIndustry, setSelectedIndustry] = useState('All');
   const toast = useToast();
@@ -17,8 +19,8 @@ export const TemplateLibrary: React.FC<TemplateLibraryProps> = ({ onClose }) => 
   const industries = ['All', ...new Set(BANNER_TEMPLATES.map(t => t.industry))];
 
   const filteredTemplates = BANNER_TEMPLATES.filter(t => {
-    const matchesSearch = t.title.toLowerCase().includes(searchQuery.toLowerCase()) || 
-                         t.description.toLowerCase().includes(searchQuery.toLowerCase());
+    const matchesSearch = t.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      t.description.toLowerCase().includes(searchQuery.toLowerCase());
     const matchesIndustry = selectedIndustry === 'All' || t.industry === selectedIndustry;
     return matchesSearch && matchesIndustry;
   });
@@ -26,17 +28,18 @@ export const TemplateLibrary: React.FC<TemplateLibraryProps> = ({ onClose }) => 
   const handleApplyTemplate = (template: BannerTemplate) => {
     // 1. Set background
     setBgImage(template.backgroundUrl);
-    
+    setPrompt(template.prompt); // Set the prompt for regeneration capability
+
 
     const elements = template.elements.map((el, i) => ({
       ...el,
       id: `template-${template.id}-${i}-${Date.now()}`,
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
     })) as any;
-    
+
     setElements(elements);
     setSelectedElementId(null);
-    
+
     toast.success(`Applied ${template.title} template`);
     if (onClose) onClose();
   };
@@ -78,9 +81,8 @@ export const TemplateLibrary: React.FC<TemplateLibraryProps> = ({ onClose }) => 
               <button
                 key={ind}
                 onClick={() => setSelectedIndustry(ind)}
-                className={`px-4 py-2 rounded-full text-xs font-bold uppercase tracking-wider whitespace-nowrap transition ${
-                  selectedIndustry === ind ? 'bg-blue-600 text-white' : 'bg-zinc-800 text-zinc-500 hover:text-zinc-300'
-                }`}
+                className={`px-4 py-2 rounded-full text-xs font-bold uppercase tracking-wider whitespace-nowrap transition ${selectedIndustry === ind ? 'bg-blue-600 text-white' : 'bg-zinc-800 text-zinc-500 hover:text-zinc-300'
+                  }`}
               >
                 {ind}
               </button>
@@ -93,14 +95,14 @@ export const TemplateLibrary: React.FC<TemplateLibraryProps> = ({ onClose }) => 
       <div className='flex-1 overflow-y-auto p-6'>
         <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 pb-10'>
           {filteredTemplates.map(template => (
-            <div 
+            <div
               key={template.id}
               className='group bg-zinc-950/50 border border-white/5 hover:border-blue-500/30 rounded-2xl overflow-hidden transition-all duration-300 cursor-pointer flex flex-col'
               onClick={() => handleApplyTemplate(template)}
             >
               <div className='aspect-video w-full relative overflow-hidden bg-zinc-900'>
-                <img 
-                  src={template.thumbnailUrl} 
+                <img
+                  src={template.thumbnailUrl}
                   alt={template.title}
                   className='w-full h-full object-cover group-hover:scale-105 transition-transform duration-500'
                 />

@@ -115,6 +115,22 @@ const AppContent = () => {
 
   // Generation States
   const [genPrompt, setGenPrompt] = useState('');
+  const { prompt: contextPrompt, setPrompt: setContextPrompt } = useAI();
+
+  // Sync prompt from AIContext (e.g. from TemplateLibrary) to local state
+  useEffect(() => {
+    if (contextPrompt && contextPrompt !== genPrompt) {
+      setGenPrompt(contextPrompt);
+    }
+  }, [contextPrompt, genPrompt]);
+
+  // Sync local prompt to AIContext
+  useEffect(() => {
+    if (genPrompt && genPrompt !== contextPrompt) {
+      setContextPrompt(genPrompt);
+    }
+  }, [genPrompt, contextPrompt, setContextPrompt]);
+
   const [genSize, setGenSize] = useState<'1K' | '2K' | '4K'>('1K');
   const [isGenerating, setIsGenerating] = useState(false); // Used in handleGenerate
   const [isMagicPrompting, setIsMagicPrompting] = useState(false);

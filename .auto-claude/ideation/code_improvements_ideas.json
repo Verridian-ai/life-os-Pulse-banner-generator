@@ -3,112 +3,72 @@
     {
       "id": "ci-001",
       "type": "code_improvements",
-      "title": "Add Canvas State Snapshot Persistence",
-      "description": "Create a useCanvasSnapshots hook that extends the existing HistoryContext to support named snapshots with persistence across sessions. Users can save, name, and restore specific canvas states. Builds on the usePromptHistory pattern for CRUD operations with favorites and search.",
-      "rationale": "The usePromptHistory hook (src/hooks/usePromptHistory.ts) already establishes the pattern: PromptRecord interface, StorageManager backing, favorites, timestamps, search. The HistoryContext exists for in-session undo/redo but lacks persistence. Combining these patterns enables a complete design versioning system.",
-      "builds_upon": ["usePromptHistory hook pattern", "StorageManager promptHistoryStorage instance", "HistoryContext undo/redo", "CanvasStateContext state structure"],
-      "estimated_effort": "medium",
-      "affected_files": [
-        "src/hooks/useCanvasSnapshots.ts (new)",
-        "src/services/storageManager.ts",
-        "src/context/canvas/HistoryContext.tsx",
-        "src/components/features/CanvasEditor.tsx"
-      ],
-      "existing_patterns": [
-        "usePromptHistory: PromptRecord with id, isFavorite, useCount, timestamps",
-        "promptHistoryStorage: permanent namespace storage",
-        "searchPrompts: text search across records",
-        "toggleFavorite/deletePrompt CRUD operations"
-      ],
-      "implementation_approach": "1. Add canvasSnapshotsStorage instance to storageManager.ts. 2. Create SnapshotRecord interface following PromptRecord: id, name, thumbnail, canvasState (JSON), isFavorite, createdAt. 3. Create useCanvasSnapshots hook with addSnapshot, restoreSnapshot, renameSnapshot, deleteSnapshot, toggleFavorite, searchSnapshots. 4. Integrate with CanvasEditor for save/restore buttons.",
+      "title": "Add AI Cache Analytics Hook",
+      "description": "Create a useAICacheMetrics hook that exposes AI cache statistics including hit rate, miss rate, fuzzy match rate, and total cached prompts. This enables users to understand cache effectiveness and optimize their prompt usage patterns.",
+      "rationale": "The codebase has established metrics hook patterns (useModelMetrics, useErrorMetrics) that aggregate localStorage data and expose stats via useMemo. The aiCache service already tracks exact and fuzzy matches but lacks a corresponding analytics hook to surface this data to users.",
+      "builds_upon": ["useModelMetrics hook", "useErrorMetrics hook", "aiCache service", "StorageManager pattern"],
+      "estimated_effort": "trivial",
+      "affected_files": ["src/hooks/useAICacheMetrics.ts", "src/services/aiCache.ts", "src/services/storageManager.ts"],
+      "existing_patterns": ["useModelMetrics aggregation pattern", "window.dispatchEvent for hook updates", "useMemo for stats computation"],
+      "implementation_approach": "1. Add cache hit/miss tracking to aiCache.get() and getSimilar() methods by storing access records. 2. Dispatch 'ai-cache-access' event on each access. 3. Create useAICacheMetrics hook following useModelMetrics structure with stats like hitRate, missRate, fuzzyHitRate, totalCached, cacheUsageBytes. 4. Wire to PerformanceMetricsPanel for display.",
       "status": "draft",
-      "created_at": "2026-01-08T04:40:00.000Z"
+      "created_at": "2026-01-08T07:15:00.000Z"
     },
     {
       "id": "ci-002",
       "type": "code_improvements",
-      "title": "Extend Canvas Commands with Batch Element Operations",
-      "description": "Add BatchDeleteElements, BatchUpdateElements, and BatchMoveElements commands following the established batch command pattern from imageCommands.ts. Enables bulk operations on multiple canvas elements via voice or UI.",
-      "rationale": "BatchUpscaleCommand and BatchRemoveBackgroundCommand in imageCommands.ts demonstrate the batch pattern: iterate over items, collect results/errors, handle partial failures gracefully. Canvas commands only have single-element operations. The Command interface and ToolSchemas registry support this extension.",
-      "builds_upon": ["BatchUpscaleCommand pattern", "Canvas Command classes (DeleteElementCommand, UpdateElementCommand)", "ToolSchemas z.array() patterns"],
+      "title": "Extend Error Handler for AI Provider-Specific Errors",
+      "description": "Enhance the error classification system to recognize and provide user-friendly messages for AI provider-specific errors including Gemini quota exceeded, Replicate model cold start/warming, OpenRouter credit exhaustion, and API-specific rate limits.",
+      "rationale": "The errorHandler.ts already classifies generic network errors (timeout, CORS, 429 rate limit) but doesn't distinguish between AI providers. Since the app uses Gemini, OpenRouter, and Replicate, provider-specific error messages would help users troubleshoot issues faster.",
+      "builds_upon": ["classifyError() function", "NetworkError interface", "Error tracking pattern"],
       "estimated_effort": "small",
-      "affected_files": [
-        "src/services/commands/canvasCommands.ts",
-        "src/services/validationSchemas.ts",
-        "src/services/actionExecutor.ts"
-      ],
-      "existing_patterns": [
-        "BatchUpscaleCommand: for-loop with try-catch per item, results[] and errors[] collection",
-        "BatchRemoveBackgroundSchema: z.object({ image_urls: z.array(z.string()) })",
-        "DeleteElementCommand.execute: single element deletion with context.canvasCallbacks"
-      ],
-      "implementation_approach": "1. Add BatchDeleteElementsSchema, BatchUpdateElementsSchema to validationSchemas.ts: z.object({ element_ids: z.array(z.string()) }). 2. Create BatchDeleteElementsCommand following BatchUpscaleCommand structure. 3. Create BatchUpdateElementsCommand for bulk property changes. 4. Register in ToolSchemas and ensure actionExecutor routes correctly.",
+      "affected_files": ["src/utils/errorHandler.ts", "src/services/gemini.ts", "src/services/openrouter.ts", "src/services/replicate.ts"],
+      "existing_patterns": ["Error classification with message.includes() checks", "NetworkError type with retryable flag", "Provider-specific error handling in service files"],
+      "implementation_approach": "1. Add new error types to NetworkError.type union: 'gemini_quota' | 'replicate_warmup' | 'openrouter_credits'. 2. Extend classifyError() with provider-specific message patterns (e.g., 'billing not enabled', 'model is warming up', 'insufficient credits'). 3. Update user-friendly messages with actionable guidance. 4. Consider adding provider detection from error response headers/body.",
       "status": "draft",
-      "created_at": "2026-01-08T04:40:00.000Z"
+      "created_at": "2026-01-08T07:15:00.000Z"
     },
     {
       "id": "ci-003",
       "type": "code_improvements",
-      "title": "Add Error Recovery Suggestions Hook",
-      "description": "Create a useErrorRecovery hook that provides actionable recovery suggestions based on the existing error classification system. Maps error types (network, cors, timeout, api, etc.) to specific user actions (retry, check API key, wait for rate limit).",
-      "rationale": "The errorHandler.ts already classifies errors into structured NetworkError types with retryable flags and dispatches 'error-tracked' CustomEvents. The withRetry function handles automatic retries. This infrastructure enables a user-facing recovery suggestion system without new error handling logic.",
-      "builds_upon": ["classifyError function", "NetworkError type with type/retryable fields", "error-tracked CustomEvent pattern", "withRetry function"],
+      "title": "Add Snapshot Favorites and Search",
+      "description": "Extend useCanvasSnapshots hook with favorites toggle and search functionality, following the established usePromptHistory pattern. This allows users to mark important snapshots and quickly find them by name.",
+      "rationale": "usePromptHistory has a mature pattern with toggleFavorite(), searchPrompts(), and getFavoritePrompts() methods. useCanvasSnapshots currently only supports CRUD operations without favorites or search, despite having a similar data structure (records with id, name, timestamps).",
+      "builds_upon": ["useCanvasSnapshots hook", "usePromptHistory favorites/search pattern", "snapshotStorage"],
       "estimated_effort": "small",
-      "affected_files": [
-        "src/hooks/useErrorRecovery.ts (new)",
-        "src/utils/errorHandler.ts",
-        "src/components/ui/Toast.tsx"
-      ],
-      "existing_patterns": [
-        "classifyError: returns { type: 'network'|'cors'|'timeout'|'api', retryable: boolean, message: string }",
-        "window.dispatchEvent(new CustomEvent('error-tracked', { detail: classified }))",
-        "useErrorMetrics: listens to events, aggregates metrics"
-      ],
-      "implementation_approach": "1. Create RECOVERY_SUGGESTIONS map: { network: 'Check internet connection', api: 'Verify API key in Settings', timeout: 'Try again - server was slow', cors: 'This operation not supported' }. 2. Create useErrorRecovery hook listening to 'error-tracked' events. 3. Return { lastError, suggestions, canRetry, retryAction }. 4. Integrate with Toast for actionable error messages.",
+      "affected_files": ["src/hooks/useCanvasSnapshots.ts", "src/components/features/SnapshotsModal.tsx"],
+      "existing_patterns": ["toggleFavorite pattern from usePromptHistory", "searchPrompts with toLowerCase().includes()", "getFavoriteSnapshots sorting pattern"],
+      "implementation_approach": "1. Add isFavorite field to SnapshotRecord interface. 2. Implement toggleFavorite(id) following usePromptHistory pattern. 3. Add searchSnapshots(query) that searches name field. 4. Add getFavoriteSnapshots() sorted by updatedAt. 5. Update SnapshotsModal UI with star icon for favorites and search input.",
       "status": "draft",
-      "created_at": "2026-01-08T04:40:00.000Z"
+      "created_at": "2026-01-08T07:15:00.000Z"
     },
     {
       "id": "ci-004",
       "type": "code_improvements",
-      "title": "Add Layout Expert Agent to Registry",
-      "description": "Add a 'Layout Expert' specialized agent to AGENT_REGISTRY for banner composition, element positioning, safe zones, and visual hierarchy. Uses the existing AgentDefinition interface with appropriate keywords for automatic routing.",
-      "rationale": "The agentRegistry.ts has 4 well-established agents (Benno, Art Director, Copy Specialist, Tech Wizard) following AgentDefinition interface. The getAgentSuggestions function handles new agents automatically via keyword matching - no routing changes needed. Layout/positioning expertise is missing from current agents.",
-      "builds_upon": ["AgentDefinition interface", "AGENT_REGISTRY array", "getAgentSuggestions keyword-based routing"],
-      "estimated_effort": "trivial",
-      "affected_files": [
-        "src/services/agentRegistry.ts"
-      ],
-      "existing_patterns": [
-        "AgentDefinition: { id, name, description, capabilities, systemPrompt, keywords, icon }",
-        "Art Director agent structure: keywords array, capabilities array",
-        "Keyword scoring in getAgentSuggestions: score += 0.3 per keyword match"
-      ],
-      "implementation_approach": "1. Add new AgentDefinition object to AGENT_REGISTRY. 2. Set id: 'layout-expert', name: 'Layout Expert'. 3. Keywords: ['layout', 'position', 'center', 'align', 'space', 'safe zone', 'composition', 'hierarchy', 'arrange', 'grid']. 4. Capabilities: ['list_elements', 'update_element', 'analyze_banner']. 5. SystemPrompt focused on LinkedIn safe zones, visual hierarchy, element spacing.",
+      "title": "Add Compare Models Voice Command",
+      "description": "Expose the existing compareModelPerformance() function as a voice command that allows users to verbally request model comparisons and receive spoken recommendations based on speed, quality, or cost criteria.",
+      "rationale": "The modelRouter.ts already implements sophisticated model comparison with compareModelPerformance() that ranks models by criteria. The Command pattern in services/commands/ enables adding new voice commands. Currently no voice command surfaces this capability despite it being useful for hands-free workflow optimization.",
+      "builds_upon": ["compareModelPerformance() function", "Command interface pattern", "analysisCommands.ts structure"],
+      "estimated_effort": "medium",
+      "affected_files": ["src/services/commands/analysisCommands.ts", "src/services/actionExecutor.ts", "src/services/modelRouter.ts"],
+      "existing_patterns": ["Command class with name and execute(args, context)", "ActionResult return format", "Voice command tool definitions in actionExecutor"],
+      "implementation_approach": "1. Create CompareModelsCommand class implementing Command interface. 2. Accept args: { capability: string, criteria: 'speed'|'quality'|'cost'|'balanced' }. 3. Call filterModelsByCapability() then compareModelPerformance(). 4. Return formatted result string listing top 3 models with scores and reasons. 5. Register command in actionExecutor AVAILABLE_TOOLS. 6. Add voice tool definition for OpenAI Realtime API.",
       "status": "draft",
-      "created_at": "2026-01-08T04:40:00.000Z"
+      "created_at": "2026-01-08T07:15:00.000Z"
     },
     {
       "id": "ci-005",
       "type": "code_improvements",
-      "title": "Add Model Performance Comparison Utility",
-      "description": "Create a compareModelPerformance utility that combines MODEL_METADATA_REGISTRY theoretical scores with useModelMetrics actual usage data to rank and recommend models. Enables data-driven model selection that improves with usage.",
-      "rationale": "MODEL_METADATA_REGISTRY (modelRouter.ts) has qualityScore, avgResponseTime, costPerCall for each model. useModelMetrics aggregates actual stats.byModel with calls, avgTime, successRate. These exist independently - combining them enables intelligent recommendations based on real performance.",
-      "builds_upon": ["MODEL_METADATA_REGISTRY", "useModelMetrics stats.byModel", "filterModelsByCapability function", "modelMetricsStorage"],
-      "estimated_effort": "small",
-      "affected_files": [
-        "src/services/modelRouter.ts",
-        "src/hooks/useModelMetrics.ts",
-        "src/components/features/ModelSelector.tsx"
-      ],
-      "existing_patterns": [
-        "MODEL_METADATA_REGISTRY[modelId]: { qualityScore, avgResponseTime, costPerCall, capabilities }",
-        "stats.byModel[modelId]: { calls, avgTime, successRate, errors, totalCost }",
-        "getModelMetadataById: memoized lookup for model metadata"
-      ],
-      "implementation_approach": "1. Add getModelRecommendations(operation: OperationType) to modelRouter.ts. 2. Fetch theoretical scores from REGISTRY and actual stats from modelMetricsStorage. 3. Compute weighted score: 40% actual successRate (if data exists), 30% response time, 20% qualityScore, 10% cost efficiency. 4. Return sorted array of { modelId, score, hasUsageData }. 5. Optionally show 'Recommended' badge in ModelSelector based on this ranking.",
+      "title": "Add Storage Usage Dashboard Component",
+      "description": "Create a StorageUsagePanel component that visualizes localStorage usage across all StorageManager namespaces, showing per-namespace usage, total usage, and quota remaining with a progress bar.",
+      "rationale": "StorageManager.getUsage() already returns character count per namespace, and the codebase has 7 storage namespaces (aiCache, errorMetrics, modelPreferences, modelMetrics, onboarding, promptHistory, snapshots). No UI currently exposes this to users, but storage quota is a real concern especially with canvas snapshots storing base64 images.",
+      "builds_upon": ["StorageManager.getUsage() method", "StorageManager instances (aiCacheStorage, snapshotStorage, etc.)", "SettingsModal component structure"],
+      "estimated_effort": "medium",
+      "affected_files": ["src/services/storageManager.ts", "src/components/features/SettingsModal.tsx", "src/components/features/StorageUsagePanel.tsx"],
+      "existing_patterns": ["Panel component structure in features/", "Progress bar styling from existing UI components", "StorageManager namespace organization"],
+      "implementation_approach": "1. Export a getGlobalStorageStats() function from storageManager.ts that iterates all namespace instances and calls getUsage(). 2. Create StorageUsagePanel.tsx component with progress bars per namespace. 3. Show total usage vs estimated quota (5MB typical). 4. Add clear buttons per namespace calling storage.clear(). 5. Integrate into SettingsModal under a 'Storage' tab or accordion section.",
       "status": "draft",
-      "created_at": "2026-01-08T04:40:00.000Z"
+      "created_at": "2026-01-08T07:15:00.000Z"
     }
   ]
 }

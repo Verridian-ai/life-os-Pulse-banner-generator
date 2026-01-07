@@ -222,6 +222,7 @@ export class LockElementCommand implements Command {
   }
 }
 
+
 export class GroupElementsCommand implements Command {
   name = 'group_elements';
   execute(_args: { element_ids: string[] }, _context: CommandContext): ActionResult {
@@ -229,3 +230,118 @@ export class GroupElementsCommand implements Command {
     return { success: false, error: 'Grouping not implemented' };
   }
 }
+
+export class BatchDeleteElementsCommand implements Command {
+  name = 'batch_delete_elements';
+
+  execute(args: { element_ids: string[] }, context: CommandContext): ActionResult {
+    const { element_ids } = args;
+    console.log(`[BatchDelete] Deleting ${element_ids.length} elements`);
+
+    if (!context.canvasCallbacks.deleteElement) {
+      return { success: false, error: 'Canvas not connected' };
+    }
+
+    let successCount = 0;
+    const errors: string[] = [];
+
+    element_ids.forEach(id => {
+      try {
+        context.canvasCallbacks.deleteElement!(id);
+        successCount++;
+      } catch (err) {
+        errors.push(`Failed to delete ${id}`);
+      }
+    });
+
+    if (successCount === 0 && errors.length > 0) {
+      return { success: false, error: `Batch delete failed. ${errors.join(', ')}` };
+    }
+
+    return {
+      success: true,
+      result: `Deleted ${successCount} elements.`,
+      action: 'batch_delete_elements'
+    };
+  }
+}
+
+export class BatchUpdateElementsCommand implements Command {
+  name = 'batch_update_elements';
+
+  execute(args: { element_ids: string[]; properties: Partial<BannerElement> }, context: CommandContext): ActionResult {
+    const { element_ids, properties } = args;
+    console.log(`[BatchUpdate] Updating ${element_ids.length} elements with`, properties);
+
+    if (!context.canvasCallbacks.updateElement) {
+      return { success: false, error: 'Canvas not connected' };
+    }
+
+    let successCount = 0;
+    const errors: string[] = [];
+
+    element_ids.forEach(id => {
+      try {
+        context.canvasCallbacks.updateElement!(id, properties);
+        successCount++;
+      } catch (err) {
+        errors.push(`Failed to update ${id}`);
+      }
+    });
+
+    if (successCount === 0 && errors.length > 0) {
+      return { success: false, error: `Batch update failed. ${errors.join(', ')}` };
+    }
+
+    return {
+      success: true,
+      result: `Updated ${successCount} elements.`,
+      action: 'batch_update_elements'
+    };
+  }
+}
+
+export class BatchMoveElementsCommand implements Command {
+  name = 'batch_move_elements';
+
+  execute(args: { element_ids: string[]; dx: number; dy: number }, context: CommandContext): ActionResult {
+    const { element_ids, dx, dy } = args;
+
+    if (!context.canvasCallbacks.getElements || !context.canvasCallbacks.updateElement) {
+      return { success: false, error: 'Canvas connection invalid' };
+    }
+
+    const elements = context.canvasCallbacks.getElements();
+    let successCount = 0;
+    const errors: string[] = [];
+
+    element_ids.forEach(id => {
+      const el = elements.find(e => e.id === id);
+      if (!el) {
+        errors.push(`Element ${id} not found`);
+        return;
+      }
+
+      try {
+        context.canvasCallbacks.updateElement!(id, {
+          x: el.x + dx,
+          y: el.y + dy
+        });
+        successCount++;
+      } catch (err) {
+        errors.push(`Failed to move ${id}`);
+      }
+    });
+
+    if (successCount === 0 && errors.length > 0) {
+      return { success: false, error: `Batch move failed: ${errors.join(', ')}` };
+    }
+
+    return {
+      success: true,
+      result: `Moved ${successCount} elements by (${dx}, ${dy}).`,
+      action: 'batch_move_elements'
+    };
+  }
+}
+

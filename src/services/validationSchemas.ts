@@ -101,6 +101,22 @@ export const BatchRemoveBackgroundSchema = z.object({
     image_urls: z.array(z.string()),
 });
 
+
+export const BatchDeleteElementsSchema = z.object({
+    element_ids: z.array(z.string()),
+});
+
+export const BatchUpdateElementsSchema = z.object({
+    element_ids: z.array(z.string()),
+    properties: z.record(z.string(), z.unknown()),
+});
+
+export const BatchMoveElementsSchema = z.object({
+    element_ids: z.array(z.string()),
+    dx: z.number(),
+    dy: z.number(),
+});
+
 export const ToolSchemas: Record<string, z.ZodType<unknown>> = {
     write_enhanced_prompt: WriteEnhancedPromptSchema,
     generate_background: GenerateBackgroundSchema,
@@ -126,4 +142,8 @@ export const ToolSchemas: Record<string, z.ZodType<unknown>> = {
     duplicate_element: DuplicateElementSchema,
     lock_element: LockElementSchema,
     group_elements: GroupElementsSchema,
+    batch_delete_elements: BatchDeleteElementsSchema,
+    batch_update_elements: BatchUpdateElementsSchema,
+    batch_move_elements: BatchMoveElementsSchema,
 };
+

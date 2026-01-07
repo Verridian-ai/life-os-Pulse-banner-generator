@@ -3,158 +3,166 @@
     {
       "id": "sec-001",
       "type": "security_hardening",
-      "title": "Proxy Voice WebSocket Connections Through Server to Protect API Keys",
-      "description": "The OpenAI Realtime API key is retrieved via `/api/user/voice-key` endpoint and sent to the client. The client uses this key directly in WebSocket subprotocol headers (`openai-insecure-api-key.${this.apiKey}`) in `openaiRealtimeClient.ts` line 337-341. This exposes the actual API key in browser developer tools, network inspection, and client-side JavaScript memory.",
-      "rationale": "Exposing API keys to the client-side is a critical security flaw. The key can be stolen via browser extensions, XSS attacks, man-in-the-middle proxies, or simply by users inspecting network traffic. A compromised OpenAI key could result in significant financial costs (voice API pricing) and abuse. The key is literally named 'insecure-api-key' in the WebSocket protocol.",
-      "category": "secrets_management",
-      "severity": "critical",
-      "affectedFiles": [
-        "src/services/openaiRealtimeClient.ts",
-        "src/services/apiKeyStorage.ts",
-        "server/src/routes/user.ts"
-      ],
-      "vulnerability": "CWE-200: Exposure of Sensitive Information to an Unauthorized Actor",
-      "currentRisk": "OpenAI API keys are fully exposed to client browsers, enabling unauthorized API usage, potential financial abuse, and key theft",
-      "remediation": "Implement a server-side WebSocket proxy that maintains the OpenAI Realtime connection on the backend. Architecture: Client ↔ Your Server (WebSocket) ↔ OpenAI (WebSocket with API key). The client connects to your server which relays audio bidirectionally. This keeps the API key entirely server-side. Consider using a Node.js WebSocket library (ws) to proxy connections.",
-      "references": [
-        "https://owasp.org/www-community/vulnerabilities/Improper_key_management",
-        "https://platform.openai.com/docs/guides/realtime",
-        "https://cwe.mitre.org/data/definitions/200.html"
-      ],
-      "compliance": ["SOC2", "PCI-DSS"]
-    },
-    {
-      "id": "sec-002",
-      "type": "security_hardening",
-      "title": "Implement Server-Side Password Strength Validation",
-      "description": "The signup endpoint in `server/src/routes/auth.ts` (line 17-21) only validates that password is a non-empty string (`!password || typeof password !== 'string'`). There are no password complexity requirements enforced, allowing users to register with trivially weak passwords like '1', 'a', or 'password'.",
-      "rationale": "Weak passwords are a primary attack vector even with rate limiting and account lockout in place. Users often reuse passwords across services, and weak passwords can be compromised through offline dictionary attacks if the database is ever breached. The existing Argon2 hashing protects against rainbow tables but not against dictionary attacks on weak passwords.",
-      "category": "authentication",
-      "severity": "high",
-      "affectedFiles": [
-        "server/src/routes/auth.ts"
-      ],
-      "vulnerability": "CWE-521: Weak Password Requirements",
-      "currentRisk": "Users can set trivially weak passwords (e.g., '1', 'password123'), making accounts vulnerable to credential stuffing even with account lockout protection",
-      "remediation": "Add server-side password validation middleware requiring: minimum 8 characters, at least one uppercase letter, one lowercase letter, one number. Consider checking against Have I Been Pwned API for breached passwords. Example validation: `if (password.length < 8 || !/[A-Z]/.test(password) || !/[a-z]/.test(password) || !/[0-9]/.test(password)) return error;`",
-      "references": [
-        "https://cheatsheetseries.owasp.org/cheatsheets/Authentication_Cheat_Sheet.html#implement-proper-password-strength-controls",
-        "https://pages.nist.gov/800-63-3/sp800-63b.html#memsecret"
-      ],
-      "compliance": ["SOC2", "NIST 800-63B"]
-    },
-    {
-      "id": "sec-003",
-      "type": "security_hardening",
-      "title": "Add Input Length Limits and Sanitization for AI Prompts",
-      "description": "AI endpoints in `server/src/routes/ai.ts` accept user prompts without enforcing maximum length limits or sanitization. The `/api/ai/chat`, `/api/ai/image/generate`, and `/api/ai/image/edit` routes pass prompts directly to external APIs. Only `/api/ai/prompt/enhance` has basic string validation (`typeof prompt !== 'string'`).",
-      "rationale": "Without input validation, malicious users could: 1) Submit extremely long prompts (megabytes) causing excessive API costs and timeouts, 2) Attempt prompt injection attacks to manipulate AI behavior or extract system prompts, 3) Abuse the service for generating harmful content via carefully crafted prompts.",
+      "title": "Add SSRF Protection for External Image URL Processing",
+      "description": "Multiple AI routes (/image/edit, /image/remove-bg, /image/upscale, /image/outpaint, /image/restore) accept user-provided image URLs and pass them directly to external APIs (Replicate, OpenRouter) without URL validation. The ensureDataUri helper only checks if URLs start with 'http' or 'data:'. An attacker could provide internal URLs (e.g., http://localhost, http://169.254.169.254 for cloud metadata) to perform Server-Side Request Forgery attacks.",
+      "rationale": "SSRF vulnerabilities can expose internal services, cloud metadata endpoints (AWS/GCP credentials), and internal network resources. The AI proxy nature of the application makes this especially critical as it forwards requests to external services with server-side credentials.",
       "category": "input_validation",
-      "severity": "medium",
+      "severity": "high",
       "affectedFiles": [
         "server/src/routes/ai.ts",
         "server/src/routes/replicate.ts"
       ],
-      "vulnerability": "CWE-400: Uncontrolled Resource Consumption / CWE-74: Prompt Injection",
-      "currentRisk": "Resource exhaustion from oversized prompts, potential prompt injection attacks, excessive API costs from abuse",
-      "remediation": "1. Add maximum length validation for all prompts (e.g., 10,000 characters). 2. Implement a prompt validation middleware that runs before AI routes. 3. Log and monitor for suspicious patterns like 'ignore previous instructions', 'you are now', or system prompt extraction attempts. 4. Consider implementing semantic content filtering for generated outputs.",
+      "vulnerability": "CWE-918: Server-Side Request Forgery (SSRF)",
+      "currentRisk": "Attacker can access internal services or cloud metadata endpoints by providing malicious URLs in image processing requests",
+      "remediation": "Implement a URL validation middleware that: 1) Only allows HTTPS URLs, 2) Blocks private IP ranges (10.x.x.x, 172.16-31.x.x, 192.168.x.x, localhost, 127.x.x.x), 3) Blocks cloud metadata endpoints (169.254.169.254), 4) Optionally maintains an allowlist of trusted image domains (replicate.delivery, googleusercontent.com, etc.)",
       "references": [
-        "https://simonwillison.net/2022/Sep/12/prompt-injection/",
-        "https://owasp.org/www-project-web-security-testing-guide/latest/4-Web_Application_Security_Testing/07-Input_Validation_Testing/"
+        "https://owasp.org/www-community/attacks/Server_Side_Request_Forgery",
+        "https://cwe.mitre.org/data/definitions/918.html"
       ],
-      "compliance": ["SOC2"]
+      "compliance": ["SOC2", "OWASP Top 10"]
+    },
+    {
+      "id": "sec-002",
+      "type": "security_hardening",
+      "title": "Implement Email Verification Enforcement Before Full Access",
+      "description": "The authentication system sends verification emails but does not enforce verification before allowing full application access. Users can sign up with fake emails and immediately access all features including AI generation. The code contains a TODO note acknowledging this gap: 'TODO: Add email_verified boolean to users schema if strictly required.' (auth.ts line 239-241)",
+      "rationale": "Without email verification enforcement, attackers can create unlimited accounts with fake emails for abuse (spam, quota exhaustion, ban evasion). This also affects compliance requirements that mandate verified contact information.",
+      "category": "authentication",
+      "severity": "medium",
+      "affectedFiles": [
+        "server/src/routes/auth.ts",
+        "server/src/db/schema.ts"
+      ],
+      "vulnerability": "CWE-287: Improper Authentication",
+      "currentRisk": "Users can access all application features without proving email ownership, enabling spam accounts, quota abuse, and ban evasion",
+      "remediation": "1) Add 'emailVerified' boolean column to users table with default false, 2) Update signup to set emailVerified=false, 3) Update verify-email endpoint to set emailVerified=true, 4) Add middleware that restricts AI/storage features to verified users, 5) Show verification reminder banner for unverified users",
+      "references": [
+        "https://cheatsheetseries.owasp.org/cheatsheets/Authentication_Cheat_Sheet.html",
+        "https://cwe.mitre.org/data/definitions/287.html"
+      ],
+      "compliance": ["SOC2", "GDPR"]
+    },
+    {
+      "id": "sec-003",
+      "type": "security_hardening",
+      "title": "Add Session Regeneration After Authentication",
+      "description": "The current login flow creates a new session (auth.ts line 168: 'lucia.createSession(user.id, {})') but does not explicitly invalidate any pre-existing session from the same request. If an attacker can set a session cookie before login (via XSS or other means), they could potentially exploit session fixation.",
+      "rationale": "Session fixation is a well-known attack where attackers force victims to use a known session ID. While the Lucia auth library provides good defaults and the CSRF middleware helps, explicitly invalidating old sessions on login adds defense in depth.",
+      "category": "authentication",
+      "severity": "medium",
+      "affectedFiles": [
+        "server/src/routes/auth.ts",
+        "server/src/lib/auth.ts"
+      ],
+      "vulnerability": "CWE-384: Session Fixation",
+      "currentRisk": "Potential session hijacking if attacker can pre-set session cookies before user authentication",
+      "remediation": "Before creating a new session on login, check for and invalidate any existing session for the current request: 1) Read existing sessionId from cookie, 2) If exists, call lucia.invalidateSession(existingSessionId), 3) Then proceed with lucia.createSession(). This ensures any pre-set session is destroyed.",
+      "references": [
+        "https://owasp.org/www-community/attacks/Session_fixation",
+        "https://cwe.mitre.org/data/definitions/384.html"
+      ],
+      "compliance": ["SOC2", "OWASP Top 10"]
     },
     {
       "id": "sec-004",
       "type": "security_hardening",
-      "title": "Enable Content Safety Filters on Generate-Layer Endpoint",
-      "description": "In `server/src/routes/replicate.ts` line 342, the generate-layer endpoint has `disable_safety_checker: true` hard-coded, explicitly bypassing Replicate's content moderation. This is the only endpoint where safety is explicitly disabled - other endpoints have it enabled or use defaults.",
-      "rationale": "Disabling content safety filters specifically for the generate-layer endpoint creates an attack vector for generating inappropriate content. While other endpoints have safety enabled, users could target this specific endpoint to bypass moderation. This could expose the platform to legal liability and Replicate ToS violations.",
-      "category": "configuration",
-      "severity": "medium",
+      "title": "Remove Sensitive Debug Logging from Production Code",
+      "description": "Several files contain console.log statements that could leak sensitive information in production logs: server/check_token.ts logs verification tokens (line 13), server/probe_replicate.ts logs API key existence and length (lines 5-6), vite.config.ts logs token presence details (lines 31, 37, 41). While not logging full secrets, this metadata aids reconnaissance.",
+      "rationale": "Debug logging that references tokens, keys, or authentication data—even indirectly—provides information to attackers about what secrets exist and how they're used. In shared log aggregators (Datadog, CloudWatch), this data could be exposed to unauthorized parties.",
+      "category": "data_protection",
+      "severity": "low",
       "affectedFiles": [
-        "server/src/routes/replicate.ts"
+        "server/check_token.ts",
+        "server/probe_replicate.ts",
+        "vite.config.ts"
       ],
-      "vulnerability": "CWE-1188: Insecure Default Initialization of Resource",
-      "currentRisk": "The generate-layer endpoint bypasses content moderation, enabling generation of potentially harmful or policy-violating images",
-      "remediation": "Remove `disable_safety_checker: true` from line 342 in replicate.ts. The default Replicate behavior with safety enabled should be sufficient for professional use cases. If there's a legitimate need for unfiltered generation, make it a server-controlled configuration with audit logging, not hard-coded.",
+      "vulnerability": "CWE-532: Insertion of Sensitive Information into Log File",
+      "currentRisk": "Log aggregation systems may expose API key metadata and token information to unauthorized parties",
+      "remediation": "1) Remove or gate debug logging behind NODE_ENV !== 'production', 2) Delete probe_*.ts files if they're only for debugging, 3) Replace direct token/key logging with boolean checks only (e.g., 'Has token: true'), 4) Add structured logging that explicitly excludes sensitive fields",
       "references": [
-        "https://replicate.com/docs/topics/safety"
+        "https://owasp.org/www-community/vulnerabilities/Information_exposure_through_log_files",
+        "https://cwe.mitre.org/data/definitions/532.html"
       ],
-      "compliance": ["Platform ToS", "Content Policy"]
+      "compliance": ["SOC2", "PCI-DSS"]
     },
     {
       "id": "sec-005",
       "type": "security_hardening",
-      "title": "Add Explicit .env.local to .gitignore",
-      "description": "The `.gitignore` contains `*.local` pattern and explicit `.env` and `.env.test` entries. While `*.local` should match `.env.local`, some git versions handle dotfile glob patterns inconsistently. Multiple .env files exist: `.env`, `.env.local`, `.env.test`, `server/.env`, and `.auto-claude/.env`.",
-      "rationale": "Environment files containing API keys (OPENAI, REPLICATE, OPENROUTER, etc.) must never be committed. Even brief accidental commits persist in git history. The current setup relies on glob patterns which may behave differently across git versions and platforms.",
-      "category": "secrets_management",
+      "title": "Strengthen CSP with Report-URI for Security Monitoring",
+      "description": "The Content-Security-Policy is well-configured (script-src 'self', no unsafe-eval) but lacks a report-uri or report-to directive. CSP violations—which could indicate XSS attempts or misconfigured resources—are not being monitored or logged. Adding CSP reporting enables proactive security monitoring.",
+      "rationale": "CSP reporting provides visibility into potential XSS attempts and identifies legitimate resources blocked by the policy. Without reporting, security teams cannot detect attacks in progress or fix false positives that may break functionality.",
+      "category": "configuration",
       "severity": "low",
       "affectedFiles": [
-        ".gitignore"
+        "server/src/index.ts"
       ],
-      "vulnerability": "CWE-312: Cleartext Storage of Sensitive Information",
-      "currentRisk": "Potential accidental commit of environment files if gitignore patterns don't match on all systems",
-      "remediation": "Explicitly add all environment files to .gitignore: `.env.local`, `server/.env`, `.auto-claude/.env`. Run `git status` to verify. Consider adding a pre-commit hook using `git-secrets` or `detect-secrets` to scan for API key patterns before each commit.",
+      "vulnerability": "CWE-1295: Missing Security Monitoring",
+      "currentRisk": "CSP violations (potential XSS attempts) go undetected without reporting configured",
+      "remediation": "Add CSP reporting directives: 1) 'report-uri /api/csp-report' for legacy browser support, 2) 'report-to csp-endpoint' for modern Reporting API, 3) Create a /api/csp-report endpoint that logs violations to your monitoring system (Datadog RUM is already integrated), 4) Use Report-Only mode first to test before enforcing new rules",
       "references": [
-        "https://github.com/awslabs/git-secrets",
-        "https://github.com/Yelp/detect-secrets"
+        "https://developer.mozilla.org/en-US/docs/Web/HTTP/CSP#reporting_policy_violations",
+        "https://web.dev/articles/strict-csp"
       ],
-      "compliance": ["SOC2"]
+      "compliance": ["OWASP Top 10", "SOC2"]
     }
   ],
   "metadata": {
     "dependenciesScanned": 510,
     "knownVulnerabilities": 0,
-    "filesAnalyzed": 32,
-    "criticalIssues": 1,
+    "filesAnalyzed": 65,
+    "criticalIssues": 0,
     "highIssues": 1,
     "mediumIssues": 2,
-    "lowIssues": 1,
-    "generatedAt": "2026-01-08T04:50:00Z",
+    "lowIssues": 2,
+    "generatedAt": "2026-01-08T07:20:00Z",
     "analysisScope": [
       "Authentication flows (Lucia, Argon2 password hashing, sessions)",
       "Authorization (rate limiting with Redis, CSRF protection, account lockout)",
-      "Input validation (AI prompts, authentication)",
-      "API key management (server-side storage, voice key exposure)",
-      "Security headers (CSP, HSTS, X-Frame-Options)",
-      "AI safety controls (Replicate safety checkers)",
-      "Dependency vulnerabilities (npm audit)",
-      "WebSocket security (OpenAI Realtime)"
+      "Input validation (AI prompts with length limits, authentication)",
+      "API key management (server-side Neon storage, ephemeral voice tokens)",
+      "Security headers (CSP, HSTS, X-Frame-Options, X-Content-Type-Options, Referrer-Policy)",
+      "AI safety controls (Replicate safety checkers enabled)",
+      "Dependency vulnerabilities (npm audit - 0 vulnerabilities)",
+      "External URL handling (SSRF risk assessment)",
+      "Session management (HttpOnly cookies, CSRF protection)"
     ],
     "positiveFindings": [
       "Strong password hashing with Argon2 (memory=19456, time=2, parallelism=1)",
+      "Password strength validation enforced (8+ chars, uppercase, lowercase, number, special char) - validatePasswordStrength()",
       "CSRF protection enabled globally via hono/csrf middleware",
       "Rate limiting on auth endpoints (5/min login, 3/min signup, 3/min forgot-password, 5/min reset-password)",
-      "Rate limiting on AI endpoints (30 requests/minute)",
-      "Account lockout implemented (5 failed attempts → 15 min lock)",
+      "Rate limiting on AI endpoints (30 requests/minute) via aiRateLimit middleware",
+      "Account lockout implemented (5 failed attempts → 15 min lock, reset on success)",
       "Password reset tokens properly hashed (SHA-256) before database storage",
       "User enumeration prevention with generic error messages",
-      "No known npm vulnerabilities (0 critical, 0 high, 0 moderate)",
-      "API keys stored server-side in Neon, masked for client display",
+      "No known npm vulnerabilities (0 critical, 0 high, 0 moderate in 510 dependencies)",
+      "API keys stored server-side in Neon database, masked (****xxxx) for client display",
+      "Voice API uses ephemeral tokens via /api/ai/voice/token, not raw API keys",
       "HttpOnly session cookies via Lucia authentication",
-      "Comprehensive security headers: HSTS (2 years), CSP, X-Frame-Options (SAMEORIGIN), X-Content-Type-Options (nosniff), Referrer-Policy",
+      "Comprehensive security headers: HSTS (2 years with preload), CSP (strict script-src), X-Frame-Options (SAMEORIGIN), X-Content-Type-Options (nosniff), Referrer-Policy (strict-origin-when-cross-origin)",
       "CSP script-src 'self' - no unsafe-eval or unsafe-inline for scripts",
-      "No dangerous patterns (innerHTML, eval, dangerouslySetInnerHTML) in React code",
-      "Session invalidation on password reset",
+      "No dangerous patterns (innerHTML, eval, dangerouslySetInnerHTML) found in React code",
+      "Session invalidation on password reset (lucia.invalidateUserSessions)",
       "Legacy localStorage API key cleanup function exists (forceClearLegacyKeys)",
-      "Failed login attempts tracked per-account with lockout"
+      "Input validation on AI prompts: validatePrompt() enforces 2000 char limit, removes null bytes",
+      "Input validation on chat messages: validateMessages() enforces 50000 total char limit",
+      "Safety checker enabled by default on image generation endpoints"
     ],
     "scanDetails": {
-      "npmAudit": "Clean - 0 vulnerabilities in 510 dependencies",
-      "passwordHashing": "Argon2 with OWASP-recommended parameters",
-      "rateLimiting": "Redis-backed with in-memory fallback",
+      "npmAudit": "Clean - 0 vulnerabilities in 510 dependencies (91 prod, 346 dev, 74 optional)",
+      "passwordHashing": "Argon2 with OWASP-recommended parameters (memoryCost:19456, timeCost:2, outputLen:32)",
+      "rateLimiting": "Redis-backed with in-memory fallback, applied to /api/ai/* and /api/auth/*",
       "sessionManagement": "Lucia with HttpOnly cookies, session refresh on stale",
-      "csrfProtection": "Global hono/csrf middleware",
-      "accountLockout": "5 failed attempts → 15 minute lock, reset on success",
-      "securityHeaders": "HSTS, CSP (strict script-src), X-Frame-Options, X-Content-Type-Options",
-      "apiKeyStorage": "Server-side Neon database, masked for display, migration cleanup exists"
+      "csrfProtection": "Global hono/csrf middleware applied to all routes",
+      "accountLockout": "5 failed attempts → 15 minute lock, counters reset on successful login",
+      "securityHeaders": "Full suite: HSTS, CSP, X-Frame-Options, X-Content-Type-Options, Referrer-Policy",
+      "apiKeyStorage": "Server-side Neon database via /api/user/api-keys, keys never exposed to client",
+      "inputValidation": "Prompt length limits (1000-2000 chars), null byte removal, message total limits (50000 chars)"
     },
-    "previousFindingsStatus": {
-      "sec-001-old": "INVALID - CSP does NOT have unsafe-inline/unsafe-eval for scripts. Only style-src has unsafe-inline which is standard for CSS-in-JS/Tailwind.",
-      "sec-004-old": "ADDRESSED - forceClearLegacyKeys() function exists at line 176-191 in apiKeyStorage.ts",
-      "sec-005-old": "ALREADY IMPLEMENTED - Account lockout exists in auth.ts lines 104-150 with failedLoginAttempts and lockedUntil fields"
+    "supersededFindings": {
+      "previous-sec-002": "RESOLVED - Password strength validation IS implemented in validatePasswordStrength() at auth.ts lines 13-19",
+      "previous-sec-003": "RESOLVED - Input validation for AI prompts IS implemented via validatePrompt() and validateMessages() in ai.ts",
+      "previous-sec-001-voice": "MITIGATED - Voice API now uses ephemeral tokens via getVoiceAPIKey() → /api/ai/voice/token, not raw API keys"
     }
   }
 }

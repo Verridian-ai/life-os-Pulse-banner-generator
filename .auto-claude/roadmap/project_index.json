@@ -58,22 +58,8 @@
       "dockerfile": "Dockerfile",
       "environment": {
         "variables": {
-          "VITE_SUPABASE_URL": {
-            "value": "https://bkergrdlytwvdzszmuos.supabase.co \\r\\n",
-            "source": ".env.test",
-            "type": "url",
-            "sensitive": false,
-            "required": false
-          },
-          "VITE_SUPABASE_ANON_KEY": {
-            "value": "<REDACTED>",
-            "source": ".env.test",
-            "type": "path",
-            "sensitive": true,
-            "required": false
-          },
-          "VITE_STORAGE_URL": {
-            "value": "https://bkergrdlytwvdzszmuos.storage.supabase.co",
+          "VITE_API_URL": {
+            "value": "http://localhost:3000",
             "source": ".env",
             "type": "url",
             "sensitive": false,
@@ -147,6 +133,20 @@
             "source": ".env.test",
             "type": "path",
             "sensitive": true,
+            "required": false
+          },
+          "VITE_SUPABASE_ANON_KEY": {
+            "value": "<REDACTED>",
+            "source": ".env.test",
+            "type": "path",
+            "sensitive": true,
+            "required": false
+          },
+          "VITE_SUPABASE_URL": {
+            "value": "https://bkergrdlytwvdzszmuos.supabase.co \\r\\n",
+            "source": ".env.test",
+            "type": "url",
+            "sensitive": false,
             "required": false
           }
         },
@@ -286,9 +286,9 @@
         "total_routes": 14,
         "methods": [
           "GET",
+          "POST",
           "DELETE",
-          "PUT",
-          "POST"
+          "PUT"
         ],
         "protected_routes": []
       },
@@ -1528,9 +1528,123 @@
             "fields": {},
             "file": "server\\src\\db\\schema.ts",
             "orm": "Drizzle"
+          },
+          "designs": {
+            "table": "designs",
+            "fields": {},
+            "file": "server\\src\\db\\schema.ts",
+            "orm": "Drizzle"
+          },
+          "adminUsers": {
+            "table": "admin_users",
+            "fields": {},
+            "file": "server\\src\\db\\schema.ts",
+            "orm": "Drizzle"
+          },
+          "adminAuditLog": {
+            "table": "admin_audit_log",
+            "fields": {},
+            "file": "server\\src\\db\\schema.ts",
+            "orm": "Drizzle"
+          },
+          "adminRateLimits": {
+            "table": "admin_rate_limits",
+            "fields": {},
+            "file": "server\\src\\db\\schema.ts",
+            "orm": "Drizzle"
+          },
+          "agentConfigs": {
+            "table": "agent_configs",
+            "fields": {},
+            "file": "server\\src\\db\\schema.ts",
+            "orm": "Drizzle"
+          },
+          "agentSkills": {
+            "table": "agent_skills",
+            "fields": {},
+            "file": "server\\src\\db\\schema.ts",
+            "orm": "Drizzle"
+          },
+          "agentMcpConnections": {
+            "table": "agent_mcp_connections",
+            "fields": {},
+            "file": "server\\src\\db\\schema.ts",
+            "orm": "Drizzle"
+          },
+          "agentContextDocs": {
+            "table": "agent_context_docs",
+            "fields": {},
+            "file": "server\\src\\db\\schema.ts",
+            "orm": "Drizzle"
+          },
+          "agentRuntimeState": {
+            "table": "agent_runtime_state",
+            "fields": {},
+            "file": "server\\src\\db\\schema.ts",
+            "orm": "Drizzle"
+          },
+          "agentAuditLogs": {
+            "table": "agent_audit_logs",
+            "fields": {},
+            "file": "server\\src\\db\\schema.ts",
+            "orm": "Drizzle"
+          },
+          "creditTiers": {
+            "table": "credit_tiers",
+            "fields": {},
+            "file": "server\\src\\db\\schema.ts",
+            "orm": "Drizzle"
+          },
+          "userCreditAccounts": {
+            "table": "user_credit_accounts",
+            "fields": {},
+            "file": "server\\src\\db\\schema.ts",
+            "orm": "Drizzle"
+          },
+          "creditTransactions": {
+            "table": "credit_transactions",
+            "fields": {},
+            "file": "server\\src\\db\\schema.ts",
+            "orm": "Drizzle"
+          },
+          "tierFeatureLimits": {
+            "table": "tier_feature_limits",
+            "fields": {},
+            "file": "server\\src\\db\\schema.ts",
+            "orm": "Drizzle"
+          },
+          "llmTraces": {
+            "table": "llm_traces",
+            "fields": {},
+            "file": "server\\src\\db\\schema.ts",
+            "orm": "Drizzle"
+          },
+          "apiMetrics": {
+            "table": "api_metrics",
+            "fields": {},
+            "file": "server\\src\\db\\schema.ts",
+            "orm": "Drizzle"
+          },
+          "requestLogs": {
+            "table": "request_logs",
+            "fields": {},
+            "file": "server\\src\\db\\schema.ts",
+            "orm": "Drizzle"
+          },
+          "errorLogs": {
+            "table": "error_logs",
+            "fields": {},
+            "file": "server\\src\\db\\schema.ts",
+            "orm": "Drizzle"
+          },
+          "dailyStats": {
+            "table": "daily_stats",
+            "fields": {},
+            "file": "server\\src\\db\\schema.ts",
+            "orm": "Drizzle"
           }
         },
-        "total_models": 46,
+        "total_models": 65,
         "model_names": [
           "ACL",
           "DatasetDatabase",
@@ -1577,7 +1691,26 @@
           "sharedLinks",
           "comments",
           "emailVerificationTokens",
-          "passwordResetTokens"
+          "passwordResetTokens",
+          "designs",
+          "adminUsers",
+          "adminAuditLog",
+          "adminRateLimits",
+          "agentConfigs",
+          "agentSkills",
+          "agentMcpConnections",
+          "agentContextDocs",
+          "agentRuntimeState",
+          "agentAuditLogs",
+          "creditTiers",
+          "userCreditAccounts",
+          "creditTransactions",
+          "tierFeatureLimits",
+          "llmTraces",
+          "apiMetrics",
+          "requestLogs",
+          "errorLogs",
+          "dailyStats"
         ]
       },
       "monitoring": {

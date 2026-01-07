@@ -1,36 +1,36 @@
 {
   "existing_features": [],
   "tech_stack": [
-    "TypeScript",
-    "React"
+    "React",
+    "TypeScript"
   ],
   "target_audience": "Career-focused professionals in the Careersy Community who need professional LinkedIn banners to enhance their personal brand",
   "planned_features": [
-    "Design Performance Analytics Dashboard",
-    "Competitive Banner Analysis",
-    "Partner Agent System (Autonomous AI Assistant)",
-    "Public API for Automation",
-    "Real-Time Collaboration",
-    "AI Personal Brand Coach",
-    "LinkedIn Premium Banner Slideshow Support",
+    "Re-enable CI Test Suite",
     "Professional Template Library",
     "Enhanced Mobile Cropping Preview",
-    "Motion Graphics & Video Banners",
-    "Team Workspaces",
-    "Re-enable CI Test Suite",
-    "Multi-Platform Banner Export",
-    "Design Approval Workflow",
-    "Direct LinkedIn Publishing Integration",
-    "Interactive Onboarding Tutorial",
-    "Personalized Starting Recommendations",
-    "Enterprise SSO & Security",
-    "Bundle Size Optimization & Code Splitting",
-    "TypeScript Interface Remediation",
+    "Public API for Automation",
     "Full Mobile Design Experience",
-    "Advanced Typography Controls",
+    "Competitive Banner Analysis",
+    "Partner Agent System (Autonomous AI Assistant)",
+    "Interactive Onboarding Tutorial",
     "Transparent Pricing & Easy Cancellation",
+    "Team Workspaces",
+    "Design Approval Workflow",
+    "AI Personal Brand Coach",
+    "Real-Time Collaboration",
+    "Bundle Size Optimization & Code Splitting",
+    "Design Performance Analytics Dashboard",
+    "Motion Graphics & Video Banners",
+    "Direct LinkedIn Publishing Integration",
+    "Advanced Typography Controls",
+    "Multi-Platform Banner Export",
+    "Personalized Starting Recommendations",
+    "LinkedIn Premium Banner Slideshow Support",
+    "Undo/Redo History with Visual Timeline",
+    "TypeScript Interface Remediation",
     "AI Design Improvement Suggestions",
-    "Undo/Redo History with Visual Timeline"
+    "Enterprise SSO & Security"
   ],
   "graph_hints": {
     "code_improvements": [],
@@ -50,5 +50,5 @@
     "include_kanban_context": true,
     "max_ideas_per_type": 5
   },
-  "created_at": "2026-01-08T04:28:23.922574"
+  "created_at": "2026-01-08T07:09:00.826545"
 }

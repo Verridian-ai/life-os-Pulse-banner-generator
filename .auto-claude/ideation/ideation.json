@@ -1,5 +1,5 @@
 {
-  "id": "ideation-20260108-043502",
+  "id": "ideation-20260108-071426",
   "project_id": "C:\\Users\\Danie\\Desktop\\nanobanna-pro",
   "config": {
     "enabled_types": [
@@ -15,140 +15,138 @@
     {
       "id": "ci-001",
       "type": "code_improvements",
-      "title": "Add Canvas State Snapshot Persistence",
-      "description": "Create a useCanvasSnapshots hook that extends the existing HistoryContext to support named snapshots with persistence across sessions. Users can save, name, and restore specific canvas states. Builds on the usePromptHistory pattern for CRUD operations with favorites and search.",
-      "rationale": "The usePromptHistory hook (src/hooks/usePromptHistory.ts) already establishes the pattern: PromptRecord interface, StorageManager backing, favorites, timestamps, search. The HistoryContext exists for in-session undo/redo but lacks persistence. Combining these patterns enables a complete design versioning system.",
+      "title": "Add AI Cache Analytics Hook",
+      "description": "Create a useAICacheMetrics hook that exposes AI cache statistics including hit rate, miss rate, fuzzy match rate, and total cached prompts. This enables users to understand cache effectiveness and optimize their prompt usage patterns.",
+      "rationale": "The codebase has established metrics hook patterns (useModelMetrics, useErrorMetrics) that aggregate localStorage data and expose stats via useMemo. The aiCache service already tracks exact and fuzzy matches but lacks a corresponding analytics hook to surface this data to users.",
       "builds_upon": [
-        "usePromptHistory hook pattern",
-        "StorageManager promptHistoryStorage instance",
-        "HistoryContext undo/redo",
-        "CanvasStateContext state structure"
+        "useModelMetrics hook",
+        "useErrorMetrics hook",
+        "aiCache service",
+        "StorageManager pattern"
       ],
-      "estimated_effort": "medium",
+      "estimated_effort": "trivial",
       "affected_files": [
-        "src/hooks/useCanvasSnapshots.ts (new)",
-        "src/services/storageManager.ts",
-        "src/context/canvas/HistoryContext.tsx",
-        "src/components/features/CanvasEditor.tsx"
+        "src/hooks/useAICacheMetrics.ts",
+        "src/services/aiCache.ts",
+        "src/services/storageManager.ts"
       ],
       "existing_patterns": [
-        "usePromptHistory: PromptRecord with id, isFavorite, useCount, timestamps",
-        "promptHistoryStorage: permanent namespace storage",
-        "searchPrompts: text search across records",
-        "toggleFavorite/deletePrompt CRUD operations"
+        "useModelMetrics aggregation pattern",
+        "window.dispatchEvent for hook updates",
+        "useMemo for stats computation"
       ],
-      "implementation_approach": "1. Add canvasSnapshotsStorage instance to storageManager.ts. 2. Create SnapshotRecord interface following PromptRecord: id, name, thumbnail, canvasState (JSON), isFavorite, createdAt. 3. Create useCanvasSnapshots hook with addSnapshot, restoreSnapshot, renameSnapshot, deleteSnapshot, toggleFavorite, searchSnapshots. 4. Integrate with CanvasEditor for save/restore buttons.",
+      "implementation_approach": "1. Add cache hit/miss tracking to aiCache.get() and getSimilar() methods by storing access records. 2. Dispatch 'ai-cache-access' event on each access. 3. Create useAICacheMetrics hook following useModelMetrics structure with stats like hitRate, missRate, fuzzyHitRate, totalCached, cacheUsageBytes. 4. Wire to PerformanceMetricsPanel for display.",
       "status": "archived",
-      "created_at": "2026-01-08T04:40:00.000Z",
-      "linked_task_id": "001-add-canvas-state-snapshot-persistence"
+      "created_at": "2026-01-08T07:15:00.000Z",
+      "linked_task_id": "011-add-ai-cache-analytics-hook"
     },
     {
       "id": "ci-002",
       "type": "code_improvements",
-      "title": "Extend Canvas Commands with Batch Element Operations",
-      "description": "Add BatchDeleteElements, BatchUpdateElements, and BatchMoveElements commands following the established batch command pattern from imageCommands.ts. Enables bulk operations on multiple canvas elements via voice or UI.",
-      "rationale": "BatchUpscaleCommand and BatchRemoveBackgroundCommand in imageCommands.ts demonstrate the batch pattern: iterate over items, collect results/errors, handle partial failures gracefully. Canvas commands only have single-element operations. The Command interface and ToolSchemas registry support this extension.",
+      "title": "Extend Error Handler for AI Provider-Specific Errors",
+      "description": "Enhance the error classification system to recognize and provide user-friendly messages for AI provider-specific errors including Gemini quota exceeded, Replicate model cold start/warming, OpenRouter credit exhaustion, and API-specific rate limits.",
+      "rationale": "The errorHandler.ts already classifies generic network errors (timeout, CORS, 429 rate limit) but doesn't distinguish between AI providers. Since the app uses Gemini, OpenRouter, and Replicate, provider-specific error messages would help users troubleshoot issues faster.",
       "builds_upon": [
-        "BatchUpscaleCommand pattern",
-        "Canvas Command classes (DeleteElementCommand, UpdateElementCommand)",
-        "ToolSchemas z.array() patterns"
+        "classifyError() function",
+        "NetworkError interface",
+        "Error tracking pattern"
       ],
       "estimated_effort": "small",
       "affected_files": [
-        "src/services/commands/canvasCommands.ts",
-        "src/services/validationSchemas.ts",
-        "src/services/actionExecutor.ts"
+        "src/utils/errorHandler.ts",
+        "src/services/gemini.ts",
+        "src/services/openrouter.ts",
+        "src/services/replicate.ts"
       ],
       "existing_patterns": [
-        "BatchUpscaleCommand: for-loop with try-catch per item, results[] and errors[] collection",
-        "BatchRemoveBackgroundSchema: z.object({ image_urls: z.array(z.string()) })",
-        "DeleteElementCommand.execute: single element deletion with context.canvasCallbacks"
+        "Error classification with message.includes() checks",
+        "NetworkError type with retryable flag",
+        "Provider-specific error handling in service files"
       ],
-      "implementation_approach": "1. Add BatchDeleteElementsSchema, BatchUpdateElementsSchema to validationSchemas.ts: z.object({ element_ids: z.array(z.string()) }). 2. Create BatchDeleteElementsCommand following BatchUpscaleCommand structure. 3. Create BatchUpdateElementsCommand for bulk property changes. 4. Register in ToolSchemas and ensure actionExecutor routes correctly.",
+      "implementation_approach": "1. Add new error types to NetworkError.type union: 'gemini_quota' | 'replicate_warmup' | 'openrouter_credits'. 2. Extend classifyError() with provider-specific message patterns (e.g., 'billing not enabled', 'model is warming up', 'insufficient credits'). 3. Update user-friendly messages with actionable guidance. 4. Consider adding provider detection from error response headers/body.",
       "status": "archived",
-      "created_at": "2026-01-08T04:40:00.000Z",
-      "linked_task_id": "002-extend-canvas-commands-with-batch-element-operatio"
+      "created_at": "2026-01-08T07:15:00.000Z",
+      "linked_task_id": "012-extend-error-handler-for-ai-provider-specific-erro"
     },
     {
       "id": "ci-003",
       "type": "code_improvements",
-      "title": "Add Error Recovery Suggestions Hook",
-      "description": "Create a useErrorRecovery hook that provides actionable recovery suggestions based on the existing error classification system. Maps error types (network, cors, timeout, api, etc.) to specific user actions (retry, check API key, wait for rate limit).",
-      "rationale": "The errorHandler.ts already classifies errors into structured NetworkError types with retryable flags and dispatches 'error-tracked' CustomEvents. The withRetry function handles automatic retries. This infrastructure enables a user-facing recovery suggestion system without new error handling logic.",
+      "title": "Add Snapshot Favorites and Search",
+      "description": "Extend useCanvasSnapshots hook with favorites toggle and search functionality, following the established usePromptHistory pattern. This allows users to mark important snapshots and quickly find them by name.",
+      "rationale": "usePromptHistory has a mature pattern with toggleFavorite(), searchPrompts(), and getFavoritePrompts() methods. useCanvasSnapshots currently only supports CRUD operations without favorites or search, despite having a similar data structure (records with id, name, timestamps).",
       "builds_upon": [
-        "classifyError function",
-        "NetworkError type with type/retryable fields",
-        "error-tracked CustomEvent pattern",
-        "withRetry function"
+        "useCanvasSnapshots hook",
+        "usePromptHistory favorites/search pattern",
+        "snapshotStorage"
       ],
       "estimated_effort": "small",
       "affected_files": [
-        "src/hooks/useErrorRecovery.ts (new)",
-        "src/utils/errorHandler.ts",
-        "src/components/ui/Toast.tsx"
+        "src/hooks/useCanvasSnapshots.ts",
+        "src/components/features/SnapshotsModal.tsx"
       ],
       "existing_patterns": [
-        "classifyError: returns { type: 'network'|'cors'|'timeout'|'api', retryable: boolean, message: string }",
-        "window.dispatchEvent(new CustomEvent('error-tracked', { detail: classified }))",
-        "useErrorMetrics: listens to events, aggregates metrics"
+        "toggleFavorite pattern from usePromptHistory",
+        "searchPrompts with toLowerCase().includes()",
+        "getFavoriteSnapshots sorting pattern"
       ],
-      "implementation_approach": "1. Create RECOVERY_SUGGESTIONS map: { network: 'Check internet connection', api: 'Verify API key in Settings', timeout: 'Try again - server was slow', cors: 'This operation not supported' }. 2. Create useErrorRecovery hook listening to 'error-tracked' events. 3. Return { lastError, suggestions, canRetry, retryAction }. 4. Integrate with Toast for actionable error messages.",
+      "implementation_approach": "1. Add isFavorite field to SnapshotRecord interface. 2. Implement toggleFavorite(id) following usePromptHistory pattern. 3. Add searchSnapshots(query) that searches name field. 4. Add getFavoriteSnapshots() sorted by updatedAt. 5. Update SnapshotsModal UI with star icon for favorites and search input.",
       "status": "archived",
-      "created_at": "2026-01-08T04:40:00.000Z",
-      "linked_task_id": "003-add-error-recovery-suggestions-hook"
+      "created_at": "2026-01-08T07:15:00.000Z",
+      "linked_task_id": "013-add-snapshot-favorites-and-search"
     },
     {
       "id": "ci-004",
       "type": "code_improvements",
-      "title": "Add Layout Expert Agent to Registry",
-      "description": "Add a 'Layout Expert' specialized agent to AGENT_REGISTRY for banner composition, element positioning, safe zones, and visual hierarchy. Uses the existing AgentDefinition interface with appropriate keywords for automatic routing.",
-      "rationale": "The agentRegistry.ts has 4 well-established agents (Benno, Art Director, Copy Specialist, Tech Wizard) following AgentDefinition interface. The getAgentSuggestions function handles new agents automatically via keyword matching - no routing changes needed. Layout/positioning expertise is missing from current agents.",
+      "title": "Add Compare Models Voice Command",
+      "description": "Expose the existing compareModelPerformance() function as a voice command that allows users to verbally request model comparisons and receive spoken recommendations based on speed, quality, or cost criteria.",
+      "rationale": "The modelRouter.ts already implements sophisticated model comparison with compareModelPerformance() that ranks models by criteria. The Command pattern in services/commands/ enables adding new voice commands. Currently no voice command surfaces this capability despite it being useful for hands-free workflow optimization.",
       "builds_upon": [
-        "AgentDefinition interface",
-        "AGENT_REGISTRY array",
-        "getAgentSuggestions keyword-based routing"
+        "compareModelPerformance() function",
+        "Command interface pattern",
+        "analysisCommands.ts structure"
       ],
-      "estimated_effort": "trivial",
+      "estimated_effort": "medium",
       "affected_files": [
-        "src/services/agentRegistry.ts"
+        "src/services/commands/analysisCommands.ts",
+        "src/services/actionExecutor.ts",
+        "src/services/modelRouter.ts"
       ],
       "existing_patterns": [
-        "AgentDefinition: { id, name, description, capabilities, systemPrompt, keywords, icon }",
-        "Art Director agent structure: keywords array, capabilities array",
-        "Keyword scoring in getAgentSuggestions: score += 0.3 per keyword match"
+        "Command class with name and execute(args, context)",
+        "ActionResult return format",
+        "Voice command tool definitions in actionExecutor"
       ],
-      "implementation_approach": "1. Add new AgentDefinition object to AGENT_REGISTRY. 2. Set id: 'layout-expert', name: 'Layout Expert'. 3. Keywords: ['layout', 'position', 'center', 'align', 'space', 'safe zone', 'composition', 'hierarchy', 'arrange', 'grid']. 4. Capabilities: ['list_elements', 'update_element', 'analyze_banner']. 5. SystemPrompt focused on LinkedIn safe zones, visual hierarchy, element spacing.",
+      "implementation_approach": "1. Create CompareModelsCommand class implementing Command interface. 2. Accept args: { capability: string, criteria: 'speed'|'quality'|'cost'|'balanced' }. 3. Call filterModelsByCapability() then compareModelPerformance(). 4. Return formatted result string listing top 3 models with scores and reasons. 5. Register command in actionExecutor AVAILABLE_TOOLS. 6. Add voice tool definition for OpenAI Realtime API.",
       "status": "archived",
-      "created_at": "2026-01-08T04:40:00.000Z",
-      "linked_task_id": "004-add-layout-expert-agent-to-registry"
+      "created_at": "2026-01-08T07:15:00.000Z",
+      "linked_task_id": "014-add-compare-models-voice-command"
     },
     {
       "id": "ci-005",
       "type": "code_improvements",
-      "title": "Add Model Performance Comparison Utility",
-      "description": "Create a compareModelPerformance utility that combines MODEL_METADATA_REGISTRY theoretical scores with useModelMetrics actual usage data to rank and recommend models. Enables data-driven model selection that improves with usage.",
-      "rationale": "MODEL_METADATA_REGISTRY (modelRouter.ts) has qualityScore, avgResponseTime, costPerCall for each model. useModelMetrics aggregates actual stats.byModel with calls, avgTime, successRate. These exist independently - combining them enables intelligent recommendations based on real performance.",
+      "title": "Add Storage Usage Dashboard Component",
+      "description": "Create a StorageUsagePanel component that visualizes localStorage usage across all StorageManager namespaces, showing per-namespace usage, total usage, and quota remaining with a progress bar.",
+      "rationale": "StorageManager.getUsage() already returns character count per namespace, and the codebase has 7 storage namespaces (aiCache, errorMetrics, modelPreferences, modelMetrics, onboarding, promptHistory, snapshots). No UI currently exposes this to users, but storage quota is a real concern especially with canvas snapshots storing base64 images.",
       "builds_upon": [
-        "MODEL_METADATA_REGISTRY",
-        "useModelMetrics stats.byModel",
-        "filterModelsByCapability function",
-        "modelMetricsStorage"
+        "StorageManager.getUsage() method",
+        "StorageManager instances (aiCacheStorage, snapshotStorage, etc.)",
+        "SettingsModal component structure"
       ],
-      "estimated_effort": "small",
+      "estimated_effort": "medium",
       "affected_files": [
-        "src/services/modelRouter.ts",
-        "src/hooks/useModelMetrics.ts",
-        "src/components/features/ModelSelector.tsx"
+        "src/services/storageManager.ts",
+        "src/components/features/SettingsModal.tsx",
+        "src/components/features/StorageUsagePanel.tsx"
       ],
       "existing_patterns": [
-        "MODEL_METADATA_REGISTRY[modelId]: { qualityScore, avgResponseTime, costPerCall, capabilities }",
-        "stats.byModel[modelId]: { calls, avgTime, successRate, errors, totalCost }",
-        "getModelMetadataById: memoized lookup for model metadata"
+        "Panel component structure in features/",
+        "Progress bar styling from existing UI components",
+        "StorageManager namespace organization"
       ],
-      "implementation_approach": "1. Add getModelRecommendations(operation: OperationType) to modelRouter.ts. 2. Fetch theoretical scores from REGISTRY and actual stats from modelMetricsStorage. 3. Compute weighted score: 40% actual successRate (if data exists), 30% response time, 20% qualityScore, 10% cost efficiency. 4. Return sorted array of { modelId, score, hasUsageData }. 5. Optionally show 'Recommended' badge in ModelSelector based on this ranking.",
+      "implementation_approach": "1. Export a getGlobalStorageStats() function from storageManager.ts that iterates all namespace instances and calls getUsage(). 2. Create StorageUsagePanel.tsx component with progress bars per namespace. 3. Show total usage vs estimated quota (5MB typical). 4. Add clear buttons per namespace calling storage.clear(). 5. Integrate into SettingsModal under a 'Storage' tab or accordion section.",
       "status": "archived",
-      "created_at": "2026-01-08T04:40:00.000Z",
-      "linked_task_id": "005-add-model-performance-comparison-utility"
+      "created_at": "2026-01-08T07:15:00.000Z",
+      "linked_task_id": "015-add-storage-usage-dashboard-component"
     },
     {
       "id": "uiux-016",
@@ -166,7 +164,8 @@
       "user_benefit": "Users can verify their password entry before submission, reducing failed login attempts and frustration, especially on mobile where typing is more error-prone.",
       "status": "archived",
       "created_at": "2026-01-08T04:40:00.000Z",
-      "linked_task_id": "006-add-password-visibility-toggle-to-authmodal"
+      "implemented_at": "2026-01-08T07:00:00.000Z",
+      "linked_task_id": "016-add-password-visibility-toggle-to-authmodal"
     },
     {
       "id": "uiux-017",
@@ -184,7 +183,7 @@
       "user_benefit": "Users can easily review previous tour steps without needing to restart the entire tour or know keyboard shortcuts, making onboarding more user-friendly.",
       "status": "archived",
       "created_at": "2026-01-08T04:40:00.000Z",
-      "linked_task_id": "007-add-visible-previous-button-to-onboardingtour"
+      "linked_task_id": "017-add-visible-previous-button-to-onboardingtour"
     },
     {
       "id": "uiux-018",
@@ -202,7 +201,8 @@
       "user_benefit": "Users immediately understand voice agent status without hovering for tooltips, improving trust and reducing confusion about the voice feature state.",
       "status": "archived",
       "created_at": "2026-01-08T04:40:00.000Z",
-      "linked_task_id": "008-add-voice-status-text-label-during-connection-stat"
+      "implemented_at": "2026-01-08T07:00:00.000Z",
+      "linked_task_id": "018-add-voice-status-text-label-during-connection-stat"
     },
     {
       "id": "uiux-019",
@@ -222,7 +222,7 @@
       "user_benefit": "Users navigating with keyboard can clearly see which element is focused, improving accessibility for users with visual impairments and those who prefer keyboard navigation.",
       "status": "archived",
       "created_at": "2026-01-08T04:40:00.000Z",
-      "linked_task_id": "009-add-focus-ring-to-form-inputs-for-accessibility"
+      "linked_task_id": "019-add-focus-ring-to-form-inputs-for-accessibility"
     },
     {
       "id": "uiux-020",
@@ -240,181 +240,277 @@
       "user_benefit": "Users receive real-time feedback on prompt length, helping them craft more effective prompts that produce better AI generation results. Reduces wasted generation attempts from under-specified prompts.",
       "status": "archived",
       "created_at": "2026-01-08T04:40:00.000Z",
-      "linked_task_id": "010-add-character-count-to-prompt-textarea-with-length"
+      "implemented_at": "2026-01-08T07:00:00.000Z",
+      "linked_task_id": "020-add-character-count-to-prompt-textarea-with-length"
+    },
+    {
+      "id": "uiux-021",
+      "type": "ui_ux_improvements",
+      "title": "Add Keyboard Navigation to Gallery Image Cards",
+      "description": "The ImageGallery virtualized grid cells rely entirely on hover/touch interactions. Users cannot tab through gallery images or use keyboard shortcuts to select, favorite, or delete images. This creates an accessibility barrier for keyboard-only users.",
+      "rationale": "Keyboard navigation is critical for accessibility (WCAG 2.1 Level A). Many power users also prefer keyboard shortcuts for efficiency. The current implementation uses onMouseEnter/onMouseLeave and onClick but lacks focus states and keyboard event handlers.",
+      "category": "accessibility",
+      "affected_components": [
+        "src/components/features/ImageGallery.tsx"
+      ],
+      "screenshots": [],
+      "current_state": "Gallery cells (Cell component lines 145-219) use hover state (hoveredImageId) to show action overlay. No tabIndex, no onKeyDown handlers, no focus-visible styles. Buttons inside overlay have proper min-h-[44px] touch targets but overlay only appears on hover/click.",
+      "proposed_change": "1. Add tabIndex={0} to the cell wrapper div at line 154. 2. Add onKeyDown handler to trigger overlay on Enter/Space. 3. Add 'focus:ring-2 focus:ring-purple-500/50 focus-visible:ring-2' classes for visible focus indicator. 4. Support keyboard shortcuts within overlay: F for favorite, D for delete, Enter to apply. 5. Add onFocus={() => setHoveredImageId(image.id)} for keyboard focus to show overlay. 6. Trap focus within overlay when open, Escape to close.",
+      "user_benefit": "Users who rely on keyboard navigation (including those using screen readers, users with motor impairments, and power users) can browse and manage gallery images without a mouse. Estimated 15-20% of users benefit from improved keyboard support.",
+      "status": "archived",
+      "created_at": "2026-01-08T07:15:00.000Z",
+      "linked_task_id": "021-add-keyboard-navigation-to-gallery-image-cards"
+    },
+    {
+      "id": "uiux-022",
+      "type": "ui_ux_improvements",
+      "title": "Add Password Strength Indicator to Sign-Up Form",
+      "description": "The AuthModal sign-up form shows only 'Minimum 6 characters' hint but provides no real-time feedback on password strength. Users have no guidance on creating a secure password beyond minimum length.",
+      "rationale": "Password strength indicators reduce abandoned sign-ups by 15-25% (industry research) and improve account security. Users feel more confident when they see their password meets security standards. This follows best practices from major platforms like LinkedIn and Google.",
+      "category": "usability",
+      "affected_components": [
+        "src/components/auth/AuthModal.tsx"
+      ],
+      "screenshots": [],
+      "current_state": "Password input (lines 341-382) shows only static helper text: 'Minimum 6 characters' (line 368). No visual indicator of strength. Users must submit to find out if password is too weak. The input now has show/hide toggle but still no strength validation UI.",
+      "proposed_change": "1. Add a PasswordStrengthMeter component below the password input (after line 368). 2. Display 4-segment strength bar using flex gap-1 with w-full h-1 rounded-full segments. 3. Color coding: red-500 (1/4 weak), amber-500 (2/4 fair), yellow-500 (3/4 good), green-500 (4/4 strong). 4. Show strength label: 'Weak - Add numbers and symbols'. 5. Calculate strength based on: length (8+ chars), uppercase, lowercase, numbers, special characters.",
+      "user_benefit": "Users create stronger passwords with less friction. Real-time feedback eliminates trial-and-error during sign-up. Security-conscious career professionals see that the platform takes security seriously.",
+      "status": "archived",
+      "created_at": "2026-01-08T07:15:00.000Z",
+      "linked_task_id": "022-add-password-strength-indicator-to-sign-up-form"
+    },
+    {
+      "id": "uiux-023",
+      "type": "ui_ux_improvements",
+      "title": "Add Aria Labels to Canvas Zoom Controls",
+      "description": "The CanvasEditor zoom controls (zoom in, zoom out, reset) have basic title attributes but lack proper aria-labels. The reset button shows percentage but doesn't communicate that clicking it resets to 100%.",
+      "rationale": "Screen reader users cannot understand the purpose of zoom controls. The reset button especially needs clarity - showing '75%' doesn't indicate it's clickable or what clicking does. Following the existing accessibility patterns in Header.tsx (which has proper aria-labels on buttons).",
+      "category": "accessibility",
+      "affected_components": [
+        "src/components/features/CanvasEditor.tsx"
+      ],
+      "screenshots": [],
+      "current_state": "Zoom buttons (lines 88-110) have title='Zoom Out', title='Reset Zoom', title='Zoom In'. No aria-label attributes. Reset button shows dynamic percentage text but no indication it's an interactive reset button. No aria-valuenow/aria-valuemin/aria-valuemax for the zoom level state.",
+      "proposed_change": "1. Add aria-label={`Zoom out, current zoom ${Math.round(zoom * 100)}%`} to zoom out button. 2. Add aria-label={`Reset zoom to 100%, currently ${Math.round(zoom * 100)}%`} to reset button. 3. Add aria-label={`Zoom in, current zoom ${Math.round(zoom * 100)}%`} to zoom in button. 4. Wrap zoom controls in div with role='group' aria-label='Canvas zoom controls'. 5. Add role='slider' aria-valuemin={50} aria-valuemax={200} aria-valuenow={Math.round(zoom * 100)} to the container for screen reader context.",
+      "user_benefit": "Screen reader users understand exactly what each zoom control does and the current zoom state. All users benefit from clearer reset button purpose. Aligns with WCAG 2.1 Level AA requirements for accessible names.",
+      "status": "archived",
+      "created_at": "2026-01-08T07:15:00.000Z",
+      "linked_task_id": "023-add-aria-labels-to-canvas-zoom-controls"
+    },
+    {
+      "id": "uiux-024",
+      "type": "ui_ux_improvements",
+      "title": "Add Progress Estimation for AI Image Generation",
+      "description": "When generating images via GenerativeSidebar, users only see a spinning loader and 'CREATING...' text. There's no indication of how long the operation will take, which can range from 10-60+ seconds depending on the model and settings.",
+      "rationale": "Perceived performance is critical for AI tools. Users abandon operations they think are 'stuck'. Industry research shows progress indicators reduce perceived wait time by 40%. Competitors like Midjourney and DALL-E show progress bars or step indicators.",
+      "category": "performance",
+      "affected_components": [
+        "src/components/features/GenerativeSidebar.tsx"
+      ],
+      "screenshots": [],
+      "current_state": "Generate button (lines 485-501 desktop, 611-627 mobile) shows: spinner div with animate-spin + 'CREATING...' text during generation. No progress percentage, no estimated time, no step indication. The isGenerating boolean controls this state but provides no granular progress info.",
+      "proposed_change": "1. Add a subtle progress bar below the button or as button background fill using bg-gradient-to-r from-transparent via-white/20 to-transparent animate-shimmer. 2. Show estimated time: 'Creating... (~15s remaining)' based on model and quality settings. 3. Display generation steps cycling: 'Analyzing prompt...', 'Generating image...', 'Finalizing...'. 4. Store average generation times per model/quality in localStorage to improve estimates over time. 5. Add CSS keyframes for shimmer animation that always shows progress movement.",
+      "user_benefit": "Users know the operation is progressing, not stuck. Clear time expectations prevent abandonment. Step indicators educate users about the AI process. Reduces support queries about 'frozen' generation.",
+      "status": "archived",
+      "created_at": "2026-01-08T07:15:00.000Z",
+      "linked_task_id": "024-add-progress-estimation-for-ai-image-generation"
+    },
+    {
+      "id": "uiux-025",
+      "type": "ui_ux_improvements",
+      "title": "Enhance Empty Gallery State with Visual Examples",
+      "description": "The ImageGallery empty state shows a generic icon and 'Generate your first image to get started' text. For a visual design tool targeting career professionals, this misses an opportunity to showcase the tool's capabilities and guide users.",
+      "rationale": "Empty states are prime real estate for user education and conversion. Career professionals need to quickly understand the tool's value. Showing example outputs builds confidence and reduces time-to-first-action by 30-50% (industry benchmarks).",
+      "category": "usability",
+      "affected_components": [
+        "src/components/features/ImageGallery.tsx"
+      ],
+      "screenshots": [],
+      "current_state": "Empty state (lines 270-305) shows: photo_library icon (text-6xl text-zinc-600), 'No Images Found' heading, 'Generate your first image to get started' text, and 'Create in Studio' button with purple gradient. Purely text-based, no visual examples of what users can create.",
+      "proposed_change": "1. Replace generic photo_library icon with a 2x2 grid of 4 example LinkedIn banner thumbnails showing different styles (tech/data viz, creative/artistic, corporate/minimalist, personal brand). 2. Use static placeholder images from public/examples/ folder. 3. Add brief labels: 'Tech Professional', 'Creative Director', etc. 4. Include 2-3 example prompt snippets below: 'Try: Modern tech cityscape with neural networks'. 5. Add generation time hint: 'Create your first banner in ~30 seconds'.",
+      "user_benefit": "Career professionals immediately see relevant examples matching their industry and style preferences. Visual examples inspire prompt ideas and build confidence. Clear time expectation reduces hesitation. Higher conversion from gallery view to studio.",
+      "status": "archived",
+      "created_at": "2026-01-08T07:15:00.000Z",
+      "linked_task_id": "025-enhance-empty-gallery-state-with-visual-examples"
     },
     {
       "id": "sec-001",
       "type": "security_hardening",
-      "title": "Proxy Voice WebSocket Connections Through Server to Protect API Keys",
-      "description": "The OpenAI Realtime API key is retrieved via `/api/user/voice-key` endpoint and sent to the client. The client uses this key directly in WebSocket subprotocol headers (`openai-insecure-api-key.${this.apiKey}`) in `openaiRealtimeClient.ts` line 337-341. This exposes the actual API key in browser developer tools, network inspection, and client-side JavaScript memory.",
-      "rationale": "Exposing API keys to the client-side is a critical security flaw. The key can be stolen via browser extensions, XSS attacks, man-in-the-middle proxies, or simply by users inspecting network traffic. A compromised OpenAI key could result in significant financial costs (voice API pricing) and abuse. The key is literally named 'insecure-api-key' in the WebSocket protocol.",
-      "category": "secrets_management",
-      "severity": "critical",
+      "title": "Add SSRF Protection for External Image URL Processing",
+      "description": "Multiple AI routes (/image/edit, /image/remove-bg, /image/upscale, /image/outpaint, /image/restore) accept user-provided image URLs and pass them directly to external APIs (Replicate, OpenRouter) without URL validation. The ensureDataUri helper only checks if URLs start with 'http' or 'data:'. An attacker could provide internal URLs (e.g., http://localhost, http://169.254.169.254 for cloud metadata) to perform Server-Side Request Forgery attacks.",
+      "rationale": "SSRF vulnerabilities can expose internal services, cloud metadata endpoints (AWS/GCP credentials), and internal network resources. The AI proxy nature of the application makes this especially critical as it forwards requests to external services with server-side credentials.",
+      "category": "input_validation",
+      "severity": "high",
       "affectedFiles": [
-        "src/services/openaiRealtimeClient.ts",
-        "src/services/apiKeyStorage.ts",
-        "server/src/routes/user.ts"
+        "server/src/routes/ai.ts",
+        "server/src/routes/replicate.ts"
       ],
-      "vulnerability": "CWE-200: Exposure of Sensitive Information to an Unauthorized Actor",
-      "currentRisk": "OpenAI API keys are fully exposed to client browsers, enabling unauthorized API usage, potential financial abuse, and key theft",
-      "remediation": "Implement a server-side WebSocket proxy that maintains the OpenAI Realtime connection on the backend. Architecture: Client ↔ Your Server (WebSocket) ↔ OpenAI (WebSocket with API key). The client connects to your server which relays audio bidirectionally. This keeps the API key entirely server-side. Consider using a Node.js WebSocket library (ws) to proxy connections.",
+      "vulnerability": "CWE-918: Server-Side Request Forgery (SSRF)",
+      "currentRisk": "Attacker can access internal services or cloud metadata endpoints by providing malicious URLs in image processing requests",
+      "remediation": "Implement a URL validation middleware that: 1) Only allows HTTPS URLs, 2) Blocks private IP ranges (10.x.x.x, 172.16-31.x.x, 192.168.x.x, localhost, 127.x.x.x), 3) Blocks cloud metadata endpoints (169.254.169.254), 4) Optionally maintains an allowlist of trusted image domains (replicate.delivery, googleusercontent.com, etc.)",
       "references": [
-        "https://owasp.org/www-community/vulnerabilities/Improper_key_management",
-        "https://platform.openai.com/docs/guides/realtime",
-        "https://cwe.mitre.org/data/definitions/200.html"
+        "https://owasp.org/www-community/attacks/Server_Side_Request_Forgery",
+        "https://cwe.mitre.org/data/definitions/918.html"
+      ],
+      "compliance": [
+        "SOC2",
+        "OWASP Top 10"
+      ],
+      "status": "archived",
+      "linked_task_id": "026-add-ssrf-protection-for-external-image-url-process"
+    },
+    {
+      "id": "sec-002",
+      "type": "security_hardening",
+      "title": "Implement Email Verification Enforcement Before Full Access",
+      "description": "The authentication system sends verification emails but does not enforce verification before allowing full application access. Users can sign up with fake emails and immediately access all features including AI generation. The code contains a TODO note acknowledging this gap: 'TODO: Add email_verified boolean to users schema if strictly required.' (auth.ts line 239-241)",
+      "rationale": "Without email verification enforcement, attackers can create unlimited accounts with fake emails for abuse (spam, quota exhaustion, ban evasion). This also affects compliance requirements that mandate verified contact information.",
+      "category": "authentication",
+      "severity": "medium",
+      "affectedFiles": [
+        "server/src/routes/auth.ts",
+        "server/src/db/schema.ts"
+      ],
+      "vulnerability": "CWE-287: Improper Authentication",
+      "currentRisk": "Users can access all application features without proving email ownership, enabling spam accounts, quota abuse, and ban evasion",
+      "remediation": "1) Add 'emailVerified' boolean column to users table with default false, 2) Update signup to set emailVerified=false, 3) Update verify-email endpoint to set emailVerified=true, 4) Add middleware that restricts AI/storage features to verified users, 5) Show verification reminder banner for unverified users",
+      "references": [
+        "https://cheatsheetseries.owasp.org/cheatsheets/Authentication_Cheat_Sheet.html",
+        "https://cwe.mitre.org/data/definitions/287.html"
+      ],
+      "compliance": [
+        "SOC2",
+        "GDPR"
+      ],
+      "status": "archived",
+      "linked_task_id": "027-implement-email-verification-enforcement-before-fu"
+    },
+    {
+      "id": "sec-003",
+      "type": "security_hardening",
+      "title": "Add Session Regeneration After Authentication",
+      "description": "The current login flow creates a new session (auth.ts line 168: 'lucia.createSession(user.id, {})') but does not explicitly invalidate any pre-existing session from the same request. If an attacker can set a session cookie before login (via XSS or other means), they could potentially exploit session fixation.",
+      "rationale": "Session fixation is a well-known attack where attackers force victims to use a known session ID. While the Lucia auth library provides good defaults and the CSRF middleware helps, explicitly invalidating old sessions on login adds defense in depth.",
+      "category": "authentication",
+      "severity": "medium",
+      "affectedFiles": [
+        "server/src/routes/auth.ts",
+        "server/src/lib/auth.ts"
+      ],
+      "vulnerability": "CWE-384: Session Fixation",
+      "currentRisk": "Potential session hijacking if attacker can pre-set session cookies before user authentication",
+      "remediation": "Before creating a new session on login, check for and invalidate any existing session for the current request: 1) Read existing sessionId from cookie, 2) If exists, call lucia.invalidateSession(existingSessionId), 3) Then proceed with lucia.createSession(). This ensures any pre-set session is destroyed.",
+      "references": [
+        "https://owasp.org/www-community/attacks/Session_fixation",
+        "https://cwe.mitre.org/data/definitions/384.html"
+      ],
+      "compliance": [
+        "SOC2",
+        "OWASP Top 10"
+      ],
+      "status": "archived",
+      "linked_task_id": "028-add-session-regeneration-after-authentication"
+    },
+    {
+      "id": "sec-004",
+      "type": "security_hardening",
+      "title": "Remove Sensitive Debug Logging from Production Code",
+      "description": "Several files contain console.log statements that could leak sensitive information in production logs: server/check_token.ts logs verification tokens (line 13), server/probe_replicate.ts logs API key existence and length (lines 5-6), vite.config.ts logs token presence details (lines 31, 37, 41). While not logging full secrets, this metadata aids reconnaissance.",
+      "rationale": "Debug logging that references tokens, keys, or authentication data—even indirectly—provides information to attackers about what secrets exist and how they're used. In shared log aggregators (Datadog, CloudWatch), this data could be exposed to unauthorized parties.",
+      "category": "data_protection",
+      "severity": "low",
+      "affectedFiles": [
+        "server/check_token.ts",
+        "server/probe_replicate.ts",
+        "vite.config.ts"
+      ],
+      "vulnerability": "CWE-532: Insertion of Sensitive Information into Log File",
+      "currentRisk": "Log aggregation systems may expose API key metadata and token information to unauthorized parties",
+      "remediation": "1) Remove or gate debug logging behind NODE_ENV !== 'production', 2) Delete probe_*.ts files if they're only for debugging, 3) Replace direct token/key logging with boolean checks only (e.g., 'Has token: true'), 4) Add structured logging that explicitly excludes sensitive fields",
+      "references": [
+        "https://owasp.org/www-community/vulnerabilities/Information_exposure_through_log_files",
+        "https://cwe.mitre.org/data/definitions/532.html"
       ],
       "compliance": [
         "SOC2",
         "PCI-DSS"
       ],
       "status": "archived",
-      "linked_task_id": "011-proxy-voice-websocket-connections-through-server-t"
-    },
-    {
-      "id": "sec-002",
-      "type": "security_hardening",
-      "title": "Implement Server-Side Password Strength Validation",
-      "description": "The signup endpoint in `server/src/routes/auth.ts` (line 17-21) only validates that password is a non-empty string (`!password || typeof password !== 'string'`). There are no password complexity requirements enforced, allowing users to register with trivially weak passwords like '1', 'a', or 'password'.",
-      "rationale": "Weak passwords are a primary attack vector even with rate limiting and account lockout in place. Users often reuse passwords across services, and weak passwords can be compromised through offline dictionary attacks if the database is ever breached. The existing Argon2 hashing protects against rainbow tables but not against dictionary attacks on weak passwords.",
-      "category": "authentication",
-      "severity": "high",
-      "affectedFiles": [
-        "server/src/routes/auth.ts"
-      ],
-      "vulnerability": "CWE-521: Weak Password Requirements",
-      "currentRisk": "Users can set trivially weak passwords (e.g., '1', 'password123'), making accounts vulnerable to credential stuffing even with account lockout protection",
-      "remediation": "Add server-side password validation middleware requiring: minimum 8 characters, at least one uppercase letter, one lowercase letter, one number. Consider checking against Have I Been Pwned API for breached passwords. Example validation: `if (password.length < 8 || !/[A-Z]/.test(password) || !/[a-z]/.test(password) || !/[0-9]/.test(password)) return error;`",
-      "references": [
-        "https://cheatsheetseries.owasp.org/cheatsheets/Authentication_Cheat_Sheet.html#implement-proper-password-strength-controls",
-        "https://pages.nist.gov/800-63-3/sp800-63b.html#memsecret"
-      ],
-      "compliance": [
-        "SOC2",
-        "NIST 800-63B"
-      ],
-      "status": "archived",
-      "linked_task_id": "012-implement-server-side-password-strength-validation"
-    },
-    {
-      "id": "sec-003",
-      "type": "security_hardening",
-      "title": "Add Input Length Limits and Sanitization for AI Prompts",
-      "description": "AI endpoints in `server/src/routes/ai.ts` accept user prompts without enforcing maximum length limits or sanitization. The `/api/ai/chat`, `/api/ai/image/generate`, and `/api/ai/image/edit` routes pass prompts directly to external APIs. Only `/api/ai/prompt/enhance` has basic string validation (`typeof prompt !== 'string'`).",
-      "rationale": "Without input validation, malicious users could: 1) Submit extremely long prompts (megabytes) causing excessive API costs and timeouts, 2) Attempt prompt injection attacks to manipulate AI behavior or extract system prompts, 3) Abuse the service for generating harmful content via carefully crafted prompts.",
-      "category": "input_validation",
-      "severity": "medium",
-      "affectedFiles": [
-        "server/src/routes/ai.ts",
-        "server/src/routes/replicate.ts"
-      ],
-      "vulnerability": "CWE-400: Uncontrolled Resource Consumption / CWE-74: Prompt Injection",
-      "currentRisk": "Resource exhaustion from oversized prompts, potential prompt injection attacks, excessive API costs from abuse",
-      "remediation": "1. Add maximum length validation for all prompts (e.g., 10,000 characters). 2. Implement a prompt validation middleware that runs before AI routes. 3. Log and monitor for suspicious patterns like 'ignore previous instructions', 'you are now', or system prompt extraction attempts. 4. Consider implementing semantic content filtering for generated outputs.",
-      "references": [
-        "https://simonwillison.net/2022/Sep/12/prompt-injection/",
-        "https://owasp.org/www-project-web-security-testing-guide/latest/4-Web_Application_Security_Testing/07-Input_Validation_Testing/"
-      ],
-      "compliance": [
-        "SOC2"
-      ],
-      "status": "archived",
-      "linked_task_id": "013-add-input-length-limits-and-sanitization-for-ai-pr"
-    },
-    {
-      "id": "sec-004",
-      "type": "security_hardening",
-      "title": "Enable Content Safety Filters on Generate-Layer Endpoint",
-      "description": "In `server/src/routes/replicate.ts` line 342, the generate-layer endpoint has `disable_safety_checker: true` hard-coded, explicitly bypassing Replicate's content moderation. This is the only endpoint where safety is explicitly disabled - other endpoints have it enabled or use defaults.",
-      "rationale": "Disabling content safety filters specifically for the generate-layer endpoint creates an attack vector for generating inappropriate content. While other endpoints have safety enabled, users could target this specific endpoint to bypass moderation. This could expose the platform to legal liability and Replicate ToS violations.",
-      "category": "configuration",
-      "severity": "medium",
-      "affectedFiles": [
-        "server/src/routes/replicate.ts"
-      ],
-      "vulnerability": "CWE-1188: Insecure Default Initialization of Resource",
-      "currentRisk": "The generate-layer endpoint bypasses content moderation, enabling generation of potentially harmful or policy-violating images",
-      "remediation": "Remove `disable_safety_checker: true` from line 342 in replicate.ts. The default Replicate behavior with safety enabled should be sufficient for professional use cases. If there's a legitimate need for unfiltered generation, make it a server-controlled configuration with audit logging, not hard-coded.",
-      "references": [
-        "https://replicate.com/docs/topics/safety"
-      ],
-      "compliance": [
-        "Platform ToS",
-        "Content Policy"
-      ],
-      "status": "archived",
-      "linked_task_id": "014-enable-content-safety-filters-on-generate-layer-en"
+      "linked_task_id": "029-remove-sensitive-debug-logging-from-production-cod"
     },
     {
       "id": "sec-005",
       "type": "security_hardening",
-      "title": "Add Explicit .env.local to .gitignore",
-      "description": "The `.gitignore` contains `*.local` pattern and explicit `.env` and `.env.test` entries. While `*.local` should match `.env.local`, some git versions handle dotfile glob patterns inconsistently. Multiple .env files exist: `.env`, `.env.local`, `.env.test`, `server/.env`, and `.auto-claude/.env`.",
-      "rationale": "Environment files containing API keys (OPENAI, REPLICATE, OPENROUTER, etc.) must never be committed. Even brief accidental commits persist in git history. The current setup relies on glob patterns which may behave differently across git versions and platforms.",
-      "category": "secrets_management",
+      "title": "Strengthen CSP with Report-URI for Security Monitoring",
+      "description": "The Content-Security-Policy is well-configured (script-src 'self', no unsafe-eval) but lacks a report-uri or report-to directive. CSP violations—which could indicate XSS attempts or misconfigured resources—are not being monitored or logged. Adding CSP reporting enables proactive security monitoring.",
+      "rationale": "CSP reporting provides visibility into potential XSS attempts and identifies legitimate resources blocked by the policy. Without reporting, security teams cannot detect attacks in progress or fix false positives that may break functionality.",
+      "category": "configuration",
       "severity": "low",
       "affectedFiles": [
-        ".gitignore"
+        "server/src/index.ts"
       ],
-      "vulnerability": "CWE-312: Cleartext Storage of Sensitive Information",
-      "currentRisk": "Potential accidental commit of environment files if gitignore patterns don't match on all systems",
-      "remediation": "Explicitly add all environment files to .gitignore: `.env.local`, `server/.env`, `.auto-claude/.env`. Run `git status` to verify. Consider adding a pre-commit hook using `git-secrets` or `detect-secrets` to scan for API key patterns before each commit.",
+      "vulnerability": "CWE-1295: Missing Security Monitoring",
+      "currentRisk": "CSP violations (potential XSS attempts) go undetected without reporting configured",
+      "remediation": "Add CSP reporting directives: 1) 'report-uri /api/csp-report' for legacy browser support, 2) 'report-to csp-endpoint' for modern Reporting API, 3) Create a /api/csp-report endpoint that logs violations to your monitoring system (Datadog RUM is already integrated), 4) Use Report-Only mode first to test before enforcing new rules",
       "references": [
-        "https://github.com/awslabs/git-secrets",
-        "https://github.com/Yelp/detect-secrets"
+        "https://developer.mozilla.org/en-US/docs/Web/HTTP/CSP#reporting_policy_violations",
+        "https://web.dev/articles/strict-csp"
       ],
       "compliance": [
+        "OWASP Top 10",
         "SOC2"
       ],
       "status": "archived",
-      "linked_task_id": "015-add-explicit-env-local-to-gitignore"
+      "linked_task_id": "030-strengthen-csp-with-report-uri-for-security-monito"
     }
   ],
   "project_context": {
     "existing_features": [],
     "tech_stack": [
-      "TypeScript",
-      "React"
+      "React",
+      "TypeScript"
     ],
     "target_audience": "Career-focused professionals in the Careersy Community who need professional LinkedIn banners to enhance their personal brand",
     "planned_features": [
-      "Design Performance Analytics Dashboard",
-      "Competitive Banner Analysis",
-      "Partner Agent System (Autonomous AI Assistant)",
-      "Public API for Automation",
-      "Real-Time Collaboration",
-      "AI Personal Brand Coach",
-      "LinkedIn Premium Banner Slideshow Support",
+      "Re-enable CI Test Suite",
       "Professional Template Library",
       "Enhanced Mobile Cropping Preview",
-      "Motion Graphics & Video Banners",
-      "Team Workspaces",
-      "Re-enable CI Test Suite",
-      "Multi-Platform Banner Export",
-      "Design Approval Workflow",
-      "Direct LinkedIn Publishing Integration",
-      "Interactive Onboarding Tutorial",
-      "Personalized Starting Recommendations",
-      "Enterprise SSO & Security",
-      "Bundle Size Optimization & Code Splitting",
-      "TypeScript Interface Remediation",
+      "Public API for Automation",
       "Full Mobile Design Experience",
-      "Advanced Typography Controls",
+      "Competitive Banner Analysis",
+      "Partner Agent System (Autonomous AI Assistant)",
+      "Interactive Onboarding Tutorial",
       "Transparent Pricing & Easy Cancellation",
+      "Team Workspaces",
+      "Design Approval Workflow",
+      "AI Personal Brand Coach",
+      "Real-Time Collaboration",
+      "Bundle Size Optimization & Code Splitting",
+      "Design Performance Analytics Dashboard",
+      "Motion Graphics & Video Banners",
+      "Direct LinkedIn Publishing Integration",
+      "Advanced Typography Controls",
+      "Multi-Platform Banner Export",
+      "Personalized Starting Recommendations",
+      "LinkedIn Premium Banner Slideshow Support",
+      "Undo/Redo History with Visual Timeline",
+      "TypeScript Interface Remediation",
       "AI Design Improvement Suggestions",
-      "Undo/Redo History with Visual Timeline"
+      "Enterprise SSO & Security"
     ]
   },
   "summary": {
-    "total_ideas": 15,
+    "total_ideas": 20,
     "by_type": {
       "code_improvements": 5,
-      "ui_ux_improvements": 5,
+      "ui_ux_improvements": 10,
       "security_hardening": 5
     },
     "by_status": {
-      "draft": 15
+      "draft": 17,
+      "completed": 3
     }
   },
-  "generated_at": "2026-01-08T04:35:02.351467",
-  "updated_at": "2026-01-07T17:36:15.711Z"
+  "generated_at": "2026-01-08T07:14:26.719791",
+  "updated_at": "2026-01-07T20:14:54.735Z"
 }

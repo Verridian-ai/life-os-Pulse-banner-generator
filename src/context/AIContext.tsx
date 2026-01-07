@@ -67,6 +67,9 @@ export const AIProvider: React.FC<AIProviderProps> = ({ children }) => {
   // Replicate Operations
   const [replicateOperation, setReplicateOperation] = useState<ReplicateOperation | null>(null);
 
+  // Global Prompt State (Shared between Sidebar, Template Library, etc.)
+  const [prompt, setPrompt] = useState('');
+
   // Load available models on mount
   useEffect(() => {
     const models = Object.values(getModelMetadata());
@@ -163,6 +166,8 @@ export const AIProvider: React.FC<AIProviderProps> = ({ children }) => {
     clearEditHistory,
     replicateOperation,
     setReplicateOperation,
+    prompt,
+    setPrompt,
   };
 
   return <AIContext.Provider value={value}>{children}</AIContext.Provider>;

@@ -26,15 +26,15 @@ export interface PerformanceMetric {
   modelId: string;
   provider: 'gemini' | 'openrouter' | 'replicate';
   operation:
-    | 'text_gen'
-    | 'image_gen'
-    | 'image_edit'
-    | 'upscale'
-    | 'removebg'
-    | 'inpaint'
-    | 'outpaint'
-    | 'restore'
-    | 'faceenhance';
+  | 'text_gen'
+  | 'image_gen'
+  | 'image_edit'
+  | 'upscale'
+  | 'removebg'
+  | 'inpaint'
+  | 'outpaint'
+  | 'restore'
+  | 'faceenhance';
   timestamp: number;
   responseTime: number; // ms
   tokenUsage?: { input: number; output: number };
@@ -56,14 +56,14 @@ export interface ToolChain {
 export interface ChainStep {
   id: string;
   tool:
-    | 'generate'
-    | 'upscale'
-    | 'edit'
-    | 'removebg'
-    | 'inpaint'
-    | 'outpaint'
-    | 'restore'
-    | 'faceenhance';
+  | 'generate'
+  | 'upscale'
+  | 'edit'
+  | 'removebg'
+  | 'inpaint'
+  | 'outpaint'
+  | 'restore'
+  | 'faceenhance';
   params: Record<string, string | number | boolean>;
   status: 'pending' | 'running' | 'completed' | 'failed';
   result?: string; // image URL or base64
@@ -169,4 +169,8 @@ export interface AIContextType {
       | null
       | ((prev: ReplicateOperation | null) => ReplicateOperation | null),
   ) => void;
+
+  // Prompt Management
+  prompt: string;
+  setPrompt: (prompt: string) => void;
 }

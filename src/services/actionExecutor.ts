@@ -22,6 +22,9 @@ import {
   DuplicateElementCommand,
   LockElementCommand,
   GroupElementsCommand,
+  BatchDeleteElementsCommand,
+  BatchUpdateElementsCommand,
+  BatchMoveElementsCommand,
 } from './commands/canvasCommands';
 import {
   NavigateToTabCommand,
@@ -122,6 +125,9 @@ export class ActionExecutor {
     this.registerCommand(new DuplicateElementCommand());
     this.registerCommand(new LockElementCommand());
     this.registerCommand(new GroupElementsCommand());
+    this.registerCommand(new BatchDeleteElementsCommand());
+    this.registerCommand(new BatchUpdateElementsCommand());
+    this.registerCommand(new BatchMoveElementsCommand());
   }
 
   public registerCommand(command: Command) {
