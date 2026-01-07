@@ -11,14 +11,15 @@ type NavItem = {
     label: string;
     icon: string;
     href: string;
-    permission?: 'user_management' | 'agent_configuration' | 'audit_log_access' | 'system_settings' | 'observability_config';
+    permission?: 'user_management' | 'agent_configuration' | 'audit_log_access' | 'system_settings' | 'observability_config' | 'financial_access';
 };
 
 const navItems: NavItem[] = [
     { id: 'dashboard', label: 'Dashboard', icon: 'dashboard', href: '/admin' },
     { id: 'users', label: 'Users', icon: 'people', href: '/admin/users', permission: 'user_management' },
     { id: 'agents', label: 'Agents', icon: 'smart_toy', href: '/admin/agents', permission: 'agent_configuration' },
-    { id: 'observability', label: 'Observability', icon: 'insights', href: '/admin/observability', permission: 'audit_log_access' },
+    { id: 'observability', label: 'Observability', icon: 'insights', href: '/admin/observability', permission: 'observability_config' },
+    { id: 'finance', label: 'Finance', icon: 'payments', href: '/admin/finance', permission: 'financial_access' },
     { id: 'audit', label: 'Audit Logs', icon: 'history', href: '/admin/audit', permission: 'audit_log_access' },
 ];
 
@@ -34,9 +35,8 @@ export function AdminLayout({ children, activeSection = 'dashboard' }: AdminLayo
         <div className="min-h-screen bg-black flex">
             {/* Sidebar */}
             <aside
-                className={`${
-                    sidebarOpen ? 'w-64' : 'w-20'
-                } bg-zinc-900/50 border-r border-white/5 flex flex-col transition-all duration-300`}
+                className={`${sidebarOpen ? 'w-64' : 'w-20'
+                    } bg-zinc-900/50 border-r border-white/5 flex flex-col transition-all duration-300`}
             >
                 {/* Logo */}
                 <div className="p-4 border-b border-white/5 flex items-center justify-between">
@@ -69,11 +69,10 @@ export function AdminLayout({ children, activeSection = 'dashboard' }: AdminLayo
                             <a
                                 key={item.id}
                                 href={item.href}
-                                className={`flex items-center gap-3 px-3 py-2.5 rounded-xl transition ${
-                                    isActive
-                                        ? 'bg-gradient-to-r from-purple-600/20 to-blue-600/20 text-white border border-purple-500/30'
-                                        : 'text-zinc-400 hover:text-white hover:bg-white/5'
-                                }`}
+                                className={`flex items-center gap-3 px-3 py-2.5 rounded-xl transition ${isActive
+                                    ? 'bg-gradient-to-r from-purple-600/20 to-blue-600/20 text-white border border-purple-500/30'
+                                    : 'text-zinc-400 hover:text-white hover:bg-white/5'
+                                    }`}
                             >
                                 <span className="material-icons text-xl">{item.icon}</span>
                                 {sidebarOpen && (

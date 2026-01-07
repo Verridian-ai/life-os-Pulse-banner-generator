@@ -146,6 +146,22 @@ export async function updateAgent(
     });
 }
 
+export async function addAgentContextDoc(
+    agentId: string,
+    data: { name: string; type: string; cogneeDocId?: string; filePath?: string; metadata?: Record<string, unknown> }
+): Promise<{ success: boolean; document: unknown }> {
+    return fetchWithCredentials(`${API_BASE}/agents/${agentId}/documents`, {
+        method: 'POST',
+        body: JSON.stringify(data),
+    });
+}
+
+export async function removeAgentContextDoc(agentId: string, docId: string): Promise<{ success: boolean }> {
+    return fetchWithCredentials(`${API_BASE}/agents/${agentId}/documents/${docId}`, {
+        method: 'DELETE',
+    });
+}
+
 // ============================================================================
 // Observability
 // ============================================================================
@@ -181,6 +197,41 @@ export async function getDailyStats(days = 7): Promise<{
     stats: unknown[];
 }> {
     return fetchWithCredentials(`${API_BASE}/observability/stats?days=${days}`);
+}
+
+// ============================================================================
+// Finance & Credits
+// ============================================================================
+
+export type FinanceStats = {
+    granted: number;
+    used: number;
+    float: number;
+    volume24h: number;
+};
+
+export type CreditTransaction = {
+    id: string;
+    userId: string;
+    userEmail: string;
+    amount: number;
+    type: string;
+    description: string;
+    createdAt: string;
+};
+
+export async function getFinanceStats(): Promise<FinanceStats> {
+    return fetchWithCredentials(`${API_BASE}/finance/stats`);
+}
+
+export async function listTransactions(params: { limit?: number; offset?: number } = {}): Promise<{
+    transactions: CreditTransaction[];
+}> {
+    const searchParams = new URLSearchParams();
+    if (params.limit) searchParams.set('limit', String(params.limit));
+    if (params.offset) searchParams.set('offset', String(params.offset));
+
+    return fetchWithCredentials(`${API_BASE}/finance/transactions?${searchParams.toString()}`);
 }
 
 // ============================================================================

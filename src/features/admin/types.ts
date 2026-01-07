@@ -6,6 +6,7 @@ export type AdminPermissions = {
     audit_log_access: boolean;
     system_settings: boolean;
     observability_config: boolean;
+    financial_access: boolean;
 };
 
 export type AdminStatus = {
@@ -118,4 +119,23 @@ export type AuditLogEntry = {
     userAgent: string | null;
     status: string;
     createdAt: string;
+};
+
+export type LlmTrace = {
+    id: string;
+    agentId: string | null;
+    model: string;
+    input: unknown;
+    output: unknown;
+    totalTokens: number | null;
+    durationMs: number | null;
+    status: string | null;
+    createdAt: string;
+};
+
+export type ApiMetric = {
+    endpoint: string;
+    method: string;
+    avgLatency: number;
+    requestCount: number;
 };
