@@ -1,0 +1,510 @@
+{
+  "project_context": {
+    "project_name": "Nanobanna Pro",
+    "project_type": "AI-powered LinkedIn banner design web application",
+    "target_audience": "Career-focused professionals in the Careersy Community who need professional LinkedIn banners to enhance their personal brand"
+  },
+  "competitors": [
+    {
+      "id": "competitor-1",
+      "name": "Canva",
+      "url": "https://www.canva.com",
+      "description": "General-purpose design platform with AI features, templates, and Magic Studio tools for creating various graphics including LinkedIn banners",
+      "relevance": "high",
+      "pain_points": [
+        {
+          "id": "pain-1-1",
+          "description": "Frustrating UI redesign in 2024 requiring extra clicks - users need multiple clicks to access editing features, making workflow less efficient",
+          "source": "Strella Social Media blog, Capterra reviews",
+          "severity": "high",
+          "frequency": "Very common - mentioned across multiple review platforms",
+          "opportunity": "Nanobanna Pro can provide a streamlined, purpose-built interface specifically for banner creation without UI bloat"
+        },
+        {
+          "id": "pain-1-2",
+          "description": "Lack of proper layers system - object transformation, effects, and arranging elements can be infuriating compared to professional design tools",
+          "source": "Capterra reviews, G2 reviews",
+          "severity": "medium",
+          "frequency": "Common among professional users",
+          "opportunity": "Nanobanna Pro's canvas editor with proper layer management addresses this directly"
+        },
+        {
+          "id": "pain-1-3",
+          "description": "Billing and subscription issues - difficult cancellation process, unexpected charges, and poor customer support with no phone option",
+          "source": "Trustpilot reviews, Sitejabber reviews",
+          "severity": "high",
+          "frequency": "Very common - major complaint category",
+          "opportunity": "Transparent pricing and easy account management for Careersy Community members"
+        },
+        {
+          "id": "pain-1-4",
+          "description": "Performance issues - website becomes slow and laggy with complex designs, especially for premium subscribers",
+          "source": "Trustpilot, Reddit discussions",
+          "severity": "medium",
+          "frequency": "Common",
+          "opportunity": "Optimized performance for single-purpose banner design workflow"
+        },
+        {
+          "id": "pain-1-5",
+          "description": "Premium features locked behind paywall - many high-quality templates and assets require Pro subscription",
+          "source": "Software Advice reviews, Capterra reviews",
+          "severity": "medium",
+          "frequency": "Common among free tier users",
+          "opportunity": "Community-focused pilot with shared API access and invite-only model"
+        },
+        {
+          "id": "pain-1-6",
+          "description": "Text alignment inaccuracies - platform reports elements as aligned when they are not, plus lacks basic features like variable text sizes in same text box",
+          "source": "Capterra verified reviews",
+          "severity": "medium",
+          "frequency": "Occasional but frustrating",
+          "opportunity": "Safe zone guides and precise canvas controls in Nanobanna Pro"
+        },
+        {
+          "id": "pain-1-7",
+          "description": "Limited export options - projects exported from Canva cannot always be edited in other professional tools",
+          "source": "Multiple review sites",
+          "severity": "low",
+          "frequency": "Occasional",
+          "opportunity": "High-resolution 4K export capability already built into Nanobanna Pro"
+        }
+      ],
+      "strengths": [
+        "Massive template library with 260+ million monthly active users",
+        "Easy to use for non-designers with drag-and-drop interface",
+        "Magic Studio AI features including image generation and photo editing",
+        "Brand kit for visual consistency",
+        "Wide range of file export formats"
+      ],
+      "market_position": "Market leader in general-purpose design - positioned as accessible alternative to professional tools like Photoshop"
+    },
+    {
+      "id": "competitor-2",
+      "name": "Adobe Express",
+      "url": "https://www.adobe.com/express",
+      "description": "Adobe's simplified design tool with generative AI features, brand kit, and collaborative editing for creating social media graphics",
+      "relevance": "high",
+      "pain_points": [
+        {
+          "id": "pain-2-1",
+          "description": "Cluttered UI after June/October 2025 updates - workspace is difficult to navigate and slows down workflow significantly",
+          "source": "Adobe Product Community forums",
+          "severity": "high",
+          "frequency": "Very common since 2025 updates",
+          "opportunity": "Clean, focused interface built specifically for LinkedIn banner creation"
+        },
+        {
+          "id": "pain-2-2",
+          "description": "AI integration makes image editing harder - app is riddled with AI features that interfere with traditional editing workflows",
+          "source": "Adobe Product Community forums",
+          "severity": "medium",
+          "frequency": "Common among existing users",
+          "opportunity": "AI assistance that enhances rather than obstructs - multi-turn editing with memory"
+        },
+        {
+          "id": "pain-2-3",
+          "description": "Performance issues - slow response for commands sometimes taking minutes, projects hanging when trying to resize",
+          "source": "Adobe Product Community forums, G2 reviews",
+          "severity": "high",
+          "frequency": "Common",
+          "opportunity": "Optimized single-purpose tool without feature bloat"
+        },
+        {
+          "id": "pain-2-4",
+          "description": "Expensive annual subscription with lock-out if payments missed - users cannot access their work without paying",
+          "source": "Trustpilot reviews, Adobe Community",
+          "severity": "high",
+          "frequency": "Common concern",
+          "opportunity": "Community-based access model with invite-only pilot"
+        },
+        {
+          "id": "pain-2-5",
+          "description": "Difficult cancellation and unexpected charges - high cancellation fees and lack of billing transparency",
+          "source": "Trustpilot reviews",
+          "severity": "high",
+          "frequency": "Very common complaint",
+          "opportunity": "Transparent pricing and easy management"
+        },
+        {
+          "id": "pain-2-6",
+          "description": "No CMYK support and limited vector editing - professional print workflows not supported",
+          "source": "Professional design reviews, Fast Frigate review",
+          "severity": "low",
+          "frequency": "Niche but important for some users",
+          "opportunity": "Focus on digital banner output optimized for LinkedIn dimensions"
+        },
+        {
+          "id": "pain-2-7",
+          "description": "Video upload format restrictions - users can no longer add videos from desktop without running through converter",
+          "source": "Adobe Product Community forums",
+          "severity": "medium",
+          "frequency": "Common after October 2025 update",
+          "opportunity": "N/A - Nanobanna Pro focuses on static banners"
+        }
+      ],
+      "strengths": [
+        "Integration with broader Adobe Creative Cloud ecosystem",
+        "Quick Actions for background removal and file conversion",
+        "Real-time collaboration features",
+        "Brand kit for visual consistency",
+        "Generative AI capabilities"
+      ],
+      "market_position": "Adobe's entry-level design tool positioned between full Creative Suite and consumer tools"
+    },
+    {
+      "id": "competitor-3",
+      "name": "VistaCreate (Crello)",
+      "url": "https://create.vista.com",
+      "description": "Template-based design platform with social media banner creation tools, formerly known as Crello",
+      "relevance": "medium",
+      "pain_points": [
+        {
+          "id": "pain-3-1",
+          "description": "Basic search functionality - no filters available, finding the right image or vector shape is very time-consuming",
+          "source": "Capterra reviews, G2 reviews",
+          "severity": "medium",
+          "frequency": "Common complaint",
+          "opportunity": "AI-powered generation eliminates need to search through stock assets"
+        },
+        {
+          "id": "pain-3-2",
+          "description": "Limited positioning features - cannot set exact dimensions in pixels for objects on canvas",
+          "source": "Software Advice reviews",
+          "severity": "medium",
+          "frequency": "Common among precision-focused users",
+          "opportunity": "Canvas editor with precise positioning and safe zone guides"
+        },
+        {
+          "id": "pain-3-3",
+          "description": "Billing and cancellation issues - users report difficulty canceling, charges despite cancellation, and poor support",
+          "source": "Trustpilot reviews",
+          "severity": "high",
+          "frequency": "Common complaint",
+          "opportunity": "Transparent community-based access model"
+        },
+        {
+          "id": "pain-3-4",
+          "description": "Quality degradation during import and lack of modern format support like WebP",
+          "source": "JustUseApp reviews",
+          "severity": "medium",
+          "frequency": "Occasional",
+          "opportunity": "High-quality AI generation and 4K export capabilities"
+        },
+        {
+          "id": "pain-3-5",
+          "description": "Limited video editing capabilities - no transitions and short music options",
+          "source": "EXPERTE.com review",
+          "severity": "low",
+          "frequency": "Occasional",
+          "opportunity": "N/A - Focus on static banner excellence"
+        },
+        {
+          "id": "pain-3-6",
+          "description": "Content sorting is difficult - cannot filter results by content type, must search through everything",
+          "source": "EXPERTE.com review",
+          "severity": "medium",
+          "frequency": "Common",
+          "opportunity": "AI generation bypasses asset library search entirely"
+        }
+      ],
+      "strengths": [
+        "Good stock photo options included",
+        "Live chat support available",
+        "Templates are generally high quality",
+        "Part of Vista ecosystem with print-on-demand integration"
+      ],
+      "market_position": "Mid-tier Canva alternative with good template library, popular among social media managers"
+    },
+    {
+      "id": "competitor-4",
+      "name": "Bannerbear",
+      "url": "https://www.bannerbear.com",
+      "description": "API-based image and video generation solution for automating visual content creation at scale",
+      "relevance": "medium",
+      "pain_points": [
+        {
+          "id": "pain-4-1",
+          "description": "Expensive pricing for small businesses - costs add up quickly especially for video and PDF generation",
+          "source": "Plainly Videos blog, Templated.io comparison",
+          "severity": "high",
+          "frequency": "Common concern",
+          "opportunity": "Accessible pricing through shared API quota in pilot mode"
+        },
+        {
+          "id": "pain-4-2",
+          "description": "Limited video creation - only overlay videos can be generated, no animated videos",
+          "source": "Plainly Videos alternatives comparison",
+          "severity": "medium",
+          "frequency": "Common among video-focused users",
+          "opportunity": "Focus on static banner excellence rather than video"
+        },
+        {
+          "id": "pain-4-3",
+          "description": "Stagnant development - no significant updates since 2021",
+          "source": "Plainly Videos alternatives comparison",
+          "severity": "medium",
+          "frequency": "Concern among evaluating users",
+          "opportunity": "Active development with modern AI capabilities and multi-LLM orchestration"
+        },
+        {
+          "id": "pain-4-4",
+          "description": "Limited styling options and template editor compared to modern design tools",
+          "source": "Templated.io comparison",
+          "severity": "medium",
+          "frequency": "Common",
+          "opportunity": "Rich canvas editor with AI-powered customization"
+        },
+        {
+          "id": "pain-4-5",
+          "description": "API-focused requiring technical integration - not suitable for non-technical users",
+          "source": "Product positioning, multiple reviews",
+          "severity": "high",
+          "frequency": "Inherent limitation",
+          "opportunity": "User-friendly interface with AI voice commands - no coding required"
+        }
+      ],
+      "strengths": [
+        "Excellent for automation and batch generation",
+        "Strong API and Zapier integration",
+        "Auto-resizing text and face detection",
+        "Multi-language support including complex scripts",
+        "Great founder-led support response times"
+      ],
+      "market_position": "Developer-focused automation tool for programmatic image generation at scale"
+    },
+    {
+      "id": "competitor-5",
+      "name": "Placeit",
+      "url": "https://placeit.net",
+      "description": "Cloud-based mockup and design generator with templates for social media, logos, and product mockups",
+      "relevance": "medium",
+      "pain_points": [
+        {
+          "id": "pain-5-1",
+          "description": "Limited customization - restricted to resizing, rearranging, colors and fonts with no advanced features like layers or blending",
+          "source": "Entre Resource review, Digital Business Network review",
+          "severity": "medium",
+          "frequency": "Common among users wanting more control",
+          "opportunity": "Canvas editor with layers, AI editing, and advanced customization"
+        },
+        {
+          "id": "pain-5-2",
+          "description": "Quality issues - some mockups described as cheesy, low quality, stocky, or unusably blurry",
+          "source": "Trustpilot reviews, Ecomm.design review",
+          "severity": "medium",
+          "frequency": "Occasional but notable",
+          "opportunity": "AI generation creates unique, high-quality images without stock photo limitations"
+        },
+        {
+          "id": "pain-5-3",
+          "description": "Billing issues and charges after cancellation - subscription practices causing frustration",
+          "source": "Trustpilot reviews",
+          "severity": "high",
+          "frequency": "Common complaint",
+          "opportunity": "Transparent community-based access"
+        },
+        {
+          "id": "pain-5-4",
+          "description": "Saturation problem - popular templates appear across thousands of businesses, making unique branding difficult",
+          "source": "The Endearing Designer review",
+          "severity": "medium",
+          "frequency": "Inherent platform limitation",
+          "opportunity": "AI generation creates truly unique designs for each user"
+        },
+        {
+          "id": "pain-5-5",
+          "description": "Logo maker not included in subscription - requires separate $39.95 payment (50% off for subscribers)",
+          "source": "Pricing information, multiple reviews",
+          "severity": "low",
+          "frequency": "Occasional frustration",
+          "opportunity": "All-inclusive banner generation capability"
+        },
+        {
+          "id": "pain-5-6",
+          "description": "Content library not updated frequently - limited freshness of available mockups",
+          "source": "User reviews",
+          "severity": "low",
+          "frequency": "Occasional concern",
+          "opportunity": "AI generates fresh content on demand"
+        }
+      ],
+      "strengths": [
+        "Massive mockup library (30,000+ options)",
+        "Very fast learning curve - first mockup in 5 minutes",
+        "Affordable pricing compared to competitors",
+        "T-shirt mockups particularly strong",
+        "Pay-as-you-go option available"
+      ],
+      "market_position": "Budget-friendly mockup specialist focused on e-commerce and print-on-demand businesses"
+    },
+    {
+      "id": "competitor-6",
+      "name": "Figma",
+      "url": "https://www.figma.com",
+      "description": "Professional collaborative design tool with social media templates and precise design controls",
+      "relevance": "low",
+      "pain_points": [
+        {
+          "id": "pain-6-1",
+          "description": "High learning curve - requires design expertise to use effectively, not beginner-friendly",
+          "source": "General market positioning",
+          "severity": "high",
+          "frequency": "Common for non-designers",
+          "opportunity": "AI-powered creation requires zero design skills"
+        },
+        {
+          "id": "pain-6-2",
+          "description": "LinkedIn banner profile picture overlap complexity - users struggle to understand how LinkedIn displays banners with avatars",
+          "source": "Figma Community templates and guides",
+          "severity": "medium",
+          "frequency": "Common challenge",
+          "opportunity": "Built-in safe zone guides specifically for LinkedIn dimensions"
+        },
+        {
+          "id": "pain-6-3",
+          "description": "Overkill for simple banner tasks - full design tool when only banner creation is needed",
+          "source": "Product positioning comparison",
+          "severity": "medium",
+          "frequency": "Common for single-purpose users",
+          "opportunity": "Purpose-built LinkedIn banner tool without unnecessary complexity"
+        }
+      ],
+      "strengths": [
+        "Professional-grade design capabilities",
+        "Excellent collaboration features",
+        "Precise pixel-level control",
+        "Strong developer handoff features",
+        "Extensive community templates"
+      ],
+      "market_position": "Professional design tool for teams, positioned above consumer tools with steeper learning curve"
+    }
+  ],
+  "market_gaps": [
+    {
+      "id": "gap-1",
+      "description": "No competitor offers voice-powered design creation - all require manual clicking and typing for design workflows",
+      "affected_competitors": ["competitor-1", "competitor-2", "competitor-3", "competitor-4", "competitor-5", "competitor-6"],
+      "opportunity_size": "high",
+      "suggested_feature": "Voice-powered creation with Gemini Live Audio - completely hands-free design workflow is unique in market"
+    },
+    {
+      "id": "gap-2",
+      "description": "Generic design tools not optimized for LinkedIn banner dimensions and safe zones - users must manually handle profile picture overlap",
+      "affected_competitors": ["competitor-1", "competitor-2", "competitor-3", "competitor-5"],
+      "opportunity_size": "high",
+      "suggested_feature": "Purpose-built LinkedIn banner tool with automatic safe zone guides and dimension templates"
+    },
+    {
+      "id": "gap-3",
+      "description": "Single AI model limitation - competitors use one AI provider, limiting output quality and variety",
+      "affected_competitors": ["competitor-1", "competitor-2", "competitor-3", "competitor-4"],
+      "opportunity_size": "high",
+      "suggested_feature": "Multi-LLM orchestration (Gemini + OpenRouter + Replicate) provides best-of-breed AI capabilities"
+    },
+    {
+      "id": "gap-4",
+      "description": "No built-in A/B testing for banner designs - users must manually create and compare variants",
+      "affected_competitors": ["competitor-1", "competitor-2", "competitor-3", "competitor-5", "competitor-6"],
+      "opportunity_size": "medium",
+      "suggested_feature": "Automatic A/B testing variant generation built into workflow"
+    },
+    {
+      "id": "gap-5",
+      "description": "AI image editing lacks memory of previous edits - users start fresh each time without context",
+      "affected_competitors": ["competitor-1", "competitor-2", "competitor-3"],
+      "opportunity_size": "medium",
+      "suggested_feature": "Multi-turn image editing with AI memory for iterative refinement"
+    },
+    {
+      "id": "gap-6",
+      "description": "Billing transparency and cancellation issues plague most competitors",
+      "affected_competitors": ["competitor-1", "competitor-2", "competitor-3", "competitor-5"],
+      "opportunity_size": "medium",
+      "suggested_feature": "Transparent community-based access model with invite-only pilot for Careersy members"
+    },
+    {
+      "id": "gap-7",
+      "description": "Career/professional branding focus missing - tools are generic rather than optimized for professional personal branding",
+      "affected_competitors": ["competitor-1", "competitor-2", "competitor-3", "competitor-5"],
+      "opportunity_size": "high",
+      "suggested_feature": "Purpose-built for career professionals with brand consistency panel and professional templates"
+    },
+    {
+      "id": "gap-8",
+      "description": "Automation tools require technical skills - API-based solutions not accessible to non-developers",
+      "affected_competitors": ["competitor-4"],
+      "opportunity_size": "medium",
+      "suggested_feature": "Tool chain builder for multi-step workflows without coding"
+    }
+  ],
+  "insights_summary": {
+    "top_pain_points": [
+      "Billing, subscription, and cancellation issues are the #1 complaint across Canva, Adobe Express, VistaCreate, and Placeit",
+      "UI complexity and extra clicks frustrate users - 2024/2025 redesigns made workflows less efficient",
+      "Performance issues (slow loading, lag) plague complex projects in general-purpose design tools",
+      "Generic design tools lack LinkedIn-specific features like safe zone handling and optimal dimensions",
+      "Template saturation means designs look similar across thousands of businesses",
+      "AI integration often hinders rather than helps - Adobe Express users complain AI is obtrusive"
+    ],
+    "differentiator_opportunities": [
+      "Voice-powered creation is unique - no competitor offers hands-free design workflows",
+      "Multi-LLM AI orchestration (Gemini + OpenRouter + Replicate) is not available elsewhere",
+      "Purpose-built LinkedIn banner focus vs generic design tools",
+      "Multi-turn AI editing with memory for iterative refinement",
+      "Built-in A/B testing variant generation",
+      "Community-based transparent access model vs subscription traps",
+      "Career-focused features for professional personal branding"
+    ],
+    "market_trends": [
+      "AI features are expected but often poorly integrated - users want AI that assists without obstructing",
+      "Subscription fatigue is real - users frustrated by hidden fees and difficult cancellation",
+      "Mobile-first design is critical - most LinkedIn users access via mobile",
+      "Dynamic banner content (regular updates) drives 30% more engagement than static profiles",
+      "Professional designers want more control while non-designers want simplicity - hard to serve both",
+      "Quality over quantity - AI-generated content concerns about mediocrity and lack of personality"
+    ]
+  },
+  "research_metadata": {
+    "search_queries_used": [
+      "Canva design tool complaints problems user reviews 2025",
+      "Adobe Express user complaints problems reviews 2025",
+      "Crello VistaCreate design problems user complaints reviews",
+      "LinkedIn banner design tools AI alternatives 2025",
+      "Canva problems frustrations site:reddit.com 2024 2025",
+      "AI image generation banner design complaints limitations reddit",
+      "BannerBear API banner automation reviews pricing complaints",
+      "Figma social media banner design LinkedIn reddit problems",
+      "Placeit mockup design tool reviews complaints pricing problems",
+      "voice AI design tools hands-free creative software 2025",
+      "AI LinkedIn banner generator problems quality issues user feedback"
+    ],
+    "sources_consulted": [
+      "Capterra verified reviews",
+      "Trustpilot customer reviews",
+      "G2 software reviews",
+      "Software Advice reviews",
+      "Sitejabber reviews",
+      "Adobe Product Community forums",
+      "Strella Social Media blog",
+      "EXPERTE.com reviews",
+      "Plainly Videos blog comparisons",
+      "Templated.io competitor analysis",
+      "The Endearing Designer review",
+      "Ecomm.design reviews",
+      "Entre Resource reviews",
+      "Digital Business Network reviews",
+      "DocHipo feature guides",
+      "Piktochart blog",
+      "Figma Community templates",
+      "Cybernews AI analysis"
+    ],
+    "limitations": [
+      "Reddit search results were limited - site:reddit.com queries returned fewer direct links than expected",
+      "Some competitor reviews are promotional in nature and may be biased",
+      "Pain points are self-reported by users and may not represent majority experience",
+      "Voice-powered design is an emerging category with limited direct competitor data",
+      "LinkedIn banner-specific feedback is sparse - most reviews cover general design capabilities"
+    ]
+  },
+  "created_at": "2026-01-06T12:30:00Z"
+}

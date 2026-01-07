@@ -1,0 +1,1828 @@
+{
+  "project_root": "C:\\Users\\Danie\\Desktop\\nanobanna-pro",
+  "project_type": "single",
+  "services": {
+    "main": {
+      "name": "main",
+      "path": "C:\\Users\\Danie\\Desktop\\nanobanna-pro",
+      "language": "TypeScript",
+      "framework": "React",
+      "type": "frontend",
+      "package_manager": "npm",
+      "default_port": 3000,
+      "build_tool": "Vite",
+      "styling": "Tailwind CSS",
+      "dev_command": "npm run dev",
+      "key_directories": {
+        "src": {
+          "path": "src",
+          "purpose": "Source code"
+        },
+        "api": {
+          "path": "api",
+          "purpose": "API endpoints"
+        },
+        "services": {
+          "path": "services",
+          "purpose": "Business logic"
+        },
+        "tests": {
+          "path": "tests",
+          "purpose": "Tests"
+        }
+      },
+      "entry_point": "src/App.tsx",
+      "dependencies": [
+        "@datadog/browser-rum",
+        "@tailwindcss/postcss",
+        "@types/node",
+        "@types/react",
+        "@types/react-dom",
+        "@vitejs/plugin-react",
+        "autoprefixer",
+        "lucide-react",
+        "postcss",
+        "react",
+        "react-dom",
+        "tailwindcss",
+        "typescript",
+        "vite"
+      ],
+      "dev_dependencies": [
+        "@playwright/test",
+        "@testing-library/jest-dom",
+        "@testing-library/react",
+        "@testing-library/user-event",
+        "@typescript-eslint/eslint-plugin",
+        "@typescript-eslint/parser",
+        "@vercel/node",
+        "@vitest/coverage-v8",
+        "eslint",
+        "eslint-config-prettier"
+      ],
+      "testing": "Vitest",
+      "e2e_testing": "Playwright",
+      "test_directory": "tests",
+      "dockerfile": "Dockerfile",
+      "environment": {
+        "variables": {
+          "VITE_SUPABASE_URL": {
+            "value": "https://bkergrdlytwvdzszmuos.supabase.co \\r\\n",
+            "source": ".env.test",
+            "type": "url",
+            "sensitive": false,
+            "required": false
+          },
+          "VITE_SUPABASE_ANON_KEY": {
+            "value": "<REDACTED>",
+            "source": ".env.test",
+            "type": "path",
+            "sensitive": true,
+            "required": false
+          },
+          "VITE_STORAGE_URL": {
+            "value": "https://bkergrdlytwvdzszmuos.storage.supabase.co",
+            "source": ".env",
+            "type": "url",
+            "sensitive": false,
+            "required": false
+          },
+          "DATADOG_API_KEY": {
+            "value": "<REDACTED>",
+            "source": ".env.local",
+            "type": "string",
+            "sensitive": true,
+            "required": false
+          },
+          "VITE_NEON_API_KEY": {
+            "value": "<REDACTED>",
+            "source": ".env.local",
+            "type": "string",
+            "sensitive": true,
+            "required": false
+          },
+          "VITE_OPENROUTER_API_KEY": {
+            "value": "<REDACTED>",
+            "source": ".env.test",
+            "type": "path",
+            "sensitive": true,
+            "required": true
+          },
+          "VITE_OPENAI_API_KEY": {
+            "value": "<REDACTED>",
+            "source": ".env.test",
+            "type": "path",
+            "sensitive": true,
+            "required": true
+          },
+          "VITE_REPLICATE_API_KEY": {
+            "value": "<REDACTED>",
+            "source": ".env.test",
+            "type": "path",
+            "sensitive": true,
+            "required": true
+          },
+          "LANGFUSE_SECRET_KEY": {
+            "value": "<REDACTED>",
+            "source": ".env.local",
+            "type": "string",
+            "sensitive": true,
+            "required": false
+          },
+          "LANGFUSE_PUBLIC_KEY": {
+            "value": "<REDACTED>",
+            "source": ".env.local",
+            "type": "string",
+            "sensitive": true,
+            "required": false
+          },
+          "LANGFUSE_BASE_URL": {
+            "value": "https://us.cloud.langfuse.com",
+            "source": ".env.local",
+            "type": "url",
+            "sensitive": false,
+            "required": false
+          },
+          "VERCEL_OIDC_TOKEN": {
+            "value": "<REDACTED>",
+            "source": ".env.test",
+            "type": "string",
+            "sensitive": true,
+            "required": false
+          },
+          "VITE_GEMINI_API_KEY": {
+            "value": "<REDACTED>",
+            "source": ".env.test",
+            "type": "path",
+            "sensitive": true,
+            "required": true
+          },
+          "VITE_API_URL": {
+            "value": null,
+            "source": ".env.example",
+            "type": "string",
+            "sensitive": false,
+            "required": true
+          },
+          "VITE_LANGFUSE_URL": {
+            "value": null,
+            "source": ".env.example",
+            "type": "string",
+            "sensitive": false,
+            "required": true
+          },
+          "VITE_LANGFUSE_PUBLIC_KEY": {
+            "value": null,
+            "source": ".env.example",
+            "type": "string",
+            "sensitive": true,
+            "required": true
+          }
+        },
+        "required_count": 7,
+        "optional_count": 0,
+        "detected_count": 16
+      },
+      "api": {
+        "routes": [
+          {
+            "path": "/",
+            "methods": [
+              "GET"
+            ],
+            "file": "services\\cognee\\cognee\\api\\client.py",
+            "framework": "FastAPI",
+            "requires_auth": false
+          },
+          {
+            "path": "/health",
+            "methods": [
+              "GET"
+            ],
+            "file": "services\\cognee\\cognee\\api\\client.py",
+            "framework": "FastAPI",
+            "requires_auth": false
+          },
+          {
+            "path": "/health/detailed",
+            "methods": [
+              "GET"
+            ],
+            "file": "services\\cognee\\cognee\\api\\client.py",
+            "framework": "FastAPI",
+            "requires_auth": false
+          },
+          {
+            "path": "/status",
+            "methods": [
+              "GET"
+            ],
+            "file": "services\\cognee\\cognee\\api\\v1\\sync\\routers\\get_sync_router.py",
+            "framework": "FastAPI",
+            "requires_auth": false
+          },
+          {
+            "path": "/",
+            "methods": [
+              "POST"
+            ],
+            "file": "services\\cognee\\cognee\\api\\v1\\responses\\routers\\get_responses_router.py",
+            "framework": "FastAPI",
+            "requires_auth": false
+          },
+          {
+            "path": "/{notebook_id}",
+            "methods": [
+              "PUT"
+            ],
+            "file": "services\\cognee\\cognee\\api\\v1\\notebooks\\routers\\get_notebooks_router.py",
+            "framework": "FastAPI",
+            "requires_auth": false
+          },
+          {
+            "path": "/{notebook_id}/{cell_id}/run",
+            "methods": [
+              "POST"
+            ],
+            "file": "services\\cognee\\cognee\\api\\v1\\notebooks\\routers\\get_notebooks_router.py",
+            "framework": "FastAPI",
+            "requires_auth": false
+          },
+          {
+            "path": "/{notebook_id}",
+            "methods": [
+              "DELETE"
+            ],
+            "file": "services\\cognee\\cognee\\api\\v1\\notebooks\\routers\\get_notebooks_router.py",
+            "framework": "FastAPI",
+            "requires_auth": false
+          },
+          {
+            "path": "/{dataset_id}/graph",
+            "methods": [
+              "GET"
+            ],
+            "file": "services\\cognee\\cognee\\api\\v1\\datasets\\routers\\get_datasets_router.py",
+            "framework": "FastAPI",
+            "requires_auth": false
+          },
+          {
+            "path": "/status",
+            "methods": [
+              "GET"
+            ],
+            "file": "services\\cognee\\cognee\\api\\v1\\datasets\\routers\\get_datasets_router.py",
+            "framework": "FastAPI",
+            "requires_auth": false
+          },
+          {
+            "path": "/{dataset_id}/data/{data_id}/raw",
+            "methods": [
+              "GET"
+            ],
+            "file": "services\\cognee\\cognee\\api\\v1\\datasets\\routers\\get_datasets_router.py",
+            "framework": "FastAPI",
+            "requires_auth": false
+          },
+          {
+            "path": "/connection",
+            "methods": [
+              "POST"
+            ],
+            "file": "services\\cognee\\cognee\\api\\v1\\cloud\\routers\\get_checks_router.py",
+            "framework": "FastAPI",
+            "requires_auth": false
+          },
+          {
+            "path": "/health",
+            "methods": [
+              "GET"
+            ],
+            "file": "server\\src\\index.ts",
+            "framework": "Express",
+            "requires_auth": false
+          },
+          {
+            "path": "*",
+            "methods": [
+              "GET"
+            ],
+            "file": "server\\src\\index.ts",
+            "framework": "Express",
+            "requires_auth": false
+          },
+          {
+            "path": "/health",
+            "methods": [
+              "GET"
+            ],
+            "file": ".auto-claude\\worktrees\\tasks\\030-add-request-deduplication-for-concurrent-api-calls\\server\\src\\index.ts",
+            "framework": "Express",
+            "requires_auth": false
+          },
+          {
+            "path": "*",
+            "methods": [
+              "GET"
+            ],
+            "file": ".auto-claude\\worktrees\\tasks\\030-add-request-deduplication-for-concurrent-api-calls\\server\\src\\index.ts",
+            "framework": "Express",
+            "requires_auth": false
+          },
+          {
+            "path": "/health",
+            "methods": [
+              "GET"
+            ],
+            "file": ".auto-claude\\worktrees\\tasks\\029-memoize-keyboard-shortcut-handlers-in-app-tsx\\server\\src\\index.ts",
+            "framework": "Express",
+            "requires_auth": false
+          },
+          {
+            "path": "*",
+            "methods": [
+              "GET"
+            ],
+            "file": ".auto-claude\\worktrees\\tasks\\029-memoize-keyboard-shortcut-handlers-in-app-tsx\\server\\src\\index.ts",
+            "framework": "Express",
+            "requires_auth": false
+          },
+          {
+            "path": "/health",
+            "methods": [
+              "GET"
+            ],
+            "file": ".auto-claude\\worktrees\\tasks\\028-cache-image-objects-in-bannercanvas-to-prevent-rel\\server\\src\\index.ts",
+            "framework": "Express",
+            "requires_auth": false
+          },
+          {
+            "path": "*",
+            "methods": [
+              "GET"
+            ],
+            "file": ".auto-claude\\worktrees\\tasks\\028-cache-image-objects-in-bannercanvas-to-prevent-rel\\server\\src\\index.ts",
+            "framework": "Express",
+            "requires_auth": false
+          },
+          {
+            "path": "/health",
+            "methods": [
+              "GET"
+            ],
+            "file": ".auto-claude\\worktrees\\tasks\\027-virtualize-imagegallery-grid-for-large-collections\\server\\src\\index.ts",
+            "framework": "Express",
+            "requires_auth": false
+          },
+          {
+            "path": "*",
+            "methods": [
+              "GET"
+            ],
+            "file": ".auto-claude\\worktrees\\tasks\\027-virtualize-imagegallery-grid-for-large-collections\\server\\src\\index.ts",
+            "framework": "Express",
+            "requires_auth": false
+          },
+          {
+            "path": "/health",
+            "methods": [
+              "GET"
+            ],
+            "file": ".auto-claude\\worktrees\\tasks\\001-split-llm-ts-into-domain-specific-service-modules\\server\\src\\index.ts",
+            "framework": "Express",
+            "requires_auth": false
+          },
+          {
+            "path": "*",
+            "methods": [
+              "GET"
+            ],
+            "file": ".auto-claude\\worktrees\\tasks\\001-split-llm-ts-into-domain-specific-service-modules\\server\\src\\index.ts",
+            "framework": "Express",
+            "requires_auth": false
+          }
+        ],
+        "total_routes": 24,
+        "methods": [
+          "DELETE",
+          "GET",
+          "PUT",
+          "POST"
+        ],
+        "protected_routes": []
+      },
+      "database": {
+        "models": {
+          "ACL": {
+            "table": "acls",
+            "fields": {
+              "id": {
+                "type": "Unknown",
+                "primary_key": true,
+                "unique": false,
+                "nullable": true
+              },
+              "created_at": {
+                "type": "DateTime",
+                "primary_key": false,
+                "unique": false,
+                "nullable": true
+              },
+              "updated_at": {
+                "type": "DateTime",
+                "primary_key": false,
+                "unique": false,
+                "nullable": true
+              },
+              "principal_id": {
+                "type": "Unknown",
+                "primary_key": false,
+                "unique": false,
+                "nullable": true
+              },
+              "permission_id": {
+                "type": "Unknown",
+                "primary_key": false,
+                "unique": false,
+                "nullable": true
+              },
+              "dataset_id": {
+                "type": "Unknown",
+                "primary_key": false,
+                "unique": false,
+                "nullable": true
+              }
+            },
+            "file": "services\\cognee\\cognee\\modules\\users\\models\\ACL.py",
+            "orm": "SQLAlchemy"
+          },
+          "DatasetDatabase": {
+            "table": "dataset_database",
+            "fields": {
+              "owner_id": {
+                "type": "Unknown",
+                "primary_key": false,
+                "unique": false,
+                "nullable": true
+              },
+              "vector_database_name": {
+                "type": "String",
+                "primary_key": false,
+                "unique": false,
+                "nullable": false
+              },
+              "graph_database_name": {
+                "type": "String",
+                "primary_key": false,
+                "unique": false,
+                "nullable": false
+              },
+              "vector_database_provider": {
+                "type": "String",
+                "primary_key": false,
+                "unique": false,
+                "nullable": false
+              },
+              "graph_database_provider": {
+                "type": "String",
+                "primary_key": false,
+                "unique": false,
+                "nullable": false
+              },
+              "graph_dataset_database_handler": {
+                "type": "String",
+                "primary_key": false,
+                "unique": false,
+                "nullable": false
+              },
+              "vector_dataset_database_handler": {
+                "type": "String",
+                "primary_key": false,
+                "unique": false,
+                "nullable": false
+              },
+              "vector_database_url": {
+                "type": "String",
+                "primary_key": false,
+                "unique": false,
+                "nullable": true
+              },
+              "graph_database_url": {
+                "type": "String",
+                "primary_key": false,
+                "unique": false,
+                "nullable": true
+              },
+              "vector_database_key": {
+                "type": "String",
+                "primary_key": false,
+                "unique": false,
+                "nullable": true
+              },
+              "graph_database_key": {
+                "type": "String",
+                "primary_key": false,
+                "unique": false,
+                "nullable": true
+              },
+              "created_at": {
+                "type": "DateTime",
+                "primary_key": false,
+                "unique": false,
+                "nullable": true
+              },
+              "updated_at": {
+                "type": "DateTime",
+                "primary_key": false,
+                "unique": false,
+                "nullable": true
+              }
+            },
+            "file": "services\\cognee\\cognee\\modules\\users\\models\\DatasetDatabase.py",
+            "orm": "SQLAlchemy"
+          },
+          "Permission": {
+            "table": "permissions",
+            "fields": {
+              "id": {
+                "type": "Unknown",
+                "primary_key": true,
+                "unique": false,
+                "nullable": true
+              },
+              "created_at": {
+                "type": "DateTime",
+                "primary_key": false,
+                "unique": false,
+                "nullable": true
+              },
+              "updated_at": {
+                "type": "DateTime",
+                "primary_key": false,
+                "unique": false,
+                "nullable": true
+              },
+              "name": {
+                "type": "String",
+                "primary_key": false,
+                "unique": true,
+                "nullable": false
+              }
+            },
+            "file": "services\\cognee\\cognee\\modules\\users\\models\\Permission.py",
+            "orm": "SQLAlchemy"
+          },
+          "Principal": {
+            "table": "principals",
+            "fields": {
+              "id": {
+                "type": "Unknown",
+                "primary_key": true,
+                "unique": false,
+                "nullable": true
+              },
+              "created_at": {
+                "type": "DateTime",
+                "primary_key": false,
+                "unique": false,
+                "nullable": true
+              },
+              "updated_at": {
+                "type": "DateTime",
+                "primary_key": false,
+                "unique": false,
+                "nullable": true
+              },
+              "type": {
+                "type": "String",
+                "primary_key": false,
+                "unique": false,
+                "nullable": false
+              }
+            },
+            "file": "services\\cognee\\cognee\\modules\\users\\models\\Principal.py",
+            "orm": "SQLAlchemy"
+          },
+          "RoleDefaultPermissions": {
+            "table": "role_default_permissions",
+            "fields": {
+              "created_at": {
+                "type": "DateTime",
+                "primary_key": false,
+                "unique": false,
+                "nullable": true
+              }
+            },
+            "file": "services\\cognee\\cognee\\modules\\users\\models\\RoleDefaultPermissions.py",
+            "orm": "SQLAlchemy"
+          },
+          "TenantDefaultPermissions": {
+            "table": "tenant_default_permissions",
+            "fields": {
+              "created_at": {
+                "type": "DateTime",
+                "primary_key": false,
+                "unique": false,
+                "nullable": true
+              },
+              "tenant_id": {
+                "type": "Unknown",
+                "primary_key": false,
+                "unique": false,
+                "nullable": true
+              }
+            },
+            "file": "services\\cognee\\cognee\\modules\\users\\models\\TenantDefaultPermissions.py",
+            "orm": "SQLAlchemy"
+          },
+          "User": {
+            "table": "users",
+            "fields": {
+              "id": {
+                "type": "Unknown",
+                "primary_key": false,
+                "unique": false,
+                "nullable": true
+              },
+              "tenant_id": {
+                "type": "Unknown",
+                "primary_key": false,
+                "unique": false,
+                "nullable": true
+              }
+            },
+            "file": "services\\cognee\\cognee\\modules\\users\\models\\User.py",
+            "orm": "SQLAlchemy"
+          },
+          "UserDefaultPermissions": {
+            "table": "user_default_permissions",
+            "fields": {
+              "created_at": {
+                "type": "DateTime",
+                "primary_key": false,
+                "unique": false,
+                "nullable": true
+              },
+              "user_id": {
+                "type": "Unknown",
+                "primary_key": false,
+                "unique": false,
+                "nullable": true
+              }
+            },
+            "file": "services\\cognee\\cognee\\modules\\users\\models\\UserDefaultPermissions.py",
+            "orm": "SQLAlchemy"
+          },
+          "UserRole": {
+            "table": "user_roles",
+            "fields": {
+              "created_at": {
+                "type": "DateTime",
+                "primary_key": false,
+                "unique": false,
+                "nullable": true
+              },
+              "user_id": {
+                "type": "Unknown",
+                "primary_key": false,
+                "unique": false,
+                "nullable": true
+              },
+              "role_id": {
+                "type": "Unknown",
+                "primary_key": false,
+                "unique": false,
+                "nullable": true
+              }
+            },
+            "file": "services\\cognee\\cognee\\modules\\users\\models\\UserRole.py",
+            "orm": "SQLAlchemy"
+          },
+          "UserTenant": {
+            "table": "user_tenants",
+            "fields": {
+              "created_at": {
+                "type": "DateTime",
+                "primary_key": false,
+                "unique": false,
+                "nullable": true
+              },
+              "user_id": {
+                "type": "Unknown",
+                "primary_key": false,
+                "unique": false,
+                "nullable": true
+              },
+              "tenant_id": {
+                "type": "Unknown",
+                "primary_key": false,
+                "unique": false,
+                "nullable": true
+              }
+            },
+            "file": "services\\cognee\\cognee\\modules\\users\\models\\UserTenant.py",
+            "orm": "SQLAlchemy"
+          },
+          "SyncOperation": {
+            "table": "sync_operations",
+            "fields": {
+              "id": {
+                "type": "Unknown",
+                "primary_key": true,
+                "unique": false,
+                "nullable": true
+              },
+              "run_id": {
+                "type": "Text",
+                "primary_key": false,
+                "unique": true,
+                "nullable": true
+              },
+              "progress_percentage": {
+                "type": "Integer",
+                "primary_key": false,
+                "unique": false,
+                "nullable": true
+              },
+              "dataset_ids": {
+                "type": "JSON",
+                "primary_key": false,
+                "unique": false,
+                "nullable": true
+              },
+              "dataset_names": {
+                "type": "JSON",
+                "primary_key": false,
+                "unique": false,
+                "nullable": true
+              },
+              "user_id": {
+                "type": "Unknown",
+                "primary_key": false,
+                "unique": false,
+                "nullable": true
+              },
+              "started_at": {
+                "type": "DateTime",
+                "primary_key": false,
+                "unique": false,
+                "nullable": true
+              },
+              "total_records_to_sync": {
+                "type": "Integer",
+                "primary_key": false,
+                "unique": false,
+                "nullable": true
+              },
+              "total_records_to_download": {
+                "type": "Integer",
+                "primary_key": false,
+                "unique": false,
+                "nullable": true
+              },
+              "total_records_to_upload": {
+                "type": "Integer",
+                "primary_key": false,
+                "unique": false,
+                "nullable": true
+              },
+              "records_downloaded": {
+                "type": "Integer",
+                "primary_key": false,
+                "unique": false,
+                "nullable": true
+              },
+              "records_uploaded": {
+                "type": "Integer",
+                "primary_key": false,
+                "unique": false,
+                "nullable": true
+              },
+              "bytes_downloaded": {
+                "type": "Integer",
+                "primary_key": false,
+                "unique": false,
+                "nullable": true
+              }
+            },
+            "file": "services\\cognee\\cognee\\modules\\sync\\models\\SyncOperation.py",
+            "orm": "SQLAlchemy"
+          },
+          "Query": {
+            "table": "queries",
+            "fields": {
+              "id": {
+                "type": "Unknown",
+                "primary_key": true,
+                "unique": false,
+                "nullable": true
+              },
+              "text": {
+                "type": "String",
+                "primary_key": false,
+                "unique": false,
+                "nullable": true
+              },
+              "query_type": {
+                "type": "String",
+                "primary_key": false,
+                "unique": false,
+                "nullable": true
+              },
+              "user_id": {
+                "type": "Unknown",
+                "primary_key": false,
+                "unique": false,
+                "nullable": true
+              },
+              "created_at": {
+                "type": "DateTime",
+                "primary_key": false,
+                "unique": false,
+                "nullable": true
+              },
+              "updated_at": {
+                "type": "DateTime",
+                "primary_key": false,
+                "unique": false,
+                "nullable": true
+              }
+            },
+            "file": "services\\cognee\\cognee\\modules\\search\\models\\Query.py",
+            "orm": "SQLAlchemy"
+          },
+          "Result": {
+            "table": "results",
+            "fields": {
+              "id": {
+                "type": "Unknown",
+                "primary_key": true,
+                "unique": false,
+                "nullable": true
+              },
+              "value": {
+                "type": "Text",
+                "primary_key": false,
+                "unique": false,
+                "nullable": true
+              },
+              "query_id": {
+                "type": "Unknown",
+                "primary_key": false,
+                "unique": false,
+                "nullable": true
+              },
+              "user_id": {
+                "type": "Unknown",
+                "primary_key": false,
+                "unique": false,
+                "nullable": true
+              },
+              "created_at": {
+                "type": "DateTime",
+                "primary_key": false,
+                "unique": false,
+                "nullable": true
+              },
+              "updated_at": {
+                "type": "DateTime",
+                "primary_key": false,
+                "unique": false,
+                "nullable": true
+              }
+            },
+            "file": "services\\cognee\\cognee\\modules\\search\\models\\Result.py",
+            "orm": "SQLAlchemy"
+          },
+          "Pipeline": {
+            "table": "pipelines",
+            "fields": {
+              "id": {
+                "type": "Unknown",
+                "primary_key": true,
+                "unique": false,
+                "nullable": true
+              },
+              "name": {
+                "type": "String",
+                "primary_key": false,
+                "unique": false,
+                "nullable": true
+              },
+              "description": {
+                "type": "Text",
+                "primary_key": false,
+                "unique": false,
+                "nullable": true
+              },
+              "created_at": {
+                "type": "DateTime",
+                "primary_key": false,
+                "unique": false,
+                "nullable": true
+              },
+              "updated_at": {
+                "type": "DateTime",
+                "primary_key": false,
+                "unique": false,
+                "nullable": true
+              }
+            },
+            "file": "services\\cognee\\cognee\\modules\\pipelines\\models\\Pipeline.py",
+            "orm": "SQLAlchemy"
+          },
+          "PipelineRun": {
+            "table": "pipeline_runs",
+            "fields": {
+              "id": {
+                "type": "Unknown",
+                "primary_key": true,
+                "unique": false,
+                "nullable": true
+              },
+              "created_at": {
+                "type": "DateTime",
+                "primary_key": false,
+                "unique": false,
+                "nullable": true
+              },
+              "status": {
+                "type": "Unknown",
+                "primary_key": false,
+                "unique": false,
+                "nullable": true
+              },
+              "pipeline_run_id": {
+                "type": "Unknown",
+                "primary_key": false,
+                "unique": false,
+                "nullable": true
+              },
+              "pipeline_name": {
+                "type": "String",
+                "primary_key": false,
+                "unique": false,
+                "nullable": true
+              },
+              "pipeline_id": {
+                "type": "Unknown",
+                "primary_key": false,
+                "unique": false,
+                "nullable": true
+              },
+              "dataset_id": {
+                "type": "Unknown",
+                "primary_key": false,
+                "unique": false,
+                "nullable": true
+              },
+              "run_info": {
+                "type": "JSON",
+                "primary_key": false,
+                "unique": false,
+                "nullable": true
+              }
+            },
+            "file": "services\\cognee\\cognee\\modules\\pipelines\\models\\PipelineRun.py",
+            "orm": "SQLAlchemy"
+          },
+          "PipelineTask": {
+            "table": "pipeline_task",
+            "fields": {
+              "created_at": {
+                "type": "DateTime",
+                "primary_key": false,
+                "unique": false,
+                "nullable": true
+              },
+              "pipeline_id": {
+                "type": "Unknown",
+                "primary_key": false,
+                "unique": false,
+                "nullable": true
+              },
+              "task_id": {
+                "type": "Unknown",
+                "primary_key": false,
+                "unique": false,
+                "nullable": true
+              }
+            },
+            "file": "services\\cognee\\cognee\\modules\\pipelines\\models\\PipelineTask.py",
+            "orm": "SQLAlchemy"
+          },
+          "Task": {
+            "table": "tasks",
+            "fields": {
+              "id": {
+                "type": "Unknown",
+                "primary_key": true,
+                "unique": false,
+                "nullable": true
+              },
+              "name": {
+                "type": "String",
+                "primary_key": false,
+                "unique": false,
+                "nullable": true
+              },
+              "description": {
+                "type": "Text",
+                "primary_key": false,
+                "unique": false,
+                "nullable": true
+              },
+              "executable": {
+                "type": "Text",
+                "primary_key": false,
+                "unique": false,
+                "nullable": true
+              },
+              "created_at": {
+                "type": "DateTime",
+                "primary_key": false,
+                "unique": false,
+                "nullable": true
+              },
+              "updated_at": {
+                "type": "DateTime",
+                "primary_key": false,
+                "unique": false,
+                "nullable": true
+              }
+            },
+            "file": "services\\cognee\\cognee\\modules\\pipelines\\models\\Task.py",
+            "orm": "SQLAlchemy"
+          },
+          "TaskRun": {
+            "table": "task_runs",
+            "fields": {
+              "id": {
+                "type": "Unknown",
+                "primary_key": true,
+                "unique": false,
+                "nullable": true
+              },
+              "task_name": {
+                "type": "String",
+                "primary_key": false,
+                "unique": false,
+                "nullable": true
+              },
+              "created_at": {
+                "type": "DateTime",
+                "primary_key": false,
+                "unique": false,
+                "nullable": true
+              },
+              "status": {
+                "type": "String",
+                "primary_key": false,
+                "unique": false,
+                "nullable": true
+              },
+              "run_info": {
+                "type": "JSON",
+                "primary_key": false,
+                "unique": false,
+                "nullable": true
+              }
+            },
+            "file": "services\\cognee\\cognee\\modules\\pipelines\\models\\TaskRun.py",
+            "orm": "SQLAlchemy"
+          },
+          "NotebookCell": {
+            "table": "notebooks",
+            "fields": {
+              "created_at": {
+                "type": "DateTime",
+                "primary_key": false,
+                "unique": false,
+                "nullable": true
+              }
+            },
+            "file": "services\\cognee\\cognee\\modules\\notebooks\\models\\Notebook.py",
+            "orm": "SQLAlchemy"
+          },
+          "Notebook": {
+            "table": "notebooks",
+            "fields": {
+              "created_at": {
+                "type": "DateTime",
+                "primary_key": false,
+                "unique": false,
+                "nullable": true
+              }
+            },
+            "file": "services\\cognee\\cognee\\modules\\notebooks\\models\\Notebook.py",
+            "orm": "SQLAlchemy"
+          },
+          "Answers": {
+            "table": "eval_answers",
+            "fields": {
+              "id": {
+                "type": "Unknown",
+                "primary_key": true,
+                "unique": false,
+                "nullable": true
+              },
+              "payload": {
+                "type": "JSON",
+                "primary_key": false,
+                "unique": false,
+                "nullable": false
+              },
+              "created_at": {
+                "type": "DateTime",
+                "primary_key": false,
+                "unique": false,
+                "nullable": true
+              }
+            },
+            "file": "services\\cognee\\cognee\\modules\\data\\models\\answers_data.py",
+            "orm": "SQLAlchemy"
+          },
+          "Data": {
+            "table": "data",
+            "fields": {
+              "id": {
+                "type": "Unknown",
+                "primary_key": true,
+                "unique": false,
+                "nullable": true
+              },
+              "name": {
+                "type": "String",
+                "primary_key": false,
+                "unique": false,
+                "nullable": true
+              },
+              "extension": {
+                "type": "String",
+                "primary_key": false,
+                "unique": false,
+                "nullable": true
+              },
+              "mime_type": {
+                "type": "String",
+                "primary_key": false,
+                "unique": false,
+                "nullable": true
+              },
+              "original_extension": {
+                "type": "String",
+                "primary_key": false,
+                "unique": false,
+                "nullable": true
+              },
+              "original_mime_type": {
+                "type": "String",
+                "primary_key": false,
+                "unique": false,
+                "nullable": true
+              },
+              "loader_engine": {
+                "type": "String",
+                "primary_key": false,
+                "unique": false,
+                "nullable": true
+              },
+              "raw_data_location": {
+                "type": "String",
+                "primary_key": false,
+                "unique": false,
+                "nullable": true
+              },
+              "original_data_location": {
+                "type": "String",
+                "primary_key": false,
+                "unique": false,
+                "nullable": true
+              },
+              "owner_id": {
+                "type": "Unknown",
+                "primary_key": false,
+                "unique": false,
+                "nullable": true
+              },
+              "tenant_id": {
+                "type": "Unknown",
+                "primary_key": false,
+                "unique": false,
+                "nullable": true
+              },
+              "content_hash": {
+                "type": "String",
+                "primary_key": false,
+                "unique": false,
+                "nullable": true
+              },
+              "raw_content_hash": {
+                "type": "String",
+                "primary_key": false,
+                "unique": false,
+                "nullable": true
+              },
+              "external_metadata": {
+                "type": "JSON",
+                "primary_key": false,
+                "unique": false,
+                "nullable": true
+              },
+              "node_set": {
+                "type": "JSON",
+                "primary_key": false,
+                "unique": false,
+                "nullable": true
+              },
+              "pipeline_status": {
+                "type": "JSON",
+                "primary_key": false,
+                "unique": false,
+                "nullable": true
+              },
+              "token_count": {
+                "type": "Integer",
+                "primary_key": false,
+                "unique": false,
+                "nullable": true
+              },
+              "data_size": {
+                "type": "Integer",
+                "primary_key": false,
+                "unique": false,
+                "nullable": true
+              },
+              "created_at": {
+                "type": "DateTime",
+                "primary_key": false,
+                "unique": false,
+                "nullable": true
+              },
+              "updated_at": {
+                "type": "DateTime",
+                "primary_key": false,
+                "unique": false,
+                "nullable": true
+              }
+            },
+            "file": "services\\cognee\\cognee\\modules\\data\\models\\Data.py",
+            "orm": "SQLAlchemy"
+          },
+          "Dataset": {
+            "table": "datasets",
+            "fields": {
+              "id": {
+                "type": "Unknown",
+                "primary_key": true,
+                "unique": false,
+                "nullable": true
+              },
+              "name": {
+                "type": "Text",
+                "primary_key": false,
+                "unique": false,
+                "nullable": true
+              },
+              "created_at": {
+                "type": "DateTime",
+                "primary_key": false,
+                "unique": false,
+                "nullable": true
+              },
+              "updated_at": {
+                "type": "DateTime",
+                "primary_key": false,
+                "unique": false,
+                "nullable": true
+              },
+              "owner_id": {
+                "type": "Unknown",
+                "primary_key": false,
+                "unique": false,
+                "nullable": true
+              },
+              "tenant_id": {
+                "type": "Unknown",
+                "primary_key": false,
+                "unique": false,
+                "nullable": true
+              }
+            },
+            "file": "services\\cognee\\cognee\\modules\\data\\models\\Dataset.py",
+            "orm": "SQLAlchemy"
+          },
+          "DatasetData": {
+            "table": "dataset_data",
+            "fields": {
+              "created_at": {
+                "type": "DateTime",
+                "primary_key": false,
+                "unique": false,
+                "nullable": true
+              },
+              "dataset_id": {
+                "type": "Unknown",
+                "primary_key": false,
+                "unique": false,
+                "nullable": true
+              },
+              "data_id": {
+                "type": "Unknown",
+                "primary_key": false,
+                "unique": false,
+                "nullable": true
+              }
+            },
+            "file": "services\\cognee\\cognee\\modules\\data\\models\\DatasetData.py",
+            "orm": "SQLAlchemy"
+          },
+          "GraphMetrics": {
+            "table": "graph_metrics",
+            "fields": {
+              "id": {
+                "type": "Unknown",
+                "primary_key": true,
+                "unique": false,
+                "nullable": true
+              },
+              "num_tokens": {
+                "type": "Integer",
+                "primary_key": false,
+                "unique": false,
+                "nullable": true
+              },
+              "num_nodes": {
+                "type": "Integer",
+                "primary_key": false,
+                "unique": false,
+                "nullable": true
+              },
+              "num_edges": {
+                "type": "Integer",
+                "primary_key": false,
+                "unique": false,
+                "nullable": true
+              },
+              "mean_degree": {
+                "type": "Float",
+                "primary_key": false,
+                "unique": false,
+                "nullable": true
+              },
+              "edge_density": {
+                "type": "Float",
+                "primary_key": false,
+                "unique": false,
+                "nullable": true
+              },
+              "num_connected_components": {
+                "type": "Integer",
+                "primary_key": false,
+                "unique": false,
+                "nullable": true
+              },
+              "sizes_of_connected_components": {
+                "type": "JSON",
+                "primary_key": false,
+                "unique": false,
+                "nullable": true
+              },
+              "num_selfloops": {
+                "type": "Integer",
+                "primary_key": false,
+                "unique": false,
+                "nullable": true
+              },
+              "diameter": {
+                "type": "Integer",
+                "primary_key": false,
+                "unique": false,
+                "nullable": true
+              },
+              "avg_shortest_path_length": {
+                "type": "Float",
+                "primary_key": false,
+                "unique": false,
+                "nullable": true
+              },
+              "avg_clustering": {
+                "type": "Float",
+                "primary_key": false,
+                "unique": false,
+                "nullable": true
+              },
+              "created_at": {
+                "type": "DateTime",
+                "primary_key": false,
+                "unique": false,
+                "nullable": true
+              },
+              "updated_at": {
+                "type": "DateTime",
+                "primary_key": false,
+                "unique": false,
+                "nullable": true
+              }
+            },
+            "file": "services\\cognee\\cognee\\modules\\data\\models\\GraphMetrics.py",
+            "orm": "SQLAlchemy"
+          },
+          "GraphRelationshipLedger": {
+            "table": "graph_relationship_ledger",
+            "fields": {
+              "source_node_id": {
+                "type": "Unknown",
+                "primary_key": false,
+                "unique": false,
+                "nullable": false
+              },
+              "destination_node_id": {
+                "type": "Unknown",
+                "primary_key": false,
+                "unique": false,
+                "nullable": false
+              },
+              "creator_function": {
+                "type": "String",
+                "primary_key": false,
+                "unique": false,
+                "nullable": false
+              },
+              "node_label": {
+                "type": "String",
+                "primary_key": false,
+                "unique": false,
+                "nullable": true
+              },
+              "created_at": {
+                "type": "DateTime",
+                "primary_key": false,
+                "unique": false,
+                "nullable": true
+              },
+              "deleted_at": {
+                "type": "DateTime",
+                "primary_key": false,
+                "unique": false,
+                "nullable": true
+              },
+              "user_id": {
+                "type": "Unknown",
+                "primary_key": false,
+                "unique": false,
+                "nullable": true
+              }
+            },
+            "file": "services\\cognee\\cognee\\modules\\data\\models\\graph_relationship_ledger.py",
+            "orm": "SQLAlchemy"
+          },
+          "Metrics": {
+            "table": "eval_metrics",
+            "fields": {
+              "id": {
+                "type": "Unknown",
+                "primary_key": true,
+                "unique": false,
+                "nullable": true
+              },
+              "payload": {
+                "type": "JSON",
+                "primary_key": false,
+                "unique": false,
+                "nullable": false
+              },
+              "created_at": {
+                "type": "DateTime",
+                "primary_key": false,
+                "unique": false,
+                "nullable": true
+              }
+            },
+            "file": "services\\cognee\\cognee\\modules\\data\\models\\metrics_data.py",
+            "orm": "SQLAlchemy"
+          },
+          "Questions": {
+            "table": "eval_questions",
+            "fields": {
+              "id": {
+                "type": "Unknown",
+                "primary_key": true,
+                "unique": false,
+                "nullable": true
+              },
+              "payload": {
+                "type": "JSON",
+                "primary_key": false,
+                "unique": false,
+                "nullable": false
+              },
+              "created_at": {
+                "type": "DateTime",
+                "primary_key": false,
+                "unique": false,
+                "nullable": true
+              }
+            },
+            "file": "services\\cognee\\cognee\\modules\\data\\models\\questions_data.py",
+            "orm": "SQLAlchemy"
+          },
+          "PGVectorDataPoint": {
+            "table": "pgvectordatapoints",
+            "fields": {
+              "payload": {
+                "type": "JSON",
+                "primary_key": false,
+                "unique": false,
+                "nullable": true
+              },
+              "vector": {
+                "type": "Unknown",
+                "primary_key": false,
+                "unique": false,
+                "nullable": true
+              }
+            },
+            "file": "services\\cognee\\cognee\\infrastructure\\databases\\vector\\pgvector\\PGVectorAdapter.py",
+            "orm": "SQLAlchemy"
+          },
+          "users": {
+            "table": "users",
+            "fields": {},
+            "file": ".auto-claude\\worktrees\\tasks\\001-split-llm-ts-into-domain-specific-service-modules\\server\\src\\db\\schema.ts",
+            "orm": "Drizzle"
+          },
+          "sessions": {
+            "table": "sessions",
+            "fields": {},
+            "file": ".auto-claude\\worktrees\\tasks\\001-split-llm-ts-into-domain-specific-service-modules\\server\\src\\db\\schema.ts",
+            "orm": "Drizzle"
+          },
+          "profiles": {
+            "table": "profiles",
+            "fields": {},
+            "file": ".auto-claude\\worktrees\\tasks\\001-split-llm-ts-into-domain-specific-service-modules\\server\\src\\db\\schema.ts",
+            "orm": "Drizzle"
+          },
+          "userPreferences": {
+            "table": "user_preferences",
+            "fields": {},
+            "file": ".auto-claude\\worktrees\\tasks\\001-split-llm-ts-into-domain-specific-service-modules\\server\\src\\db\\schema.ts",
+            "orm": "Drizzle"
+          },
+          "userApiKeys": {
+            "table": "user_api_keys",
+            "fields": {},
+            "file": ".auto-claude\\worktrees\\tasks\\001-split-llm-ts-into-domain-specific-service-modules\\server\\src\\db\\schema.ts",
+            "orm": "Drizzle"
+          },
+          "chatConversations": {
+            "table": "chat_conversations",
+            "fields": {},
+            "file": ".auto-claude\\worktrees\\tasks\\001-split-llm-ts-into-domain-specific-service-modules\\server\\src\\db\\schema.ts",
+            "orm": "Drizzle"
+          },
+          "chatMessages": {
+            "table": "chat_messages",
+            "fields": {},
+            "file": ".auto-claude\\worktrees\\tasks\\001-split-llm-ts-into-domain-specific-service-modules\\server\\src\\db\\schema.ts",
+            "orm": "Drizzle"
+          },
+          "voiceTranscripts": {
+            "table": "voice_transcripts",
+            "fields": {},
+            "file": ".auto-claude\\worktrees\\tasks\\001-split-llm-ts-into-domain-specific-service-modules\\server\\src\\db\\schema.ts",
+            "orm": "Drizzle"
+          },
+          "images": {
+            "table": "images",
+            "fields": {},
+            "file": ".auto-claude\\worktrees\\tasks\\001-split-llm-ts-into-domain-specific-service-modules\\server\\src\\db\\schema.ts",
+            "orm": "Drizzle"
+          },
+          "designs": {
+            "table": "designs",
+            "fields": {},
+            "file": "server\\src\\db\\schema.ts",
+            "orm": "Drizzle"
+          },
+          "emailVerificationTokens": {
+            "table": "email_verification_tokens",
+            "fields": {},
+            "file": ".auto-claude\\worktrees\\tasks\\001-split-llm-ts-into-domain-specific-service-modules\\server\\src\\db\\schema.ts",
+            "orm": "Drizzle"
+          },
+          "passwordResetTokens": {
+            "table": "password_reset_tokens",
+            "fields": {},
+            "file": ".auto-claude\\worktrees\\tasks\\001-split-llm-ts-into-domain-specific-service-modules\\server\\src\\db\\schema.ts",
+            "orm": "Drizzle"
+          },
+          "llmTraces": {
+            "table": "llm_traces",
+            "fields": {},
+            "file": "server\\src\\db\\schema.ts",
+            "orm": "Drizzle"
+          },
+          "apiMetrics": {
+            "table": "api_metrics",
+            "fields": {},
+            "file": "server\\src\\db\\schema.ts",
+            "orm": "Drizzle"
+          },
+          "dailyStats": {
+            "table": "daily_stats",
+            "fields": {},
+            "file": "server\\src\\db\\schema.ts",
+            "orm": "Drizzle"
+          },
+          "adminUsers": {
+            "table": "admin_users",
+            "fields": {},
+            "file": "server\\src\\db\\schema.ts",
+            "orm": "Drizzle"
+          },
+          "adminAuditLog": {
+            "table": "admin_audit_log",
+            "fields": {},
+            "file": "server\\src\\db\\schema.ts",
+            "orm": "Drizzle"
+          },
+          "adminRateLimits": {
+            "table": "admin_rate_limits",
+            "fields": {},
+            "file": "server\\src\\db\\schema.ts",
+            "orm": "Drizzle"
+          },
+          "errorLogs": {
+            "table": "error_logs",
+            "fields": {},
+            "file": "server\\src\\db\\schema.ts",
+            "orm": "Drizzle"
+          },
+          "requestLogs": {
+            "table": "request_logs",
+            "fields": {},
+            "file": "server\\src\\db\\schema.ts",
+            "orm": "Drizzle"
+          },
+          "agentConfigs": {
+            "table": "agent_configs",
+            "fields": {},
+            "file": "server\\src\\db\\schema.ts",
+            "orm": "Drizzle"
+          },
+          "agentSkills": {
+            "table": "agent_skills",
+            "fields": {},
+            "file": "server\\src\\db\\schema.ts",
+            "orm": "Drizzle"
+          },
+          "agentContextDocs": {
+            "table": "agent_context_docs",
+            "fields": {},
+            "file": "server\\src\\db\\schema.ts",
+            "orm": "Drizzle"
+          },
+          "agentMcpConnections": {
+            "table": "agent_mcp_connections",
+            "fields": {},
+            "file": "server\\src\\db\\schema.ts",
+            "orm": "Drizzle"
+          },
+          "agentAuditLogs": {
+            "table": "agent_audit_logs",
+            "fields": {},
+            "file": "server\\src\\db\\schema.ts",
+            "orm": "Drizzle"
+          },
+          "agentRuntimeState": {
+            "table": "agent_runtime_state",
+            "fields": {},
+            "file": "server\\src\\db\\schema.ts",
+            "orm": "Drizzle"
+          },
+          "agentMemories": {
+            "table": "agent_memories",
+            "fields": {},
+            "file": "server\\src\\db\\schema.ts",
+            "orm": "Drizzle"
+          },
+          "creditTiers": {
+            "table": "credit_tiers",
+            "fields": {},
+            "file": "server\\src\\db\\schema.ts",
+            "orm": "Drizzle"
+          },
+          "userCreditAccounts": {
+            "table": "user_credit_accounts",
+            "fields": {},
+            "file": "server\\src\\db\\schema.ts",
+            "orm": "Drizzle"
+          },
+          "creditTransactions": {
+            "table": "credit_transactions",
+            "fields": {},
+            "file": "server\\src\\db\\schema.ts",
+            "orm": "Drizzle"
+          },
+          "tierFeatureLimits": {
+            "table": "tier_feature_limits",
+            "fields": {},
+            "file": "server\\src\\db\\schema.ts",
+            "orm": "Drizzle"
+          }
+        },
+        "total_models": 60,
+        "model_names": [
+          "ACL",
+          "DatasetDatabase",
+          "Permission",
+          "Principal",
+          "RoleDefaultPermissions",
+          "TenantDefaultPermissions",
+          "User",
+          "UserDefaultPermissions",
+          "UserRole",
+          "UserTenant",
+          "SyncOperation",
+          "Query",
+          "Result",
+          "Pipeline",
+          "PipelineRun",
+          "PipelineTask",
+          "Task",
+          "TaskRun",
+          "NotebookCell",
+          "Notebook",
+          "Answers",
+          "Data",
+          "Dataset",
+          "DatasetData",
+          "GraphMetrics",
+          "GraphRelationshipLedger",
+          "Metrics",
+          "Questions",
+          "PGVectorDataPoint",
+          "users",
+          "sessions",
+          "profiles",
+          "userPreferences",
+          "userApiKeys",
+          "chatConversations",
+          "chatMessages",
+          "voiceTranscripts",
+          "images",
+          "designs",
+          "emailVerificationTokens",
+          "passwordResetTokens",
+          "llmTraces",
+          "apiMetrics",
+          "dailyStats",
+          "adminUsers",
+          "adminAuditLog",
+          "adminRateLimits",
+          "errorLogs",
+          "requestLogs",
+          "agentConfigs",
+          "agentSkills",
+          "agentContextDocs",
+          "agentMcpConnections",
+          "agentAuditLogs",
+          "agentRuntimeState",
+          "agentMemories",
+          "creditTiers",
+          "userCreditAccounts",
+          "creditTransactions",
+          "tierFeatureLimits"
+        ]
+      },
+      "monitoring": {
+        "health_checks": [
+          "/health",
+          "/health/detailed",
+          "/health",
+          "/health",
+          "/health",
+          "/health",
+          "/health",
+          "/health"
+        ]
+      }
+    }
+  },
+  "infrastructure": {
+    "dockerfile": "Dockerfile",
+    "ci": "GitHub Actions",
+    "ci_workflows": [
+      "cd-production.yml",
+      "cd-staging.yml",
+      "ci.yml",
+      "pr-preview.yml"
+    ]
+  },
+  "conventions": {
+    "formatting": "Prettier",
+    "typescript": true
+  }
+}

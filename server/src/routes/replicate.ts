@@ -162,7 +162,7 @@ replicateRouter.post('/remove-background', authMiddleware, async (c) => {
             let url = output;
             if (Array.isArray(output)) url = output[0];
             return c.json({ url });
-        } catch (fbError) {
+        } catch {
             return c.json({ error: error instanceof Error ? error.message : 'Unknown error' }, 500);
         }
     }
@@ -271,7 +271,7 @@ replicateRouter.post('/restore', authMiddleware, async (c) => {
 
 // 7. Magic Edit
 replicateRouter.post('/magic-edit', authMiddleware, async (c) => {
-    const { image, prompt, strength, model } = await c.req.json();
+    const { image, prompt } = await c.req.json();
 
     // SECURITY: Fetch API key from database, not from request body
     const user = c.get('user');

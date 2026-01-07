@@ -5,6 +5,7 @@ import GenerativeSidebar from './GenerativeSidebar';
 
 // Mock the EnhanceButton component
 vi.mock('../ui/EnhanceButton', () => ({
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   EnhanceButton: ({ prompt, onEnhanced, showLabel }: any) => (
     <button
       data-testid="enhance-button-mock"

@@ -37,10 +37,11 @@ export { ElementsContext };
 // Provider Props
 type ElementsProviderProps = {
   children: ReactNode;
+  value?: ElementsContextType;
 };
 
 // Provider Component
-export function ElementsProvider({ children }: ElementsProviderProps): React.ReactElement {
+export function ElementsProvider({ children, value: initialValue }: ElementsProviderProps): React.ReactElement {
   const [elements, setElements] = useState<BannerElement[]>([]);
   const [selectedElementId, setSelectedElementId] = useState<string | null>(null);
 
@@ -97,6 +98,7 @@ export function ElementsProvider({ children }: ElementsProviderProps): React.Rea
     updateElement,
     deleteElement,
     centerElement,
+    ...initialValue,
   };
 
   return <ElementsContext.Provider value={value}>{children}</ElementsContext.Provider>;

@@ -1,0 +1,155 @@
+{
+  "project_name": "Nanobanna Pro",
+  "project_type": "web-app",
+  "tech_stack": {
+    "primary_language": "TypeScript",
+    "frameworks": [
+      "React 19",
+      "Vite",
+      "Tailwind CSS",
+      "Supabase",
+      "Express (server)"
+    ],
+    "key_dependencies": [
+      "react",
+      "react-dom",
+      "typescript",
+      "vite",
+      "tailwindcss",
+      "lucide-react",
+      "@datadog/browser-rum",
+      "vitest",
+      "@playwright/test"
+    ]
+  },
+  "target_audience": {
+    "primary_persona": "Career-focused professionals in the Careersy Community who need professional LinkedIn banners to enhance their personal brand",
+    "secondary_personas": [
+      "Content creators needing social media banners for multiple platforms (YouTube, X/Twitter)",
+      "Small business owners wanting professional branding materials",
+      "Job seekers looking to stand out with polished LinkedIn profiles",
+      "Marketing professionals managing client social media presence"
+    ],
+    "pain_points": [
+      "Lack of design skills to create professional banners",
+      "Time-consuming to manually design banners in traditional tools like Photoshop",
+      "Difficulty maintaining brand consistency across designs",
+      "Limited access to professional design tools without subscriptions",
+      "Need for multi-platform content at different dimensions",
+      "Repetitive manual work for A/B testing banner variations"
+    ],
+    "goals": [
+      "Create stunning professional LinkedIn banners in seconds",
+      "Maintain consistent brand identity across all designs",
+      "Generate multiple design variants for A/B testing",
+      "Use voice commands for hands-free design workflows",
+      "Save and re-edit designs anytime",
+      "Export high-resolution 4K images for print quality"
+    ],
+    "usage_context": "Professionals use this tool when updating their LinkedIn profiles, launching personal branding campaigns, preparing for job searches, or creating content for social media marketing. Usage peaks during career transitions, job hunting seasons, and when users need fresh content for their professional presence."
+  },
+  "product_vision": {
+    "one_liner": "AI-powered LinkedIn banner designer that creates stunning professional banners in seconds using multi-LLM orchestration and voice-powered workflows",
+    "problem_statement": "Creating professional LinkedIn banners requires expensive design tools, advanced design skills, or hiring designers - leaving most professionals with generic or low-quality banners that fail to represent their personal brand effectively",
+    "value_proposition": "Nanobanna Pro combines multiple cutting-edge AI models (Gemini for image generation, OpenRouter for diverse LLM access, Replicate for image processing) with voice-powered creation to deliver professional-quality banners without design expertise - faster and more affordable than alternatives",
+    "success_metrics": [
+      "Number of banners generated per user per month",
+      "User retention rate (monthly active users)",
+      "Time from signup to first banner export",
+      "User satisfaction score (NPS)",
+      "AI generation success rate",
+      "Average session duration",
+      "Feature adoption rate (voice, A/B testing, tool chains)"
+    ]
+  },
+  "current_state": {
+    "maturity": "growth",
+    "existing_features": [
+      "Multi-LLM AI Integration (Gemini 3 Pro Image, OpenRouter, Replicate)",
+      "4K resolution image generation and export",
+      "AI-powered image upscaling (3 quality tiers)",
+      "Background removal with transparent PNG output",
+      "Image restoration and face enhancement",
+      "Voice-powered creation with Gemini Live Audio",
+      "Canvas editor with safe zones and layers",
+      "Multi-platform support (LinkedIn, YouTube Thumbnail, X/Twitter)",
+      "A/B testing generator for design variants",
+      "Tool chain builder for multi-step workflows",
+      "Brand consistency panel for enforcing brand guidelines",
+      "Authentication with Supabase (email/OAuth)",
+      "Design gallery with save/re-edit capability",
+      "Brainstorm chat interface for prompt ideation",
+      "Performance metrics tracking",
+      "Reference image library",
+      "Keyboard shortcuts panel",
+      "Neumorphism + Glassmorphism UI design"
+    ],
+    "known_gaps": [
+      "Partner Agent system for autonomous AI assistance (T016-T021 queued)",
+      "Profile update handling in ChatInterface (TODO in code)",
+      "Real-time collaboration features",
+      "Template library for quick starts",
+      "Direct LinkedIn publishing integration",
+      "Analytics dashboard for design performance",
+      "Team/organization accounts",
+      "Advanced typography controls",
+      "Animation/motion graphics support"
+    ],
+    "technical_debt": [
+      "47+ 'any' types need proper TypeScript interfaces (T007 audit identified)",
+      "Tests temporarily disabled in CI to unblock deployment",
+      "Some components need additional test coverage",
+      "Bundle size optimization opportunities with more code splitting"
+    ]
+  },
+  "competitive_context": {
+    "alternatives": [
+      "Canva - General purpose design tool with templates",
+      "Adobe Express - Adobe's simplified design tool",
+      "Crello/VistaCreate - Template-based design platform",
+      "Figma - Professional design tool (more technical)",
+      "LinkedIn's native banner upload - No AI assistance",
+      "BannerBear - API-based banner generation",
+      "Placeit - Mockup and design generator"
+    ],
+    "differentiators": [
+      "Multi-LLM AI orchestration (not just one AI model)",
+      "Voice-powered creation - completely hands-free design",
+      "Purpose-built for LinkedIn banners (not generic design tool)",
+      "Multi-turn image editing with AI memory",
+      "A/B testing variant generation built-in",
+      "Tool chain automation for complex workflows",
+      "AI brand consistency enforcement",
+      "Built for the Careersy Community with career-focused features"
+    ],
+    "market_position": "Nanobanna Pro positions itself as a specialized AI-powered tool for career professionals, sitting between complex professional tools (Figma, Photoshop) and generic template platforms (Canva, Crello). The focus on LinkedIn/career branding with voice AI and multi-model orchestration creates a unique niche for career-conscious professionals who want professional results without design expertise.",
+    "competitor_pain_points": [],
+    "competitor_analysis_available": false
+  },
+  "constraints": {
+    "technical": [
+      "Requires API keys for AI services (Gemini, OpenRouter, Replicate)",
+      "Voice features limited to Chrome/Edge browsers with microphone access",
+      "CORS handling required for Replicate proxy in development",
+      "Supabase Row Level Security (RLS) constraints for data isolation",
+      "Blur budget limits for glassmorphism effects (20px mobile, 40px desktop)",
+      "Must include accessibility fallbacks for depth UI effects"
+    ],
+    "resources": [
+      "Primarily developed with AI-assisted agents (orchestrator model)",
+      "Pilot hosted mode has shared API quota with usage limits",
+      "Invite-only during pilot phase for Careersy Community",
+      "Dependence on external AI service availability and pricing"
+    ],
+    "dependencies": [
+      "Supabase for authentication, database, and storage",
+      "Google Gemini API for image generation and voice",
+      "OpenRouter API for multi-model LLM access",
+      "Replicate API for image processing operations",
+      "Vercel/Cloud Run for hosting and deployment",
+      "Datadog for browser monitoring",
+      "Langfuse for LLM observability"
+    ]
+  },
+  "created_at": "2026-01-06T12:00:00Z"
+}

@@ -2,8 +2,8 @@ import React, { createContext, useContext, useState, ReactNode } from 'react';
 
 import { BannerElement } from '../../types';
 
-import { useCanvasState } from './CanvasStateContext';
-import { useElements } from './ElementsContext';
+import { CanvasStateContext } from './CanvasStateContext';
+import { ElementsContext } from './ElementsContext';
 
 /**
  * ImageContext - Image and profile management
@@ -83,12 +83,18 @@ function optimizeImage(file: File, maxWidth: number, maxHeight: number): Promise
 // Provider Props
 type ImageProviderProps = {
   children: ReactNode;
+  value?: ImageContextType;
 };
 
 // Provider Component
-export function ImageProvider({ children }: ImageProviderProps): React.ReactElement {
-  const { setBgImage, setIsProcessingImg } = useCanvasState();
-  const { setElements } = useElements();
+export function ImageProvider({ children, value: initialValue }: ImageProviderProps): React.ReactElement {
+  // Use useContext directly to avoid throwing and allow conditional behavior
+  const canvasState = React.useContext(CanvasStateContext);
+  const elementsContext = React.useContext(ElementsContext);
+
+  const setBgImage = canvasState?.setBgImage;
+  const setIsProcessingImg = canvasState?.setIsProcessingImg;
+  const setElements = elementsContext?.setElements;
 
   const [profilePic, setProfilePic] = useState<string | null>(null);
   const [profileTransform, setProfileTransform] = useState({ x: 0, y: 0, scale: 1 });
@@ -97,7 +103,7 @@ export function ImageProvider({ children }: ImageProviderProps): React.ReactElem
 
   // File Handlers
   const handleBgUpload = async (e: React.ChangeEvent<HTMLInputElement>): Promise<void> => {
-    if (e.target.files?.[0]) {
+    if (e.target.files?.[0] && setIsProcessingImg && setBgImage) {
       setIsProcessingImg(true);
       try {
         const base64 = await optimizeImage(e.target.files[0], 1920, 1080);
@@ -111,7 +117,7 @@ export function ImageProvider({ children }: ImageProviderProps): React.ReactElem
   };
 
   const handleProfileUpload = async (e: React.ChangeEvent<HTMLInputElement>): Promise<void> => {
-    if (e.target.files?.[0]) {
+    if (e.target.files?.[0] && setIsProcessingImg) {
       setIsProcessingImg(true);
       try {
         const base64 = await optimizeImage(e.target.files[0], 500, 500);
@@ -125,7 +131,7 @@ export function ImageProvider({ children }: ImageProviderProps): React.ReactElem
   };
 
   const handleRefUpload = async (e: React.ChangeEvent<HTMLInputElement>): Promise<void> => {
-    if (e.target.files) {
+    if (e.target.files && setIsProcessingImg && setElements) {
       setIsProcessingImg(true);
       const files = Array.from(e.target.files);
       try {
@@ -167,6 +173,7 @@ export function ImageProvider({ children }: ImageProviderProps): React.ReactElem
     handleRefUpload,
     handleBgUpload,
     aiSuggestions,
+    ...initialValue,
   };
 
   return <ImageContext.Provider value={value}>{children}</ImageContext.Provider>;

@@ -1,6 +1,7 @@
-import React, { createContext, useContext, useState, useRef, ReactNode } from 'react';
+import React, { createContext, useContext, useState, useRef, ReactNode, useMemo } from 'react';
 
 import { BannerCanvasHandle } from '../../components/BannerCanvas';
+import { CANVAS_FORMATS, DEFAULT_CANVAS_FORMAT, type CanvasFormatId, type CanvasFormat } from '../../constants';
 
 /**
  * CanvasStateContext - Core canvas state management
@@ -26,6 +27,11 @@ export type CanvasStateContextType = {
 
   isProcessingImg: boolean;
   setIsProcessingImg: (isProcessing: boolean) => void;
+
+  // Canvas Format
+  canvasFormatId: CanvasFormatId;
+  setCanvasFormatId: (id: CanvasFormatId) => void;
+  canvasFormat: CanvasFormat;
 };
 
 // Context
@@ -37,15 +43,20 @@ export { CanvasStateContext };
 // Provider Props
 type CanvasStateProviderProps = {
   children: ReactNode;
+  value?: CanvasStateContextType;
 };
 
 // Provider Component
-export function CanvasStateProvider({ children }: CanvasStateProviderProps): React.ReactElement {
+export function CanvasStateProvider({ children, value: initialValue }: CanvasStateProviderProps): React.ReactElement {
   const canvasRef = useRef<BannerCanvasHandle | null>(null);
 
   const [bgImage, setBgImage] = useState<string | null>(null);
   const [showSafeZones, setShowSafeZones] = useState(true);
   const [isProcessingImg, setIsProcessingImg] = useState(false);
+  const [canvasFormatId, setCanvasFormatId] = useState<CanvasFormatId>(DEFAULT_CANVAS_FORMAT);
+
+  // Derive canvasFormat from canvasFormatId
+  const canvasFormat = useMemo(() => CANVAS_FORMATS[canvasFormatId], [canvasFormatId]);
 
   const value: CanvasStateContextType = {
     canvasRef,
@@ -55,6 +66,10 @@ export function CanvasStateProvider({ children }: CanvasStateProviderProps): Rea
     setShowSafeZones,
     isProcessingImg,
     setIsProcessingImg,
+    canvasFormatId,
+    setCanvasFormatId,
+    canvasFormat,
+    ...initialValue,
   };
 
   return <CanvasStateContext.Provider value={value}>{children}</CanvasStateContext.Provider>;

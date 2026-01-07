@@ -1,4 +1,3 @@
-import { generateAgentResponse } from './llm';
 import type { BrandProfile } from '../types/ai';
 
 const BRAND_PROFILE_KEY = 'brand_profile';

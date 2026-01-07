@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useState, useCallback, ReactNode } from 'react';
 
-import { useCanvasState } from './CanvasStateContext';
+import { CanvasStateContext } from './CanvasStateContext';
 
 /**
  * HistoryContext - Undo/redo functionality
@@ -34,18 +34,21 @@ export { HistoryContext };
 // Provider Props
 type HistoryProviderProps = {
   children: ReactNode;
+  value?: HistoryContextType;
 };
 
 // Provider Component
-export function HistoryProvider({ children }: HistoryProviderProps): React.ReactElement {
-  const { setBgImage } = useCanvasState();
+export function HistoryProvider({ children, value: initialValue }: HistoryProviderProps): React.ReactElement {
+  // Use useContext directly to avoid throwing and allow conditional behavior
+  const canvasState = React.useContext(CanvasStateContext);
+  const setBgImage = canvasState?.setBgImage;
 
   const [imageHistory, setImageHistory] = useState<string[]>([]);
   const [historyIndex, setHistoryIndex] = useState<number>(-1);
 
   // Computed history flags
-  const canUndo = historyIndex > 0;
-  const canRedo = historyIndex < imageHistory.length - 1;
+  const canUndo = (initialValue?.canUndo ?? historyIndex > 0);
+  const canRedo = (initialValue?.canRedo ?? historyIndex < imageHistory.length - 1);
 
   // Add image to history
   const addToHistory = useCallback(
@@ -70,7 +73,7 @@ export function HistoryProvider({ children }: HistoryProviderProps): React.React
 
   // Undo operation
   const undo = useCallback(() => {
-    if (canUndo) {
+    if (canUndo && setBgImage) {
       const newIndex = historyIndex - 1;
       setHistoryIndex(newIndex);
       setBgImage(imageHistory[newIndex]);
@@ -80,7 +83,7 @@ export function HistoryProvider({ children }: HistoryProviderProps): React.React
 
   // Redo operation
   const redo = useCallback(() => {
-    if (canRedo) {
+    if (canRedo && setBgImage) {
       const newIndex = historyIndex + 1;
       setHistoryIndex(newIndex);
       setBgImage(imageHistory[newIndex]);
@@ -96,6 +99,7 @@ export function HistoryProvider({ children }: HistoryProviderProps): React.React
     undo,
     redo,
     addToHistory,
+    ...initialValue,
   };
 
   return <HistoryContext.Provider value={value}>{children}</HistoryContext.Provider>;

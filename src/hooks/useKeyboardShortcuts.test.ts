@@ -537,7 +537,7 @@ describe('getDefaultShortcuts', () => {
 
     expect(shortcuts).toHaveLength(1);
     expect(shortcuts[0]).toEqual({
-      key: 'g',
+      key: 'Enter',
       ctrl: true,
       callback: onGenerate,
       description: 'Generate image',

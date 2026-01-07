@@ -1,4 +1,4 @@
-import { Hono } from 'hono';
+import { Hono, Context } from 'hono';
 import { lucia } from '../lib/auth';
 import { db } from '../db';
 import { profiles, userPreferences, userApiKeys } from '../db/schema';
@@ -6,7 +6,7 @@ import { eq } from 'drizzle-orm';
 
 export const userRouter = new Hono();
 
-const getUser = async (c: any) => {
+const getUser = async (c: Context) => {
     const sessionId = lucia.readSessionCookie(c.req.header('Cookie') ?? '');
     if (!sessionId) return null;
     const { user } = await lucia.validateSession(sessionId);
@@ -169,24 +169,20 @@ userRouter.post('/api-keys', async (c) => {
     // Check if exists
     const existing = await db.select().from(userApiKeys).where(eq(userApiKeys.userId, user.id)).limit(1);
 
-    let result;
     if (existing.length === 0) {
-        const [inserted] = await db.insert(userApiKeys).values({
+        await db.insert(userApiKeys).values({
             userId: user.id,
             geminiApiKey, openaiApiKey, openrouterApiKey, replicateApiKey,
             llmProvider, voiceProvider, llmModel, llmImageModel, llmMagicEditModel, llmUpscaleModel
-        }).returning();
-        result = inserted;
+        });
     } else {
-        const [updated] = await db.update(userApiKeys)
+        await db.update(userApiKeys)
             .set({
                 geminiApiKey, openaiApiKey, openrouterApiKey, replicateApiKey,
                 llmProvider, voiceProvider, llmModel, llmImageModel, llmMagicEditModel, llmUpscaleModel,
                 updatedAt: new Date()
             })
-            .where(eq(userApiKeys.userId, user.id))
-            .returning();
-        result = updated;
+            .where(eq(userApiKeys.userId, user.id));
     }
 
     // SECURITY: Only return success status, never return the full keys

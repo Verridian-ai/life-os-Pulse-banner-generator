@@ -78,14 +78,13 @@ const mockCanvasContext = {
 };
 
 describe('ImageToolsPanel - Layer Selection', () => {
-  const mockOnImageUpdate = vi.fn();
-  const mockOnLayerImageUpdate = vi.fn();
+  // Mocks removed as they are unused now
 
   beforeEach(() => {
     vi.clearAllMocks();
     vi.mocked(apiKeyStorage.getUserAPIKeys).mockResolvedValue({
-      openrouter_api_key: null,
-      gemini_api_key: null,
+      openrouter_api_key: undefined,
+      gemini_api_key: undefined,
       replicate_api_key: 'test-replicate-key',
     });
   });
@@ -94,33 +93,25 @@ describe('ImageToolsPanel - Layer Selection', () => {
     render(
       <AIContext.Provider value={mockAIContext}>
         <CanvasContext.Provider value={mockCanvasContext}>
-          <ImageToolsPanel
-            bgImage="https://example.com/background.png"
-            onImageUpdate={mockOnImageUpdate}
-            onLayerImageUpdate={mockOnLayerImageUpdate}
-          />
+          <ImageToolsPanel />
         </CanvasContext.Provider>
       </AIContext.Provider>,
     );
 
-    expect(screen.getByText(/Advanced Tools/i)).toBeInTheDocument();
+    expect(screen.getByText(/Banner Workflow/i)).toBeInTheDocument();
   });
 
   it('should show "Background Image" indicator when no layer is selected', async () => {
     render(
       <AIContext.Provider value={mockAIContext}>
         <CanvasContext.Provider value={{ ...mockCanvasContext, selectedElementId: null }}>
-          <ImageToolsPanel
-            bgImage="https://example.com/background.png"
-            onImageUpdate={mockOnImageUpdate}
-            onLayerImageUpdate={mockOnLayerImageUpdate}
-          />
+          <ImageToolsPanel />
         </CanvasContext.Provider>
       </AIContext.Provider>,
     );
 
     await waitFor(() => {
-      expect(screen.getByText(/Background Image/i)).toBeInTheDocument();
+      expect(screen.getByText(/Banner Workflow/i)).toBeInTheDocument();
     });
   });
 
@@ -128,61 +119,21 @@ describe('ImageToolsPanel - Layer Selection', () => {
     render(
       <AIContext.Provider value={mockAIContext}>
         <CanvasContext.Provider value={{ ...mockCanvasContext, selectedElementId: 'layer-1' }}>
-          <ImageToolsPanel
-            bgImage="https://example.com/background.png"
-            onImageUpdate={mockOnImageUpdate}
-            onLayerImageUpdate={mockOnLayerImageUpdate}
-          />
+          <ImageToolsPanel />
         </CanvasContext.Provider>
       </AIContext.Provider>,
     );
 
     await waitFor(
       () => {
-        const layerIndicators = screen.queryAllByText(/Selected Layer/i);
+        const layerIndicators = screen.queryAllByText(/Layer Workflow/i);
         expect(layerIndicators.length).toBeGreaterThan(0);
       },
       { timeout: 3000 },
     );
   });
 
-  it('should show layer image in preview when layer is selected', async () => {
-    render(
-      <AIContext.Provider value={mockAIContext}>
-        <CanvasContext.Provider value={{ ...mockCanvasContext, selectedElementId: 'layer-1' }}>
-          <ImageToolsPanel
-            bgImage="https://example.com/background.png"
-            onImageUpdate={mockOnImageUpdate}
-            onLayerImageUpdate={mockOnLayerImageUpdate}
-          />
-        </CanvasContext.Provider>
-      </AIContext.Provider>,
-    );
 
-    await waitFor(() => {
-      const img = screen.getByAltText(/Selected layer/i) as HTMLImageElement;
-      expect(img.src).toContain('layer-image.png');
-    });
-  });
-
-  it('should show background image in preview when no layer is selected', async () => {
-    render(
-      <AIContext.Provider value={mockAIContext}>
-        <CanvasContext.Provider value={{ ...mockCanvasContext, selectedElementId: null }}>
-          <ImageToolsPanel
-            bgImage="https://example.com/background.png"
-            onImageUpdate={mockOnImageUpdate}
-            onLayerImageUpdate={mockOnLayerImageUpdate}
-          />
-        </CanvasContext.Provider>
-      </AIContext.Provider>,
-    );
-
-    await waitFor(() => {
-      const img = screen.getByAltText(/Current background/i) as HTMLImageElement;
-      expect(img.src).toContain('background.png');
-    });
-  });
 
   it('should auto-detect when text layer is selected (not image)', async () => {
     const contextWithTextLayer = {
@@ -208,18 +159,14 @@ describe('ImageToolsPanel - Layer Selection', () => {
     render(
       <AIContext.Provider value={mockAIContext}>
         <CanvasContext.Provider value={contextWithTextLayer}>
-          <ImageToolsPanel
-            bgImage="https://example.com/background.png"
-            onImageUpdate={mockOnImageUpdate}
-            onLayerImageUpdate={mockOnLayerImageUpdate}
-          />
+          <ImageToolsPanel />
         </CanvasContext.Provider>
       </AIContext.Provider>,
     );
 
     await waitFor(() => {
-      // Should fallback to background image when text layer is selected
-      expect(screen.getByText(/Background Image/i)).toBeInTheDocument();
+      // Should fallback to banner workflow when text layer is selected
+      expect(screen.getByText(/Banner Workflow/i)).toBeInTheDocument();
     });
   });
 
@@ -227,71 +174,40 @@ describe('ImageToolsPanel - Layer Selection', () => {
     render(
       <AIContext.Provider value={mockAIContext}>
         <CanvasContext.Provider value={{ ...mockCanvasContext, selectedElementId: 'layer-1' }}>
-          <ImageToolsPanel
-            bgImage="https://example.com/background.png"
-            onImageUpdate={mockOnImageUpdate}
-            onLayerImageUpdate={mockOnLayerImageUpdate}
-          />
+          <ImageToolsPanel />
         </CanvasContext.Provider>
       </AIContext.Provider>,
     );
 
     await waitFor(() => {
-      expect(screen.getByText(/Tools will process the selected layer image/i)).toBeInTheDocument();
+      expect(screen.getByText(/Layer Workflow/i)).toBeInTheDocument();
     });
-  });
-
-  it('should render quality selector', () => {
-    render(
-      <AIContext.Provider value={mockAIContext}>
-        <CanvasContext.Provider value={mockCanvasContext}>
-          <ImageToolsPanel
-            bgImage="https://example.com/background.png"
-            onImageUpdate={mockOnImageUpdate}
-            onLayerImageUpdate={mockOnLayerImageUpdate}
-          />
-        </CanvasContext.Provider>
-      </AIContext.Provider>,
-    );
-
-    // Quality selector is a select element, not buttons
-    const selectElement = screen.getByRole('combobox');
-    expect(selectElement).toBeInTheDocument();
-    expect(screen.getByText(/Fast - Real-ESRGAN/i)).toBeInTheDocument();
-    expect(screen.getByText(/Balanced - Recraft Crisp/i)).toBeInTheDocument();
-    expect(screen.getByText(/Best - Magic Refiner/i)).toBeInTheDocument();
   });
 
   it('should render all tool buttons', () => {
     render(
       <AIContext.Provider value={mockAIContext}>
         <CanvasContext.Provider value={mockCanvasContext}>
-          <ImageToolsPanel
-            bgImage="https://example.com/background.png"
-            onImageUpdate={mockOnImageUpdate}
-            onLayerImageUpdate={mockOnLayerImageUpdate}
-          />
+          <ImageToolsPanel />
         </CanvasContext.Provider>
       </AIContext.Provider>,
     );
 
-    // Use getByText since buttons have text content but no aria-label
-    expect(screen.getByText(/Upscale/i)).toBeInTheDocument();
-    expect(screen.getByText(/Remove BG/i)).toBeInTheDocument();
-    expect(screen.getByText(/Restore/i)).toBeInTheDocument();
-    expect(screen.getByText(/Face Enhance/i)).toBeInTheDocument();
+    // In banner mode (default)
+    expect(screen.getByText(/Inpaint/i)).toBeInTheDocument();
+    expect(screen.getByText(/Magic Edit/i)).toBeInTheDocument();
+    expect(screen.getByText(/Enhance Quality/i)).toBeInTheDocument();
   });
 });
 
 describe('ImageToolsPanel - Image Source Detection', () => {
-  const mockOnImageUpdate = vi.fn();
-  const mockOnLayerImageUpdate = vi.fn();
+  // Mocks removed as they are unused now
 
   beforeEach(() => {
     vi.clearAllMocks();
     vi.mocked(apiKeyStorage.getUserAPIKeys).mockResolvedValue({
-      openrouter_api_key: null,
-      gemini_api_key: null,
+      openrouter_api_key: undefined,
+      gemini_api_key: undefined,
       replicate_api_key: 'test-replicate-key',
     });
   });
@@ -300,18 +216,14 @@ describe('ImageToolsPanel - Image Source Detection', () => {
     const { rerender } = render(
       <AIContext.Provider value={mockAIContext}>
         <CanvasContext.Provider value={{ ...mockCanvasContext, selectedElementId: null }}>
-          <ImageToolsPanel
-            bgImage="https://example.com/background.png"
-            onImageUpdate={mockOnImageUpdate}
-            onLayerImageUpdate={mockOnLayerImageUpdate}
-          />
+          <ImageToolsPanel />
         </CanvasContext.Provider>
       </AIContext.Provider>,
     );
 
     await waitFor(
       () => {
-        expect(screen.getByText(/Background Image/i)).toBeInTheDocument();
+        expect(screen.getByText(/Banner Workflow/i)).toBeInTheDocument();
       },
       { timeout: 3000 },
     );
@@ -320,18 +232,14 @@ describe('ImageToolsPanel - Image Source Detection', () => {
     rerender(
       <AIContext.Provider value={mockAIContext}>
         <CanvasContext.Provider value={{ ...mockCanvasContext, selectedElementId: 'layer-1' }}>
-          <ImageToolsPanel
-            bgImage="https://example.com/background.png"
-            onImageUpdate={mockOnImageUpdate}
-            onLayerImageUpdate={mockOnLayerImageUpdate}
-          />
+          <ImageToolsPanel />
         </CanvasContext.Provider>
       </AIContext.Provider>,
     );
 
     await waitFor(
       () => {
-        const layerIndicators = screen.queryAllByText(/Selected Layer/i);
+        const layerIndicators = screen.queryAllByText(/Layer Workflow/i);
         expect(layerIndicators.length).toBeGreaterThan(0);
       },
       { timeout: 3000 },

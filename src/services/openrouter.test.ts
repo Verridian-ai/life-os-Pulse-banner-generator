@@ -48,21 +48,21 @@ describe('OpenRouter Service', () => {
     {
       id: 'openai/gpt-4',
       name: 'GPT-4',
-      pricing: { prompt: '0.00003', completion: '0.00006' },
+      pricing: { prompt: '0.00003', completion: '0.00006' }, // Total: 0.00009
       context_length: 8192,
       architecture: { modality: 'text' },
     },
     {
       id: 'anthropic/claude-3-opus',
       name: 'Claude 3 Opus',
-      pricing: { prompt: '0.000015', completion: '0.000075' },
+      pricing: { prompt: '0.00005', completion: '0.0001' }, // Total: 0.00015
       context_length: 200000,
-      architecture: { modality: 'text+image' },
+      architecture: { modality: 'image' },
     },
     {
       id: 'google/gemini-pro-vision',
       name: 'Gemini Pro Vision',
-      pricing: { prompt: '0.00025', completion: '0.0005' },
+      pricing: { prompt: '0.00025', completion: '0.0005' }, // Total: 0.00075
       context_length: 32768,
       architecture: { modality: 'multimodal' },
     },

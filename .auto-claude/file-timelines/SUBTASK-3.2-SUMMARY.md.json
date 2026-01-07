@@ -1,0 +1,25 @@
+{
+  "file_path": "SUBTASK-3.2-SUMMARY.md",
+  "main_branch_history": [],
+  "task_views": {
+    "029-memoize-keyboard-shortcut-handlers-in-app-tsx": {
+      "task_id": "029-memoize-keyboard-shortcut-handlers-in-app-tsx",
+      "branch_point": {
+        "commit_hash": "ebdf6e38abd27054d01757c7f14894a93246a91b",
+        "content": "",
+        "timestamp": "2026-01-07T00:19:19.295276"
+      },
+      "worktree_state": null,
+      "task_intent": {
+        "title": "029-memoize-keyboard-shortcut-handlers-in-app-tsx",
+        "description": "Optimize keyboard shortcut handlers by memoizing them to prevent unnecessary event listener re-registration on every render",
+        "from_plan": true
+      },
+      "commits_behind_main": 7,
+      "status": "active",
+      "merged_at": null
+    }
+  },
+  "created_at": "2026-01-07T00:19:19.456813",
+  "last_updated": "2026-01-07T00:19:19.493737"
+}

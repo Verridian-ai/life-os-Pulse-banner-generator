@@ -1,0 +1,42 @@
+{
+  "file_path": "src/hooks/useResponsiveColumns.ts",
+  "main_branch_history": [],
+  "task_views": {
+    "028-cache-image-objects-in-bannercanvas-to-prevent-rel": {
+      "task_id": "028-cache-image-objects-in-bannercanvas-to-prevent-rel",
+      "branch_point": {
+        "commit_hash": "ebdf6e38abd27054d01757c7f14894a93246a91b",
+        "content": "",
+        "timestamp": "2026-01-07T00:11:12.769175"
+      },
+      "worktree_state": null,
+      "task_intent": {
+        "title": "028-cache-image-objects-in-bannercanvas-to-prevent-rel",
+        "description": "BannerCanvas creates new Image() objects on every render for both background and element images. This triggers redundant image decoding even when the source URLs haven't changed, causing visual flicker and CPU overhead.",
+        "from_plan": true
+      },
+      "commits_behind_main": 7,
+      "status": "active",
+      "merged_at": null
+    },
+    "022-document-react-context-architecture-and-provider-h": {
+      "task_id": "022-document-react-context-architecture-and-provider-h",
+      "branch_point": {
+        "commit_hash": "ebdf6e38abd27054d01757c7f14894a93246a91b",
+        "content": "",
+        "timestamp": "2026-01-07T01:05:48.102959"
+      },
+      "worktree_state": null,
+      "task_intent": {
+        "title": "022-document-react-context-architecture-and-provider-h",
+        "description": "",
+        "from_plan": false
+      },
+      "commits_behind_main": 7,
+      "status": "active",
+      "merged_at": null
+    }
+  },
+  "created_at": "2026-01-07T00:11:13.282700",
+  "last_updated": "2026-01-07T01:05:49.223179"
+}

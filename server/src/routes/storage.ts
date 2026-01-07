@@ -8,6 +8,7 @@ import { eq, sql } from 'drizzle-orm';
 export const storageRouter = new Hono();
 
 // Middleware-like helper for extracting user
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 const getUser = async (c: any) => {
     const sessionId = lucia.readSessionCookie(c.req.header('Cookie') ?? '');
     if (!sessionId) return null;
@@ -106,7 +107,7 @@ storageRouter.post('/delete', async (c) => {
         try {
             const metadata = await getFileMetadata(filePath);
             size = parseInt(String(metadata.size || '0'), 10);
-        } catch (e) {
+        } catch {
             console.warn('Could not get metadata for delete size calculation', e);
         }
 

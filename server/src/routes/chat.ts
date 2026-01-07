@@ -1,10 +1,7 @@
 import { Hono } from 'hono';
 import { db } from '../db';
-import { chatConversations, chatMessages, voiceTranscripts } from '../db/schema';
+import { chatConversations, chatMessages } from '../db/schema';
 import { eq, desc, and } from 'drizzle-orm';
-import { authMiddleware } from '../lib/auth'; // Assumptions on auth middleware
-import { z } from 'zod';
-import { getCookie } from 'hono/cookie';
 
 const chatRouter = new Hono();
 
@@ -21,7 +18,7 @@ chatRouter.get('/conversations', async (c) => {
     const conversations = await db.select().from(chatConversations)
         .where(and(
             eq(chatConversations.userId, user.id),
-            mode ? eq(chatConversations.mode, mode as any) : undefined
+            mode ? eq(chatConversations.mode, mode) : undefined
         ))
         .orderBy(desc(chatConversations.lastMessageAt));
 

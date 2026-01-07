@@ -2,6 +2,7 @@
 
 import React, { useState } from 'react';
 import { useAI } from '../../context/AIContext';
+import { useToast } from '@/hooks/useToast';
 import {
   extractBrandFromImages,
   checkBrandConsistency,
@@ -20,6 +21,7 @@ export const BrandConsistencyPanel: React.FC<BrandConsistencyPanelProps> = ({
   currentImage,
 }) => {
   const { brandProfile, updateBrandProfile } = useAI();
+  const toast = useToast();
   const [isExtracting, setIsExtracting] = useState(false);
   const [isChecking, setIsChecking] = useState(false);
   const [consistencyResult, setConsistencyResult] = useState<{
@@ -32,7 +34,7 @@ export const BrandConsistencyPanel: React.FC<BrandConsistencyPanelProps> = ({
 
   const handleExtractBrand = async () => {
     if (refImages.length === 0) {
-      alert('Please add reference images first');
+      toast.error('Please add reference images first');
       return;
     }
 
@@ -40,9 +42,9 @@ export const BrandConsistencyPanel: React.FC<BrandConsistencyPanelProps> = ({
     try {
       const extracted = await extractBrandFromImages(refImages);
       updateBrandProfile(extracted);
-      alert('Brand profile extracted successfully!');
+      toast.success('Brand profile extracted successfully!');
     } catch (error: unknown) {
-      alert(`Failed to extract brand: ${error instanceof Error ? error.message : 'Unknown error'}`);
+      toast.error(`Failed to extract brand: ${error instanceof Error ? error.message : 'Unknown error'}`);
     } finally {
       setIsExtracting(false);
     }
@@ -50,12 +52,12 @@ export const BrandConsistencyPanel: React.FC<BrandConsistencyPanelProps> = ({
 
   const handleCheckConsistency = async () => {
     if (!currentImage) {
-      alert('No image to check. Generate or upload an image first.');
+      toast.error('No image to check. Generate or upload an image first.');
       return;
     }
 
     if (!brandProfile) {
-      alert('No brand profile found. Extract brand from reference images first.');
+      toast.error('No brand profile found. Extract brand from reference images first.');
       return;
     }
 
@@ -64,7 +66,7 @@ export const BrandConsistencyPanel: React.FC<BrandConsistencyPanelProps> = ({
       const result = await checkBrandConsistency(currentImage, brandProfile);
       setConsistencyResult(result);
     } catch (error: unknown) {
-      alert(
+      toast.error(
         `Failed to check consistency: ${error instanceof Error ? error.message : 'Unknown error'}`,
       );
     } finally {
@@ -75,7 +77,7 @@ export const BrandConsistencyPanel: React.FC<BrandConsistencyPanelProps> = ({
   const handleExport = () => {
     const jsonString = exportBrandProfile();
     if (!jsonString) {
-      alert('No brand profile to export');
+      toast.error('No brand profile to export');
       return;
     }
 
@@ -87,27 +89,30 @@ export const BrandConsistencyPanel: React.FC<BrandConsistencyPanelProps> = ({
     a.download = 'brand-profile.json';
     a.click();
     URL.revokeObjectURL(url);
+    toast.success('Brand profile exported');
   };
 
   const handleImport = () => {
     try {
       const success = importBrandProfile(importText);
       if (success) {
-        alert('Brand profile imported successfully!');
+        toast.success('Brand profile imported successfully!');
         setShowImport(false);
         setImportText('');
-        window.location.reload(); // Reload to update context
+        // Optimization: instead of reload, update context or trigger a re-fetch if possible
+        window.location.reload();
       } else {
-        alert('Invalid brand profile format');
+        toast.error('Invalid brand profile format');
       }
     } catch (error: unknown) {
-      alert(`Import failed: ${error instanceof Error ? error.message : 'Unknown error'}`);
+      toast.error(`Import failed: ${error instanceof Error ? error.message : 'Unknown error'}`);
     }
   };
 
   const handleClear = () => {
-    if (confirm('Are you sure you want to clear the brand profile?')) {
+    if (window.confirm('Are you sure you want to clear the brand profile?')) {
       clearBrandProfile();
+      toast.success('Brand profile cleared');
       window.location.reload();
     }
   };
@@ -234,24 +239,21 @@ export const BrandConsistencyPanel: React.FC<BrandConsistencyPanelProps> = ({
             {/* Consistency Result */}
             {consistencyResult && (
               <div
-                className={`rounded-lg p-3 border ${
-                  consistencyResult.consistent
-                    ? 'bg-green-900/20 border-green-500/30'
-                    : 'bg-orange-900/20 border-orange-500/30'
-                }`}
+                className={`rounded-lg p-3 border ${consistencyResult.consistent
+                  ? 'bg-green-900/20 border-green-500/30'
+                  : 'bg-orange-900/20 border-orange-500/30'
+                  }`}
               >
                 <div className='flex items-center justify-between mb-2'>
                   <span
-                    className={`text-sm font-bold ${
-                      consistencyResult.consistent ? 'text-green-300' : 'text-orange-300'
-                    }`}
+                    className={`text-sm font-bold ${consistencyResult.consistent ? 'text-green-300' : 'text-orange-300'
+                      }`}
                   >
                     {consistencyResult.consistent ? 'Brand Consistent ✓' : 'Needs Improvement'}
                   </span>
                   <span
-                    className={`text-lg font-black ${
-                      consistencyResult.consistent ? 'text-green-400' : 'text-orange-400'
-                    }`}
+                    className={`text-lg font-black ${consistencyResult.consistent ? 'text-green-400' : 'text-orange-400'
+                      }`}
                   >
                     {consistencyResult.score}/100
                   </span>

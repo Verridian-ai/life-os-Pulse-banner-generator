@@ -1,6 +1,6 @@
 import { api } from './api';
 
-export const uploadImage = async (userId: string, file: File, bucket = 'user-data') => {
+export const uploadImage = async (userId: string, file: File, _bucket = 'user-data') => {
   try {
     // 1. Get Signed Upload URL from Backend
     const { url, filePath } = await api.post<{ url: string; filePath: string }>('/api/storage/upload-url', {
@@ -36,7 +36,7 @@ export const uploadImage = async (userId: string, file: File, bucket = 'user-dat
   }
 };
 
-export const getPublicUrl = async (path: string, bucket = 'user-data') => {
+export const getPublicUrl = async (path: string, _bucket = 'user-data') => {
   // We treat "public URL" as a signed read URL for private user data
   try {
     const { url } = await api.post<{ url: string }>('/api/storage/read-url', { filePath: path });
@@ -47,7 +47,7 @@ export const getPublicUrl = async (path: string, bucket = 'user-data') => {
   }
 };
 
-export const deleteImage = async (path: string, bucket = 'user-data') => {
+export const deleteImage = async (path: string, _bucket = 'user-data') => {
   try {
     await api.post('/api/storage/delete', { filePath: path });
     return { data: {}, error: null };

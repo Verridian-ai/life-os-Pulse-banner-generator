@@ -2,7 +2,7 @@
 
 
 interface ReplicateInput {
-    [key: string]: any;
+    [key: string]: unknown;
 }
 
 interface ReplicateResponse {
@@ -15,8 +15,8 @@ interface ReplicateResponse {
     created_at: string;
     status: 'starting' | 'processing' | 'succeeded' | 'failed' | 'canceled';
     input: ReplicateInput;
-    output: any;
-    error: any;
+    output: unknown;
+    error: unknown;
     logs: string;
 }
 

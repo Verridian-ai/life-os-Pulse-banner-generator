@@ -1,5 +1,6 @@
 import React, { useRef, useEffect } from 'react';
 import { TranscriptEntry } from '../../services/liveClient';
+import { useFocusTrap } from '../../hooks/useFocusTrap';
 
 interface ChatHistoryPanelProps {
   isOpen: boolean;
@@ -8,7 +9,7 @@ interface ChatHistoryPanelProps {
 }
 
 const ChatHistoryPanel: React.FC<ChatHistoryPanelProps> = ({ isOpen, onClose, transcript }) => {
-  const panelRef = useRef<HTMLDivElement>(null);
+  const panelRef = useFocusTrap(isOpen, onClose);
   const endRef = useRef<HTMLDivElement>(null);
 
   // Auto-scroll to bottom when new messages arrive
@@ -17,29 +18,6 @@ const ChatHistoryPanel: React.FC<ChatHistoryPanelProps> = ({ isOpen, onClose, tr
       endRef.current?.scrollIntoView({ behavior: 'smooth' });
     }
   }, [transcript, isOpen]);
-
-  // Handle escape key to close
-  useEffect(() => {
-    const handleEscape = (e: KeyboardEvent) => {
-      if (e.key === 'Escape' && isOpen) {
-        onClose();
-      }
-    };
-
-    document.addEventListener('keydown', handleEscape);
-    return () => document.removeEventListener('keydown', handleEscape);
-  }, [isOpen, onClose]);
-
-  // Focus trap - keep focus within panel when open
-  useEffect(() => {
-    if (isOpen && panelRef.current) {
-      const focusableElements = panelRef.current.querySelectorAll(
-        'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])',
-      );
-      const firstElement = focusableElements[0] as HTMLElement;
-      firstElement?.focus();
-    }
-  }, [isOpen]);
 
   // Format timestamp
   const formatTime = (timestamp: number) => {
@@ -101,6 +79,7 @@ const ChatHistoryPanel: React.FC<ChatHistoryPanelProps> = ({ isOpen, onClose, tr
         role='dialog'
         aria-modal='true'
         aria-labelledby='chat-history-title'
+        tabIndex={-1}
       >
         {/* Header */}
         <div className='flex items-center justify-between p-4 border-b border-white/10 bg-zinc-900/50'>

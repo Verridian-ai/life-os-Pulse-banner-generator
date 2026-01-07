@@ -235,6 +235,12 @@ export class OpenAIRealtimeClient {
   private float32Cache: Float32Array | null = null;
   private inputPcm16Buffer: Int16Array | null = null;
 
+  // Connection quality metrics
+  private lastPingTime: number = 0;
+  private lastPongTime: number = 0;
+  private latencyMs: number = 0;
+  private pingIntervalId: NodeJS.Timeout | null = null;
+
   constructor(apiKey: string) {
     this.apiKey = apiKey;
   }
@@ -252,6 +258,30 @@ export class OpenAIRealtimeClient {
   clearTranscript(): void {
     this.transcript = [];
     console.log('[OpenAI Realtime] Transcript cleared');
+  }
+
+  /**
+   * Get connection quality metrics
+   * Returns audio buffer health and latency information
+   */
+  getConnectionMetrics(): {
+    latencyMs: number;
+    audioUnderruns: number;
+    bufferedSamples: number;
+    totalSamplesReceived: number;
+  } {
+    const audioMetrics = this.playbackQueue?.getMetrics() || {
+      bufferedSamples: 0,
+      underruns: 0,
+      totalReceived: 0,
+    };
+
+    return {
+      latencyMs: this.latencyMs,
+      audioUnderruns: audioMetrics.underruns,
+      bufferedSamples: audioMetrics.bufferedSamples,
+      totalSamplesReceived: audioMetrics.totalReceived,
+    };
   }
 
   async connect(
@@ -617,6 +647,9 @@ Available tools:
       // Convert to base64 (slice to exact size needed)
       const base64 = this.arrayBufferToBase64((this.inputPcm16Buffer.buffer as ArrayBuffer).slice(0, inputData.length * 2));
 
+      // Track send time for latency estimation
+      this.lastPingTime = Date.now();
+
       // Send audio to OpenAI
       this.sendMessage({
         type: 'input_audio_buffer.append',
@@ -650,6 +683,15 @@ Available tools:
     onToolCall?: (toolCall: ToolCall) => void,
     onTranscript?: (entry: TranscriptEntry) => void,
   ) {
+    // Track message timing for latency estimation
+    if (this.lastPingTime > 0) {
+      const now = Date.now();
+      const roundTrip = now - this.lastPingTime;
+      // Use exponential moving average for smooth latency values
+      this.latencyMs = this.latencyMs === 0 ? roundTrip : this.latencyMs * 0.7 + roundTrip * 0.3;
+      this.lastPongTime = now;
+    }
+
     switch (message.type) {
       case 'response.audio.delta':
         // Handle audio response with robust buffered playback
@@ -799,6 +841,17 @@ Available tools:
   async disconnect() {
     console.log('[OpenAI Realtime] Disconnecting...');
     this.isConnected = false;
+
+    // Clear ping interval if exists
+    if (this.pingIntervalId) {
+      clearInterval(this.pingIntervalId);
+      this.pingIntervalId = null;
+    }
+
+    // Reset connection metrics
+    this.lastPingTime = 0;
+    this.lastPongTime = 0;
+    this.latencyMs = 0;
 
     // Close WebSocket
     if (this.ws) {

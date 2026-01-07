@@ -1,0 +1,124 @@
+{
+  "security_hardening": [
+    {
+      "id": "sec-001",
+      "type": "security_hardening",
+      "title": "Upgrade vulnerable npm dependencies with known CVEs",
+      "description": "npm audit reveals 4 vulnerabilities in dependencies: esbuild (<=0.24.2) has a moderate severity request handling issue, path-to-regexp (4.0.0-6.2.2) has a HIGH severity ReDoS vulnerability enabling denial of service via backtracking regex, and undici (<=5.28.5) has two moderate vulnerabilities including insufficient random values and certificate handling issues.",
+      "rationale": "High severity vulnerabilities like ReDoS in path-to-regexp can be exploited by attackers to cause denial of service by crafting malicious URLs. The undici vulnerabilities could compromise secure communications.",
+      "category": "dependencies",
+      "severity": "high",
+      "affectedFiles": ["package.json", "package-lock.json", "@vercel/node dependency"],
+      "vulnerability": "CWE-1333: Inefficient Regular Expression Complexity, CWE-330: Insufficient Random Values",
+      "currentRisk": "ReDoS attacks on routing, potential DoS via path-to-regexp. Certificate validation issues in undici could allow MITM attacks.",
+      "remediation": "Run `npm audit fix --force` to upgrade @vercel/node to version 2.3.0 (breaking change). Alternatively, upgrade individual packages: path-to-regexp to >=6.3.0, undici to >=5.28.6, esbuild to >=0.25.0. Review breaking changes in @vercel/node before upgrading.",
+      "references": [
+        "https://github.com/advisories/GHSA-9wv6-86v2-598j",
+        "https://github.com/advisories/GHSA-67mh-4wv8-2f99",
+        "https://github.com/advisories/GHSA-c76h-2ccp-4975"
+      ],
+      "compliance": ["SOC2", "PCI-DSS"]
+    },
+    {
+      "id": "sec-002",
+      "type": "security_hardening",
+      "title": "Hash password reset tokens before database storage",
+      "description": "In server/src/routes/auth.ts line 216, password reset tokens are stored in plaintext in the database with an explicit comment noting 'Storing plain token for MVP simplicity, usually hash it'. This leaves reset tokens vulnerable if the database is compromised.",
+      "rationale": "Password reset tokens grant full account takeover capability. If an attacker gains read access to the database (via SQL injection, backup leak, or insider threat), they can use any unexpired reset token to take over accounts. Hashing tokens with SHA-256 prevents this attack vector.",
+      "category": "authentication",
+      "severity": "high",
+      "affectedFiles": ["server/src/routes/auth.ts", "server/src/db/schema.ts"],
+      "vulnerability": "CWE-522: Insufficiently Protected Credentials",
+      "currentRisk": "Database breach exposes all active password reset tokens, enabling mass account takeover",
+      "remediation": "1. Hash the reset token with SHA-256 before storing: `const tokenHash = crypto.createHash('sha256').update(token).digest('hex')`. 2. Send the unhashed token to user via email. 3. When validating, hash the submitted token and compare to stored hash. 4. Rename 'tokenHash' column if needed for clarity (it's currently storing plaintext despite the name).",
+      "references": [
+        "https://cheatsheetseries.owasp.org/cheatsheets/Forgot_Password_Cheat_Sheet.html",
+        "https://cwe.mitre.org/data/definitions/522.html"
+      ],
+      "compliance": ["SOC2", "GDPR"]
+    },
+    {
+      "id": "sec-003",
+      "type": "security_hardening",
+      "title": "Implement CSRF protection for state-changing endpoints",
+      "description": "The application lacks CSRF (Cross-Site Request Forgery) protection. State-changing endpoints like /api/auth/login, /api/user/api-keys, and /api/designs rely solely on session cookies for authentication. An attacker could trick authenticated users into performing unwanted actions by embedding requests in malicious websites.",
+      "rationale": "Without CSRF tokens, any website can submit forms to the application on behalf of authenticated users. This is particularly dangerous for API key management and account operations. The SameSite cookie attribute provides partial protection but is insufficient for older browsers and certain attack vectors.",
+      "category": "authorization",
+      "severity": "medium",
+      "affectedFiles": [
+        "server/src/index.ts",
+        "server/src/routes/auth.ts",
+        "server/src/routes/user.ts",
+        "src/services/api.ts"
+      ],
+      "vulnerability": "CWE-352: Cross-Site Request Forgery (CSRF)",
+      "currentRisk": "Authenticated users visiting malicious sites could unknowingly trigger account changes, API key modifications, or design deletions",
+      "remediation": "1. Create server/src/lib/csrf.ts with token generation using crypto.randomBytes(32). 2. Set CSRF token in a double-submit cookie pattern. 3. Add CSRF middleware to validate X-CSRF-Token header on POST/PUT/DELETE requests. 4. Update frontend api.ts to include CSRF token from cookie in request headers. 5. Consider using Hono's built-in csrf middleware.",
+      "references": [
+        "https://cheatsheetseries.owasp.org/cheatsheets/Cross-Site_Request_Forgery_Prevention_Cheat_Sheet.html",
+        "https://cwe.mitre.org/data/definitions/352.html"
+      ],
+      "compliance": ["OWASP Top 10 A01:2021"]
+    },
+    {
+      "id": "sec-004",
+      "type": "security_hardening",
+      "title": "Remove API key access from localStorage in ModelSelector component",
+      "description": "The ModelSelector component (src/components/features/ModelSelector.tsx line 29) still reads API keys directly from localStorage. While the main apiKeyStorage service has been updated to use server-side storage, this legacy pattern could lead to inconsistent behavior and expose keys to XSS attacks.",
+      "rationale": "localStorage is accessible to any JavaScript running on the page, making stored secrets vulnerable to XSS attacks. Although the migration to server-side storage is underway, legacy code patterns that access localStorage directly could cause confusion and security regressions. The migrateLocalStorageToNeon function in apiKeyStorage.ts also reads from localStorage for migration purposes but doesn't clear the old values.",
+      "category": "secrets_management",
+      "severity": "medium",
+      "affectedFiles": [
+        "src/components/features/ModelSelector.tsx",
+        "src/services/apiKeyStorage.ts"
+      ],
+      "vulnerability": "CWE-312: Cleartext Storage of Sensitive Information",
+      "currentRisk": "XSS vulnerability anywhere in the app could extract API keys from localStorage. Legacy code may bypass intended server-side key storage.",
+      "remediation": "1. Update ModelSelector to get API key availability status from AIContext or call getUserAPIKeys() instead of localStorage.getItem('openrouter_api_key'). 2. After successful migration, clear localStorage keys using localStorage.removeItem(). 3. Add a cleanup function in migrateLocalStorageToNeon() that removes keys after successful server storage. 4. Search codebase for all localStorage.getItem calls referencing *_api_key and update them.",
+      "references": [
+        "https://cheatsheetseries.owasp.org/cheatsheets/HTML5_Security_Cheat_Sheet.html#local-storage",
+        "https://cwe.mitre.org/data/definitions/312.html"
+      ],
+      "compliance": ["SOC2", "PCI-DSS"]
+    },
+    {
+      "id": "sec-005",
+      "type": "security_hardening",
+      "title": "Implement Content Security Policy (CSP) headers",
+      "description": "The application has basic security headers (X-Frame-Options, X-XSS-Protection, X-Content-Type-Options) but lacks a Content Security Policy. CSP is the most effective defense against XSS attacks, controlling which sources can load scripts, styles, images, and other resources.",
+      "rationale": "Without CSP, any injected script can execute and exfiltrate data. Given this app handles API keys and uses multiple AI service integrations, CSP provides critical defense-in-depth against XSS. The application already connects to known external domains (replicate.com, openrouter.ai, googleapis.com) that can be whitelisted.",
+      "category": "configuration",
+      "severity": "medium",
+      "affectedFiles": [
+        "server/src/index.ts",
+        "nginx.conf"
+      ],
+      "vulnerability": "CWE-1021: Improper Restriction of Rendered UI Layers or Frames",
+      "currentRisk": "XSS attacks can freely execute malicious JavaScript, steal session cookies (unless HttpOnly), exfiltrate API keys from localStorage, and perform actions on behalf of users",
+      "remediation": "Add CSP header in server/src/index.ts security headers middleware. Start with report-only mode: `Content-Security-Policy-Report-Only: default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https://*.replicate.delivery https://*.supabase.co; connect-src 'self' https://api.replicate.com https://openrouter.ai https://generativelanguage.googleapis.com; frame-ancestors 'none';` Monitor violations before enforcing. Gradually remove 'unsafe-inline' by using nonces or hashes.",
+      "references": [
+        "https://developer.mozilla.org/en-US/docs/Web/HTTP/CSP",
+        "https://cheatsheetseries.owasp.org/cheatsheets/Content_Security_Policy_Cheat_Sheet.html"
+      ],
+      "compliance": ["OWASP Top 10 A05:2021", "SOC2"]
+    }
+  ],
+  "metadata": {
+    "dependenciesScanned": 51,
+    "knownVulnerabilities": 4,
+    "filesAnalyzed": 89,
+    "criticalIssues": 0,
+    "highIssues": 2,
+    "mediumIssues": 3,
+    "lowIssues": 0,
+    "generatedAt": "2026-01-06T22:00:00Z",
+    "scanDetails": {
+      "passwordHashing": "Argon2id with strong parameters (✓ secure)",
+      "rateLimiting": "Implemented on auth and AI endpoints (✓ secure)",
+      "sessionManagement": "Lucia with HttpOnly cookies (✓ secure)",
+      "securityHeaders": "Basic headers present, CSP missing (⚠ needs improvement)",
+      "csrfProtection": "Not implemented (⚠ needs implementation)",
+      "dependencyVulnerabilities": "4 vulnerabilities found (⚠ needs patching)"
+    }
+  }
+}

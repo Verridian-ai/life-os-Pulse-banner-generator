@@ -1,3 +1,4 @@
+/* eslint-disable react-refresh/only-export-components */
 /**
  * CanvasContext - Backward Compatibility Re-exports
  *
@@ -55,7 +56,22 @@ export type {
   HistoryContextType,
 } from './canvas';
 
-// Legacy export: CanvasContext now refers to the combined context
-// This is for code that imports { CanvasContext } directly
-import { CanvasStateContext } from './canvas';
-export { CanvasStateContext as CanvasContext };
+// Legacy export: CanvasContext now refers to a virtual context for backward compatibility
+// This allows legacy tests using <CanvasContext.Provider value={...}> to continue working
+// while providing all the necessary sub-contexts.
+import { CombinedCanvasProvider } from './canvas';
+
+export const CanvasContext = {
+  // LEGITIMATE ANY: Legacy test compatibility layer - accepts any test mock structure
+  // This allows existing tests using <CanvasContext.Provider value={...}> to work
+  // while the actual implementation uses properly typed sub-contexts internally
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  Provider: ({ value, children }: { value: any; children: React.ReactNode }) => (
+    <CombinedCanvasProvider value={value}>
+      {children}
+    </CombinedCanvasProvider>
+  ),
+  Consumer: () => {
+    throw new Error('CanvasContext.Consumer is not supported. Use useCanvas() hook instead.');
+  },
+};

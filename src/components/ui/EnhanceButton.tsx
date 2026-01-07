@@ -1,7 +1,7 @@
 // EnhanceButton - Reusable AI prompt enhancement button
 import React from 'react';
 import { usePromptEnhance } from '@/hooks/usePromptEnhance';
-import { PromptEnhanceContext } from '@/services/llm';
+import type { PromptEnhanceContext } from '@/services/llm-types';
 
 interface EnhanceButtonProps {
   prompt: string;

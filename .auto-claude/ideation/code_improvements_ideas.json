@@ -1,0 +1,74 @@
+{
+  "code_improvements": [
+    {
+      "id": "ci-001",
+      "type": "code_improvements",
+      "title": "Extend Export Panel to Multiple Image Formats",
+      "description": "Add JPEG, WebP, and SVG export options to the ExportPanel component. The current implementation only exports PNG format, but the canvas infrastructure supports other formats. Users would benefit from choosing quality/size tradeoffs with JPEG, modern WebP compression, or vector SVG for designs without photos.",
+      "rationale": "The ExportPanel.tsx already has the export infrastructure with canvas.generateStageImage(). The pattern for adding format selection exists in CanvasFormatSelector.tsx. The canvas ref architecture supports multiple output formats via the toDataURL method.",
+      "builds_upon": ["ExportPanel PNG export", "CanvasFormatSelector pattern", "Canvas ref architecture"],
+      "estimated_effort": "trivial",
+      "affected_files": ["src/components/features/editor/ExportPanel.tsx"],
+      "existing_patterns": ["CanvasFormatSelector dropdown pattern", "BTN_BASE styled buttons", "Canvas ref toDataURL"],
+      "implementation_approach": "Add a format selector dropdown (reuse pattern from CanvasFormatSelector) with options PNG/JPEG/WebP. Modify handleDownload to pass format and quality parameters to canvas.toDataURL(). Add quality slider for JPEG/WebP (0-100). Update filename extension based on selected format.",
+      "status": "draft",
+      "created_at": "2026-01-06T21:40:00.000Z"
+    },
+    {
+      "id": "ci-002",
+      "type": "code_improvements",
+      "title": "Extend Keyboard Shortcuts for Canvas Operations",
+      "description": "Add keyboard shortcuts for common canvas operations: Tab navigation (Ctrl+1/2/3), duplicate element (Ctrl+D), delete element (Delete/Backspace), zoom in/out (Ctrl++/-), toggle safe zones (Ctrl+;), and quick export (Ctrl+E). The shortcut infrastructure is robust but currently underutilized.",
+      "rationale": "useKeyboardShortcuts.ts provides excellent infrastructure with modifier key support, input field detection, and formatted display. getDefaultShortcuts already defines 7 shortcuts but many common canvas operations are missing. The pattern is proven and tested.",
+      "builds_upon": ["useKeyboardShortcuts hook", "getDefaultShortcuts function", "KeyboardShortcutsPanel display"],
+      "estimated_effort": "trivial",
+      "affected_files": ["src/hooks/useKeyboardShortcuts.ts", "src/components/features/KeyboardShortcutsPanel.tsx"],
+      "existing_patterns": ["KeyboardShortcut interface", "formatShortcut function", "getDefaultShortcuts pattern"],
+      "implementation_approach": "Extend getDefaultShortcuts handlers object to include new callbacks: onDuplicate, onDelete, onZoomIn, onZoomOut, onToggleSafeZones, onQuickExport, onTabStudio, onTabGallery, onTabBrainstorm. Add corresponding shortcut definitions following existing pattern. Update KeyboardShortcutsPanel to display all shortcuts.",
+      "status": "draft",
+      "created_at": "2026-01-06T21:40:00.000Z"
+    },
+    {
+      "id": "ci-003",
+      "type": "code_improvements",
+      "title": "Add Model Usage Analytics Hook and Display",
+      "description": "Create a useModelUsage hook that aggregates performance metrics from AIContext to show model usage statistics: calls per model, average latency, total cost, and success rates. Display in a new ModelUsagePanel or extend PerformanceMetricsPanel.",
+      "rationale": "AIContext already tracks performanceMetrics in localStorage with model, latency, and success data. modelRouter.ts has comprehensive model metadata including costs. The useMetrics hook pattern from admin features shows how to aggregate and display metrics with period filtering.",
+      "builds_upon": ["AIContext performanceMetrics state", "modelRouter getModelMetadata", "useMetrics hook pattern", "PerformanceMetricsPanel"],
+      "estimated_effort": "small",
+      "affected_files": ["src/hooks/useModelUsage.ts", "src/components/features/PerformanceMetricsPanel.tsx"],
+      "existing_patterns": ["useMetrics hook structure", "PerformanceMetric type", "localStorage persistence pattern"],
+      "implementation_approach": "Create useModelUsage hook that reads performanceMetrics from AIContext, groups by model/provider, calculates aggregates (count, avgLatency, totalCost, successRate). Use same return pattern as useMetrics (data, isLoading, period, setPeriod). Extend PerformanceMetricsPanel or create ModelUsagePanel to visualize with bar charts for model comparison.",
+      "status": "draft",
+      "created_at": "2026-01-06T21:40:00.000Z"
+    },
+    {
+      "id": "ci-004",
+      "type": "code_improvements",
+      "title": "Add Error Rate Tracking to Error Handler",
+      "description": "Extend errorHandler.ts to track error rates by type and endpoint, storing in localStorage for display in admin dashboard. Add useErrorMetrics hook following the established metrics hook pattern to surface error trends.",
+      "rationale": "errorHandler.ts already classifies errors into types (network, cors, timeout, api, unknown) with the classifyError function. The admin dashboard has useMetrics, useCostBreakdown, useTraces patterns for metrics aggregation. Missing link is persisting and aggregating client-side error data.",
+      "builds_upon": ["errorHandler classifyError function", "useMetrics hook pattern", "NetworkError type classification"],
+      "estimated_effort": "small",
+      "affected_files": ["src/utils/errorHandler.ts", "src/features/admin/hooks/useErrorMetrics.ts"],
+      "existing_patterns": ["classifyError type classification", "useMetrics/useCostBreakdown hook structure", "localStorage persistence"],
+      "implementation_approach": "Add trackError function to errorHandler.ts that stores {timestamp, type, endpoint, message} to localStorage (limit to last 1000 entries). Create useErrorMetrics hook following useMetrics pattern - aggregates errors by type and time period, calculates rates. Return {errorsByType, errorRate, recentErrors, period}.",
+      "status": "draft",
+      "created_at": "2026-01-06T21:40:00.000Z"
+    },
+    {
+      "id": "ci-005",
+      "type": "code_improvements",
+      "title": "Add Agent Task Routing Suggestions",
+      "description": "Extend the agent registry to suggest the best agent for user queries based on keywords and intent analysis. Add a getAgentSuggestions function that analyzes input text and returns ranked agent recommendations with confidence scores.",
+      "rationale": "The agent registry (registry.ts) has getDefaultAgentForTask with a simple keyword-to-agent map. Each agent has detailed capabilities, tools, and systemPrompt. The model router shows pattern for intelligent selection with selectModelForTask. Can apply same pattern to agent selection.",
+      "builds_upon": ["Agent registry getDefaultAgentForTask", "AgentConfig capabilities/tools arrays", "Model router selectModelForTask pattern"],
+      "estimated_effort": "medium",
+      "affected_files": ["src/agents/registry.ts", "src/components/features/ChatInterface.tsx"],
+      "existing_patterns": ["getDefaultAgentForTask keyword mapping", "AgentConfig type structure", "selectModelForTask intelligent routing"],
+      "implementation_approach": "Add getAgentSuggestions(query: string): AgentSuggestion[] to registry.ts. Analyze query for keywords matching agent capabilities/tools. Score each agent based on capability matches, return top 3 with confidence. Add UI hint in ChatInterface showing suggested agent when query is typed. Follow model router pattern for fallback selection.",
+      "status": "draft",
+      "created_at": "2026-01-06T21:40:00.000Z"
+    }
+  ]
+}

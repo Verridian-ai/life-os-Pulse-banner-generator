@@ -1,6 +1,7 @@
 // usePromptEnhance - Reusable hook for AI prompt enhancement
 import { useState, useCallback } from 'react';
-import { enhancePrompt, PromptEnhanceContext } from '@/services/llm';
+import { enhancePrompt } from '@/services/promptService';
+import type { PromptEnhanceContext } from '@/services/llm-types';
 
 interface UsePromptEnhanceReturn {
   enhance: (prompt: string, context?: PromptEnhanceContext) => Promise<string | null>;

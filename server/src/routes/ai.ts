@@ -74,7 +74,7 @@ const callOpenRouter = async (apiKey: string, model: string, messages: unknown[]
         try {
             const err = JSON.parse(text);
             throw new Error(`OpenRouter Error: ${err.error?.message || response.statusText}`);
-        } catch (e) {
+        } catch {
             throw new Error(`OpenRouter Error (${response.status}): ${text}`);
         }
     }
@@ -83,7 +83,7 @@ const callOpenRouter = async (apiKey: string, model: string, messages: unknown[]
     try {
         const data = JSON.parse(text);
         return data.choices?.[0]?.message?.content || '';
-    } catch (e) {
+    } catch {
         console.error('OpenRouter Invalid JSON:', text);
         throw new Error('OpenRouter returned invalid JSON');
     }
@@ -93,6 +93,7 @@ const callOpenRouter = async (apiKey: string, model: string, messages: unknown[]
 const callOpenRouterFull = async (apiKey: string, model: string, messages: unknown[], tools?: unknown[], tool_choice?: string) => {
     if (!apiKey) throw new Error('OpenRouter API Key not configured on server');
 
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const body: any = {
         model: model,
         messages: messages,
@@ -122,7 +123,7 @@ const callOpenRouterFull = async (apiKey: string, model: string, messages: unkno
         try {
             const err = JSON.parse(text);
             throw new Error(`OpenRouter Error: ${err.error?.message || response.statusText}`);
-        } catch (e) {
+        } catch {
             throw new Error(`OpenRouter Error (${response.status}): ${text}`);
         }
     }
@@ -193,6 +194,7 @@ const callReplicate = async (apiKey: string, modelVersionOrName: string, input: 
     throw new Error(`Replicate Prediction Failed: ${prediction.status}`);
 };
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 const callReplicateModel = async (apiKey: string, modelPath: string, input: any) => {
     const baseUrl = 'https://api.replicate.com';
     const endpoint = `${baseUrl}/v1/models/${modelPath}/predictions`;
@@ -319,6 +321,7 @@ aiRouter.post('/image/edit', authMiddleware, async (c) => {
         if (model === 'black-forest-labs/flux-fill-pro' || (provider === 'replicate' && model?.includes('flux-fill'))) {
             try {
                 // Prepare inputs specifically for Flux Fill Pro
+                // eslint-disable-next-line @typescript-eslint/no-explicit-any
                 const fluxInput: any = {
                     image: ensureDataUri(image),
                     prompt: prompt,
@@ -435,7 +438,7 @@ aiRouter.post('/image/edit', authMiddleware, async (c) => {
         }
 
         return c.json({ url: resultUrl });
-    } catch (e) {
+    } catch {
         return c.json({ error: 'Server error during image edit' }, 500);
     }
 });
@@ -568,7 +571,7 @@ aiRouter.post('/image/upscale', authMiddleware, async (c) => {
 
     // Default to Real-ESRGAN if no model provided
     const modelToUse = model || 'nightmareai/real-esrgan';
-    const input: Record<string, any> = { image, scale: scale || 2 };
+    const input: Record<string, unknown> = { image, scale: scale || 2 };
 
     // Real-ESRGAN specific flag
     if (modelToUse.includes('real-esrgan')) {

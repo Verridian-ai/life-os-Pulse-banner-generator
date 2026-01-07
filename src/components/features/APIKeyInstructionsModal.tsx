@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useFocusTrap } from '../../hooks/useFocusTrap';
 
 interface APIKeyInstructionsModalProps {
   isOpen: boolean;
@@ -15,11 +16,22 @@ export const APIKeyInstructionsModal: React.FC<APIKeyInstructionsModalProps> = (
     defaultTab || 'openrouter'
   );
 
+  // Use Focus Trap
+  const modalRef = useFocusTrap(isOpen, onClose);
+
   if (!isOpen) return null;
 
   return (
-    <div className='fixed inset-0 z-50 flex items-center justify-center bg-black/90 backdrop-blur-sm p-3 sm:p-4 overflow-y-auto'>
-      <div className='bg-zinc-900 border border-white/10 rounded-2xl md:rounded-3xl p-4 sm:p-6 md:p-8 w-full max-w-lg md:max-w-2xl shadow-2xl relative my-4 md:my-8 max-h-[95vh] overflow-y-auto'>
+    <div 
+      className='fixed inset-0 z-50 flex items-center justify-center bg-black/90 backdrop-blur-sm p-3 sm:p-4 overflow-y-auto'
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="api-instructions-title"
+    >
+      <div 
+        ref={modalRef}
+        className='bg-zinc-900 border border-white/10 rounded-2xl md:rounded-3xl p-4 sm:p-6 md:p-8 w-full max-w-lg md:max-w-2xl shadow-2xl relative my-4 md:my-8 max-h-[95vh] overflow-y-auto'
+      >
         <button
           onClick={onClose}
           className='absolute top-3 right-3 md:top-4 md:right-4 text-zinc-500 hover:text-white transition z-10 min-w-[44px] min-h-[44px] flex items-center justify-center'
@@ -32,7 +44,10 @@ export const APIKeyInstructionsModal: React.FC<APIKeyInstructionsModalProps> = (
           <div className='inline-flex items-center justify-center w-12 h-12 md:w-16 md:h-16 bg-gradient-to-br from-purple-600 to-blue-600 rounded-xl md:rounded-2xl mb-3 md:mb-4'>
             <span className='material-icons text-2xl md:text-3xl text-white'>key</span>
           </div>
-          <h2 className='text-xl sm:text-2xl md:text-3xl font-black text-white uppercase tracking-wider mb-2'>
+          <h2 
+            id="api-instructions-title"
+            className='text-xl sm:text-2xl md:text-3xl font-black text-white uppercase tracking-wider mb-2'
+          >
             Get Your Free API Keys
           </h2>
           <p className='text-xs sm:text-sm text-zinc-400 max-w-2xl mx-auto px-2'>

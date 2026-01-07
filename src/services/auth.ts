@@ -1,4 +1,5 @@
 import { api } from './api';
+import type { ProfileWithPreferences } from '@/types/api';
 
 // Auth types
 export interface AppUser {
@@ -110,7 +111,7 @@ export const getSession = async (): Promise<Session | null> => {
     };
 
     return session as unknown as Session;
-  } catch (error) {
+  } catch {
     return null;
   }
 };
@@ -154,11 +155,11 @@ export const signInWithGitHub = async () => {
 // Profile Helper
 export const getCurrentUserProfile = async () => {
   try {
-    const res = await api.get<{ profile: any; preferences: any }>('/api/user/profile');
+    const res = await api.get<ProfileWithPreferences>('/api/user/profile');
     if (!res.profile) return { data: null, error: new Error('Profile not found') };
     return { data: res.profile, error: null };
   } catch (e) {
-    return { data: null, error: e };
+    return { data: null, error: e as Error };
   }
 };
 

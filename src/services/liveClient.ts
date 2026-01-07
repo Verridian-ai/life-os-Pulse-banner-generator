@@ -1,5 +1,4 @@
 // Stub implementation of LiveClient to remove Google GenAI SDK dependency
-import { MODELS } from '../constants';
 
 export interface ToolCall {
   name: string;
@@ -14,7 +13,7 @@ export interface TranscriptEntry {
 }
 
 export class LiveClient {
-  constructor(apiKey: string) {
+  constructor(_apiKey: string) {
     console.log('[LiveClient] Initialized (Stub Mode)');
   }
 
@@ -27,10 +26,10 @@ export class LiveClient {
   }
 
   async connect(
-    onMessage: (text: string) => void,
+    _onMessage: (text: string) => void,
     onStatus: (status: boolean) => void,
-    onToolCall?: (toolCall: ToolCall) => void,
-    onTranscript?: (entry: TranscriptEntry) => void,
+    _onToolCall?: (toolCall: ToolCall) => void,
+    _onTranscript?: (entry: TranscriptEntry) => void,
   ) {
     console.warn('[LiveClient] Connect called but feature is temporarily disabled due to SDK removal.');
     onStatus(false);

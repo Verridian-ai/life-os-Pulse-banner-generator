@@ -1,12 +1,12 @@
 import { Hono } from 'hono';
 import { generateId } from 'lucia';
 import { hash, verify } from '@node-rs/argon2';
-import { eq, and, gt } from 'drizzle-orm';
+import { eq } from 'drizzle-orm';
 import { lucia } from '../lib/auth';
 import { db } from '../db';
 import { users, emailVerificationTokens, passwordResetTokens, profiles, userPreferences } from '../db/schema';
 import { sendVerificationEmail, sendPasswordResetEmail } from '../lib/email';
-import { randomBytes } from 'crypto';
+import { randomBytes, createHash } from 'crypto';
 import { authRateLimit } from '../lib/rateLimit';
 
 export const authRouter = new Hono();
@@ -211,12 +211,16 @@ authRouter.post('/forgot-password', authRateLimit.forgotPassword, async (c) => {
     const token = generateId(40);
     const expiresAt = new Date(Date.now() + 1000 * 60 * 60); // 1 hour
 
+    // Hash token before storage
+    const tokenHash = createHash('sha256').update(token).digest('hex');
+
     await db.insert(passwordResetTokens).values({
         userId: user.id,
-        tokenHash: token, // Storing plain token for MVP simplicity, usually hash it
+        tokenHash: tokenHash, // Stored securely
         expiresAt
     });
 
+    // Send PLAIN token in email
     await sendPasswordResetEmail(email, token);
 
     return c.json({ success: true, message: 'Reset email sent' });
@@ -229,7 +233,10 @@ authRouter.post('/reset-password', authRateLimit.resetPassword, async (c) => {
 
     if (!token || !newPassword) return c.json({ error: 'Missing fields' }, 400);
 
-    const tokens = await db.select().from(passwordResetTokens).where(eq(passwordResetTokens.tokenHash, token)).limit(1);
+    // Hash incoming token to match stored hash
+    const tokenHash = createHash('sha256').update(token).digest('hex');
+
+    const tokens = await db.select().from(passwordResetTokens).where(eq(passwordResetTokens.tokenHash, tokenHash)).limit(1);
 
     if (tokens.length === 0 || tokens[0].expiresAt < new Date()) {
         return c.json({ error: 'Invalid or expired token' }, 400);

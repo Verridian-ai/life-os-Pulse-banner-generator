@@ -1,0 +1,130 @@
+import type { Command, CommandContext } from './types';
+import type { ActionResult } from '../actionExecutor';
+import { enhancePrompt, analyzeImageForPrompts, analyzeCanvasAndSuggest } from '../llm';
+
+export class SuggestPromptsCommand implements Command {
+  name = 'suggest_prompts';
+
+  execute(args: { industry?: string; role?: string }, _context: CommandContext): ActionResult {
+    const { industry, role } = args;
+
+    console.log('[SuggestPromptsCommand] Suggesting prompts for:', { industry, role });
+
+    return {
+      success: true,
+      result: `Generating prompt suggestions for ${industry || 'general'} industry${role ? ` and ${role} role` : ''}...`,
+    };
+  }
+}
+
+export class WriteEnhancedPromptCommand implements Command {
+  name = 'write_enhanced_prompt';
+
+  async execute(args: { prompt: string; industry?: string; style?: string }, context: CommandContext): Promise<ActionResult> {
+    const { prompt, industry, style } = args;
+
+    console.log('[WriteEnhancedPromptCommand] Enhancing:', { prompt, industry, style });
+
+    if (!context.setGenPrompt) {
+      return {
+        success: false,
+        error: 'Prompt setter not configured. Cannot write to generation field.',
+      };
+    }
+
+    try {
+      const result = await enhancePrompt(prompt, { industry, style });
+
+      if (result.enhancedPrompt) {
+        context.setGenPrompt(result.enhancedPrompt);
+
+        return {
+          success: true,
+          result: `Enhanced prompt written to generation field: "${result.enhancedPrompt.substring(0, 100)}..."`,
+        };
+      }
+
+      return {
+        success: false,
+        error: 'Enhancement returned empty result',
+      };
+    } catch (error) {
+      console.error('[WriteEnhancedPromptCommand] Failed:', error);
+      return {
+        success: false,
+        error: error instanceof Error ? error.message : 'Prompt enhancement failed',
+      };
+    }
+  }
+}
+
+export class AnalyzeImageCommand implements Command {
+  name = 'analyze_image';
+
+  async execute(args: { image_url?: string }, context: CommandContext): Promise<ActionResult> {
+    const imageUrl = args.image_url || context.getCanvasImage();
+
+    console.log('[AnalyzeImageCommand] Analyzing image');
+
+    if (!imageUrl) {
+      return {
+        success: false,
+        error: 'No image available to analyze. Please generate or upload an image first.',
+      };
+    }
+
+    try {
+      const analysis = await analyzeImageForPrompts(imageUrl);
+
+      const result = {
+        magicEditSuggestions: analysis.magicEdit || [],
+        generationIdeas: analysis.generation || [],
+      };
+
+      return {
+        success: true,
+        result: JSON.stringify(result, null, 2),
+        action: 'analyze_image',
+      };
+    } catch (error) {
+      console.error('[AnalyzeImageCommand] Failed:', error);
+      return {
+        success: false,
+        error: error instanceof Error ? error.message : 'Image analysis failed',
+      };
+    }
+  }
+}
+
+export class AnalyzeBannerCommand implements Command {
+  name = 'analyze_banner';
+
+  async execute(_args: Record<string, unknown>, context: CommandContext): Promise<ActionResult> {
+    const canvasImage = context.getCanvasImage();
+
+    console.log('[AnalyzeBannerCommand] Analyzing banner');
+
+    if (!canvasImage) {
+      return {
+        success: false,
+        error: 'No banner available to analyze. Please generate or upload a banner first.',
+      };
+    }
+
+    try {
+      const analysis = await analyzeCanvasAndSuggest(canvasImage);
+
+      return {
+        success: true,
+        result: JSON.stringify(analysis, null, 2),
+        action: 'analyze_banner',
+      };
+    } catch (error) {
+      console.error('[AnalyzeBannerCommand] Failed:', error);
+      return {
+        success: false,
+        error: error instanceof Error ? error.message : 'Banner analysis failed',
+      };
+    }
+  }
+}

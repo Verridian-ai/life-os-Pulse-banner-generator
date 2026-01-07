@@ -567,6 +567,7 @@ export enum StudioMode {
   CANVAS = 'canvas',      // Banner design (current STUDIO functionality)
   LINKEDIN = 'linkedin',  // LinkedIn Content Studio
   MEDIA = 'media',        // Gallery/Media library
+  TEMPLATES = 'templates', // Template Library
 }
 
 // Configuration for Studio sub-tabs
@@ -583,6 +584,12 @@ export const STUDIO_SUB_TABS: StudioSubTab[] = [
     label: 'Canvas',
     icon: 'edit_note',
     description: 'Design LinkedIn banners',
+  },
+  {
+    mode: StudioMode.TEMPLATES,
+    label: 'Templates',
+    icon: 'auto_awesome_motion',
+    description: 'Professional presets',
   },
   {
     mode: StudioMode.LINKEDIN,

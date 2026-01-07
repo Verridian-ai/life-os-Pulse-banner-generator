@@ -24,16 +24,25 @@ Object.defineProperty(window, 'localStorage', {
 const fetchMock = vi.fn();
 global.fetch = fetchMock;
 
+// Mock apiKeyStorage to avoid fetch interference
+vi.mock('./apiKeyStorage', () => ({
+  getUserAPIKeys: vi.fn().mockResolvedValue({
+    hasReplicateKey: false,
+    canGenerateImages: true,
+    hasProductKeys: true,
+  }),
+}));
+
 describe('LLM Service Routing', () => {
   beforeEach(() => {
     localStorageMock.clear();
     fetchMock.mockClear();
 
-    // Default mock response for OpenRouter
+    // Default mock response for Backend Proxy (Chat)
     fetchMock.mockResolvedValue({
       ok: true,
       json: async () => ({
-        choices: [{ message: { content: 'Mocked OpenRouter Response' } }],
+        text: 'Mocked Response',
       }),
     });
   });
@@ -52,14 +61,13 @@ describe('LLM Service Routing', () => {
     await generateDesignChatResponse('Hello');
 
     expect(fetchMock).toHaveBeenCalledWith(
-      'https://openrouter.ai/api/v1/chat/completions',
+      expect.stringContaining('/api/ai/chat'),
       expect.objectContaining({
         method: 'POST',
         headers: expect.objectContaining({
-          Authorization: 'Bearer sk-test-key',
-          'X-Title': 'NanoBanna Pro',
+          'Content-Type': 'application/json',
         }),
-        body: expect.stringContaining('"model":"google/gemini-3-pro-preview"'),
+        body: expect.stringContaining('"provider":"openrouter"'),
       }),
     );
   });
@@ -69,11 +77,11 @@ describe('LLM Service Routing', () => {
     localStorageMock.setItem('llm_provider', 'openrouter');
     localStorageMock.setItem('openrouter_api_key', 'sk-test-key');
 
-    // Mock response with an image URL
+    // Mock response with an image URL from Proxy
     fetchMock.mockResolvedValueOnce({
       ok: true,
       json: async () => ({
-        choices: [{ message: { content: 'Here is your image: https://example.com/image.png' } }],
+        url: 'https://example.com/image.png',
       }),
     });
 
@@ -81,7 +89,7 @@ describe('LLM Service Routing', () => {
 
     // Should use the imageGen model constant
     expect(fetchMock).toHaveBeenCalledWith(
-      'https://openrouter.ai/api/v1/chat/completions',
+      expect.stringContaining('/api/ai/image/generate'),
       expect.objectContaining({
         body: expect.stringContaining(`"model":"${MODELS.imageGen}"`),
       }),

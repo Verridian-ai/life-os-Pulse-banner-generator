@@ -1,0 +1,28 @@
+{
+  "file_path": "src/utils/haptics.ts",
+  "main_branch_history": [],
+  "task_views": {
+    "015-improve-voice-agent-connection-feedback": {
+      "task_id": "015-improve-voice-agent-connection-feedback",
+      "branch_point": {
+        "commit_hash": "ebdf6e38abd27054d01757c7f14894a93246a91b",
+        "content": "",
+        "timestamp": "2026-01-07T00:06:22.086985"
+      },
+      "worktree_state": {
+        "content": "/**\n * Haptic feedback utilities using the Vibration API\n * Provides tactile feedback for connection state changes on mobile devices\n *\n * Features:\n * - Progressive enhancement (graceful degradation on unsupported devices)\n * - Respects user's reduced-motion preference\n * - Feature detection for Vibration API availability\n *\n * @see https://developer.mozilla.org/en-US/docs/Web/API/Vibration_API\n */\n\n/**\n * Vibration patterns for different feedback types\n */\nexport const HAPTIC_PATTERNS = {\n  /** Light vibration on successful connection (50ms) */\n  CONNECTED: [50],\n  /** Double vibration on error (50ms, pause 100ms, 50ms) */\n  ERROR: [50, 100, 50],\n  /** Single short vibration on disconnect (30ms) */\n  DISCONNECTED: [30],\n} as const;\n\n/**\n * Check if the Vibration API is available in the current environment\n * @returns {boolean} True if vibration is supported\n */\nexport function isVibrationSupported(): boolean {\n  return 'vibrate' in navigator;\n}\n\n/**\n * Cached media query for reduced motion preference\n * Initialized on first access to avoid repeated DOM queries\n */\nlet reducedMotionMediaQuery: MediaQueryList | null = null;\nlet reducedMotionCache: boolean | null = null;\n\n/**\n * Initialize or get the cached media query for reduced motion\n * @returns {MediaQueryList | null} The media query object or null if window is undefined\n */\nfunction getReducedMotionMediaQuery(): MediaQueryList | null {\n  if (typeof window === 'undefined') return null;\n\n  if (!reducedMotionMediaQuery) {\n    reducedMotionMediaQuery = window.matchMedia('(prefers-reduced-motion: reduce)');\n\n    // Update cache when media query changes\n    reducedMotionMediaQuery.addEventListener('change', (e) => {\n      reducedMotionCache = e.matches;\n    });\n\n    // Initialize cache\n    reducedMotionCache = reducedMotionMediaQuery.matches;\n  }\n\n  return reducedMotionMediaQuery;\n}\n\n/**\n * Check if the user has reduced motion preference enabled\n * Respects prefers-reduced-motion media query\n * Uses cached result for performance\n * @returns {boolean} True if user prefers reduced motion\n */\nexport function prefersReducedMotion(): boolean {\n  if (typeof window === 'undefined') return true;\n\n  // Initialize media query on first call\n  if (reducedMotionCache === null) {\n    getReducedMotionMediaQuery();\n  }\n\n  return reducedMotionCache ?? false;\n}\n\n/**\n * Trigger haptic feedback with the given pattern\n * Automatically handles feature detection and reduced-motion preference\n *\n * @param pattern - Vibration pattern (array of durations in milliseconds)\n * @returns {boolean} True if vibration was triggered, false if not supported or disabled\n *\n * @example\n * // Vibrate on successful connection\n * triggerHaptic(HAPTIC_PATTERNS.CONNECTED);\n *\n * @example\n * // Vibrate on error\n * triggerHaptic(HAPTIC_PATTERNS.ERROR);\n */\nexport function triggerHaptic(pattern: number[]): boolean {\n  // Don't vibrate if user prefers reduced motion\n  if (prefersReducedMotion()) {\n    return false;\n  }\n\n  // Don't vibrate if API is not supported\n  if (!isVibrationSupported()) {\n    return false;\n  }\n\n  try {\n    navigator.vibrate(pattern);\n    return true;\n  } catch (error) {\n    // Silently fail if vibration throws an error\n    console.warn('[Haptics] Failed to trigger vibration:', error);\n    return false;\n  }\n}\n\n/**\n * Stop any ongoing vibration\n * @returns {boolean} True if vibration was stopped, false if not supported\n */\nexport function stopHaptic(): boolean {\n  if (!isVibrationSupported()) {\n    return false;\n  }\n\n  try {\n    navigator.vibrate(0);\n    return true;\n  } catch (error) {\n    console.warn('[Haptics] Failed to stop vibration:', error);\n    return false;\n  }\n}\n\n/**\n * Convenience function: Trigger haptic for successful connection\n */\nexport function hapticConnected(): boolean {\n  return triggerHaptic(HAPTIC_PATTERNS.CONNECTED);\n}\n\n/**\n * Convenience function: Trigger haptic for connection error\n */\nexport function hapticError(): boolean {\n  return triggerHaptic(HAPTIC_PATTERNS.ERROR);\n}\n\n/**\n * Convenience function: Trigger haptic for disconnection\n */\nexport function hapticDisconnected(): boolean {\n  return triggerHaptic(HAPTIC_PATTERNS.DISCONNECTED);\n}\n",
+        "last_modified": "2026-01-07T01:16:36.279719"
+      },
+      "task_intent": {
+        "title": "015-improve-voice-agent-connection-feedback",
+        "description": "Enhance the voice agent toggle button and LiveActionPanel with better visual and potentially haptic feedback during connection states. Add intermediate 'connecting' state, connection error recovery UI, and clearer status indicators.",
+        "from_plan": true
+      },
+      "commits_behind_main": 7,
+      "status": "active",
+      "merged_at": null
+    }
+  },
+  "created_at": "2026-01-07T00:06:22.602936",
+  "last_updated": "2026-01-07T00:06:22.642943"
+}

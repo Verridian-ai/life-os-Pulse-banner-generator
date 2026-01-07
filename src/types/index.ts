@@ -62,3 +62,35 @@ export interface Part {
     data: string;
   };
 }
+
+export type ToastType = 'info' | 'success' | 'warning' | 'error';
+
+export interface ToastAction {
+  label: string;
+  onClick: () => void;
+}
+
+export interface ToastOptions {
+  duration?: number;
+  dismissible?: boolean;
+  action?: ToastAction;
+}
+
+export interface Toast {
+  id: string;
+  type: ToastType;
+  message: string;
+  duration: number;
+  dismissible: boolean;
+  action?: ToastAction;
+}
+
+/**
+ * Connection state for voice agent
+ */
+export type ConnectionState = 'disconnected' | 'connecting' | 'connected' | 'disconnecting' | 'error';
+
+/**
+ * Connection quality levels for voice agent
+ */
+export type ConnectionQuality = 'good' | 'fair' | 'poor';

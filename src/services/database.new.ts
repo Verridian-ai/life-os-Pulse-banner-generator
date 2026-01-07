@@ -1,31 +1,16 @@
 import { api } from './api';
+import type { UserProfile, UserPreferences, ProfileWithPreferences, ApiKeysResponse } from '@/types/api';
 
-export interface UserProfile {
-    id: string;
-    email: string;
-    full_name?: string;
-    first_name?: string;
-    last_name?: string;
-    username?: string;
-    avatar_url?: string;
-    // Preferences merged in for legacy compatibility or separated?
-    // Backend returns { profile, preferences }. We might need to merge them to match UI expectations.
-}
-
-export interface UserPreferences {
-    theme: 'light' | 'dark' | 'system';
-    language: string;
-    notifications: any;
-    chat_settings: any;
-}
+// Re-export types for backward compatibility
+export type { UserProfile, UserPreferences };
 
 // ============================================
 // USER PROFILES & ACCOUNTS
 // ============================================
 
-export const getUserProfile = async (userId: string) => {
+export const getUserProfile = async (_userId: string) => {
     try {
-        const res = await api.get<{ profile: any; preferences: any }>('/api/user/profile');
+        const res = await api.get<ProfileWithPreferences>('/api/user/profile');
         if (!res.profile) return { data: null, error: new Error('Profile not found') };
 
         // Merge for compatibility if needed, or return as is.
@@ -38,18 +23,18 @@ export const getUserProfile = async (userId: string) => {
     }
 };
 
-export const updateUserProfile = async (userId: string, updates: Partial<UserProfile>) => {
+export const updateUserProfile = async (_userId: string, updates: Partial<UserProfile>) => {
     try {
-        const res = await api.patch<{ profile: any }>('/api/user/profile', updates);
+        const res = await api.patch<{ profile: UserProfile }>('/api/user/profile', updates);
         return { data: res.profile, error: null };
     } catch (error) {
         return { data: null, error };
     }
 };
 
-export const updateUserPreferences = async (userId: string, preferences: Partial<UserPreferences>) => {
+export const updateUserPreferences = async (_userId: string, preferences: Partial<UserPreferences>) => {
     try {
-        const res = await api.patch<{ preferences: any }>('/api/user/preferences', preferences);
+        const res = await api.patch<{ preferences: UserPreferences }>('/api/user/preferences', preferences);
         return { data: res.preferences, error: null };
     } catch (error) {
         return { data: null, error };
@@ -60,18 +45,18 @@ export const updateUserPreferences = async (userId: string, preferences: Partial
 // API KEYS
 // ============================================
 
-export const saveUserAPIKeys = async (userId: string, keys: any) => {
+export const saveUserAPIKeys = async (_userId: string, keys: Record<string, unknown>) => {
     try {
-        const res = await api.post('/api/user/api-keys', keys);
+        const res = await api.post<{ success?: boolean }>('/api/user/api-keys', keys);
         return { data: res, error: null };
     } catch (error) {
         return { data: null, error };
     }
 }
 
-export const getUserAPIKeys = async (userId: string) => {
+export const getUserAPIKeys = async (_userId: string) => {
     try {
-        const res = await api.get<{ apiKeys: any }>('/api/user/api-keys');
+        const res = await api.get<{ apiKeys: ApiKeysResponse }>('/api/user/api-keys');
         return { data: res.apiKeys, error: null };
     } catch (error) {
         return { data: null, error };

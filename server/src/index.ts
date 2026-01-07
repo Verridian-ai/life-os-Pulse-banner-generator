@@ -12,6 +12,7 @@ tracer.init({
 import { serve } from '@hono/node-server'
 import { Hono } from 'hono'
 import { cors } from 'hono/cors'
+import { csrf } from 'hono/csrf'
 import { getCookie } from 'hono/cookie';
 import { serveStatic } from '@hono/node-server/serve-static'
 import { config } from 'dotenv'
@@ -22,6 +23,7 @@ import { storageRouter } from './routes/storage';
 import { chatRouter } from './routes/chat';
 import { aiRouter } from './routes/ai';
 import { imageRouter } from './routes/images';
+import { promptRouter } from './routes/prompts';
 import { replicateRouter } from './routes/replicate';
 import { lucia } from './lib/auth';
 
@@ -45,6 +47,9 @@ app.use('*', cors({
     credentials: true,
 }));
 
+// SECURITY: CSRF protection
+app.use('*', csrf());
+
 // Middleware to populate user in context
 app.use('*', async (c, next) => {
     const sessionId = getCookie(c, lucia.sessionCookieName);
@@ -63,7 +68,7 @@ app.use('*', async (c, next) => {
         }
         c.set('user', user);
         c.set('session', session);
-    } catch (e) {
+    } catch {
         c.set('user', null);
     }
     await next();
@@ -80,6 +85,7 @@ app.route('/api/storage', storageRouter);
 app.route('/api/chat', chatRouter);
 app.route('/api/ai', aiRouter);
 app.route('/api/images', imageRouter);
+app.route('/api/prompts', promptRouter);
 app.route('/api/replicate', replicateRouter);
 
 // Serve Static Frontend (FALLBACK)
