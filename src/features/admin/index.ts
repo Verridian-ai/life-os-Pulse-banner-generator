@@ -13,6 +13,7 @@ export { UserDetail } from './components/users/UserDetail';
 // Pages
 export { AdminDashboard } from './pages/AdminDashboard';
 export { AdminUsers } from './pages/AdminUsers';
+export { AdminAgents } from './pages/AdminAgents';
 
 // Services
 export * from './services/adminApi';
