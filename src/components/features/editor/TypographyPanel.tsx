@@ -1,7 +1,8 @@
-import React, { useState } from 'react';
+import React, { useState, useCallback } from 'react';
 
 import type { BannerElement } from '@/types';
-import { FONT_OPTIONS_CATEGORIZED, FONT_CATEGORY_LABELS, type FontCategory } from '@/constants';
+import { FONT_OPTIONS_CATEGORIZED, FONT_CATEGORY_LABELS, type FontCategory, TEXT_ELEMENT_PRESETS, BANNER_WIDTH, BANNER_HEIGHT } from '@/constants';
+import { useCanvas } from '@/context/CanvasContext';
 
 type TypographyPanelProps = {
   selectedElement: BannerElement | null;
@@ -54,10 +55,63 @@ export function TypographyPanel({ selectedElement, onUpdate }: TypographyPanelPr
     spacing: false,
   });
 
+  const { addElement } = useCanvas();
+
+  const handleAddPreset = useCallback((preset: typeof TEXT_ELEMENT_PRESETS[0]) => {
+    addElement({
+      id: `text-${Date.now()}`,
+      type: 'text',
+      content: preset.label, // Default text content
+      x: BANNER_WIDTH / 2,
+      y: BANNER_HEIGHT / 2,
+      fontSize: preset.styles.fontSize,
+      fontFamily: preset.styles.fontFamily,
+      fontWeight: preset.styles.fontWeight,
+      textTransform: preset.styles.textTransform,
+      letterSpacing: preset.styles.letterSpacing || 0,
+      color: preset.styles.color,
+      textAlign: 'center',
+    });
+  }, [addElement]);
+
   if (!selectedElement || selectedElement.type !== 'text') {
     return (
-      <div className="glass-panel p-4 rounded-2xl text-center">
-        <p className="text-sm text-white/60">Select a text element to edit typography</p>
+      <div className="glass-panel p-4 rounded-2xl">
+        <h3 className="text-sm font-semibold text-white/80 flex items-center gap-2 mb-4">
+          <span className="text-lg">✨</span> Add Text
+        </h3>
+
+        <div className="grid grid-cols-1 gap-2">
+          {TEXT_ELEMENT_PRESETS.map((preset) => (
+            <button
+              key={preset.id}
+              onClick={() => handleAddPreset(preset)}
+              className="group flex flex-col items-start p-3 rounded-xl bg-white/5 border border-white/10 hover:bg-white/10 hover:border-purple-500/50 transition-all text-left"
+            >
+              <div className="flex items-center gap-3 w-full">
+                <span className="material-icons text-white/50 group-hover:text-purple-400 transition-colors text-xl">
+                  {preset.icon}
+                </span>
+                <span
+                  className="text-white group-hover:text-white transition-colors truncate"
+                  style={{
+                    fontFamily: preset.styles.fontFamily,
+                    fontWeight: preset.styles.fontWeight,
+                    fontSize: Math.min(preset.styles.fontSize * 0.7, 24) + 'px', // Scale down for preview
+                    textTransform: preset.styles.textTransform,
+                    letterSpacing: (preset.styles.letterSpacing || 0) * 0.5 + 'px',
+                  }}
+                >
+                  {preset.label}
+                </span>
+              </div>
+            </button>
+          ))}
+        </div>
+
+        <div className="mt-4 pt-4 border-t border-white/10 text-center">
+          <p className="text-xs text-white/40">Select an existing text element to edit its properties.</p>
+        </div>
       </div>
     );
   }
@@ -132,7 +186,7 @@ export function TypographyPanel({ selectedElement, onUpdate }: TypographyPanelPr
           className="w-full flex items-center justify-between text-xs font-medium text-white/70 hover:text-white/90 transition-colors"
         >
           <span>Font & Style</span>
-          <span className="transform transition-transform" style={{ transform: expandedSections.font ? 'rotate(180deg)' : 'rotate(0deg)' }}>
+          <span className={`transform transition-transform ${expandedSections.font ? 'rotate-180' : 'rotate-0'}`}>
             ▼
           </span>
         </button>
@@ -206,11 +260,10 @@ export function TypographyPanel({ selectedElement, onUpdate }: TypographyPanelPr
                 <button
                   type="button"
                   onClick={toggleBold}
-                  className={`flex-1 px-3 py-2 rounded-lg font-bold text-sm transition-all ${
-                    isBold
-                      ? 'bg-purple-500/30 text-white border-2 border-purple-400/50'
-                      : 'bg-white/5 text-white/60 border-2 border-white/10 hover:bg-white/10'
-                  }`}
+                  className={`flex-1 px-3 py-2 rounded-lg font-bold text-sm transition-all ${isBold
+                    ? 'bg-purple-500/30 text-white border-2 border-purple-400/50'
+                    : 'bg-white/5 text-white/60 border-2 border-white/10 hover:bg-white/10'
+                    }`}
                   aria-label="Toggle bold"
                   aria-pressed={isBold}
                 >
@@ -219,11 +272,10 @@ export function TypographyPanel({ selectedElement, onUpdate }: TypographyPanelPr
                 <button
                   type="button"
                   onClick={toggleItalic}
-                  className={`flex-1 px-3 py-2 rounded-lg italic text-sm transition-all ${
-                    isItalic
-                      ? 'bg-purple-500/30 text-white border-2 border-purple-400/50'
-                      : 'bg-white/5 text-white/60 border-2 border-white/10 hover:bg-white/10'
-                  }`}
+                  className={`flex-1 px-3 py-2 rounded-lg italic text-sm transition-all ${isItalic
+                    ? 'bg-purple-500/30 text-white border-2 border-purple-400/50'
+                    : 'bg-white/5 text-white/60 border-2 border-white/10 hover:bg-white/10'
+                    }`}
                   aria-label="Toggle italic"
                   aria-pressed={isItalic}
                 >
@@ -232,11 +284,10 @@ export function TypographyPanel({ selectedElement, onUpdate }: TypographyPanelPr
                 <button
                   type="button"
                   onClick={toggleUnderline}
-                  className={`flex-1 px-3 py-2 rounded-lg underline text-sm transition-all ${
-                    isUnderlined
-                      ? 'bg-purple-500/30 text-white border-2 border-purple-400/50'
-                      : 'bg-white/5 text-white/60 border-2 border-white/10 hover:bg-white/10'
-                  }`}
+                  className={`flex-1 px-3 py-2 rounded-lg underline text-sm transition-all ${isUnderlined
+                    ? 'bg-purple-500/30 text-white border-2 border-purple-400/50'
+                    : 'bg-white/5 text-white/60 border-2 border-white/10 hover:bg-white/10'
+                    }`}
                   aria-label="Toggle underline"
                   aria-pressed={isUnderlined}
                 >
@@ -295,7 +346,7 @@ export function TypographyPanel({ selectedElement, onUpdate }: TypographyPanelPr
           className="w-full flex items-center justify-between text-xs font-medium text-white/70 hover:text-white/90 transition-colors"
         >
           <span>Effects</span>
-          <span className="transform transition-transform" style={{ transform: expandedSections.effects ? 'rotate(180deg)' : 'rotate(0deg)' }}>
+          <span className={`transform transition-transform ${expandedSections.effects ? 'rotate-180' : 'rotate-0'}`}>
             ▼
           </span>
         </button>
@@ -309,11 +360,10 @@ export function TypographyPanel({ selectedElement, onUpdate }: TypographyPanelPr
                 <button
                   type="button"
                   onClick={toggleShadow}
-                  className={`px-3 py-1 rounded-lg text-xs transition-all ${
-                    hasShadow
-                      ? 'bg-purple-500/30 text-white border border-purple-400/50'
-                      : 'bg-white/5 text-white/60 border border-white/10 hover:bg-white/10'
-                  }`}
+                  className={`px-3 py-1 rounded-lg text-xs transition-all ${hasShadow
+                    ? 'bg-purple-500/30 text-white border border-purple-400/50'
+                    : 'bg-white/5 text-white/60 border border-white/10 hover:bg-white/10'
+                    }`}
                 >
                   {hasShadow ? 'On' : 'Off'}
                 </button>
@@ -327,12 +377,14 @@ export function TypographyPanel({ selectedElement, onUpdate }: TypographyPanelPr
                       value={selectedElement.textShadowColor || '#000000'}
                       onChange={(e) => onUpdate({ textShadowColor: e.target.value })}
                       className="w-10 h-8 rounded-lg cursor-pointer border-2 border-white/20"
+                      aria-label="Shadow color picker"
                     />
                     <input
                       type="text"
                       value={selectedElement.textShadowColor || '#000000'}
                       onChange={(e) => onUpdate({ textShadowColor: e.target.value })}
                       className="flex-1 bg-white/5 border border-white/10 rounded-lg px-2 py-1 text-xs text-white focus:outline-none focus:ring-2 focus:ring-purple-500/50"
+                      aria-label="Shadow color hex"
                     />
                   </div>
                   <div>
@@ -344,6 +396,7 @@ export function TypographyPanel({ selectedElement, onUpdate }: TypographyPanelPr
                       value={selectedElement.textShadowBlur || 0}
                       onChange={(e) => onUpdate({ textShadowBlur: parseInt(e.target.value) })}
                       className="w-full h-1.5 bg-white/10 rounded-lg appearance-none cursor-pointer slider-thumb"
+                      aria-label="Shadow blur"
                     />
                   </div>
                   <div className="grid grid-cols-2 gap-2">
@@ -356,6 +409,7 @@ export function TypographyPanel({ selectedElement, onUpdate }: TypographyPanelPr
                         value={selectedElement.textShadowOffsetX || 0}
                         onChange={(e) => onUpdate({ textShadowOffsetX: parseInt(e.target.value) })}
                         className="w-full h-1.5 bg-white/10 rounded-lg appearance-none cursor-pointer slider-thumb"
+                        aria-label="Shadow offset X"
                       />
                     </div>
                     <div>
@@ -367,6 +421,7 @@ export function TypographyPanel({ selectedElement, onUpdate }: TypographyPanelPr
                         value={selectedElement.textShadowOffsetY || 0}
                         onChange={(e) => onUpdate({ textShadowOffsetY: parseInt(e.target.value) })}
                         className="w-full h-1.5 bg-white/10 rounded-lg appearance-none cursor-pointer slider-thumb"
+                        aria-label="Shadow offset Y"
                       />
                     </div>
                   </div>
@@ -381,11 +436,10 @@ export function TypographyPanel({ selectedElement, onUpdate }: TypographyPanelPr
                 <button
                   type="button"
                   onClick={toggleStroke}
-                  className={`px-3 py-1 rounded-lg text-xs transition-all ${
-                    hasStroke
-                      ? 'bg-purple-500/30 text-white border border-purple-400/50'
-                      : 'bg-white/5 text-white/60 border border-white/10 hover:bg-white/10'
-                  }`}
+                  className={`px-3 py-1 rounded-lg text-xs transition-all ${hasStroke
+                    ? 'bg-purple-500/30 text-white border border-purple-400/50'
+                    : 'bg-white/5 text-white/60 border border-white/10 hover:bg-white/10'
+                    }`}
                 >
                   {hasStroke ? 'On' : 'Off'}
                 </button>
@@ -399,12 +453,14 @@ export function TypographyPanel({ selectedElement, onUpdate }: TypographyPanelPr
                       value={selectedElement.textStrokeColor || '#000000'}
                       onChange={(e) => onUpdate({ textStrokeColor: e.target.value })}
                       className="w-10 h-8 rounded-lg cursor-pointer border-2 border-white/20"
+                      aria-label="Stroke color picker"
                     />
                     <input
                       type="text"
                       value={selectedElement.textStrokeColor || '#000000'}
                       onChange={(e) => onUpdate({ textStrokeColor: e.target.value })}
                       className="flex-1 bg-white/5 border border-white/10 rounded-lg px-2 py-1 text-xs text-white focus:outline-none focus:ring-2 focus:ring-purple-500/50"
+                      aria-label="Stroke color hex"
                     />
                   </div>
                   <div>
@@ -416,6 +472,7 @@ export function TypographyPanel({ selectedElement, onUpdate }: TypographyPanelPr
                       value={selectedElement.textStrokeWidth || 0}
                       onChange={(e) => onUpdate({ textStrokeWidth: parseInt(e.target.value) })}
                       className="w-full h-1.5 bg-white/10 rounded-lg appearance-none cursor-pointer slider-thumb"
+                      aria-label="Stroke width"
                     />
                   </div>
                   <div>
@@ -424,6 +481,7 @@ export function TypographyPanel({ selectedElement, onUpdate }: TypographyPanelPr
                       value={selectedElement.textStrokeStyle || 'solid'}
                       onChange={(e) => onUpdate({ textStrokeStyle: e.target.value as 'solid' | 'dashed' | 'dotted' })}
                       className="w-full bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:ring-2 focus:ring-purple-500/50"
+                      aria-label="Stroke style"
                     >
                       {STROKE_STYLES.map((style) => (
                         <option key={style.value} value={style.value}>
@@ -447,7 +505,7 @@ export function TypographyPanel({ selectedElement, onUpdate }: TypographyPanelPr
           className="w-full flex items-center justify-between text-xs font-medium text-white/70 hover:text-white/90 transition-colors"
         >
           <span>Spacing & Position</span>
-          <span className="transform transition-transform" style={{ transform: expandedSections.spacing ? 'rotate(180deg)' : 'rotate(0deg)' }}>
+          <span className={`transform transition-transform ${expandedSections.spacing ? 'rotate-180' : 'rotate-0'}`}>
             ▼
           </span>
         </button>
@@ -503,11 +561,10 @@ export function TypographyPanel({ selectedElement, onUpdate }: TypographyPanelPr
                     key={transform.value}
                     type="button"
                     onClick={() => onUpdate({ textTransform: transform.value })}
-                    className={`px-2 py-2 rounded-lg text-xs transition-all ${
-                      (selectedElement.textTransform || 'none') === transform.value
-                        ? 'bg-purple-500/30 text-white border-2 border-purple-400/50'
-                        : 'bg-white/5 text-white/60 border-2 border-white/10 hover:bg-white/10'
-                    }`}
+                    className={`px-2 py-2 rounded-lg text-xs transition-all ${(selectedElement.textTransform || 'none') === transform.value
+                      ? 'bg-purple-500/30 text-white border-2 border-purple-400/50'
+                      : 'bg-white/5 text-white/60 border-2 border-white/10 hover:bg-white/10'
+                      }`}
                     aria-label={transform.label}
                     title={transform.label}
                   >
@@ -526,11 +583,10 @@ export function TypographyPanel({ selectedElement, onUpdate }: TypographyPanelPr
                     key={align.value}
                     type="button"
                     onClick={() => onUpdate({ textAlign: align.value })}
-                    className={`px-3 py-2 rounded-lg text-sm transition-all ${
-                      (selectedElement.textAlign || 'left') === align.value
-                        ? 'bg-purple-500/30 text-white border-2 border-purple-400/50'
-                        : 'bg-white/5 text-white/60 border-2 border-white/10 hover:bg-white/10'
-                    }`}
+                    className={`px-3 py-2 rounded-lg text-sm transition-all ${(selectedElement.textAlign || 'left') === align.value
+                      ? 'bg-purple-500/30 text-white border-2 border-purple-400/50'
+                      : 'bg-white/5 text-white/60 border-2 border-white/10 hover:bg-white/10'
+                      }`}
                     aria-label={align.label}
                     title={align.label}
                   >

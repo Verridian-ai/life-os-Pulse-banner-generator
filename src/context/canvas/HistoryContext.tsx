@@ -1,21 +1,22 @@
 import React, { createContext, useContext, useState, useCallback, ReactNode } from 'react';
 
-import { CanvasStateContext } from './CanvasStateContext';
+import { useElements } from './ElementsContext';
+import { useCanvasState } from './CanvasStateContext';
+import { useCanvasSnapshots, SnapshotRecord } from '../../hooks/useCanvasSnapshots';
 
 /**
- * HistoryContext - Undo/redo functionality
+ * HistoryContext - Undo/redo functionality & Snapshot Persistence
  *
  * Handles:
- * - Image history stack
- * - Undo/redo operations
- * - History index tracking
+ * - Image history stack (Undo/Redo)
+ * - Named Snapshots (Persistence)
  *
- * Note: This context depends on CanvasStateContext for setBgImage.
- * It must be used within CanvasStateProvider.
+ * Note: Depends on CanvasStateContext and ElementsContext.
  */
 
 // Types
 export type HistoryContextType = {
+  // Undo/Redo
   imageHistory: string[];
   historyIndex: number;
   canUndo: boolean;
@@ -23,6 +24,14 @@ export type HistoryContextType = {
   undo: () => void;
   redo: () => void;
   addToHistory: (img: string) => void;
+
+  // Snapshots
+  snapshots: SnapshotRecord[];
+  saveCurrentSnapshot: (name: string) => void;
+  restoreSnapshot: (snapshot: SnapshotRecord) => void;
+  deleteSnapshot: (id: string) => void;
+  renameSnapshot: (id: string, newName: string) => void;
+  updateSnapshot: (id: string) => void;
 };
 
 // Context
@@ -39,9 +48,18 @@ type HistoryProviderProps = {
 
 // Provider Component
 export function HistoryProvider({ children, value: initialValue }: HistoryProviderProps): React.ReactElement {
-  // Use useContext directly to avoid throwing and allow conditional behavior
-  const canvasState = React.useContext(CanvasStateContext);
-  const setBgImage = canvasState?.setBgImage;
+  // Access sibling contexts for state management
+  const { bgImage, setBgImage, canvasFormatId, setCanvasFormatId } = useCanvasState();
+  const { elements, setElements } = useElements();
+
+  // Snapshots Persistence Hook
+  const {
+    snapshots,
+    saveSnapshot: _saveSnapshot,
+    deleteSnapshot,
+    renameSnapshot,
+    updateSnapshot: _updateSnapshot
+  } = useCanvasSnapshots();
 
   const [imageHistory, setImageHistory] = useState<string[]>([]);
   const [historyIndex, setHistoryIndex] = useState<number>(-1);
@@ -91,6 +109,25 @@ export function HistoryProvider({ children, value: initialValue }: HistoryProvid
     }
   }, [canRedo, historyIndex, imageHistory, setBgImage]);
 
+  // Snapshot Actions
+  const saveCurrentSnapshot = useCallback((name: string) => {
+    _saveSnapshot(name, bgImage, elements, canvasFormatId);
+  }, [bgImage, elements, canvasFormatId, _saveSnapshot]);
+
+  const restoreSnapshot = useCallback((snapshot: SnapshotRecord) => {
+    setBgImage(snapshot.bgImage);
+    setElements(snapshot.elements);
+    // Only set format if it exists in snapshot (backward compatibility)
+    if (snapshot.canvasFormatId) {
+      setCanvasFormatId(snapshot.canvasFormatId);
+    }
+    console.log('[History] Restored snapshot:', snapshot.name);
+  }, [setBgImage, setElements, setCanvasFormatId]);
+
+  const updateSnapshot = useCallback((id: string) => {
+    _updateSnapshot(id, bgImage, elements, canvasFormatId);
+  }, [bgImage, elements, canvasFormatId, _updateSnapshot]);
+
   const value: HistoryContextType = {
     imageHistory,
     historyIndex,
@@ -99,6 +136,15 @@ export function HistoryProvider({ children, value: initialValue }: HistoryProvid
     undo,
     redo,
     addToHistory,
+
+    // Snapshots
+    snapshots,
+    saveCurrentSnapshot,
+    restoreSnapshot,
+    deleteSnapshot,
+    renameSnapshot,
+    updateSnapshot,
+
     ...initialValue,
   };
 

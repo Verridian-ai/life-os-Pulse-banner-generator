@@ -8,7 +8,11 @@ import { eq } from 'drizzle-orm';
 import { PROMPT_ENHANCER_SYSTEM, PROMPT_ENHANCER_MODEL, type PromptEnhanceContext } from '../prompts/promptEnhancer';
 import { aiRateLimit } from '../lib/rateLimit';
 
-export const aiRouter = new Hono();
+type Variables = {
+    user: { id: string } | null;
+};
+
+export const aiRouter = new Hono<{ Variables: Variables }>();
 
 // SECURITY: Apply global rate limit to all AI routes (30 requests per minute)
 // This prevents API cost abuse and ensures fair usage across users
@@ -23,12 +27,13 @@ const getUserApiKeys = async (userId: string) => {
 
 // Helper for Datadog LLM Observability
 // Helper for Datadog LLM Observability
-const traceLLMCall = async (
+// Helper for Datadog LLM Observability
+const traceLLMCall = async <T = any>(
     model: string,
     provider: string,
     prompt: string | unknown[],
     operationName: string,
-    apiCall: () => Promise<string>
+    apiCall: () => Promise<T>
 ) => {
     return tracer.trace(operationName, { resource: provider }, async (span) => {
         span?.setTag('llm.model_name', model);
@@ -40,13 +45,44 @@ const traceLLMCall = async (
 
         try {
             const output = await apiCall();
-            span?.setTag('llm.output', output);
+            const outputText = typeof output === 'string' ? output : JSON.stringify(output);
+            span?.setTag('llm.output', outputText);
             return output;
         } catch (error: unknown) {
             span?.setTag('error', error);
             throw error;
         }
     });
+};
+
+// --- Input Validation ---
+const validatePrompt = (prompt: unknown, maxLength: number = 2000): string => {
+    if (!prompt) return '';
+    if (typeof prompt !== 'string') {
+        throw new Error('Invalid prompt: must be a string');
+    }
+    if (prompt.length > maxLength) {
+        throw new Error(`Prompt too long: maximum ${maxLength} characters`);
+    }
+    // Remove null bytes and trim
+    return prompt.trim().replace(/\0/g, '');
+};
+
+const validateMessages = (messages: unknown): void => {
+    if (!Array.isArray(messages)) throw new Error("Messages must be an array");
+    const MAX_TOTAL_CHARS = 50000;
+    let total = 0;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    messages.forEach((m: any) => {
+        if (m.content && typeof m.content === 'string') total += m.content.length;
+        else if (Array.isArray(m.content)) {
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            m.content.forEach((c: any) => {
+                if (c.text) total += c.text.length;
+            });
+        }
+    });
+    if (total > MAX_TOTAL_CHARS) throw new Error(`Conversation too long (${total} chars). Max ${MAX_TOTAL_CHARS}.`);
 };
 
 // --- OpenRouter Client ---
@@ -269,10 +305,18 @@ const getFluxAspectRatio = getAspectRatio;
 
 // Chat Route (supports tool calling when tools are provided)
 aiRouter.post('/chat', authMiddleware, async (c) => {
-    const { messages, model, tools, tool_choice } = await c.req.json();
+    // eslint-disable-next-line prefer-const
+    let { messages, model, tools, tool_choice } = await c.req.json();
+
+    // Validate Input
+    try {
+        validateMessages(messages);
+    } catch (e: unknown) {
+        return c.json({ error: e instanceof Error ? e.message : 'Invalid messages' }, 400);
+    }
 
     // SECURITY: Fetch API key from database, not from request body
-    const user = c.get('user');
+    const user = c.get('user') as { id: string } | undefined;
     const userKeys = user ? await getUserApiKeys(user.id) : null;
     const apiKey = userKeys?.openrouterApiKey || process.env.OPENROUTER_API_KEY || '';
 
@@ -301,10 +345,18 @@ aiRouter.post('/chat', authMiddleware, async (c) => {
 // Image Edit Route (Instruction-based editing)
 aiRouter.post('/image/edit', authMiddleware, async (c) => {
     try {
-        const { image, mask, prompt, provider, model } = await c.req.json();
+        // eslint-disable-next-line prefer-const
+        let { image, mask, prompt, provider, model } = await c.req.json();
+
+        // Validate Prompt
+        try {
+            prompt = validatePrompt(prompt, 1000); // 1000 chars max for edit instructions
+        } catch (e: unknown) {
+            return c.json({ error: e instanceof Error ? e.message : 'Invalid prompt' }, 400);
+        }
 
         // SECURITY: Fetch API keys from database, not from request body
-        const user = c.get('user');
+        const user = c.get('user') as { id: string } | undefined;
         const userKeys = user ? await getUserApiKeys(user.id) : null;
         const replicateKey = userKeys?.replicateApiKey || process.env.REPLICATE_API_KEY || '';
         const openRouterKey = userKeys?.openrouterApiKey || process.env.OPENROUTER_API_KEY || '';
@@ -326,7 +378,7 @@ aiRouter.post('/image/edit', authMiddleware, async (c) => {
                     image: ensureDataUri(image),
                     prompt: prompt,
                     output_format: "png",
-                    safety_tolerance: 5 // Allow some standard creativity
+                    safety_tolerance: 2 // Enforce standard safety filters
                 };
 
                 // Add mask if provided (Crucial for outpainting)
@@ -447,10 +499,18 @@ aiRouter.post('/image/edit', authMiddleware, async (c) => {
 // NOTE: OpenRouter does NOT support image generation - it's a chat completions proxy.
 // All image generation requests are routed to Replicate.
 aiRouter.post('/image/generate', authMiddleware, async (c) => {
-    const { prompt, model, provider, aspect_ratio, width, height } = await c.req.json();
+    // eslint-disable-next-line prefer-const
+    let { prompt, model, provider, aspect_ratio, width, height } = await c.req.json();
+
+    // Validate Validation
+    try {
+        prompt = validatePrompt(prompt, 1500); // 1500 chars limit for generation
+    } catch (e: unknown) {
+        return c.json({ error: e instanceof Error ? e.message : 'Invalid prompt' }, 400);
+    }
 
     // SECURITY: Fetch API key from database, not from request body
-    const user = c.get('user');
+    const user = c.get('user') as { id: string } | undefined;
     const userKeys = user ? await getUserApiKeys(user.id) : null;
     const replicateKey = userKeys?.replicateApiKey || process.env.REPLICATE_API_KEY || '';
 
@@ -480,7 +540,7 @@ aiRouter.post('/image/generate', authMiddleware, async (c) => {
             // Input payload normalization
             const input: Record<string, unknown> = { prompt };
             input.output_format = "png";
-            input.disable_safety_checker = true;
+            input.disable_safety_checker = false;
 
             // Flux specific parameters
             if (modelId.includes('flux')) {
@@ -536,7 +596,7 @@ aiRouter.post('/image/remove-bg', authMiddleware, async (c) => {
     const { image, model } = await c.req.json();
 
     // SECURITY: Fetch API key from database, not from request body
-    const user = c.get('user');
+    const user = c.get('user') as { id: string } | undefined;
     const userKeys = user ? await getUserApiKeys(user.id) : null;
     const replicateKey = userKeys?.replicateApiKey || process.env.REPLICATE_API_KEY || '';
 
@@ -565,7 +625,7 @@ aiRouter.post('/image/upscale', authMiddleware, async (c) => {
     const { image, scale, model } = await c.req.json();
 
     // SECURITY: Fetch API key from database, not from request body
-    const user = c.get('user');
+    const user = c.get('user') as { id: string } | undefined;
     const userKeys = user ? await getUserApiKeys(user.id) : null;
     const replicateKey = userKeys?.replicateApiKey || process.env.REPLICATE_API_KEY || '';
 
@@ -600,7 +660,7 @@ aiRouter.post('/image/outpaint', authMiddleware, async (c) => {
     const { image, prompt, direction, model } = await c.req.json();
 
     // SECURITY: Fetch API key from database, not from request body
-    const user = c.get('user');
+    const user = c.get('user') as { id: string } | undefined;
     const userKeys = user ? await getUserApiKeys(user.id) : null;
     const replicateKey = userKeys?.replicateApiKey || process.env.REPLICATE_API_KEY || '';
 
@@ -633,7 +693,7 @@ aiRouter.post('/image/restore', authMiddleware, async (c) => {
     const { image, fidelity } = await c.req.json();
 
     // SECURITY: Fetch API key from database, not from request body
-    const user = c.get('user');
+    const user = c.get('user') as { id: string } | undefined;
     const userKeys = user ? await getUserApiKeys(user.id) : null;
     const replicateKey = userKeys?.replicateApiKey || process.env.REPLICATE_API_KEY || '';
 
@@ -665,7 +725,7 @@ aiRouter.post('/prompt/enhance', authMiddleware, async (c) => {
     }
 
     // SECURITY: Fetch API key from database, not from request body
-    const user = c.get('user');
+    const user = c.get('user') as { id: string } | undefined;
     const userKeys = user ? await getUserApiKeys(user.id) : null;
     const apiKey = userKeys?.openrouterApiKey || process.env.OPENROUTER_API_KEY || '';
 
@@ -714,6 +774,47 @@ aiRouter.post('/prompt/enhance', authMiddleware, async (c) => {
         const msg = error instanceof Error ? error.message : 'Unknown error';
         console.error('[Prompt Enhance] Error:', msg);
         return c.json({ error: `Prompt enhancement failed: ${msg}` }, 500);
+    }
+});
+
+// Ephemeral Token for Realtime API
+aiRouter.get('/voice/token', authMiddleware, async (c) => {
+    // SECURITY: Fetch API key from database, not from request body
+    const user = c.get('user') as { id: string } | undefined;
+    const userKeys = user ? await getUserApiKeys(user.id) : null;
+
+    // Priority: User Key > Env Key
+    const apiKey = userKeys?.openaiApiKey || process.env.OPENAI_API_KEY;
+
+    if (!apiKey) {
+        return c.json({ error: 'OpenAI API Key not configured' }, 400);
+    }
+
+    try {
+        const response = await fetch('https://api.openai.com/v1/realtime/sessions', {
+            method: 'POST',
+            headers: {
+                'Authorization': `Bearer ${apiKey}`,
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                model: "gpt-4o-realtime-preview",
+                voice: "alloy",
+            }),
+        });
+
+        if (!response.ok) {
+            const text = await response.text();
+            throw new Error(`OpenAI Session Error (${response.status}): ${text}`);
+        }
+
+        const data = await response.json();
+        return c.json({ token: data.client_secret.value });
+
+    } catch (error: unknown) {
+        const msg = error instanceof Error ? error.message : 'Unknown error';
+        console.error('[Voice Token] Error:', msg);
+        return c.json({ error: `Failed to generate voice token: ${msg}` }, 500);
     }
 });
 

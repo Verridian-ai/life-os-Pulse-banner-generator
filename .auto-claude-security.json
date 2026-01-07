@@ -128,7 +128,12 @@
     "zsh"
   ],
   "stack_commands": [
+    "ar",
     "bq",
+    "clang",
+    "clang++",
+    "cmake",
+    "composer",
     "dive",
     "docker",
     "docker-buildx",
@@ -136,14 +141,41 @@
     "dockerfile",
     "eslint",
     "firebase",
+    "g++",
+    "gcc",
     "gcloud",
     "gsutil",
+    "ipython",
+    "jupyter",
+    "k9s",
+    "kubeadm",
+    "kubectl",
+    "kubectx",
+    "kubens",
+    "kubeseal",
+    "kustomize",
+    "ld",
+    "make",
+    "meson",
+    "ninja",
+    "nm",
     "node",
+    "notebook",
     "npm",
     "npx",
+    "objdump",
+    "pdb",
+    "php",
+    "pip",
+    "pip3",
+    "pipx",
     "playwright",
     "prettier",
+    "pudb",
+    "python",
+    "python3",
     "react-scripts",
+    "strip",
     "supabase",
     "ts-node",
     "tsc",
@@ -160,8 +192,11 @@
   "custom_commands": [],
   "detected_stack": {
     "languages": [
+      "python",
       "javascript",
-      "typescript"
+      "typescript",
+      "php",
+      "c"
     ],
     "package_managers": [
       "npm"
@@ -176,6 +211,7 @@
     ],
     "databases": [],
     "infrastructure": [
+      "kubernetes",
       "docker"
     ],
     "cloud_providers": [
@@ -203,7 +239,7 @@
     "cargo_aliases": [],
     "shell_scripts": []
   },
-  "project_dir": "C:\\Users\\Danie\\Desktop\\nanobanna-pro\\.auto-claude\\worktrees\\tasks\\021-add-voice-agent-user-guide-and-command-reference",
-  "created_at": "2026-01-06T21:57:30.422244",
-  "project_hash": "d0e7bc8599eacfdab3b361bec9289961"
+  "project_dir": "C:\\Users\\Danie\\Desktop\\nanobanna-pro",
+  "created_at": "2026-01-08T03:06:32.184624",
+  "project_hash": "4535ea749e19afbdb275999dcff44b3f"
 }

@@ -234,3 +234,107 @@ export class EnhanceFaceCommand implements Command {
     }
   }
 }
+
+export class BatchUpscaleCommand implements Command {
+  name = 'batch_upscale';
+
+  async execute(args: { image_urls: string[]; mode?: string }, context: CommandContext): Promise<ActionResult> {
+    const { image_urls, mode = 'balanced' } = args;
+    const results: string[] = [];
+    const errors: string[] = [];
+
+    console.log(`[BatchUpscaleCommand] Processing ${image_urls.length} images`);
+
+    try {
+      const service = await getReplicateService();
+
+      for (let i = 0; i < image_urls.length; i++) {
+        const url = image_urls[i];
+        console.log(`[BatchUpscaleCommand] Upscaling ${i + 1}/${image_urls.length}`);
+
+        try {
+          const resultUrl = await service.upscale(url, mode as 'fast' | 'balanced' | 'best');
+          results.push(resultUrl);
+
+          // Verify if we should update canvas for each step or just return results
+          // For now, we update to show liveliness if it is not preview mode
+          if (!context.previewMode) {
+            context.onUpdate(resultUrl, 'background');
+          }
+        } catch (err) {
+          console.error(`[BatchUpscaleCommand] Failed image ${i + 1}:`, err);
+          errors.push(`Image ${i + 1} failed`);
+        }
+      }
+
+      if (results.length === 0 && errors.length > 0) {
+        return {
+          success: false,
+          error: `Batch upscale failed. ${errors.length} errors.`,
+        };
+      }
+
+      return {
+        success: true,
+        result: JSON.stringify({ success: results, errors }),
+        action: 'batch_upscale',
+      };
+    } catch (error) {
+      return {
+        success: false,
+        error: error instanceof Error ? error.message : 'Batch upscale failed',
+      };
+    }
+  }
+}
+
+export class BatchRemoveBackgroundCommand implements Command {
+  name = 'batch_remove_background';
+
+  async execute(args: { image_urls: string[] }, context: CommandContext): Promise<ActionResult> {
+    const { image_urls } = args;
+    const results: string[] = [];
+    const errors: string[] = [];
+
+    console.log(`[BatchRemoveBackgroundCommand] Processing ${image_urls.length} images`);
+
+    try {
+      const service = await getReplicateService();
+
+      for (let i = 0; i < image_urls.length; i++) {
+        const url = image_urls[i];
+        console.log(`[BatchRemoveBackgroundCommand] Processing ${i + 1}/${image_urls.length}`);
+
+        try {
+          const resultUrl = await service.removeBg(url);
+          results.push(resultUrl);
+
+          if (!context.previewMode) {
+            context.onUpdate(resultUrl, 'background');
+          }
+        } catch (err) {
+          console.error(`[BatchRemoveBackgroundCommand] Failed image ${i + 1}:`, err);
+          errors.push(`Image ${i + 1} failed`);
+        }
+      }
+
+      if (results.length === 0 && errors.length > 0) {
+        return {
+          success: false,
+          error: `Batch processing failed. ${errors.length} errors.`,
+        };
+      }
+
+      return {
+        success: true,
+        result: JSON.stringify({ success: results, errors }),
+        action: 'batch_remove_background',
+      };
+    } catch (error) {
+      return {
+        success: false,
+        error: error instanceof Error ? error.message : 'Batch processing failed',
+      };
+    }
+  }
+}

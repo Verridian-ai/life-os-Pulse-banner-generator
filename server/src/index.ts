@@ -25,6 +25,7 @@ import { aiRouter } from './routes/ai';
 import { imageRouter } from './routes/images';
 import { promptRouter } from './routes/prompts';
 import { replicateRouter } from './routes/replicate';
+import { adminRouter } from './routes/admin';
 import { lucia } from './lib/auth';
 
 config()
@@ -38,17 +39,55 @@ app.use('*', cors({
         'http://localhost:5174',
         'http://localhost:5175',
         'http://localhost:3000',
-        'http://192.168.0.235:5173',
-        'http://100.96.1.165:5173',
         'https://life-os-banner.verridian.ai',
-        'https://life-osbanner.verridian.ai',
-        'https://life-os-banner-237245874937.us-central1.run.app'  // Cloud Run URL
+        'https://nanobanna-pro-237245874937.us-central1.run.app',
+        'https://nanobanna.verridian.ai',
     ],
     credentials: true,
 }));
 
 // SECURITY: CSRF protection
 app.use('*', csrf());
+
+// SECURITY: High-impact Security Headers (HSTS, CSP, X-Content-Type-Options)
+app.use('*', async (c, next) => {
+    // 1. Strict-Transport-Security (HSTS)
+    // Enforce HTTPS for 2 years, include subdomains, allow preload list
+    c.header('Strict-Transport-Security', 'max-age=63072000; includeSubDomains; preload');
+
+    // 2. X-Content-Type-Options
+    // Prevent MIME-sniffing
+    c.header('X-Content-Type-Options', 'nosniff');
+
+    // 3. X-Frame-Options
+    // Prevent clickjacking
+    c.header('X-Frame-Options', 'SAMEORIGIN');
+
+    // 4. Referrer-Policy
+    // protext user privacy
+    c.header('Referrer-Policy', 'strict-origin-when-cross-origin');
+
+    // 5. Content-Security-Policy (CSP)
+    // Whitelist allowed sources to prevent XSS and data injection
+    const csp = [
+        "default-src 'self'",
+        "script-src 'self'",
+        "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
+        "img-src 'self' data: blob: https://*.replicate.delivery https://replicate.delivery https://*.googleusercontent.com https://*.githubusercontent.com",
+        "font-src 'self' data: https://fonts.gstatic.com",
+        "connect-src 'self' https://api.openai.com wss://api.openai.com https://api.replicate.com https://*.replicate.delivery https://openrouter.ai https://*.openrouter.ai https://*.googleapis.com",
+        "media-src 'self' data: blob:",
+        "object-src 'none'",
+        "base-uri 'self'",
+        "form-action 'self'",
+        "frame-ancestors 'self'",
+        "upgrade-insecure-requests"
+    ].join('; ');
+
+    c.header('Content-Security-Policy', csp);
+
+    await next();
+});
 
 // Middleware to populate user in context
 app.use('*', async (c, next) => {
@@ -81,6 +120,7 @@ app.get('/health', (c) => {
 // Mount Routes (API FIRST)
 app.route('/api/auth', authRouter);
 app.route('/api/user', userRouter);
+app.route('/api/admin', adminRouter);
 app.route('/api/storage', storageRouter);
 app.route('/api/chat', chatRouter);
 app.route('/api/ai', aiRouter);

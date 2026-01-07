@@ -321,6 +321,14 @@ describe('API Key Storage Service', () => {
         llmMagicEditModel: undefined,
         llmUpscaleModel: undefined,
       });
+
+      // Verify localStorage cleanup
+      expect(localStorageMock.getItem('gemini_api_key')).toBeNull();
+      expect(localStorageMock.getItem('openai_api_key')).toBeNull();
+      expect(localStorageMock.getItem('openrouter_api_key')).toBeNull();
+      expect(localStorageMock.getItem('replicate_api_key')).toBeNull();
+      expect(localStorageMock.getItem('llm_provider')).toBeNull();
+      expect(localStorageMock.getItem('llm_model')).toBeNull();
     });
 
     it('should not attempt migration when no localStorage keys exist', async () => {

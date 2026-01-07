@@ -10,12 +10,20 @@ interface ModelSelectorProps {
   onModelChange?: (modelId: string) => void;
 }
 
+import { compareModelPerformance } from '../../services/modelRouter'; // Updated import
+import { useModelMetrics } from '../../hooks/useModelMetrics'; // Updated import
+
+// ...
+
 export const ModelSelector: React.FC<ModelSelectorProps> = ({ onModelChange }) => {
   const { modelOverride, setModelOverride } = useAI();
   const [autoSelect, setAutoSelect] = useState(true);
   const [provider, setProvider] = useState<'gemini' | 'openrouter'>('gemini');
   const [openrouterModels, setOpenrouterModels] = useState<{ id: string; name: string }[]>([]);
   const [isLoadingModels, setIsLoadingModels] = useState(false);
+
+  // Get real-world metrics for intelligent recommendation
+  const { stats } = useModelMetrics();
 
   // Load OpenRouter models when provider changes
   useEffect(() => {
@@ -62,9 +70,10 @@ export const ModelSelector: React.FC<ModelSelectorProps> = ({ onModelChange }) =
 
   // Get featured models for quick selection
   const getFeaturedModels = () => {
+    let models = [];
     if (provider === 'gemini') {
-      return [
-        { id: MODELS.textBasic, name: 'Gemini 2.5 Flash', description: 'Fast, cost-effective' },
+      models = [
+        { id: MODELS.textBasic, name: 'Gemini 3.0 Pro', description: 'Fast, cost-effective' },
         {
           id: MODELS.textThinking,
           name: 'Gemini 3 Pro Preview',
@@ -74,7 +83,7 @@ export const ModelSelector: React.FC<ModelSelectorProps> = ({ onModelChange }) =
         { id: MODELS.imageEdit, name: 'Gemini 2.5 Flash Image', description: 'Fast image editing' },
       ];
     } else {
-      return [
+      models = [
         { id: MODELS.openrouter.gpt52, name: 'GPT-5.2', description: 'Latest from OpenAI (Dec 2025)' },
         { id: MODELS.openrouter.gpt52Pro, name: 'GPT-5.2 Pro', description: 'High-performance reasoning' },
         { id: MODELS.openrouter.claude45Sonnet, name: 'Claude 4.5 Sonnet', description: 'Advanced reasoning & coding' },
@@ -85,6 +94,30 @@ export const ModelSelector: React.FC<ModelSelectorProps> = ({ onModelChange }) =
         },
       ];
     }
+
+    // Enhance with recommendation data if stats are available
+    if (stats && !autoSelect) {
+      // Compare models based on balanced criteria
+      const comparison = compareModelPerformance(
+        models.map(m => m.id),
+        stats,
+        'balanced'
+      );
+
+      // Find best model
+      const bestModelId = comparison[0]?.modelId;
+
+      return models.map(model => {
+        const result = comparison.find(c => c.modelId === model.id);
+        return {
+          ...model,
+          isRecommended: model.id === bestModelId,
+          reason: result?.reason
+        };
+      });
+    }
+
+    return models;
   };
 
   return (
@@ -151,14 +184,31 @@ export const ModelSelector: React.FC<ModelSelectorProps> = ({ onModelChange }) =
                   <button
                     key={model.id}
                     onClick={() => handleModelSelect(model.id)}
-                    className={`w-full text-left p-3 rounded-lg transition ${modelOverride === model.id
+                    className={`w-full text-left p-3 rounded-lg transition relative overflow-hidden ${modelOverride === model.id
                       ? 'bg-blue-600 border border-blue-500'
                       : 'bg-zinc-800 border border-white/10 hover:bg-zinc-700'
                       }`}
                   >
+                    {/* Recommended Badge */}
+                    {/* @ts-ignore - property explicitly added in enhancement step */}
+                    {model.isRecommended && (
+                      <div className="absolute top-0 right-0 bg-green-500 text-black text-[9px] font-bold px-2 py-0.5 rounded-bl-lg">
+                        RECOMMENDED
+                      </div>
+                    )}
+
                     <div className='flex items-center justify-between'>
                       <div className='flex-1'>
-                        <h5 className='text-sm font-bold text-white'>{model.name}</h5>
+                        <div className="flex items-center gap-2">
+                          <h5 className='text-sm font-bold text-white'>{model.name}</h5>
+                          {/* @ts-ignore */}
+                          {model.reason && (
+                            <span className="text-[9px] px-1.5 py-0.5 rounded bg-white/10 text-zinc-300 border border-white/5">
+                              {/* @ts-ignore */}
+                              {model.reason}
+                            </span>
+                          )}
+                        </div>
                         <p className='text-[10px] text-zinc-400 mt-0.5'>{model.description}</p>
                       </div>
                       {modelOverride === model.id && (
@@ -223,8 +273,8 @@ export const ModelSelector: React.FC<ModelSelectorProps> = ({ onModelChange }) =
               </p>
               <ul className='text-[9px] text-green-200/80 mt-2 space-y-1 ml-4'>
                 <li>• Task type (reasoning, vision, coding, image generation)</li>
-                <li>• Input complexity and requirements</li>
-                <li>• Cost vs. performance optimization</li>
+                <li>• Real-world performance stats (Success Rate, Speed)</li>
+                <li>• Cost efficiency</li>
               </ul>
             </div>
           </div>

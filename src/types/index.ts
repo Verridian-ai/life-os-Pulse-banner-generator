@@ -39,6 +39,9 @@ export interface BannerElement {
   textStrokeColor?: string;
   textStrokeWidth?: number; // px (0-20)
   textStrokeStyle?: 'solid' | 'dashed' | 'dotted';
+
+  // State
+  locked?: boolean;
 }
 
 export interface ChatMessage {

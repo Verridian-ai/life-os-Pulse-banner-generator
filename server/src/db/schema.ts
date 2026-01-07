@@ -8,6 +8,8 @@ export const users = pgTable('users', {
     id: text('id').primaryKey(), // Lucia uses string IDs
     email: text('email').notNull().unique(),
     hashedPassword: text('hashed_password'),
+    failedLoginAttempts: integer('failed_login_attempts').default(0),
+    lockedUntil: timestamp('locked_until'),
     createdAt: timestamp('created_at').defaultNow(),
     updatedAt: timestamp('updated_at').defaultNow(),
 });
@@ -115,14 +117,14 @@ export const brandProfiles = pgTable('brand_profiles', {
     teamId: uuid('team_id').references(() => teams.id, { onDelete: 'cascade' }), // Optional: can be personal or team
     userId: text('user_id').references(() => users.id, { onDelete: 'cascade' }), // If personal
     name: text('name').notNull().default('My Brand'),
-    
+
     colors: jsonb('colors').default([]), // [{ hex: '#...', name: 'Primary', usage: 'main' }]
     fonts: jsonb('fonts').default([]),   // [{ family: 'Inter', usage: 'heading' }]
     logoUrl: text('logo_url'),
-    
+
     styleKeywords: text('style_keywords').array(),
     isDefault: boolean('is_default').default(false),
-    
+
     createdAt: timestamp('created_at').defaultNow(),
     updatedAt: timestamp('updated_at').defaultNow(),
 });
@@ -258,7 +260,7 @@ export const comments = pgTable('comments', {
 
     content: text('content').notNull(),
 
-    
+
 
     // Pin position (percentage 0-100)
 
@@ -266,7 +268,7 @@ export const comments = pgTable('comments', {
 
     y: numeric('y'),
 
-    
+
 
     isResolved: boolean('is_resolved').default(false),
 
@@ -297,4 +299,279 @@ export const passwordResetTokens = pgTable('password_reset_tokens', {
     userId: text('user_id').notNull().references(() => users.id, { onDelete: 'cascade' }),
     tokenHash: text('token_hash').notNull(),
     expiresAt: timestamp('expires_at', { withTimezone: true }).notNull(),
+});
+
+// ============================================================================
+// DESIGNS
+// ============================================================================
+
+export const designs = pgTable('designs', {
+    id: uuid('id').defaultRandom().primaryKey(),
+    userId: text('user_id').notNull().references(() => users.id, { onDelete: 'cascade' }),
+    title: text('title').notNull().default('Untitled Design'),
+    description: text('description'),
+    thumbnailUrl: text('thumbnail_url'),
+    designUrl: text('design_url'),
+    canvasData: jsonb('canvas_data'),
+    width: integer('width').default(1920),
+    height: integer('height').default(568),
+    tags: text('tags').array(),
+    isPublic: boolean('is_public').default(false),
+    viewCount: integer('view_count').default(0),
+    createdAt: timestamp('created_at').defaultNow(),
+    updatedAt: timestamp('updated_at').defaultNow(),
+});
+
+// ============================================================================
+// ADMIN SYSTEM
+// ============================================================================
+
+export const adminUsers = pgTable('admin_users', {
+    id: uuid('id').defaultRandom().primaryKey(),
+    userId: text('user_id').notNull().references(() => users.id, { onDelete: 'cascade' }),
+    role: text('role').notNull().default('admin'),
+    permissions: jsonb('permissions').default({}),
+    createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
+    createdBy: text('created_by'),
+    updatedAt: timestamp('updated_at', { withTimezone: true }).defaultNow(),
+});
+
+export const adminAuditLog = pgTable('admin_audit_log', {
+    id: uuid('id').defaultRandom().primaryKey(),
+    adminUserId: text('admin_user_id').notNull(),
+    action: text('action').notNull(),
+    resource: text('resource'),
+    resourceId: text('resource_id'),
+    details: jsonb('details'),
+    ipAddress: text('ip_address'),
+    userAgent: text('user_agent'),
+    status: text('status').default('success'),
+    createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
+});
+
+export const adminRateLimits = pgTable('admin_rate_limits', {
+    id: uuid('id').defaultRandom().primaryKey(),
+    userId: text('user_id').notNull(),
+    endpoint: text('endpoint').notNull(),
+    requestCount: integer('request_count').default(1),
+    windowStart: timestamp('window_start', { withTimezone: true }).notNull().defaultNow(),
+});
+
+// ============================================================================
+// AGENT CONFIGURATION SYSTEM
+// ============================================================================
+
+export const agentConfigs = pgTable('agent_configs', {
+    id: uuid('id').defaultRandom().primaryKey(),
+    agentId: text('agent_id').notNull(),
+    name: text('name').notNull(),
+    type: text('type').notNull(),
+    model: text('model'),
+    provider: text('provider'),
+    systemPrompt: text('system_prompt'),
+    capabilities: jsonb('capabilities').default([]),
+    parameters: jsonb('parameters').default({}),
+    enabled: boolean('enabled').default(true),
+    version: integer('version').default(1),
+    createdAt: timestamp('created_at').notNull().defaultNow(),
+    updatedAt: timestamp('updated_at').defaultNow(),
+});
+
+export const agentSkills = pgTable('agent_skills', {
+    id: uuid('id').defaultRandom().primaryKey(),
+    agentId: text('agent_id').notNull(),
+    name: text('name').notNull(),
+    description: text('description'),
+    type: text('type').notNull(),
+    definition: jsonb('definition').notNull(),
+    priority: integer('priority').default(0),
+    enabled: boolean('enabled').default(true),
+    createdAt: timestamp('created_at').notNull().defaultNow(),
+});
+
+export const agentMcpConnections = pgTable('agent_mcp_connections', {
+    id: uuid('id').defaultRandom().primaryKey(),
+    agentId: text('agent_id').notNull(),
+    name: text('name').notNull(),
+    serverUrl: text('server_url').notNull(),
+    transport: text('transport').notNull(),
+    config: jsonb('config').default({}),
+    discoveredTools: jsonb('discovered_tools').default([]),
+    enabled: boolean('enabled').default(true),
+    lastConnected: timestamp('last_connected'),
+    createdAt: timestamp('created_at').notNull().defaultNow(),
+});
+
+export const agentContextDocs = pgTable('agent_context_docs', {
+    id: uuid('id').defaultRandom().primaryKey(),
+    agentId: text('agent_id').notNull(),
+    name: text('name').notNull(),
+    type: text('type').notNull(),
+    cogneeDocId: text('cognee_doc_id'),
+    filePath: text('file_path'),
+    metadata: jsonb('metadata').default({}),
+    createdAt: timestamp('created_at').notNull().defaultNow(),
+});
+
+export const agentRuntimeState = pgTable('agent_runtime_state', {
+    id: uuid('id').defaultRandom().primaryKey(),
+    agentId: text('agent_id').notNull(),
+    configVersion: integer('config_version').default(1),
+    lastReloaded: timestamp('last_reloaded'),
+    status: text('status').default('idle'),
+    metrics: jsonb('metrics').default({
+        errorCount: 0,
+        totalCalls: 0,
+        avgLatencyMs: 0,
+        successCount: 0
+    }),
+    createdAt: timestamp('created_at').notNull().defaultNow(),
+    updatedAt: timestamp('updated_at').defaultNow(),
+});
+
+export const agentAuditLogs = pgTable('agent_audit_logs', {
+    id: uuid('id').defaultRandom().primaryKey(),
+    agentId: text('agent_id'),
+    action: text('action').notNull(),
+    entityType: text('entity_type').notNull(),
+    entityId: uuid('entity_id'),
+    oldValue: jsonb('old_value'),
+    newValue: jsonb('new_value'),
+    userId: text('user_id'),
+    timestamp: timestamp('timestamp').notNull().defaultNow(),
+});
+
+// ============================================================================
+// CREDIT & BILLING SYSTEM
+// ============================================================================
+
+export const creditTiers = pgTable('credit_tiers', {
+    id: text('id').primaryKey(),
+    name: text('name').notNull(),
+    displayName: text('display_name').notNull(),
+    monthlyCredits: integer('monthly_credits').notNull(),
+    priceUsd: integer('price_usd').notNull(),
+    features: jsonb('features'),
+    isActive: boolean('is_active').default(true),
+    sortOrder: integer('sort_order').default(0),
+    createdAt: timestamp('created_at').defaultNow(),
+    updatedAt: timestamp('updated_at').defaultNow(),
+});
+
+export const userCreditAccounts = pgTable('user_credit_accounts', {
+    id: uuid('id').defaultRandom().primaryKey(),
+    userId: text('user_id').notNull().references(() => users.id, { onDelete: 'cascade' }),
+    tierId: text('tier_id').references(() => creditTiers.id),
+    creditBalance: integer('credit_balance').notNull().default(100),
+    lifetimeCreditsUsed: integer('lifetime_credits_used').default(0),
+    lifetimeCreditsGranted: integer('lifetime_credits_granted').default(100),
+    lastRefillAt: timestamp('last_refill_at'),
+    nextRefillAt: timestamp('next_refill_at'),
+    createdAt: timestamp('created_at').defaultNow(),
+    updatedAt: timestamp('updated_at').defaultNow(),
+});
+
+export const creditTransactions = pgTable('credit_transactions', {
+    id: uuid('id').defaultRandom().primaryKey(),
+    userId: text('user_id').notNull().references(() => users.id, { onDelete: 'cascade' }),
+    amount: integer('amount').notNull(),
+    type: text('type').notNull(), // 'usage', 'refill', 'purchase', 'bonus'
+    description: text('description'),
+    modelUsed: text('model_used'),
+    operationType: text('operation_type'),
+    langfuseTraceId: text('langfuse_trace_id'),
+    balanceAfter: integer('balance_after').notNull(),
+    metadata: jsonb('metadata'),
+    createdAt: timestamp('created_at').defaultNow(),
+});
+
+export const tierFeatureLimits = pgTable('tier_feature_limits', {
+    id: uuid('id').defaultRandom().primaryKey(),
+    tierId: text('tier_id').notNull().references(() => creditTiers.id),
+    featureKey: text('feature_key').notNull(),
+    limitValue: text('limit_value').notNull(),
+    description: text('description'),
+    createdAt: timestamp('created_at').defaultNow(),
+});
+
+// ============================================================================
+// OBSERVABILITY & LOGGING
+// ============================================================================
+
+export const llmTraces = pgTable('llm_traces', {
+    id: uuid('id').defaultRandom().primaryKey(),
+    userId: text('user_id'),
+    sessionId: text('session_id'),
+    traceId: text('trace_id').notNull(),
+    name: text('name').notNull(),
+    model: text('model').notNull(),
+    provider: text('provider'),
+    input: jsonb('input'),
+    output: jsonb('output'),
+    promptTokens: integer('prompt_tokens'),
+    completionTokens: integer('completion_tokens'),
+    totalTokens: integer('total_tokens'),
+    costUsd: numeric('cost_usd'),
+    latencyMs: integer('latency_ms'),
+    status: text('status').default('success'),
+    errorMessage: text('error_message'),
+    tags: jsonb('tags'),
+    metadata: jsonb('metadata'),
+    createdAt: timestamp('created_at').notNull().defaultNow(),
+});
+
+export const apiMetrics = pgTable('api_metrics', {
+    id: uuid('id').defaultRandom().primaryKey(),
+    endpoint: text('endpoint').notNull(),
+    method: text('method').notNull(),
+    statusCode: integer('status_code').notNull(),
+    latencyMs: integer('latency_ms').notNull(),
+    userId: text('user_id'),
+    userAgent: text('user_agent'),
+    createdAt: timestamp('created_at').notNull().defaultNow(),
+});
+
+export const requestLogs = pgTable('request_logs', {
+    id: uuid('id').defaultRandom().primaryKey(),
+    traceId: text('trace_id').notNull(),
+    userId: text('user_id'),
+    endpoint: text('endpoint').notNull(),
+    method: text('method').notNull(),
+    statusCode: integer('status_code'),
+    responseTimeMs: integer('response_time_ms'),
+    requestHeaders: jsonb('request_headers'),
+    requestBody: jsonb('request_body'),
+    responseSize: integer('response_size'),
+    userAgent: text('user_agent'),
+    ipAddress: text('ip_address'),
+    createdAt: timestamp('created_at').notNull().defaultNow(),
+});
+
+export const errorLogs = pgTable('error_logs', {
+    id: uuid('id').defaultRandom().primaryKey(),
+    traceId: text('trace_id').notNull(),
+    userId: text('user_id'),
+    errorType: text('error_type').notNull(),
+    errorMessage: text('error_message').notNull(),
+    stackTrace: text('stack_trace'),
+    endpoint: text('endpoint'),
+    method: text('method'),
+    requestBody: jsonb('request_body'),
+    context: jsonb('context'),
+    severity: text('severity').default('error'),
+    resolved: boolean('resolved').default(false),
+    createdAt: timestamp('created_at').notNull().defaultNow(),
+});
+
+export const dailyStats = pgTable('daily_stats', {
+    id: uuid('id').defaultRandom().primaryKey(),
+    date: timestamp('date').notNull(),
+    totalRequests: integer('total_requests').default(0),
+    totalLlmCalls: integer('total_llm_calls').default(0),
+    totalTokens: integer('total_tokens').default(0),
+    totalCostUsd: numeric('total_cost_usd').default('0'),
+    uniqueUsers: integer('unique_users').default(0),
+    avgLatencyMs: integer('avg_latency_ms'),
+    errorCount: integer('error_count').default(0),
+    createdAt: timestamp('created_at').notNull().defaultNow(),
 });

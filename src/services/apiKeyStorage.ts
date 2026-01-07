@@ -2,7 +2,7 @@
 // Manages secure storage and retrieval of user API keys
 
 import { api } from './api';
-import type { ApiKeysResponse, VoiceKeyResponse } from '@/types/api';
+import type { ApiKeysResponse } from '@/types/api';
 
 export interface UserAPIKeys {
   gemini_api_key?: string; // Masked (****xxxx) - for display only
@@ -76,21 +76,26 @@ export async function getUserAPIKeys(): Promise<UserAPIKeys> {
  * Get Voice API Key (actual OpenAI key for voice WebSocket connection)
  * SECURITY: This returns the ACTUAL key, not masked. Only use for voice connection.
  */
+/**
+ * Get Voice API Key (Ephemeral Token)
+ * SECURITY: Fetches a short-lived ephemeral token for real-time API.
+ */
 export async function getVoiceAPIKey(): Promise<{ voiceKey: string } | { error: string; requiresKey?: boolean }> {
   console.log('[API Keys] getVoiceAPIKey() called');
 
   try {
-    const response = await api.get<VoiceKeyResponse>('/api/user/voice-key');
+    // Call the backend API to get an ephemeral token
+    const response = await api.get<{ token?: string; error?: string }>('/api/ai/voice/token');
 
-    if (response.voiceKey) {
-      console.log('[API Keys] ✓ Voice key retrieved');
-      return { voiceKey: response.voiceKey };
+    if (response.token) {
+      console.log('[API Keys] ✓ Ephemeral voice token retrieved');
+      return { voiceKey: response.token };
     }
 
-    return { error: response.error || 'Voice key not found', requiresKey: response.requiresKey };
+    return { error: response.error || 'Voice token not found' };
   } catch (error: unknown) {
-    console.error('[API Keys] Voice key error:', error);
-    const message = error instanceof Error ? error.message : 'Failed to get voice key';
+    console.error('[API Keys] Voice token error:', error);
+    const message = error instanceof Error ? error.message : 'Failed to get voice token';
     return { error: message };
   }
 }
@@ -170,6 +175,29 @@ function getEnvFallbackKeys(): UserAPIKeys {
 /**
  * Migrate localStorage keys to Neon (one-time migration helper)
  */
+/**
+ * Force clear legacy localStorage keys (Security)
+ */
+export function forceClearLegacyKeys(): void {
+  const keysToRemove = [
+    'gemini_api_key',
+    'openai_api_key',
+    'openrouter_api_key',
+    'replicate_api_key',
+    'llm_provider',
+    'llm_model',
+    'llm_image_model',
+    'llm_magic_edit_model',
+    'llm_upscale_model'
+  ];
+
+  keysToRemove.forEach(key => localStorage.removeItem(key));
+  console.log('[API Keys] ✓ Cleared legacy keys from localStorage');
+}
+
+/**
+ * Migrate localStorage keys to Neon (one-time migration helper)
+ */
 export async function migrateLocalStorageToNeon(): Promise<void> {
   console.log('[API Keys] Checking for localStorage migration...');
 
@@ -199,7 +227,11 @@ export async function migrateLocalStorageToNeon(): Promise<void> {
 
   if (result.success) {
     console.log('[API Keys] ✓ Migrated localStorage to database');
+    forceClearLegacyKeys();
   } else {
     console.error('[API Keys] Migration failed:', result.error);
+    // SECURITY: If save fails, we normally don't clear to avoid data loss.
+    // However, if strict security is required, one might force clear.
+    // For now, we trust the user will retry or keys will be cleared on next success.
   }
 }

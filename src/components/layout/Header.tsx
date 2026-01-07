@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback, useRef } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 
 import { Tab } from '../../constants';
 import {
@@ -12,6 +12,7 @@ import {
 import { useAuth } from '../../context/AuthContext';
 import { ConnectionState } from '../../types';
 import { hapticConnected, hapticError, hapticDisconnected } from '../../utils/haptics';
+import { useDropdownKeyboard } from '../../hooks/useDropdownKeyboard';
 
 interface HeaderProps {
   activeTab: Tab;
@@ -25,124 +26,7 @@ interface HeaderProps {
   onToggleVoice?: () => void;
 }
 
-/**
- * Custom hook for dropdown keyboard navigation
- * Implements WCAG 2.1 keyboard navigation patterns for menus
- */
-function useDropdownKeyboard(
-  isOpen: boolean,
-  setIsOpen: (open: boolean) => void,
-  menuItemCount: number,
-  onSelectItem: (index: number) => void
-) {
-  const [focusedIndex, setFocusedIndex] = useState(-1);
-  const menuRef = useRef<HTMLDivElement>(null);
-  const buttonRef = useRef<HTMLButtonElement>(null);
-  const itemRefs = useRef<(HTMLButtonElement | null)[]>([]);
-
-  // Update focus when focusedIndex changes
-  useEffect(() => {
-    if (isOpen && focusedIndex >= 0 && itemRefs.current[focusedIndex]) {
-      itemRefs.current[focusedIndex]?.focus();
-    }
-  }, [focusedIndex, isOpen]);
-
-  // Reset focus when menu closes
-  useEffect(() => {
-    if (!isOpen) {
-      // eslint-disable-next-line react-hooks/set-state-in-effect
-      setFocusedIndex(-1);
-    }
-  }, [isOpen]);
-
-  // Handle keyboard navigation
-  const handleKeyDown = useCallback(
-    (e: React.KeyboardEvent) => {
-      if (!isOpen) {
-        // When menu is closed, Enter/Space opens it
-        if (e.key === 'Enter' || e.key === ' ') {
-          e.preventDefault();
-          setIsOpen(true);
-          setFocusedIndex(0); // Set focus to first item immediately on open
-        }
-        return;
-      }
-
-      // Menu is open - handle navigation
-      switch (e.key) {
-        case 'Escape':
-          e.preventDefault();
-          setIsOpen(false);
-          setFocusedIndex(-1);
-          buttonRef.current?.focus();
-          break;
-
-        case 'ArrowDown':
-          e.preventDefault();
-          setFocusedIndex((current) => (current + 1) % menuItemCount);
-          break;
-
-        case 'ArrowUp':
-          e.preventDefault();
-          setFocusedIndex((current) => (current - 1 + menuItemCount) % menuItemCount);
-          break;
-
-        case 'Home':
-          e.preventDefault();
-          setFocusedIndex(0);
-          break;
-
-        case 'End':
-          e.preventDefault();
-          setFocusedIndex(menuItemCount - 1);
-          break;
-
-        case 'Tab':
-          // Close menu on Tab
-          setIsOpen(false);
-          setFocusedIndex(-1);
-          break;
-
-        case 'Enter':
-        case ' ':
-          e.preventDefault();
-          if (focusedIndex >= 0) {
-            onSelectItem(focusedIndex);
-          }
-          break;
-      }
-    },
-    [isOpen, focusedIndex, menuItemCount, setIsOpen, onSelectItem]
-  );
-
-  // Close menu when clicking outside
-  useEffect(() => {
-    if (!isOpen) return;
-
-    const handleClickOutside = (e: MouseEvent) => {
-      if (
-        menuRef.current &&
-        buttonRef.current &&
-        !menuRef.current.contains(e.target as Node) &&
-        !buttonRef.current.contains(e.target as Node)
-      ) {
-        setIsOpen(false);
-        setFocusedIndex(-1);
-      }
-    };
-
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
-  }, [isOpen, setIsOpen]);
-
-  return {
-    focusedIndex,
-    handleKeyDown,
-    menuRef,
-    buttonRef,
-    itemRefs,
-  };
-}
+// Migrated to src/hooks/useDropdownKeyboard.ts
 
 const Header: React.FC<HeaderProps> = React.memo(({
   activeTab,
@@ -282,55 +166,71 @@ const Header: React.FC<HeaderProps> = React.memo(({
           </button>
         </nav>
 
-        {/* Voice Agent Toggle Button */}
+        {/* Voice Agent Toggle Button with Status Label */}
         {onToggleVoice && (
-          <button
-            onClick={onToggleVoice}
-            disabled={voiceConnectionState === 'connecting' || voiceConnectionState === 'disconnecting'}
-            className={`min-w-[44px] min-h-[44px] w-12 h-12 rounded-full border flex items-center justify-center transition-all shadow-lg shrink-0 ${
-              voiceConnectionState === 'connecting'
+          <div className='flex flex-col items-center justify-center relative min-w-[60px]'>
+            <button
+              onClick={onToggleVoice}
+              disabled={voiceConnectionState === 'connecting' || voiceConnectionState === 'disconnecting'}
+              className={`min-w-[44px] min-h-[44px] w-12 h-12 rounded-full border flex items-center justify-center transition-all shadow-lg shrink-0 relative z-10 ${voiceConnectionState === 'connecting'
                 ? 'bg-gradient-to-br from-amber-600 to-yellow-600 border-amber-400/50 text-white shadow-amber-500/50 cursor-not-allowed'
                 : voiceConnectionState === 'connected' || isVoiceActive
-                ? 'bg-gradient-to-br from-green-600 to-emerald-600 border-green-400/50 text-white animate-pulse shadow-green-500/50'
-                : voiceConnectionState === 'error'
-                ? 'bg-gradient-to-br from-red-600 to-rose-600 border-red-400/50 text-white shadow-red-500/50 hover:from-red-700 hover:to-rose-700 cursor-pointer'
-                : voiceConnectionState === 'disconnecting'
-                ? 'bg-gradient-to-br from-gray-600 to-gray-700 border-gray-500/50 text-gray-300 shadow-gray-500/50 cursor-not-allowed'
-                : 'bg-gradient-to-br from-blue-600/20 to-cyan-600/20 border-blue-500/30 text-blue-400 hover:text-blue-300 hover:from-blue-600/30 hover:to-cyan-600/30'
-            }`}
-            title={
-              voiceConnectionState === 'connecting'
-                ? 'Connecting to Benno...'
-                : voiceConnectionState === 'connected' || isVoiceActive
-                ? 'Stop Benno'
-                : voiceConnectionState === 'error'
-                ? 'Connection failed - Click to retry'
-                : voiceConnectionState === 'disconnecting'
-                ? 'Disconnecting...'
-                : 'Talk to Benno'
-            }
-            aria-label={
-              voiceConnectionState === 'connecting'
-                ? 'Connecting to voice agent...'
-                : voiceConnectionState === 'connected' || isVoiceActive
-                ? 'Stop voice agent'
-                : voiceConnectionState === 'error'
-                ? 'Voice connection failed - Click to retry connection'
-                : voiceConnectionState === 'disconnecting'
-                ? 'Disconnecting...'
-                : 'Start voice agent'
-            }
-          >
-            {voiceConnectionState === 'connecting' ? (
-              <span className='material-icons text-xl animate-spin'>sync</span>
-            ) : voiceConnectionState === 'error' ? (
-              <span className='material-icons text-xl'>error_outline</span>
-            ) : (
-              <span className='material-icons text-xl'>
-                {voiceConnectionState === 'connected' || isVoiceActive ? 'mic' : 'mic_none'}
+                  ? 'bg-gradient-to-br from-green-600 to-emerald-600 border-green-400/50 text-white animate-pulse shadow-green-500/50'
+                  : voiceConnectionState === 'error'
+                    ? 'bg-gradient-to-br from-red-600 to-rose-600 border-red-400/50 text-white shadow-red-500/50 hover:from-red-700 hover:to-rose-700 cursor-pointer'
+                    : voiceConnectionState === 'disconnecting'
+                      ? 'bg-gradient-to-br from-gray-600 to-gray-700 border-gray-500/50 text-gray-300 shadow-gray-500/50 cursor-not-allowed'
+                      : 'bg-gradient-to-br from-blue-600/20 to-cyan-600/20 border-blue-500/30 text-blue-400 hover:text-blue-300 hover:from-blue-600/30 hover:to-cyan-600/30'
+                }`}
+              title={
+                voiceConnectionState === 'connecting'
+                  ? 'Connecting to Benno...'
+                  : voiceConnectionState === 'connected' || isVoiceActive
+                    ? 'Stop Benno'
+                    : voiceConnectionState === 'error'
+                      ? 'Connection failed - Click to retry'
+                      : voiceConnectionState === 'disconnecting'
+                        ? 'Disconnecting...'
+                        : 'Talk to Benno'
+              }
+              aria-label={
+                voiceConnectionState === 'connecting'
+                  ? 'Connecting to voice agent...'
+                  : voiceConnectionState === 'connected' || isVoiceActive
+                    ? 'Stop voice agent'
+                    : voiceConnectionState === 'error'
+                      ? 'Voice connection failed - Click to retry connection'
+                      : voiceConnectionState === 'disconnecting'
+                        ? 'Disconnecting...'
+                        : 'Start voice agent'
+              }
+            >
+              {voiceConnectionState === 'connecting' ? (
+                <span className='material-icons text-xl animate-spin'>sync</span>
+              ) : voiceConnectionState === 'error' ? (
+                <span className='material-icons text-xl'>error_outline</span>
+              ) : (
+                <span className='material-icons text-xl'>
+                  {voiceConnectionState === 'connected' || isVoiceActive ? 'mic' : 'mic_none'}
+                </span>
+              )}
+            </button>
+
+            {/* Status Text Label */}
+            <div className={`absolute top-full left-1/2 -translate-x-1/2 mt-1 whitespace-nowrap overflow-hidden transition-all duration-300 ${voiceConnectionState === 'disconnected' ? 'max-h-0 opacity-0' : 'max-h-6 opacity-100'
+              }`}>
+              <span className={`text-[9px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full ${voiceConnectionState === 'connecting' ? 'bg-amber-500/10 text-amber-400 ring-1 ring-amber-500/20' :
+                  voiceConnectionState === 'connected' ? 'bg-emerald-500/10 text-emerald-400 ring-1 ring-emerald-500/20' :
+                    voiceConnectionState === 'error' ? 'bg-red-500/10 text-red-400 ring-1 ring-red-500/20' :
+                      'bg-zinc-800 text-zinc-400'
+                }`}>
+                {voiceConnectionState === 'connecting' ? 'Connecting...' :
+                  voiceConnectionState === 'connected' ? 'Connected' :
+                    voiceConnectionState === 'error' ? 'Failed' :
+                      voiceConnectionState === 'disconnecting' ? 'Closing...' : ''}
               </span>
-            )}
-          </button>
+            </div>
+          </div>
         )}
 
         {/* Help/Instructions Button - Desktop Only */}
@@ -375,66 +275,71 @@ const Header: React.FC<HeaderProps> = React.memo(({
             </button>
 
             {showProfileMenu && (
-              <div
-                ref={menuRef}
-                role='menu'
-                aria-label='User profile menu'
-                className='absolute right-0 mt-2 w-64 sm:w-72 md:w-80 max-w-[90vw] bg-zinc-900 border border-white/10 rounded-2xl shadow-2xl overflow-hidden z-50'
-              >
-                <div className='bg-gradient-to-br from-purple-600/20 to-blue-600/20 border-b border-white/5 p-4'>
-                  <div className='flex items-center gap-3'>
-                    <div className='w-12 h-12 rounded-full bg-gradient-to-br from-purple-600 to-blue-600 flex items-center justify-center'>
-                      <span className='material-icons text-2xl text-white'>account_circle</span>
-                    </div>
-                    <div className='flex-1 min-w-0'>
-                      <p className='text-xs font-bold text-white uppercase tracking-wide truncate'>
-                        {user?.full_name ||
-                          user?.username ||
-                          (user?.email || authUser?.email)?.split('@')[0] ||
-                          'User'}
-                      </p>
-                      <p className='text-[10px] text-zinc-400 truncate'>
-                        {user?.email || authUser?.email}
-                      </p>
+              <>
+                <div
+                  className="fixed inset-0 z-40 bg-transparent"
+                  onClick={() => setShowProfileMenu(false)}
+                  aria-hidden="true"
+                />
+                <div
+                  ref={menuRef}
+                  role='menu'
+                  aria-label='User profile menu'
+                  className='absolute right-0 mt-2 w-64 sm:w-72 md:w-80 max-w-[90vw] bg-zinc-900 border border-white/10 rounded-2xl shadow-2xl overflow-hidden z-50'
+                >
+                  <div className='bg-gradient-to-br from-purple-600/20 to-blue-600/20 border-b border-white/5 p-4'>
+                    <div className='flex items-center gap-3'>
+                      <div className='w-12 h-12 rounded-full bg-gradient-to-br from-purple-600 to-blue-600 flex items-center justify-center'>
+                        <span className='material-icons text-2xl text-white'>account_circle</span>
+                      </div>
+                      <div className='flex-1 min-w-0'>
+                        <p className='text-xs font-bold text-white uppercase tracking-wide truncate'>
+                          {user?.full_name ||
+                            user?.username ||
+                            (user?.email || authUser?.email)?.split('@')[0] ||
+                            'User'}
+                        </p>
+                        <p className='text-[10px] text-zinc-400 truncate'>
+                          {user?.email || authUser?.email}
+                        </p>
+                      </div>
                     </div>
                   </div>
-                </div>
-                <div className='p-2'>
-                  <button
-                    ref={setItemRef(0)}
-                    onClick={() => {
-                      onOpenSettings();
-                      setShowProfileMenu(false);
-                    }}
-                    onKeyDown={handleKeyDown}
-                    role='menuitem'
-                    tabIndex={focusedIndex === 0 ? 0 : -1}
-                    className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition text-left ${
-                      focusedIndex === 0
+                  <div className='p-2'>
+                    <button
+                      ref={setItemRef(0)}
+                      onClick={() => {
+                        onOpenSettings();
+                        setShowProfileMenu(false);
+                      }}
+                      onKeyDown={handleKeyDown}
+                      role='menuitem'
+                      tabIndex={focusedIndex === 0 ? 0 : -1}
+                      className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition text-left ${focusedIndex === 0
                         ? 'bg-white/10 ring-2 ring-blue-500/50'
                         : 'hover:bg-white/5'
-                    }`}
-                  >
-                    <span className='material-icons text-zinc-400 text-lg'>settings</span>
-                    <span className='text-sm text-zinc-300 font-medium'>Settings</span>
-                  </button>
-                  <button
-                    ref={setItemRef(1)}
-                    onClick={handleSignOut}
-                    onKeyDown={handleKeyDown}
-                    role='menuitem'
-                    tabIndex={focusedIndex === 1 ? 0 : -1}
-                    className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition text-left ${
-                      focusedIndex === 1
+                        }`}
+                    >
+                      <span className='material-icons text-zinc-400 text-lg'>settings</span>
+                      <span className='text-sm text-zinc-300 font-medium'>Settings</span>
+                    </button>
+                    <button
+                      ref={setItemRef(1)}
+                      onClick={handleSignOut}
+                      onKeyDown={handleKeyDown}
+                      role='menuitem'
+                      tabIndex={focusedIndex === 1 ? 0 : -1}
+                      className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition text-left ${focusedIndex === 1
                         ? 'bg-red-500/20 ring-2 ring-red-500/50'
                         : 'hover:bg-red-500/10'
-                    }`}
-                  >
-                    <span className='material-icons text-red-400 text-lg'>logout</span>
-                    <span className='text-sm text-red-400 font-medium'>Sign Out</span>
-                  </button>
+                        }`}
+                    >
+                      <span className='material-icons text-red-400 text-lg'>logout</span>
+                      <span className='text-sm text-red-400 font-medium'>Sign Out</span>
+                    </button>
+                  </div>
                 </div>
-              </div>
+              </>
             )}
           </div>
         ) : (

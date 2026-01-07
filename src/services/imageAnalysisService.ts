@@ -18,7 +18,8 @@ export const analyzeImageForPrompts = async (base64Image: string) => {
     try {
         const json = JSON.parse(text.replace(/```json|```/g, ''));
         return { magicEdit: json.magicEdit || [], generation: json.generation || [] };
-    } catch {
+    } catch (e) {
+        console.error('[ImageAnalysis] Failed to parse magic edit prompts:', e);
         return { magicEdit: [], generation: [] };
     }
 };
@@ -44,7 +45,40 @@ export const analyzeCanvasAndSuggest = async (canvasScreenshot: string, _brandPr
     try {
         const json = JSON.parse(text.replace(/```json|```/g, ''));
         return { suggestions: json.suggestions || [], reasoning: json.reasoning || '' };
-    } catch {
+    } catch (e) {
+        console.error('[ImageAnalysis] Failed to parse suggestions:', e);
         return { suggestions: [], reasoning: 'Analysis failed' };
+    }
+};
+
+export const compareImages = async (image1: string, image2: string) => {
+    const content: OpenRouterContentItem[] = [
+        { type: 'text', text: 'Compare these two images side-by-side. Analyze differences in composition, colors, brightness, and overall effectiveness for a LinkedIn banner. Return JSON: { "comparison": "detailed comparison text", "preference": "image 1 or image 2", "reasoning": "why" }' },
+        { type: 'image_url', image_url: { url: image1.startsWith('data:') ? image1 : `data:image/png;base64,${image1}` } },
+        { type: 'image_url', image_url: { url: image2.startsWith('data:') ? image2 : `data:image/png;base64,${image2}` } }
+    ];
+
+    const messages: ChatMessage[] = [
+        { role: 'system', content: "You are Nano Banna Pro, an expert design AI. You compare visual designs." },
+        { role: 'user', content: content }
+    ];
+
+    const response = await api.post<{ text: string }>('/api/ai/chat', {
+        messages,
+        model: MODELS.openrouter.glm47,
+        provider: 'openrouter'
+    });
+
+    const text = response.text;
+    try {
+        const json = JSON.parse(text.replace(/```json|```/g, ''));
+        return {
+            comparison: json.comparison || 'Comparison failed',
+            preference: json.preference || 'None',
+            reasoning: json.reasoning || ''
+        };
+    } catch (e) {
+        console.error('[ImageAnalysis] Failed to parse comparison result:', e);
+        return { comparison: 'Failed to parse comparison result', preference: 'None', reasoning: '' };
     }
 };

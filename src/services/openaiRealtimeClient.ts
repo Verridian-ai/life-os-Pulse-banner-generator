@@ -487,6 +487,44 @@ Available tools:
                   properties: {},
                 },
               },
+              {
+                type: 'function',
+                name: 'compare_images',
+                description: 'Compare the current canvas image with a reference image or another image version. Analyzes composition, colors, and effectiveness side-by-side.',
+                parameters: {
+                  type: 'object',
+                  properties: {
+                    reference_image: { type: 'string', description: 'URL of the reference image to compare against.' },
+                    target_image: { type: 'string', description: 'Optional URL of the target image (defaults to current canvas).' },
+                  },
+                  required: ['reference_image'],
+                },
+              },
+              {
+                type: 'function',
+                name: 'batch_upscale',
+                description: 'Upscale multiple images in sequence. Use when user wants to upscale a batch or list of images.',
+                parameters: {
+                  type: 'object',
+                  properties: {
+                    image_urls: { type: 'array', items: { type: 'string' }, description: 'List of image URLs to upscale' },
+                    mode: { type: 'string', enum: ['fast', 'balanced', 'best'], description: 'Upscale mode' },
+                  },
+                  required: ['image_urls'],
+                },
+              },
+              {
+                type: 'function',
+                name: 'batch_remove_background',
+                description: 'Remove background from multiple images in sequence. Use when user wants to process a batch of images.',
+                parameters: {
+                  type: 'object',
+                  properties: {
+                    image_urls: { type: 'array', items: { type: 'string' }, description: 'List of image URLs to process' },
+                  },
+                  required: ['image_urls'],
+                },
+              },
               // Canvas manipulation tools
               {
                 type: 'function',
@@ -752,11 +790,15 @@ Available tools:
       case 'response.function_call_arguments.done':
         // Function call detected
         if (onToolCall && message.name && message.arguments) {
-          const toolCall: ToolCall = {
-            name: message.name,
-            args: JSON.parse(message.arguments),
-          };
-          onToolCall(toolCall);
+          try {
+            const toolCall: ToolCall = {
+              name: message.name,
+              args: JSON.parse(message.arguments),
+            };
+            onToolCall(toolCall);
+          } catch (error) {
+            console.error('[OpenAI Realtime] Failed to parse tool arguments:', error);
+          }
         }
         break;
 

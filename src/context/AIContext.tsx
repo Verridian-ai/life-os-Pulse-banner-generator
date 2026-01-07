@@ -11,7 +11,8 @@ import type {
   ModelMetadata,
 } from '../types/ai';
 import { loadBrandProfile, saveBrandProfile } from '../services/brandEngine';
-import { getModelMetadata } from '../services/modelRouter';
+import { getModelMetadata, trackModelPerformance } from '../services/modelRouter';
+import { useModelMetrics } from '../hooks/useModelMetrics';
 
 const AIContext = createContext<AIContextType | undefined>(undefined);
 
@@ -44,14 +45,7 @@ export const AIProvider: React.FC<AIProviderProps> = ({ children }) => {
   const [modelOverride, setModelOverride] = useState<string | null>(null);
 
   // Performance Tracking
-  const [performanceMetrics, setPerformanceMetrics] = useState<PerformanceMetric[]>(() => {
-    try {
-      const stored = localStorage.getItem('performance_metrics');
-      return stored ? JSON.parse(stored) : [];
-    } catch {
-      return [];
-    }
-  });
+  const { metrics: performanceMetrics, stats: performanceStats } = useModelMetrics();
 
   // Tool Chaining
   const [activeChain, setActiveChain] = useState<ToolChain | null>(null);
@@ -80,14 +74,7 @@ export const AIProvider: React.FC<AIProviderProps> = ({ children }) => {
     setAvailableModels(models);
   }, []);
 
-  // Persist performance metrics
-  useEffect(() => {
-    try {
-      localStorage.setItem('performance_metrics', JSON.stringify(performanceMetrics));
-    } catch (error) {
-      console.error('Failed to persist performance metrics:', error);
-    }
-  }, [performanceMetrics]);
+
 
   // Persist edit history
   useEffect(() => {
@@ -113,23 +100,17 @@ export const AIProvider: React.FC<AIProviderProps> = ({ children }) => {
 
   // Add performance metric
   const addMetric = (metric: PerformanceMetric) => {
-    setPerformanceMetrics((prev) => {
-      const updated = [...prev, metric];
-      // Keep only last 1000 metrics to avoid storage bloat
-      return updated.slice(-1000);
-    });
+    trackModelPerformance(metric);
   };
 
   // Get total cost
   const getTotalCost = () => {
-    return performanceMetrics.reduce((sum, m) => sum + m.cost, 0);
+    return performanceStats?.totalCost || 0;
   };
 
   // Get average response time
   const getAvgResponseTime = () => {
-    if (performanceMetrics.length === 0) return 0;
-    const total = performanceMetrics.reduce((sum, m) => sum + m.responseTime, 0);
-    return total / performanceMetrics.length;
+    return performanceStats?.avgResponseTime || 0;
   };
 
   // Update brand profile
@@ -137,13 +118,13 @@ export const AIProvider: React.FC<AIProviderProps> = ({ children }) => {
     const updated = brandProfile
       ? { ...brandProfile, ...updates, lastUpdated: Date.now() }
       : ({
-          ...updates,
-          colors: updates.colors || [],
-          fonts: updates.fonts || [],
-          styleKeywords: updates.styleKeywords || [],
-          lastUpdated: Date.now(),
-          version: 1,
-        } as BrandProfile);
+        ...updates,
+        colors: updates.colors || [],
+        fonts: updates.fonts || [],
+        styleKeywords: updates.styleKeywords || [],
+        lastUpdated: Date.now(),
+        version: 1,
+      } as BrandProfile);
 
     setBrandProfile(updated);
     saveBrandProfile(updated);

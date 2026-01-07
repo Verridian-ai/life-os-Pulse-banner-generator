@@ -9,6 +9,16 @@ import { sendVerificationEmail, sendPasswordResetEmail } from '../lib/email';
 import { randomBytes, createHash } from 'crypto';
 import { authRateLimit } from '../lib/rateLimit';
 
+// Helper for password strength
+const validatePasswordStrength = (password: string): string | null => {
+    if (password.length < 8) return 'Password must be at least 8 characters long';
+    if (!/[A-Z]/.test(password)) return 'Password must contain at least one uppercase letter';
+    if (!/[a-z]/.test(password)) return 'Password must contain at least one lowercase letter';
+    if (!/[0-9]/.test(password)) return 'Password must contain at least one number';
+    if (!/[^A-Za-z0-9]/.test(password)) return 'Password must contain at least one special character';
+    return null;
+};
+
 export const authRouter = new Hono();
 
 // SIGNUP
@@ -18,6 +28,11 @@ authRouter.post('/signup', authRateLimit.signup, async (c) => {
 
     if (!email || !password || typeof email !== 'string' || typeof password !== 'string') {
         return c.json({ error: 'Invalid input' }, 400);
+    }
+
+    const weakPassword = validatePasswordStrength(password);
+    if (weakPassword) {
+        return c.json({ error: weakPassword }, 400);
     }
 
     // Check if user exists
@@ -101,6 +116,12 @@ authRouter.post('/login', authRateLimit.login, async (c) => {
         return c.json({ error: 'Incorrect email or password' }, 400);
     }
 
+    // CHECK ACCOUNT LOCKOUT
+    if (user.lockedUntil && new Date(user.lockedUntil) > new Date()) {
+        const remainingTime = Math.ceil((new Date(user.lockedUntil).getTime() - new Date().getTime()) / 60000);
+        return c.json({ error: `Account locked. Please try again in ${remainingTime} minutes.` }, 429);
+    }
+
     const validPassword = await verify(user.hashedPassword, password, {
         memoryCost: 19456,
         timeCost: 2,
@@ -109,7 +130,39 @@ authRouter.post('/login', authRateLimit.login, async (c) => {
     });
 
     if (!validPassword) {
+        // Increment failed attempts
+        const currentAttempts = (user.failedLoginAttempts || 0) + 1;
+        const updateData: Partial<typeof user> = { failedLoginAttempts: currentAttempts };
+
+        // Lock if max attempts reached (5 attempts)
+        if (currentAttempts >= 5) {
+            const lockDuration = 15 * 60 * 1000; // 15 minutes
+            updateData.lockedUntil = new Date(Date.now() + lockDuration);
+            // Optional: Reset attempts after locking so they start fresh after lock expires? 
+            // Or keep them high? Resetting to 0 makes sense if we want to allow another 5 attempts after lock expires.
+            // But usually you keep them or reset them. Let's reset attempts to 0 when locking, 
+            // effectively starting a new cycle after the lock expires, or just keep them and check expiry.
+            // Simpler approach: Just set lockedUntil. Next login attempt after expiry will see lockedUntil < now.
+            // But if we don't reset attempts, one bad password after lock expiry will lock it again immediately 
+            // if we don't reset attempts on successful login (which we do).
+            // However, if we don't reset attempts here, the next failed login after expiry will make attempts = 6, 
+            // triggering another lock. This is actually good "soft lock" behavior (1 fail = lock again).
+            // But standard is usually 5 fresh attempts.
+            // Let's reset attempts to 0 when the lock expires? No, that requires a background job.
+            // Let's just set the lock.
+        }
+
+        await db.update(users).set(updateData).where(eq(users.id, user.id));
+
         return c.json({ error: 'Incorrect email or password' }, 400);
+    }
+
+    // RESET LOCKOUT ON SUCCESS
+    if ((user.failedLoginAttempts || 0) > 0 || user.lockedUntil) {
+        await db.update(users).set({
+            failedLoginAttempts: 0,
+            lockedUntil: null
+        }).where(eq(users.id, user.id));
     }
 
     const session = await lucia.createSession(user.id, {});
@@ -232,6 +285,11 @@ authRouter.post('/reset-password', authRateLimit.resetPassword, async (c) => {
     const { token, newPassword } = await c.req.json();
 
     if (!token || !newPassword) return c.json({ error: 'Missing fields' }, 400);
+
+    const weakPassword = validatePasswordStrength(newPassword);
+    if (weakPassword) {
+        return c.json({ error: weakPassword }, 400);
+    }
 
     // Hash incoming token to match stored hash
     const tokenHash = createHash('sha256').update(token).digest('hex');

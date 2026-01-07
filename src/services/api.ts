@@ -57,11 +57,13 @@ async function request<T>(endpoint: string, options: ApiRequestOptions = {}): Pr
 
             if (!response.ok) {
                 let errorMessage = 'An unknown error occurred';
+                // Read text first, then try to parse as JSON to avoid "body stream already read" error
+                const text = await response.text();
                 try {
-                    const errorData = await response.json();
+                    const errorData = JSON.parse(text);
                     errorMessage = errorData.error || response.statusText;
                 } catch {
-                    errorMessage = await response.text();
+                    errorMessage = text || response.statusText;
                 }
                 throw new ApiError(errorMessage, response.status);
             }

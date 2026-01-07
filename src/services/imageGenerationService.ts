@@ -7,8 +7,10 @@ import { editImage } from './imageEditService';
 import { CanvasDimensions } from './llm-types';
 import { aiCache } from './aiCache';
 
+import { validatePrompt } from '../utils/inputValidation';
+
 export const generateImage = async (
-    prompt: string,
+    rawPrompt: string,
     _referenceImages: string[] = [],
     _size: '1K' | '2K' | '4K' = '4K',
     canvasDimensions: CanvasDimensions = null, // Updated: accepts dimensions object or null
@@ -16,6 +18,9 @@ export const generateImage = async (
     _isRetry: boolean = false,
     brandProfile: BrandProfile | null = null
 ): Promise<string> => {
+    // Validate and sanitize prompt
+    const prompt = validatePrompt(rawPrompt, 1000); // Stricter limit for image prompts
+
     // Enhance prompt with brand guidelines if available
     let enhancedPrompt = prompt;
     if (brandProfile) {
@@ -28,12 +33,12 @@ export const generateImage = async (
     // Generate cache key based on enhanced prompt and dimensions
     const dimsKey = canvasDimensions ? `${canvasDimensions.width}x${canvasDimensions.height}` : 'default';
     // Use safe base64 encoding for unicode prompts
-    const safePrompt = typeof window !== 'undefined' 
+    const safePrompt = typeof window !== 'undefined'
         ? btoa(unescape(encodeURIComponent(enhancedPrompt))).substring(0, 32)
         : Buffer.from(enhancedPrompt).toString('base64').substring(0, 32);
-        
+
     const cacheKey = `img_${safePrompt}_${dimsKey}`;
-    
+
     // Check cache
     const cachedUrl = aiCache.get(cacheKey);
     if (cachedUrl) {

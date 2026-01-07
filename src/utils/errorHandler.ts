@@ -1,4 +1,5 @@
 // Error Handler Utility - Classifies and retries network errors
+import { errorMetricsStorage } from '../services/storageManager';
 
 export interface NetworkError extends Error {
   type: 'network' | 'cors' | 'timeout' | 'fetch' | 'api' | 'unknown';
@@ -130,8 +131,8 @@ export interface ErrorMetric {
 export const trackError = (error: unknown, context?: string) => {
   try {
     const classified = classifyError(error);
-    const metrics: ErrorMetric[] = JSON.parse(localStorage.getItem('error_metrics') || '[]');
-    
+    const metrics: ErrorMetric[] = errorMetricsStorage.get<ErrorMetric[]>('metrics') || [];
+
     metrics.push({
       timestamp: Date.now(),
       type: classified.type,
@@ -140,8 +141,8 @@ export const trackError = (error: unknown, context?: string) => {
     });
 
     // Keep only last 100 errors to prevent storage bloat
-    localStorage.setItem('error_metrics', JSON.stringify(metrics.slice(-100)));
-    
+    errorMetricsStorage.set('metrics', metrics.slice(-100));
+
     // Dispatch event for hooks to listen to
     window.dispatchEvent(new CustomEvent('error-tracked', { detail: classified }));
   } catch (e) {
@@ -152,7 +153,55 @@ export const trackError = (error: unknown, context?: string) => {
 /**
  * Retry configuration options
  */
-// ... (RetryOptions unchanged)
+export interface RetryOptions {
+  maxRetries?: number;
+  baseDelay?: number;
+  maxDelay?: number;
+  onRetry?: (attempt: number, error: unknown) => void;
+}
+
+const DEFAULT_RETRY_OPTIONS: Required<Omit<RetryOptions, 'onRetry'>> = {
+  maxRetries: 3,
+  baseDelay: 1000,
+  maxDelay: 10000,
+};
+
+/**
+ * Retries a function with exponential backoff if the error is retryable
+ */
+export const withRetry = async <T>(
+  fn: () => Promise<T>,
+  options: RetryOptions = {}
+): Promise<T> => {
+  const { maxRetries, baseDelay, maxDelay } = { ...DEFAULT_RETRY_OPTIONS, ...options };
+
+  let attempt = 0;
+
+  while (true) {
+    try {
+      return await fn();
+    } catch (error) {
+      attempt++;
+      const classified = classifyError(error);
+
+      if (!classified.retryable || attempt > maxRetries) {
+        throw error;
+      }
+
+      if (options.onRetry) {
+        options.onRetry(attempt, error);
+      }
+
+      // Calculate delay with exponential backoff and jitter
+      const delay = Math.min(
+        maxDelay,
+        baseDelay * Math.pow(2, attempt - 1) * (0.5 + Math.random() * 0.5)
+      );
+
+      await new Promise(resolve => setTimeout(resolve, delay));
+    }
+  }
+};
 
 /**
  * User-friendly error messages for UI display
@@ -171,9 +220,9 @@ export const handleError = (error: unknown, context?: string): string => {
   } else {
     console.error('Error:', error);
   }
-  
+
   // Track error for analytics
   trackError(error, context);
-  
+
   return getUserFriendlyMessage(error);
 };

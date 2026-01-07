@@ -308,4 +308,47 @@ describe('ActionExecutor', () => {
       expect(onUpdate).toHaveBeenCalledWith('https://example.com/preview.png', 'background');
     });
   });
+
+  describe('Input Validation', () => {
+    it('should reject invalid arguments for generate_background', async () => {
+      const toolCall: ToolCall = {
+        name: 'generate_background',
+        args: {
+          prompt: 123, // Invalid type, should be string
+        } as any,
+      };
+
+      const result = await executor.executeToolCall(toolCall);
+
+      expect(result.success).toBe(false);
+      expect(result.error).toContain('Invalid arguments');
+    });
+
+    it('should reject missing required arguments', async () => {
+      const toolCall: ToolCall = {
+        name: 'generate_background',
+        args: {}, // Missing prompt
+      };
+
+      const result = await executor.executeToolCall(toolCall);
+
+      expect(result.success).toBe(false);
+      expect(result.error).toContain('Invalid arguments');
+    });
+
+    it('should reject invalid arguments for compare_images', async () => {
+      const toolCall: ToolCall = {
+        name: 'compare_images',
+        args: {
+          // Missing reference_image
+          target_image: 'https://example.com/target.png',
+        },
+      };
+
+      const result = await executor.executeToolCall(toolCall);
+
+      expect(result.success).toBe(false);
+      expect(result.error).toContain('Invalid arguments');
+    });
+  });
 });

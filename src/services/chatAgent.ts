@@ -292,7 +292,13 @@ export class ChatAgent {
 
         for (const toolCall of assistantMessage.tool_calls) {
           try {
-            const args = JSON.parse(toolCall.function.arguments);
+            let args: Record<string, unknown> = {};
+            try {
+              args = JSON.parse(toolCall.function.arguments);
+            } catch (jsonError) {
+              console.error('[ChatAgent] Failed to parse tool arguments:', jsonError);
+              throw new Error(`Invalid arguments for tool ${toolCall.function.name}`);
+            }
             console.log('[ChatAgent] Executing tool:', toolCall.function.name, args);
 
             const result = await this.onToolCall(toolCall.function.name, args);

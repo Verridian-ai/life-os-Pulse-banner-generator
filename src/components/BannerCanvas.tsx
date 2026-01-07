@@ -18,6 +18,10 @@ interface BannerCanvasProps {
   onSelectElement: (id: string | null) => void;
   onProfileFaceEnhance?: () => Promise<void>;
   onProfileRemoveBg?: () => Promise<void>;
+  // Dynamic canvas dimensions (defaults to LinkedIn banner)
+  canvasWidth?: number;
+  canvasHeight?: number;
+  zoom?: number;
 }
 
 const HANDLE_SIZE = 20; // Increased from 10 to 20 for better touch interaction
@@ -69,6 +73,9 @@ const BannerCanvasComponent = forwardRef<BannerCanvasHandle, BannerCanvasProps>(
       onSelectElement,
       onProfileFaceEnhance,
       onProfileRemoveBg,
+      canvasWidth = BANNER_WIDTH,
+      canvasHeight = BANNER_HEIGHT,
+      zoom = 1,
     },
     ref,
   ) => {
@@ -111,11 +118,11 @@ const BannerCanvasComponent = forwardRef<BannerCanvasHandle, BannerCanvasProps>(
       includeHandles: boolean,
     ) => {
       // Clear
-      ctx.clearRect(0, 0, BANNER_WIDTH, BANNER_HEIGHT);
+      ctx.clearRect(0, 0, canvasWidth, canvasHeight);
 
       // Draw Background
       ctx.fillStyle = backgroundImage ? '#f3f4f6' : '#0073b1';
-      ctx.fillRect(0, 0, BANNER_WIDTH, BANNER_HEIGHT);
+      ctx.fillRect(0, 0, canvasWidth, canvasHeight);
 
       const drawContent = () => {
         drawElementsAndOverlays(ctx, includeSafeZones, includeHandles);
@@ -124,11 +131,11 @@ const BannerCanvasComponent = forwardRef<BannerCanvasHandle, BannerCanvasProps>(
       if (backgroundImage) {
         const img = getCachedImage(backgroundImage);
         if (img.complete) {
-          drawImageProp(ctx, img, 0, 0, BANNER_WIDTH, BANNER_HEIGHT);
+          drawImageProp(ctx, img, 0, 0, canvasWidth, canvasHeight);
           drawContent();
         } else {
           // Note: For async export this might be tricky, but usually images are pre-loaded in browser cache by the time user clicks download
-          drawImageProp(ctx, img, 0, 0, BANNER_WIDTH, BANNER_HEIGHT);
+          drawImageProp(ctx, img, 0, 0, canvasWidth, canvasHeight);
           drawContent();
         }
       } else {
@@ -459,19 +466,19 @@ const BannerCanvasComponent = forwardRef<BannerCanvasHandle, BannerCanvasProps>(
       // Horizontal at 132 - The "Safe Zone" line
       ctx.beginPath();
       ctx.moveTo(0, T_MARGIN);
-      ctx.lineTo(BANNER_WIDTH, T_MARGIN);
+      ctx.lineTo(canvasWidth, T_MARGIN);
       ctx.stroke();
 
       // Vertical at 44
       ctx.beginPath();
       ctx.moveTo(L_MARGIN, 0);
-      ctx.lineTo(L_MARGIN, BANNER_HEIGHT);
+      ctx.lineTo(L_MARGIN, canvasHeight);
       ctx.stroke();
 
       // Vertical at 568 (Right edge of profile zone)
       ctx.beginPath();
       ctx.moveTo(R_GUIDE, 0);
-      ctx.lineTo(R_GUIDE, BANNER_HEIGHT);
+      ctx.lineTo(R_GUIDE, canvasHeight);
       ctx.stroke();
 
       // 2. Labels
@@ -495,9 +502,9 @@ const BannerCanvasComponent = forwardRef<BannerCanvasHandle, BannerCanvasProps>(
         ctx.fillStyle = 'rgba(255, 255, 255, 0.9)';
         ctx.textAlign = 'right';
         ctx.font = '800 56px Inter, sans-serif';
-        ctx.fillText('LIFE OS Profile Cover', BANNER_WIDTH - 80, 200);
+        ctx.fillText('LIFE OS Profile Cover', canvasWidth - 80, 200);
         ctx.font = '700 56px Inter, sans-serif';
-        ctx.fillText('1584 x 396 px', BANNER_WIDTH - 80, 280);
+        ctx.fillText(`${canvasWidth} x ${canvasHeight} px`, canvasWidth - 80, 280);
       }
 
       ctx.restore();
@@ -925,8 +932,8 @@ const BannerCanvasComponent = forwardRef<BannerCanvasHandle, BannerCanvasProps>(
       >
         <canvas
           ref={canvasRef}
-          width={BANNER_WIDTH}
-          height={BANNER_HEIGHT}
+          width={canvasWidth}
+          height={canvasHeight}
           className={`w-full h-full absolute top-0 left-0 origin-top-left touch-none ${dragState
             ? dragState.mode === 'move' || dragState.mode === 'rotate'
               ? 'cursor-grabbing'

@@ -32,6 +32,10 @@ export type CanvasStateContextType = {
   canvasFormatId: CanvasFormatId;
   setCanvasFormatId: (id: CanvasFormatId) => void;
   canvasFormat: CanvasFormat;
+
+  // Zoom State
+  zoom: number;
+  setZoom: (zoom: number) => void;
 };
 
 // Context
@@ -54,6 +58,7 @@ export function CanvasStateProvider({ children, value: initialValue }: CanvasSta
   const [showSafeZones, setShowSafeZones] = useState(true);
   const [isProcessingImg, setIsProcessingImg] = useState(false);
   const [canvasFormatId, setCanvasFormatId] = useState<CanvasFormatId>(DEFAULT_CANVAS_FORMAT);
+  const [zoom, setZoom] = useState(1.0);
 
   // Derive canvasFormat from canvasFormatId
   const canvasFormat = useMemo(() => CANVAS_FORMATS[canvasFormatId], [canvasFormatId]);
@@ -69,6 +74,8 @@ export function CanvasStateProvider({ children, value: initialValue }: CanvasSta
     canvasFormatId,
     setCanvasFormatId,
     canvasFormat,
+    zoom,
+    setZoom,
     ...initialValue,
   };
 

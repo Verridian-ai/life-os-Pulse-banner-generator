@@ -1,55 +1,62 @@
-/**
- * Simple cache for AI responses to prevent duplicate expensive calls
- * Stores results in localStorage with a TTL
- */
+import { aiCacheStorage } from './storageManager';
+import { calculateSimilarity, standardizeString } from '../utils/stringUtils';
 
-const CACHE_PREFIX = 'nanobanna_ai_cache_';
 const DEFAULT_TTL = 1000 * 60 * 60; // 1 hour
+const SIMILARITY_THRESHOLD = 0.9; // 90% similarity required for cache hit
 
 export const aiCache = {
   get: (key: string): string | null => {
-    try {
-      const cached = localStorage.getItem(CACHE_PREFIX + key);
-      if (!cached) return null;
-      
-      const { value, expiresAt } = JSON.parse(cached);
-      if (Date.now() > expiresAt) {
-        localStorage.removeItem(CACHE_PREFIX + key);
-        return null;
+    return aiCacheStorage.get<string>(key);
+  },
+
+  /**
+   * Fuzzy get - looks for a cached prompt that is very similar to the requested one
+   * @param key The prompt to search for
+   * @returns The cached response if a similar enough prompt is found
+   */
+  getSimilar: (key: string): string | null => {
+    // 1. Check exact match first (fastest)
+    const exact = aiCacheStorage.get<string>(key);
+    if (exact) return exact;
+
+    // 2. Normalize input
+    const normalizedKey = standardizeString(key);
+
+    // 3. Search for similar keys
+    const allKeys = aiCacheStorage.getAllKeys();
+
+    // Find best match
+    let bestMatchKey: string | null = null;
+    let bestScore = 0;
+
+    for (const storedKey of allKeys) {
+      const normalizedStored = standardizeString(storedKey);
+      const score = calculateSimilarity(normalizedKey, normalizedStored);
+
+      if (score > bestScore) {
+        bestScore = score;
+        bestMatchKey = storedKey;
       }
-      
-      return value;
-    } catch {
-      return null;
     }
+
+    if (bestMatchKey && bestScore >= SIMILARITY_THRESHOLD) {
+      console.log(`[AI Cache] Fuzzy hit: "${key}" matched "${bestMatchKey}" (${(bestScore * 100).toFixed(1)}%)`);
+      return aiCacheStorage.get<string>(bestMatchKey);
+    }
+
+    return null;
   },
 
   set: (key: string, value: string, ttl: number = DEFAULT_TTL) => {
-    try {
-      const data = {
-        value,
-        expiresAt: Date.now() + ttl
-      };
-      localStorage.setItem(CACHE_PREFIX + key, JSON.stringify(data));
-    } catch {
-      // If storage is full, clear old cache items
-      aiCache.clearExpired();
-    }
+    aiCacheStorage.set(key, value, ttl);
   },
 
   clearExpired: () => {
-    Object.keys(localStorage).forEach(key => {
-      if (key.startsWith(CACHE_PREFIX)) {
-        try {
-          const cached = localStorage.getItem(key);
-          if (cached) {
-            const { expiresAt } = JSON.parse(cached);
-            if (Date.now() > expiresAt) localStorage.removeItem(key);
-          }
-        } catch {
-          // Ignore errors during cache cleanup
-        }
-      }
-    });
+    aiCacheStorage.clearExpired();
+  },
+
+  clear: () => {
+    aiCacheStorage.clear();
   }
 };
+

@@ -40,4 +40,4 @@ export const BTN_SECONDARY =
   'bg-zinc-800 text-zinc-300 rounded-xl font-bold text-sm uppercase tracking-wide border border-zinc-600 hover:bg-zinc-700 hover:text-white transition';
 
 export const INPUT_NEU =
-  'bg-zinc-900 text-white shadow-[inset_3px_3px_6px_rgba(0,0,0,0.5),inset_-3px_-3px_6px_rgba(255,255,255,0.05)] border border-white/10 rounded-lg focus:outline-none focus:border-blue-500/50 focus:shadow-[0_0_15px_rgba(59,130,246,0.2)]';
+  'bg-zinc-900 text-white shadow-[inset_3px_3px_6px_rgba(0,0,0,0.5),inset_-3px_-3px_6px_rgba(255,255,255,0.05)] border border-white/10 rounded-lg focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/50 focus:shadow-[0_0_15px_rgba(59,130,246,0.2)] transition-all';

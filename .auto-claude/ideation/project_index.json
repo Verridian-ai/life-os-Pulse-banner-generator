@@ -25,10 +25,6 @@
         "services": {
           "path": "services",
           "purpose": "Business logic"
-        },
-        "tests": {
-          "path": "tests",
-          "purpose": "Tests"
         }
       },
       "entry_point": "src/App.tsx",
@@ -40,7 +36,6 @@
         "@types/react-dom",
         "@vitejs/plugin-react",
         "autoprefixer",
-        "lucide-react",
         "postcss",
         "react",
         "react-dom",
@@ -62,7 +57,6 @@
       ],
       "testing": "Vitest",
       "e2e_testing": "Playwright",
-      "test_directory": "tests",
       "dockerfile": "Dockerfile",
       "environment": {
         "variables": {
@@ -106,21 +100,21 @@
             "source": ".env.test",
             "type": "path",
             "sensitive": true,
-            "required": true
+            "required": false
           },
           "VITE_OPENAI_API_KEY": {
             "value": "<REDACTED>",
             "source": ".env.test",
             "type": "path",
             "sensitive": true,
-            "required": true
+            "required": false
           },
           "VITE_REPLICATE_API_KEY": {
             "value": "<REDACTED>",
             "source": ".env.test",
             "type": "path",
             "sensitive": true,
-            "required": true
+            "required": false
           },
           "LANGFUSE_SECRET_KEY": {
             "value": "<REDACTED>",
@@ -155,33 +149,12 @@
             "source": ".env.test",
             "type": "path",
             "sensitive": true,
-            "required": true
-          },
-          "VITE_API_URL": {
-            "value": null,
-            "source": ".env.example",
-            "type": "string",
-            "sensitive": false,
-            "required": true
-          },
-          "VITE_LANGFUSE_URL": {
-            "value": null,
-            "source": ".env.example",
-            "type": "string",
-            "sensitive": false,
-            "required": true
-          },
-          "VITE_LANGFUSE_PUBLIC_KEY": {
-            "value": null,
-            "source": ".env.example",
-            "type": "string",
-            "sensitive": true,
-            "required": true
+            "required": false
           }
         },
-        "required_count": 7,
+        "required_count": 0,
         "optional_count": 0,
-        "detected_count": 16
+        "detected_count": 13
       },
       "api": {
         "routes": [
@@ -316,7 +289,7 @@
             "methods": [
               "GET"
             ],
-            "file": ".auto-claude\\worktrees\\tasks\\030-add-request-deduplication-for-concurrent-api-calls\\server\\src\\index.ts",
+            "file": ".auto-claude\\worktrees\\tasks\\031-prompt-library-history\\server\\src\\index.ts",
             "framework": "Express",
             "requires_auth": false
           },
@@ -325,7 +298,7 @@
             "methods": [
               "GET"
             ],
-            "file": ".auto-claude\\worktrees\\tasks\\030-add-request-deduplication-for-concurrent-api-calls\\server\\src\\index.ts",
+            "file": ".auto-claude\\worktrees\\tasks\\031-prompt-library-history\\server\\src\\index.ts",
             "framework": "Express",
             "requires_auth": false
           },
@@ -334,7 +307,7 @@
             "methods": [
               "GET"
             ],
-            "file": ".auto-claude\\worktrees\\tasks\\029-memoize-keyboard-shortcut-handlers-in-app-tsx\\server\\src\\index.ts",
+            "file": ".auto-claude\\worktrees\\tasks\\025-add-typescript-type-system-documentation\\server\\src\\index.ts",
             "framework": "Express",
             "requires_auth": false
           },
@@ -343,7 +316,7 @@
             "methods": [
               "GET"
             ],
-            "file": ".auto-claude\\worktrees\\tasks\\029-memoize-keyboard-shortcut-handlers-in-app-tsx\\server\\src\\index.ts",
+            "file": ".auto-claude\\worktrees\\tasks\\025-add-typescript-type-system-documentation\\server\\src\\index.ts",
             "framework": "Express",
             "requires_auth": false
           },
@@ -352,7 +325,7 @@
             "methods": [
               "GET"
             ],
-            "file": ".auto-claude\\worktrees\\tasks\\028-cache-image-objects-in-bannercanvas-to-prevent-rel\\server\\src\\index.ts",
+            "file": ".auto-claude\\worktrees\\tasks\\024-document-backend-api-routes-and-request-response-s\\server\\src\\index.ts",
             "framework": "Express",
             "requires_auth": false
           },
@@ -361,7 +334,7 @@
             "methods": [
               "GET"
             ],
-            "file": ".auto-claude\\worktrees\\tasks\\028-cache-image-objects-in-bannercanvas-to-prevent-rel\\server\\src\\index.ts",
+            "file": ".auto-claude\\worktrees\\tasks\\024-document-backend-api-routes-and-request-response-s\\server\\src\\index.ts",
             "framework": "Express",
             "requires_auth": false
           },
@@ -370,7 +343,7 @@
             "methods": [
               "GET"
             ],
-            "file": ".auto-claude\\worktrees\\tasks\\027-virtualize-imagegallery-grid-for-large-collections\\server\\src\\index.ts",
+            "file": ".auto-claude\\worktrees\\tasks\\023-create-agent-system-architecture-readme\\server\\src\\index.ts",
             "framework": "Express",
             "requires_auth": false
           },
@@ -379,7 +352,7 @@
             "methods": [
               "GET"
             ],
-            "file": ".auto-claude\\worktrees\\tasks\\027-virtualize-imagegallery-grid-for-large-collections\\server\\src\\index.ts",
+            "file": ".auto-claude\\worktrees\\tasks\\023-create-agent-system-architecture-readme\\server\\src\\index.ts",
             "framework": "Express",
             "requires_auth": false
           },
@@ -388,7 +361,7 @@
             "methods": [
               "GET"
             ],
-            "file": ".auto-claude\\worktrees\\tasks\\001-split-llm-ts-into-domain-specific-service-modules\\server\\src\\index.ts",
+            "file": ".auto-claude\\worktrees\\tasks\\019-remove-api-key-access-from-localstorage-in-modelse\\server\\src\\index.ts",
             "framework": "Express",
             "requires_auth": false
           },
@@ -397,16 +370,304 @@
             "methods": [
               "GET"
             ],
-            "file": ".auto-claude\\worktrees\\tasks\\001-split-llm-ts-into-domain-specific-service-modules\\server\\src\\index.ts",
+            "file": ".auto-claude\\worktrees\\tasks\\019-remove-api-key-access-from-localstorage-in-modelse\\server\\src\\index.ts",
+            "framework": "Express",
+            "requires_auth": false
+          },
+          {
+            "path": "/health",
+            "methods": [
+              "GET"
+            ],
+            "file": ".auto-claude\\worktrees\\tasks\\018-implement-csrf-protection-for-state-changing-endpo\\server\\src\\index.ts",
+            "framework": "Express",
+            "requires_auth": false
+          },
+          {
+            "path": "*",
+            "methods": [
+              "GET"
+            ],
+            "file": ".auto-claude\\worktrees\\tasks\\018-implement-csrf-protection-for-state-changing-endpo\\server\\src\\index.ts",
+            "framework": "Express",
+            "requires_auth": false
+          },
+          {
+            "path": "/health",
+            "methods": [
+              "GET"
+            ],
+            "file": ".auto-claude\\worktrees\\tasks\\017-hash-password-reset-tokens-before-database-storage\\server\\src\\index.ts",
+            "framework": "Express",
+            "requires_auth": false
+          },
+          {
+            "path": "*",
+            "methods": [
+              "GET"
+            ],
+            "file": ".auto-claude\\worktrees\\tasks\\017-hash-password-reset-tokens-before-database-storage\\server\\src\\index.ts",
+            "framework": "Express",
+            "requires_auth": false
+          },
+          {
+            "path": "/health",
+            "methods": [
+              "GET"
+            ],
+            "file": ".auto-claude\\worktrees\\tasks\\016-upgrade-vulnerable-npm-dependencies-with-known-cve\\server\\src\\index.ts",
+            "framework": "Express",
+            "requires_auth": false
+          },
+          {
+            "path": "*",
+            "methods": [
+              "GET"
+            ],
+            "file": ".auto-claude\\worktrees\\tasks\\016-upgrade-vulnerable-npm-dependencies-with-known-cve\\server\\src\\index.ts",
+            "framework": "Express",
+            "requires_auth": false
+          },
+          {
+            "path": "/health",
+            "methods": [
+              "GET"
+            ],
+            "file": ".auto-claude\\worktrees\\tasks\\015-improve-voice-agent-connection-feedback\\server\\src\\index.ts",
+            "framework": "Express",
+            "requires_auth": false
+          },
+          {
+            "path": "*",
+            "methods": [
+              "GET"
+            ],
+            "file": ".auto-claude\\worktrees\\tasks\\015-improve-voice-agent-connection-feedback\\server\\src\\index.ts",
+            "framework": "Express",
+            "requires_auth": false
+          },
+          {
+            "path": "/health",
+            "methods": [
+              "GET"
+            ],
+            "file": ".auto-claude\\worktrees\\tasks\\013-add-keyboard-navigation-to-profile-dropdown-menu\\server\\src\\index.ts",
+            "framework": "Express",
+            "requires_auth": false
+          },
+          {
+            "path": "*",
+            "methods": [
+              "GET"
+            ],
+            "file": ".auto-claude\\worktrees\\tasks\\013-add-keyboard-navigation-to-profile-dropdown-menu\\server\\src\\index.ts",
+            "framework": "Express",
+            "requires_auth": false
+          },
+          {
+            "path": "/health",
+            "methods": [
+              "GET"
+            ],
+            "file": ".auto-claude\\worktrees\\tasks\\012-replace-bouncing-notification-with-smooth-toast\\server\\src\\index.ts",
+            "framework": "Express",
+            "requires_auth": false
+          },
+          {
+            "path": "*",
+            "methods": [
+              "GET"
+            ],
+            "file": ".auto-claude\\worktrees\\tasks\\012-replace-bouncing-notification-with-smooth-toast\\server\\src\\index.ts",
+            "framework": "Express",
+            "requires_auth": false
+          },
+          {
+            "path": "/health",
+            "methods": [
+              "GET"
+            ],
+            "file": ".auto-claude\\worktrees\\tasks\\011-add-modal-accessibility-with-focus-trap\\server\\src\\index.ts",
+            "framework": "Express",
+            "requires_auth": false
+          },
+          {
+            "path": "*",
+            "methods": [
+              "GET"
+            ],
+            "file": ".auto-claude\\worktrees\\tasks\\011-add-modal-accessibility-with-focus-trap\\server\\src\\index.ts",
+            "framework": "Express",
+            "requires_auth": false
+          },
+          {
+            "path": "/health",
+            "methods": [
+              "GET"
+            ],
+            "file": ".auto-claude\\worktrees\\tasks\\010-add-agent-task-routing-suggestions\\server\\src\\index.ts",
+            "framework": "Express",
+            "requires_auth": false
+          },
+          {
+            "path": "*",
+            "methods": [
+              "GET"
+            ],
+            "file": ".auto-claude\\worktrees\\tasks\\010-add-agent-task-routing-suggestions\\server\\src\\index.ts",
+            "framework": "Express",
+            "requires_auth": false
+          },
+          {
+            "path": "/health",
+            "methods": [
+              "GET"
+            ],
+            "file": ".auto-claude\\worktrees\\tasks\\009-add-error-rate-tracking-to-error-handler\\server\\src\\index.ts",
+            "framework": "Express",
+            "requires_auth": false
+          },
+          {
+            "path": "*",
+            "methods": [
+              "GET"
+            ],
+            "file": ".auto-claude\\worktrees\\tasks\\009-add-error-rate-tracking-to-error-handler\\server\\src\\index.ts",
+            "framework": "Express",
+            "requires_auth": false
+          },
+          {
+            "path": "/health",
+            "methods": [
+              "GET"
+            ],
+            "file": ".auto-claude\\worktrees\\tasks\\008-add-model-usage-analytics-hook-and-display\\server\\src\\index.ts",
+            "framework": "Express",
+            "requires_auth": false
+          },
+          {
+            "path": "*",
+            "methods": [
+              "GET"
+            ],
+            "file": ".auto-claude\\worktrees\\tasks\\008-add-model-usage-analytics-hook-and-display\\server\\src\\index.ts",
+            "framework": "Express",
+            "requires_auth": false
+          },
+          {
+            "path": "/health",
+            "methods": [
+              "GET"
+            ],
+            "file": ".auto-claude\\worktrees\\tasks\\007-extend-keyboard-shortcuts-for-canvas-operations\\server\\src\\index.ts",
+            "framework": "Express",
+            "requires_auth": false
+          },
+          {
+            "path": "*",
+            "methods": [
+              "GET"
+            ],
+            "file": ".auto-claude\\worktrees\\tasks\\007-extend-keyboard-shortcuts-for-canvas-operations\\server\\src\\index.ts",
+            "framework": "Express",
+            "requires_auth": false
+          },
+          {
+            "path": "/health",
+            "methods": [
+              "GET"
+            ],
+            "file": ".auto-claude\\worktrees\\tasks\\006-extend-export-panel-to-multiple-image-formats\\server\\src\\index.ts",
+            "framework": "Express",
+            "requires_auth": false
+          },
+          {
+            "path": "*",
+            "methods": [
+              "GET"
+            ],
+            "file": ".auto-claude\\worktrees\\tasks\\006-extend-export-panel-to-multiple-image-formats\\server\\src\\index.ts",
+            "framework": "Express",
+            "requires_auth": false
+          },
+          {
+            "path": "/health",
+            "methods": [
+              "GET"
+            ],
+            "file": ".auto-claude\\worktrees\\tasks\\005-add-missing-test-coverage-for-critical-service-mod\\server\\src\\index.ts",
+            "framework": "Express",
+            "requires_auth": false
+          },
+          {
+            "path": "*",
+            "methods": [
+              "GET"
+            ],
+            "file": ".auto-claude\\worktrees\\tasks\\005-add-missing-test-coverage-for-critical-service-mod\\server\\src\\index.ts",
+            "framework": "Express",
+            "requires_auth": false
+          },
+          {
+            "path": "/health",
+            "methods": [
+              "GET"
+            ],
+            "file": ".auto-claude\\worktrees\\tasks\\004-extract-reusable-urltodatauri-helper-to-shared-uti\\server\\src\\index.ts",
+            "framework": "Express",
+            "requires_auth": false
+          },
+          {
+            "path": "*",
+            "methods": [
+              "GET"
+            ],
+            "file": ".auto-claude\\worktrees\\tasks\\004-extract-reusable-urltodatauri-helper-to-shared-uti\\server\\src\\index.ts",
+            "framework": "Express",
+            "requires_auth": false
+          },
+          {
+            "path": "/health",
+            "methods": [
+              "GET"
+            ],
+            "file": ".auto-claude\\worktrees\\tasks\\003-extract-chatinterface-tsx-into-smaller-focused-com\\server\\src\\index.ts",
+            "framework": "Express",
+            "requires_auth": false
+          },
+          {
+            "path": "*",
+            "methods": [
+              "GET"
+            ],
+            "file": ".auto-claude\\worktrees\\tasks\\003-extract-chatinterface-tsx-into-smaller-focused-com\\server\\src\\index.ts",
+            "framework": "Express",
+            "requires_auth": false
+          },
+          {
+            "path": "/health",
+            "methods": [
+              "GET"
+            ],
+            "file": ".auto-claude\\worktrees\\tasks\\002-refactor-actionexecutor-ts-giant-switch-statement-\\server\\src\\index.ts",
+            "framework": "Express",
+            "requires_auth": false
+          },
+          {
+            "path": "*",
+            "methods": [
+              "GET"
+            ],
+            "file": ".auto-claude\\worktrees\\tasks\\002-refactor-actionexecutor-ts-giant-switch-statement-\\server\\src\\index.ts",
             "framework": "Express",
             "requires_auth": false
           }
         ],
-        "total_routes": 24,
+        "total_routes": 56,
         "methods": [
-          "DELETE",
           "GET",
           "PUT",
+          "DELETE",
           "POST"
         ],
         "protected_routes": []
@@ -1549,191 +1810,71 @@
           "users": {
             "table": "users",
             "fields": {},
-            "file": ".auto-claude\\worktrees\\tasks\\001-split-llm-ts-into-domain-specific-service-modules\\server\\src\\db\\schema.ts",
+            "file": ".auto-claude\\worktrees\\tasks\\002-refactor-actionexecutor-ts-giant-switch-statement-\\server\\src\\db\\schema.ts",
             "orm": "Drizzle"
           },
           "sessions": {
             "table": "sessions",
             "fields": {},
-            "file": ".auto-claude\\worktrees\\tasks\\001-split-llm-ts-into-domain-specific-service-modules\\server\\src\\db\\schema.ts",
+            "file": ".auto-claude\\worktrees\\tasks\\002-refactor-actionexecutor-ts-giant-switch-statement-\\server\\src\\db\\schema.ts",
             "orm": "Drizzle"
           },
           "profiles": {
             "table": "profiles",
             "fields": {},
-            "file": ".auto-claude\\worktrees\\tasks\\001-split-llm-ts-into-domain-specific-service-modules\\server\\src\\db\\schema.ts",
+            "file": ".auto-claude\\worktrees\\tasks\\002-refactor-actionexecutor-ts-giant-switch-statement-\\server\\src\\db\\schema.ts",
             "orm": "Drizzle"
           },
           "userPreferences": {
             "table": "user_preferences",
             "fields": {},
-            "file": ".auto-claude\\worktrees\\tasks\\001-split-llm-ts-into-domain-specific-service-modules\\server\\src\\db\\schema.ts",
+            "file": ".auto-claude\\worktrees\\tasks\\002-refactor-actionexecutor-ts-giant-switch-statement-\\server\\src\\db\\schema.ts",
             "orm": "Drizzle"
           },
           "userApiKeys": {
             "table": "user_api_keys",
             "fields": {},
-            "file": ".auto-claude\\worktrees\\tasks\\001-split-llm-ts-into-domain-specific-service-modules\\server\\src\\db\\schema.ts",
+            "file": ".auto-claude\\worktrees\\tasks\\002-refactor-actionexecutor-ts-giant-switch-statement-\\server\\src\\db\\schema.ts",
             "orm": "Drizzle"
           },
           "chatConversations": {
             "table": "chat_conversations",
             "fields": {},
-            "file": ".auto-claude\\worktrees\\tasks\\001-split-llm-ts-into-domain-specific-service-modules\\server\\src\\db\\schema.ts",
+            "file": ".auto-claude\\worktrees\\tasks\\002-refactor-actionexecutor-ts-giant-switch-statement-\\server\\src\\db\\schema.ts",
             "orm": "Drizzle"
           },
           "chatMessages": {
             "table": "chat_messages",
             "fields": {},
-            "file": ".auto-claude\\worktrees\\tasks\\001-split-llm-ts-into-domain-specific-service-modules\\server\\src\\db\\schema.ts",
+            "file": ".auto-claude\\worktrees\\tasks\\002-refactor-actionexecutor-ts-giant-switch-statement-\\server\\src\\db\\schema.ts",
             "orm": "Drizzle"
           },
           "voiceTranscripts": {
             "table": "voice_transcripts",
             "fields": {},
-            "file": ".auto-claude\\worktrees\\tasks\\001-split-llm-ts-into-domain-specific-service-modules\\server\\src\\db\\schema.ts",
+            "file": ".auto-claude\\worktrees\\tasks\\002-refactor-actionexecutor-ts-giant-switch-statement-\\server\\src\\db\\schema.ts",
             "orm": "Drizzle"
           },
           "images": {
             "table": "images",
             "fields": {},
-            "file": ".auto-claude\\worktrees\\tasks\\001-split-llm-ts-into-domain-specific-service-modules\\server\\src\\db\\schema.ts",
-            "orm": "Drizzle"
-          },
-          "designs": {
-            "table": "designs",
-            "fields": {},
-            "file": "server\\src\\db\\schema.ts",
+            "file": ".auto-claude\\worktrees\\tasks\\002-refactor-actionexecutor-ts-giant-switch-statement-\\server\\src\\db\\schema.ts",
             "orm": "Drizzle"
           },
           "emailVerificationTokens": {
             "table": "email_verification_tokens",
             "fields": {},
-            "file": ".auto-claude\\worktrees\\tasks\\001-split-llm-ts-into-domain-specific-service-modules\\server\\src\\db\\schema.ts",
+            "file": ".auto-claude\\worktrees\\tasks\\002-refactor-actionexecutor-ts-giant-switch-statement-\\server\\src\\db\\schema.ts",
             "orm": "Drizzle"
           },
           "passwordResetTokens": {
             "table": "password_reset_tokens",
             "fields": {},
-            "file": ".auto-claude\\worktrees\\tasks\\001-split-llm-ts-into-domain-specific-service-modules\\server\\src\\db\\schema.ts",
-            "orm": "Drizzle"
-          },
-          "llmTraces": {
-            "table": "llm_traces",
-            "fields": {},
-            "file": "server\\src\\db\\schema.ts",
-            "orm": "Drizzle"
-          },
-          "apiMetrics": {
-            "table": "api_metrics",
-            "fields": {},
-            "file": "server\\src\\db\\schema.ts",
-            "orm": "Drizzle"
-          },
-          "dailyStats": {
-            "table": "daily_stats",
-            "fields": {},
-            "file": "server\\src\\db\\schema.ts",
-            "orm": "Drizzle"
-          },
-          "adminUsers": {
-            "table": "admin_users",
-            "fields": {},
-            "file": "server\\src\\db\\schema.ts",
-            "orm": "Drizzle"
-          },
-          "adminAuditLog": {
-            "table": "admin_audit_log",
-            "fields": {},
-            "file": "server\\src\\db\\schema.ts",
-            "orm": "Drizzle"
-          },
-          "adminRateLimits": {
-            "table": "admin_rate_limits",
-            "fields": {},
-            "file": "server\\src\\db\\schema.ts",
-            "orm": "Drizzle"
-          },
-          "errorLogs": {
-            "table": "error_logs",
-            "fields": {},
-            "file": "server\\src\\db\\schema.ts",
-            "orm": "Drizzle"
-          },
-          "requestLogs": {
-            "table": "request_logs",
-            "fields": {},
-            "file": "server\\src\\db\\schema.ts",
-            "orm": "Drizzle"
-          },
-          "agentConfigs": {
-            "table": "agent_configs",
-            "fields": {},
-            "file": "server\\src\\db\\schema.ts",
-            "orm": "Drizzle"
-          },
-          "agentSkills": {
-            "table": "agent_skills",
-            "fields": {},
-            "file": "server\\src\\db\\schema.ts",
-            "orm": "Drizzle"
-          },
-          "agentContextDocs": {
-            "table": "agent_context_docs",
-            "fields": {},
-            "file": "server\\src\\db\\schema.ts",
-            "orm": "Drizzle"
-          },
-          "agentMcpConnections": {
-            "table": "agent_mcp_connections",
-            "fields": {},
-            "file": "server\\src\\db\\schema.ts",
-            "orm": "Drizzle"
-          },
-          "agentAuditLogs": {
-            "table": "agent_audit_logs",
-            "fields": {},
-            "file": "server\\src\\db\\schema.ts",
-            "orm": "Drizzle"
-          },
-          "agentRuntimeState": {
-            "table": "agent_runtime_state",
-            "fields": {},
-            "file": "server\\src\\db\\schema.ts",
-            "orm": "Drizzle"
-          },
-          "agentMemories": {
-            "table": "agent_memories",
-            "fields": {},
-            "file": "server\\src\\db\\schema.ts",
-            "orm": "Drizzle"
-          },
-          "creditTiers": {
-            "table": "credit_tiers",
-            "fields": {},
-            "file": "server\\src\\db\\schema.ts",
-            "orm": "Drizzle"
-          },
-          "userCreditAccounts": {
-            "table": "user_credit_accounts",
-            "fields": {},
-            "file": "server\\src\\db\\schema.ts",
-            "orm": "Drizzle"
-          },
-          "creditTransactions": {
-            "table": "credit_transactions",
-            "fields": {},
-            "file": "server\\src\\db\\schema.ts",
-            "orm": "Drizzle"
-          },
-          "tierFeatureLimits": {
-            "table": "tier_feature_limits",
-            "fields": {},
-            "file": "server\\src\\db\\schema.ts",
+            "file": ".auto-claude\\worktrees\\tasks\\002-refactor-actionexecutor-ts-giant-switch-statement-\\server\\src\\db\\schema.ts",
             "orm": "Drizzle"
           }
         },
-        "total_models": 60,
+        "total_models": 40,
         "model_names": [
           "ACL",
           "DatasetDatabase",
@@ -1773,34 +1914,30 @@
           "chatMessages",
           "voiceTranscripts",
           "images",
-          "designs",
           "emailVerificationTokens",
-          "passwordResetTokens",
-          "llmTraces",
-          "apiMetrics",
-          "dailyStats",
-          "adminUsers",
-          "adminAuditLog",
-          "adminRateLimits",
-          "errorLogs",
-          "requestLogs",
-          "agentConfigs",
-          "agentSkills",
-          "agentContextDocs",
-          "agentMcpConnections",
-          "agentAuditLogs",
-          "agentRuntimeState",
-          "agentMemories",
-          "creditTiers",
-          "userCreditAccounts",
-          "creditTransactions",
-          "tierFeatureLimits"
+          "passwordResetTokens"
         ]
       },
       "monitoring": {
         "health_checks": [
           "/health",
           "/health/detailed",
+          "/health",
+          "/health",
+          "/health",
+          "/health",
+          "/health",
+          "/health",
+          "/health",
+          "/health",
+          "/health",
+          "/health",
+          "/health",
+          "/health",
+          "/health",
+          "/health",
+          "/health",
+          "/health",
           "/health",
           "/health",
           "/health",

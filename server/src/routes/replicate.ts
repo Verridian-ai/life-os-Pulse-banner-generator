@@ -6,7 +6,11 @@ import { db } from '../db';
 import { userApiKeys } from '../db/schema';
 import { eq } from 'drizzle-orm';
 
-export const replicateRouter = new Hono();
+type Variables = {
+    user: { id: string } | null;
+};
+
+export const replicateRouter = new Hono<{ Variables: Variables }>();
 
 // Helper to fetch user's API keys from database
 // SECURITY: Keys are stored server-side only, never exposed to client
@@ -271,7 +275,7 @@ replicateRouter.post('/restore', authMiddleware, async (c) => {
 
 // 7. Magic Edit
 replicateRouter.post('/magic-edit', authMiddleware, async (c) => {
-    const { image, prompt } = await c.req.json();
+    const { image, prompt, model } = await c.req.json();
 
     // SECURITY: Fetch API key from database, not from request body
     const user = c.get('user');
@@ -338,8 +342,7 @@ replicateRouter.post('/generate-layer', authMiddleware, async (c) => {
             () => callReplicate(replicateKey, modelToUse, {
                 prompt: `${prompt}, isolated on white background, high quality, vector style, flat design`,
                 width: width || 1024,
-                height: height || 1024,
-                disable_safety_checker: true
+                height: height || 1024
             })
         );
 

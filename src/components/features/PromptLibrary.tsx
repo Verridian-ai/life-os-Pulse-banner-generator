@@ -1,17 +1,7 @@
-import React, { useState, useEffect, useCallback } from 'react';
-import { api } from '../../services/api';
+import React, { useState, useMemo } from 'react';
 import { INPUT_NEU } from '../../styles';
 import { useToast } from '../../hooks/useToast';
-
-interface PromptData {
-  id: string;
-  prompt: string;
-  title: string;
-  category: string;
-  tags: string[];
-  isFavorite: boolean;
-  createdAt: string;
-}
+import { usePromptHistory } from '../../hooks/usePromptHistory';
 
 interface PromptLibraryProps {
   onSelect: (prompt: string) => void;
@@ -19,66 +9,61 @@ interface PromptLibraryProps {
 }
 
 export const PromptLibrary: React.FC<PromptLibraryProps> = ({ onSelect, onClose }) => {
-  const [prompts, setPrompts] = useState<PromptData[]>([]);
-  const [loading, setLoading] = useState(true);
+  const { history, toggleFavorite, deletePrompt } = usePromptHistory();
   const [searchQuery, setSearchQuery] = useState('');
-  const [activeCategory, setActiveService] = useState('all');
+  const [activeCategory, setActiveCategory] = useState('All');
   const toast = useToast();
 
-  const loadPrompts = useCallback(async () => {
-    setLoading(true);
-    try {
-      const params = new URLSearchParams();
-      if (searchQuery) params.append('search', searchQuery);
-      if (activeCategory !== 'all') params.append('category', activeCategory);
-      
-      const response = await api.get<{ prompts: PromptData[] }>(`/api/prompts?${params.toString()}`);
-      setPrompts(response?.prompts || []);
-    } catch (error) {
-      console.error('[PromptLibrary] Failed to load:', error);
-      toast.error('Failed to load prompt library');
-    } finally {
-      setLoading(false);
-    }
-  }, [searchQuery, activeCategory, toast]);
+  const categories = ['All', 'Favorites', 'Recent', 'Most Used'];
 
-  useEffect(() => {
-    loadPrompts();
-  }, [loadPrompts]);
+  const displayedPrompts = useMemo(() => {
+    let result = [...history];
 
-  const handleToggleFavorite = async (id: string) => {
-    try {
-      const response = await api.post<{ success: boolean; isFavorite: boolean }>(`/api/prompts/${id}/toggle-favorite`, {});
-      if (response.success) {
-        setPrompts(prev => prev.map(p => p.id === id ? { ...p, isFavorite: response.isFavorite } : p));
-      }
-    } catch {
-      // Ignore error
+    // 1. Filter by Category/Tab
+    if (activeCategory === 'Favorites') {
+      result = result.filter(p => p.isFavorite);
+      result.sort((a, b) => b.lastUsedAt - a.lastUsedAt);
+    } else if (activeCategory === 'Recent') {
+      result.sort((a, b) => b.lastUsedAt - a.lastUsedAt);
+    } else if (activeCategory === 'Most Used') {
+      result.sort((a, b) => b.useCount - a.useCount);
+    } else {
+      // All - default sort by recent
+      result.sort((a, b) => b.lastUsedAt - a.lastUsedAt);
     }
+
+    // 2. Filter by Search
+    if (searchQuery) {
+      const q = searchQuery.toLowerCase();
+      result = result.filter(p =>
+        p.prompt.toLowerCase().includes(q) ||
+        p.title?.toLowerCase().includes(q) ||
+        p.tags.some(t => t.toLowerCase().includes(q))
+      );
+    }
+
+    return result;
+  }, [history, activeCategory, searchQuery]);
+
+  const handleDelete = (id: string, e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (!globalThis.confirm('Delete this prompt from history?')) return;
+    deletePrompt(id);
+    toast.info('Prompt deleted');
   };
 
-  const handleDelete = async (id: string) => {
-    if (!confirm('Delete this prompt?')) return;
-    try {
-      const response = await api.delete<{ success: boolean }>(`/api/prompts/${id}`);
-      if (response.success) {
-        setPrompts(prev => prev.filter(p => p.id !== id));
-        toast.info('Prompt deleted');
-      }
-    } catch {
-      toast.error('Failed to delete prompt');
-    }
+  const handleToggleFavorite = (id: string, e: React.MouseEvent) => {
+    e.stopPropagation();
+    toggleFavorite(id);
   };
-
-  const categories = ['all', 'general', 'background', 'abstract', 'corporate'];
 
   return (
     <div className='flex flex-col h-full bg-zinc-900 border border-white/10 rounded-2xl overflow-hidden'>
       {/* Header */}
       <div className='p-4 border-b border-white/5 flex items-center justify-between bg-zinc-950/50'>
         <h3 className='text-xs font-black uppercase tracking-wider text-white flex items-center gap-2'>
-          <span className='material-icons text-sm text-purple-500'>Auto_awesome</span>
-          Prompt Library
+          <span className='material-icons text-sm text-purple-500'>history</span>
+          Prompt History
         </h3>
         {onClose && (
           <button onClick={onClose} className='text-zinc-500 hover:text-white transition'>
@@ -91,20 +76,19 @@ export const PromptLibrary: React.FC<PromptLibraryProps> = ({ onSelect, onClose 
       <div className='p-4 space-y-3'>
         <input
           type='text'
-          placeholder='Search prompts...'
+          placeholder='Search history...'
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
           className={`${INPUT_NEU} w-full h-10 px-3 text-xs`}
         />
-        
+
         <div className='flex gap-2 overflow-x-auto pb-1 scrollbar-hide'>
           {categories.map(cat => (
             <button
               key={cat}
-              onClick={() => setActiveService(cat)}
-              className={`px-3 py-1.5 rounded-full text-[10px] font-bold uppercase tracking-wider whitespace-nowrap transition ${
-                activeCategory === cat ? 'bg-purple-600 text-white' : 'bg-zinc-800 text-zinc-500 hover:text-zinc-300'
-              }`}
+              onClick={() => setActiveCategory(cat)}
+              className={`px-3 py-1.5 rounded-full text-[10px] font-bold uppercase tracking-wider whitespace-nowrap transition ${activeCategory === cat ? 'bg-purple-600 text-white' : 'bg-zinc-800 text-zinc-500 hover:text-zinc-300'
+                }`}
             >
               {cat}
             </button>
@@ -114,33 +98,45 @@ export const PromptLibrary: React.FC<PromptLibraryProps> = ({ onSelect, onClose 
 
       {/* Prompt List */}
       <div className='flex-1 overflow-y-auto p-4 space-y-3'>
-        {loading ? (
-          <div className='flex justify-center py-10'>
-            <div className='animate-spin rounded-full h-6 w-6 border-b-2 border-purple-500'></div>
-          </div>
-        ) : prompts.length === 0 ? (
-          <div className='text-center py-10'>
-            <p className='text-xs text-zinc-600'>No prompts found</p>
+        {displayedPrompts.length === 0 ? (
+          <div className='flex flex-col items-center justify-center py-10 gap-3'>
+            <span className='material-icons text-4xl text-zinc-700'>history_toggle_off</span>
+            <p className='text-xs text-zinc-500'>No history found</p>
+            {(searchQuery || activeCategory !== 'All') && (
+              <button
+                onClick={() => {
+                  setSearchQuery('');
+                  setActiveCategory('All');
+                }}
+                className='text-[10px] text-purple-400 hover:text-purple-300 font-bold uppercase tracking-wider'
+              >
+                Clear Filters
+              </button>
+            )}
           </div>
         ) : (
-          prompts.map(prompt => (
-            <div 
+          displayedPrompts.map(prompt => (
+            <div
               key={prompt.id}
               className='group bg-zinc-950/50 border border-white/5 hover:border-purple-500/30 rounded-xl p-3 transition-all cursor-pointer'
               onClick={() => onSelect(prompt.prompt)}
             >
               <div className='flex justify-between items-start mb-2'>
-                <h4 className='text-[10px] font-black text-zinc-400 uppercase truncate pr-4'>{prompt.title}</h4>
+                <h4 className='text-[10px] font-black text-zinc-400 uppercase truncate pr-4 max-w-[70%]'>
+                  {prompt.title || prompt.prompt}
+                </h4>
                 <div className='flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity'>
-                  <button 
-                    onClick={(e) => { e.stopPropagation(); handleToggleFavorite(prompt.id); }}
+                  <button
+                    onClick={(e) => handleToggleFavorite(prompt.id, e)}
                     className={`text-sm material-icons ${prompt.isFavorite ? 'text-pink-500' : 'text-zinc-600 hover:text-pink-400'}`}
+                    title="Toggle Favorite"
                   >
                     {prompt.isFavorite ? 'favorite' : 'favorite_border'}
                   </button>
-                  <button 
-                    onClick={(e) => { e.stopPropagation(); handleDelete(prompt.id); }}
+                  <button
+                    onClick={(e) => handleDelete(prompt.id, e)}
                     className='text-sm material-icons text-zinc-600 hover:text-red-400'
+                    title="Delete"
                   >
                     delete
                   </button>
@@ -148,10 +144,22 @@ export const PromptLibrary: React.FC<PromptLibraryProps> = ({ onSelect, onClose 
               </div>
               <p className='text-[11px] text-zinc-300 line-clamp-2 leading-relaxed italic'>"{prompt.prompt}"</p>
               <div className='mt-2 flex items-center justify-between'>
-                <span className='text-[8px] text-zinc-600 font-bold uppercase'>{new Date(prompt.createdAt).toLocaleDateString()}</span>
-                <span className='px-1.5 py-0.5 bg-purple-900/20 rounded text-[8px] text-purple-400 font-bold uppercase border border-purple-500/10'>
-                  {prompt.category}
+                <span className='text-[8px] text-zinc-600 font-bold uppercase'>
+                  {new Date(prompt.lastUsedAt).toLocaleDateString()}
                 </span>
+
+                <div className="flex items-center gap-2">
+                  {prompt.useCount > 1 && (
+                    <span className='px-1.5 py-0.5 bg-zinc-800 rounded text-[8px] text-zinc-400 font-bold uppercase border border-white/5'>
+                      Used {prompt.useCount}x
+                    </span>
+                  )}
+                  {prompt.category !== 'general' && (
+                    <span className='px-1.5 py-0.5 bg-purple-900/20 rounded text-[8px] text-purple-400 font-bold uppercase border border-purple-500/10'>
+                      {prompt.category}
+                    </span>
+                  )}
+                </div>
               </div>
             </div>
           ))

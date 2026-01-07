@@ -26,6 +26,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onSuccess
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
+  const [showPassword, setShowPassword] = useState(false);
 
   // Use Focus Trap
   const modalRef = useFocusTrap(isOpen, onClose);
@@ -154,13 +155,13 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onSuccess
   if (!isOpen) return null;
 
   return (
-    <div 
+    <div
       className='fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4'
       role="dialog"
       aria-modal="true"
       aria-labelledby="auth-modal-title"
     >
-      <div 
+      <div
         ref={modalRef}
         className='bg-zinc-900 border border-white/10 rounded-3xl p-8 w-full max-w-md shadow-2xl relative max-h-[90vh] overflow-y-auto'
       >
@@ -173,7 +174,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onSuccess
         </button>
 
         <div className='text-center mb-8'>
-          <h2 
+          <h2
             id="auth-modal-title"
             className='text-2xl font-black text-white uppercase tracking-wider mb-2'
           >
@@ -201,11 +202,10 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onSuccess
                 setError(null);
                 setSuccessMessage(null);
               }}
-              className={`flex-1 py-2 rounded-lg text-xs font-bold uppercase tracking-wider transition ${
-                mode === 'signin'
-                  ? 'bg-zinc-800 text-white shadow-md'
-                  : 'text-zinc-500 hover:text-zinc-300'
-              }`}
+              className={`flex-1 py-2 rounded-lg text-xs font-bold uppercase tracking-wider transition ${mode === 'signin'
+                ? 'bg-zinc-800 text-white shadow-md'
+                : 'text-zinc-500 hover:text-zinc-300'
+                }`}
             >
               Sign In
             </button>
@@ -215,11 +215,10 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onSuccess
                 setError(null);
                 setSuccessMessage(null);
               }}
-              className={`flex-1 py-2 rounded-lg text-xs font-bold uppercase tracking-wider transition ${
-                mode === 'signup'
-                  ? 'bg-zinc-800 text-white shadow-md'
-                  : 'text-zinc-500 hover:text-zinc-300'
-              }`}
+              className={`flex-1 py-2 rounded-lg text-xs font-bold uppercase tracking-wider transition ${mode === 'signup'
+                ? 'bg-zinc-800 text-white shadow-md'
+                : 'text-zinc-500 hover:text-zinc-300'
+                }`}
             >
               Sign Up
             </button>
@@ -255,7 +254,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onSuccess
                   onChange={(e) => setFirstName(e.target.value)}
                   placeholder='John'
                   required
-                  className='w-full bg-zinc-950 border border-white/10 rounded-xl px-4 py-3 text-white text-sm focus:outline-none focus:border-purple-500/50 transition placeholder-zinc-700'
+                  className='w-full bg-zinc-950 border border-white/10 rounded-xl px-4 py-3 text-white text-sm focus:outline-none focus:border-purple-500 focus:ring-2 focus:ring-purple-500/50 transition placeholder-zinc-700'
                 />
               </div>
 
@@ -269,7 +268,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onSuccess
                   onChange={(e) => setLastName(e.target.value)}
                   placeholder='Doe'
                   required
-                  className='w-full bg-zinc-950 border border-white/10 rounded-xl px-4 py-3 text-white text-sm focus:outline-none focus:border-purple-500/50 transition placeholder-zinc-700'
+                  className='w-full bg-zinc-950 border border-white/10 rounded-xl px-4 py-3 text-white text-sm focus:outline-none focus:border-purple-500 focus:ring-2 focus:ring-purple-500/50 transition placeholder-zinc-700'
                 />
               </div>
 
@@ -289,7 +288,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onSuccess
                     required
                     minLength={3}
                     maxLength={30}
-                    className='w-full bg-zinc-950 border border-white/10 rounded-xl pl-8 pr-12 py-3 text-white text-sm focus:outline-none focus:border-purple-500/50 transition placeholder-zinc-700'
+                    className='w-full bg-zinc-950 border border-white/10 rounded-xl pl-8 pr-12 py-3 text-white text-sm focus:outline-none focus:border-purple-500 focus:ring-2 focus:ring-purple-500/50 transition placeholder-zinc-700'
                   />
                   {/* Loading spinner */}
                   {usernameChecking && (
@@ -334,7 +333,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onSuccess
               onChange={(e) => setEmail(e.target.value)}
               placeholder='you@example.com'
               required
-              className='w-full bg-zinc-950 border border-white/10 rounded-xl px-4 py-3 text-white text-sm focus:outline-none focus:border-purple-500/50 transition placeholder-zinc-700'
+              className='w-full bg-zinc-950 border border-white/10 rounded-xl px-4 py-3 text-white text-sm focus:outline-none focus:border-purple-500 focus:ring-2 focus:ring-purple-500/50 transition placeholder-zinc-700'
             />
           </div>
 
@@ -344,15 +343,27 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onSuccess
               <label className='block text-[10px] font-bold text-zinc-500 uppercase tracking-widest mb-2'>
                 Password
               </label>
-              <input
-                type='password'
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                placeholder='••••••••'
-                required
-                minLength={6}
-                className='w-full bg-zinc-950 border border-white/10 rounded-xl px-4 py-3 text-white text-sm focus:outline-none focus:border-purple-500/50 transition placeholder-zinc-700'
-              />
+              <div className="relative">
+                <input
+                  type={showPassword ? 'text' : 'password'}
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  placeholder='••••••••'
+                  required
+                  minLength={6}
+                  className='w-full bg-zinc-950 border border-white/10 rounded-xl pl-4 pr-12 py-3 text-white text-sm focus:outline-none focus:border-purple-500 focus:ring-2 focus:ring-purple-500/50 transition placeholder-zinc-700'
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute right-4 top-1/2 -translate-y-1/2 text-zinc-500 hover:text-white transition"
+                  aria-label={showPassword ? "Hide password" : "Show password"}
+                >
+                  <span className="material-icons text-lg">
+                    {showPassword ? 'visibility_off' : 'visibility'}
+                  </span>
+                </button>
+              </div>
               {mode === 'signup' && (
                 <p className='text-[9px] text-zinc-600 mt-2'>Minimum 6 characters</p>
               )}

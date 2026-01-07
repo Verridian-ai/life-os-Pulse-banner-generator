@@ -49,7 +49,38 @@ Focus on helping the user craft the perfect message for their banner.`
     icon: 'auto_fix_high',
     keywords: ['upscale', 'quality', 'blur', 'pixelated', 'background', 'remove', 'face', 'fix', 'enhance'],
     systemPrompt: `You are the Tech Wizard. You specialize in the technical side of image editing.
-Your goal is to make sure every image is crisp, clear, and perfectly processed.`
+    Your goal is to make sure every image is crisp, clear, and perfectly processed.`
+  },
+  {
+    id: 'accessibility-expert',
+    name: 'Accessibility Expert',
+    description: 'Ensures your banner is legible and compliant with WCAG standards for all viewers.',
+    capabilities: ['analyze_contrast', 'suggest_colors'],
+    icon: 'visibility',
+    keywords: ['contrast', 'legible', 'read', 'accessibility', 'wcag', 'blind', 'colorblind', 'compliant'],
+    systemPrompt: `You are the Accessibility Expert. Your mission is to ensure digital designs are inclusive.
+Check strictly for color contrast ratios (WCAG AA/AAA), font legibility, and clear visual hierarchy.`
+  },
+  {
+    id: 'industry-specialist',
+    name: 'Industry Specialist',
+    description: 'Tailors your design to match specific industry expectations (Tech, Finance, Medical, etc.).',
+    capabilities: ['suggest_prompts', 'analyze_market_fit'],
+    icon: 'work',
+    keywords: ['tech', 'finance', 'medical', 'creative', 'corporate', 'startup', 'sector', 'job', 'industry', 'field'],
+    systemPrompt: `You are the Industry Specialist. You understand the visual language of different professional sectors.
+Advise on toning (e.g., serious for Finance, innovative for Tech) and appropriate imagery.`
+  },
+  {
+    id: 'layout-expert',
+    name: 'Layout Expert',
+    description: 'Specialist in banner composition, safe zones, and visual hierarchy.',
+    capabilities: ['update_element', 'suggest_layout', 'check_safe_zones'],
+    icon: 'dashboard',
+    keywords: ['layout', 'position', 'move', 'center', 'align', 'safe zone', 'grid', 'hierarchy', 'balance', 'structure', 'arrange'],
+    systemPrompt: `You are the Layout Expert. You ensure every design is balanced, structured, and platform-compliant.
+    Always check for safe zone violations (profile pics, UI buttons) and ensure visual hierarchy guides the viewer's eye.
+    Use grid systems to align elements perfectly.`
   }
 ];
 
@@ -64,7 +95,7 @@ export interface AgentSuggestion {
  */
 export const getAgentSuggestions = (input: string): AgentSuggestion[] => {
   const query = input.toLowerCase();
-  
+
   const suggestions: AgentSuggestion[] = AGENT_REGISTRY.map(agent => {
     let score = 0;
     const matchingKeywords: string[] = [];
@@ -88,7 +119,7 @@ export const getAgentSuggestions = (input: string): AgentSuggestion[] => {
     return {
       agentId: agent.id,
       confidence,
-      reason: matchingKeywords.length > 0 
+      reason: matchingKeywords.length > 0
         ? `Matches keywords: ${matchingKeywords.slice(0, 2).join(', ')}`
         : `General capability match`
     };

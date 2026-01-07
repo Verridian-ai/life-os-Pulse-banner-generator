@@ -393,7 +393,7 @@ const AssetsPanel: React.FC = () => {
               </button>
             </div>
             <div className="flex-1 overflow-y-auto bg-black/20">
-              <ImageGallery embedded onSelect={handleGallerySelect} />
+              <ImageGallery embedded onSelect={handleGallerySelect} onNavigateToStudio={() => setShowGallery(false)} />
             </div>
           </div>
         </div>

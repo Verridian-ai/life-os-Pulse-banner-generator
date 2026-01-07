@@ -16,6 +16,7 @@ import { getUserImages, toggleImageFavorite, deleteImageRecord } from '../../ser
 import { useCanvas } from '../../context/CanvasContext';
 import { BTN_NEU_SOLID } from '../../styles';
 import { ImageCardSkeleton } from '../ui/Skeleton';
+import { ConfirmationModal } from '../ui/ConfirmationModal';
 
 interface ImageData {
   id: string;
@@ -33,9 +34,10 @@ interface ImageData {
 export interface ImageGalleryProps {
   embedded?: boolean;
   onSelect?: (url: string) => void;
+  onNavigateToStudio?: () => void;
 }
 
-const ImageGalleryComponent: React.FC<ImageGalleryProps> = ({ embedded, onSelect }) => {
+const ImageGalleryComponent: React.FC<ImageGalleryProps> = ({ embedded, onSelect, onNavigateToStudio }) => {
   const { setBgImage } = useCanvas();
 
   // State
@@ -49,6 +51,10 @@ const ImageGalleryComponent: React.FC<ImageGalleryProps> = ({ embedded, onSelect
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [showFavoritesOnly, setShowFavoritesOnly] = useState(false);
   const [hoveredImageId, setHoveredImageId] = useState<string | null>(null);
+  const [deleteModal, setDeleteModal] = useState<{ isOpen: boolean; imageId: string | null }>({
+    isOpen: false,
+    imageId: null
+  });
 
   // Load images
   const loadImages = useCallback(async () => {
@@ -102,12 +108,17 @@ const ImageGalleryComponent: React.FC<ImageGalleryProps> = ({ embedded, onSelect
     }
   };
 
-  const handleDelete = async (imageId: string) => {
-    if (!confirm('Are you sure you want to delete this image?')) return;
+  const handleDeleteClick = (imageId: string) => {
+    setDeleteModal({ isOpen: true, imageId });
+  };
+
+  const handleConfirmDelete = async () => {
+    if (!deleteModal.imageId) return;
+
     try {
-      const success = await deleteImageRecord(imageId);
+      const success = await deleteImageRecord(deleteModal.imageId);
       if (success) {
-        setImages((prev) => prev.filter((img) => img.id !== imageId));
+        setImages((prev) => prev.filter((img) => img.id !== deleteModal.imageId));
       }
     } catch (error) {
       console.error('Failed to delete image:', error);
@@ -141,10 +152,13 @@ const ImageGalleryComponent: React.FC<ImageGalleryProps> = ({ embedded, onSelect
     return (
       <div style={style} className="p-2">
         <div
-          className='relative group w-full h-full rounded-xl overflow-hidden bg-zinc-900/50 border border-white/5 hover:border-white/10 transition-all duration-300'
+          className='relative group w-full h-full rounded-xl overflow-hidden bg-zinc-900/50 border border-white/5 hover:border-white/10 active:border-purple-500/50 transition-all duration-300 touch-manipulation tap-highlight-transparent'
           onMouseEnter={() => setHoveredImageId(image.id)}
           onMouseLeave={() => setHoveredImageId(null)}
-          onClick={() => setHoveredImageId(hoveredImageId === image.id ? null : image.id)}
+          onClick={() => {
+            if (window.navigator.vibrate) window.navigator.vibrate(10);
+            setHoveredImageId(hoveredImageId === image.id ? null : image.id)
+          }}
         >
           <div className='w-full h-full bg-zinc-950 relative'>
             <img
@@ -164,15 +178,36 @@ const ImageGalleryComponent: React.FC<ImageGalleryProps> = ({ embedded, onSelect
                 {image.prompt && <p className='text-white text-xs font-medium line-clamp-3'>{image.prompt}</p>}
                 <p className='text-[9px] text-zinc-600 font-bold uppercase tracking-wider'>{formatDate(image.createdAt)}</p>
               </div>
-              
+
               <div className='flex gap-2 mt-3'>
-                <button onClick={(e) => { e.stopPropagation(); handleApplyToCanvas(image.storageUrl); }} className='flex-1 h-10 bg-blue-600 hover:bg-blue-500 text-white rounded-lg flex items-center justify-center'>
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    if (window.navigator.vibrate) window.navigator.vibrate(10);
+                    handleApplyToCanvas(image.storageUrl);
+                  }}
+                  className='flex-1 lg:h-10 min-h-[44px] bg-blue-600 hover:bg-blue-500 active:scale-95 text-white rounded-lg flex items-center justify-center transition-transform touch-manipulation'
+                >
                   <span className='material-icons text-sm'>{onSelect ? 'check' : 'add_photo_alternate'}</span>
                 </button>
-                <button onClick={(e) => { e.stopPropagation(); handleToggleFavorite(image.id); }} className={`h-10 w-10 rounded-lg flex items-center justify-center ${image.isFavorite ? 'bg-pink-600 text-white' : 'bg-zinc-800 text-zinc-400'}`}>
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    if (window.navigator.vibrate) window.navigator.vibrate(10);
+                    handleToggleFavorite(image.id);
+                  }}
+                  className={`lg:h-10 lg:w-10 min-h-[44px] min-w-[44px] rounded-lg flex items-center justify-center active:scale-95 transition-transform touch-manipulation ${image.isFavorite ? 'bg-pink-600 text-white' : 'bg-zinc-800 text-zinc-400'}`}
+                >
                   <span className='material-icons text-sm'>{image.isFavorite ? 'favorite' : 'favorite_border'}</span>
                 </button>
-                <button onClick={(e) => { e.stopPropagation(); handleDelete(image.id); }} className='h-10 w-10 bg-red-600 hover:bg-red-500 text-white rounded-lg flex items-center justify-center'>
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    if (window.navigator.vibrate) window.navigator.vibrate(10);
+                    handleDeleteClick(image.id);
+                  }}
+                  className='lg:h-10 lg:w-10 min-h-[44px] min-w-[44px] bg-red-600 hover:bg-red-500 active:scale-95 text-white rounded-lg flex items-center justify-center transition-transform touch-manipulation'
+                >
                   <span className='material-icons text-sm'>delete</span>
                 </button>
               </div>
@@ -244,6 +279,27 @@ const ImageGalleryComponent: React.FC<ImageGalleryProps> = ({ embedded, onSelect
                   ? 'Try adjusting your filters or search query'
                   : 'Generate your first image to get started'}
               </p>
+
+              {searchQuery || filterType !== 'all' || showFavoritesOnly ? (
+                <button
+                  onClick={() => {
+                    setSearchQuery('');
+                    setFilterType('all');
+                    setShowFavoritesOnly(false);
+                  }}
+                  className={`${BTN_NEU_SOLID} px-6 py-2`}
+                >
+                  Clear Filters
+                </button>
+              ) : onNavigateToStudio ? (
+                <button
+                  onClick={onNavigateToStudio}
+                  className={`${BTN_NEU_SOLID} px-6 py-2 bg-purple-600 hover:bg-purple-500 border-purple-500 text-white shadow-[0_0_20px_rgba(168,85,247,0.3)]`}
+                >
+                  <span className='material-icons text-sm mr-2'>auto_awesome</span>
+                  Create in Studio
+                </button>
+              ) : null}
             </div>
           </div>
         )}
@@ -281,6 +337,16 @@ const ImageGalleryComponent: React.FC<ImageGalleryProps> = ({ embedded, onSelect
           </div>
         )}
       </div>
+
+      <ConfirmationModal
+        isOpen={deleteModal.isOpen}
+        onClose={() => setDeleteModal({ isOpen: false, imageId: null })}
+        onConfirm={handleConfirmDelete}
+        title="Delete Image"
+        message="Are you sure you want to delete this image? This action cannot be undone."
+        confirmText="Delete"
+        isDestructive={true}
+      />
     </div>
   );
 };

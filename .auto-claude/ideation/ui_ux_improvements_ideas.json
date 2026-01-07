@@ -1,96 +1,110 @@
 {
   "ui_ux_improvements": [
     {
-      "id": "uiux-001",
+      "id": "uiux-016",
       "type": "ui_ux_improvements",
-      "title": "Add Modal Accessibility with Focus Trap",
-      "description": "Enhance AuthModal and other modal dialogs with proper ARIA attributes (role='dialog', aria-modal='true', aria-labelledby), focus trapping to keep keyboard focus within the modal, and ESC key dismissal. Currently the AuthModal lacks these critical accessibility features.",
-      "rationale": "Modal dialogs without focus traps allow users to tab out of the modal to background content, creating confusion for keyboard and screen reader users. Proper ARIA attributes ensure assistive technologies announce the modal correctly. This is a WCAG 2.1 Level A requirement.",
-      "category": "accessibility",
-      "affected_components": [
-        "src/components/auth/AuthModal.tsx",
-        "src/components/features/ProfileSettingsModal.tsx",
-        "src/components/features/SettingsModal.tsx",
-        "src/components/features/APIKeyInstructionsModal.tsx"
-      ],
+      "title": "Add Password Visibility Toggle to AuthModal",
+      "description": "Add a show/hide password toggle button to the password input field in the authentication modal, allowing users to verify their password entry before submission.",
+      "rationale": "Password visibility toggles are a standard UX pattern that reduce login friction and prevent errors. Currently users must type passwords blindly, which can lead to typos and failed login attempts especially on mobile devices.",
+      "category": "usability",
+      "affected_components": ["src/components/auth/AuthModal.tsx"],
       "screenshots": [],
-      "current_state": "AuthModal at line 152 opens as a fixed overlay but lacks role='dialog', aria-modal='true', aria-labelledby for the heading. Close button at line 155 lacks aria-label. No focus trap implementation exists - users can tab to background elements. ESC key does not dismiss the modal.",
-      "proposed_change": "1. Add role='dialog' and aria-modal='true' to modal container div. 2. Add unique id to modal heading (e.g., id='auth-modal-title') and reference it with aria-labelledby on the container. 3. Add aria-label='Close dialog' to close button. 4. Implement focus trap using a useEffect hook that captures Tab key events and cycles focus within modal elements. 5. Add keydown listener for ESC key to call onClose. 6. Move initial focus to first focusable element on open. 7. Restore focus to trigger element on close.",
-      "user_benefit": "Keyboard-only users can navigate modals properly without accidentally interacting with background content. Screen reader users hear proper modal announcements. All users can dismiss modals quickly with ESC key.",
+      "current_state": "The password input field uses type='password' (line 348) without any visibility toggle. Users cannot see what they've typed, making it difficult to verify input accuracy. The input has icons for validation states but no visibility toggle.",
+      "proposed_change": "Add showPassword state boolean. Create an eye/eye-off icon button inside the password input field (similar to the username validation indicator pattern at lines 295-311). Toggle between type='password' and type='text' on click. Use Material Icons 'visibility' and 'visibility_off' icons. Position at right-4 with -translate-y-1/2 styling like existing icons.",
+      "user_benefit": "Users can verify their password entry before submission, reducing failed login attempts and frustration, especially on mobile where typing is more error-prone.",
       "status": "draft",
-      "created_at": "2026-01-06T21:45:00.000Z"
+      "created_at": "2026-01-08T04:40:00.000Z"
     },
     {
-      "id": "uiux-002",
+      "id": "uiux-017",
       "type": "ui_ux_improvements",
-      "title": "Replace Bouncing Notification with Smooth Toast",
-      "description": "Replace the current notification toast that uses 'animate-bounce' animation with a more subtle slide-in animation, auto-dismiss timer, and stacking support for multiple notifications. The bounce animation is visually distracting and does not communicate urgency appropriately.",
-      "rationale": "The bounce animation (line 461 in App.tsx) creates visual noise and can be disorienting, especially for users with vestibular disorders. Modern toast notifications use smooth entrance animations and auto-dismiss after a configurable duration. This improves perceived polish and reduces cognitive load.",
-      "category": "visual",
-      "affected_components": [
-        "src/App.tsx"
-      ],
+      "title": "Add Visible Previous Button to OnboardingTour",
+      "description": "Add a visible 'Previous' button to the onboarding tour component allowing users to navigate backwards through tour steps without relying on keyboard shortcuts.",
+      "rationale": "While ArrowLeft keyboard navigation exists, there's no visible Previous button. Users may miss information or want to review previous steps. Most users won't discover keyboard shortcuts without visible affordance.",
+      "category": "usability",
+      "affected_components": ["src/components/features/OnboardingTour.tsx"],
       "screenshots": [],
-      "current_state": "Notification toast at lines 459-473 in App.tsx uses 'animate-bounce' class and requires manual dismissal via close button. It appears at 'fixed top-16 md:top-20' position. No auto-dismiss timer exists. Multiple notifications would overlap.",
-      "proposed_change": "1. Replace 'animate-bounce' with custom CSS animation: 'animate-in slide-in-from-top-2 duration-300'. 2. Add auto-dismiss with configurable timeout (default 5 seconds for info, 8 seconds for warnings). 3. Implement notification queue/stack system that shows up to 3 notifications with vertical stacking. 4. Add aria-live='polite' for info and aria-live='assertive' for warnings. 5. Add subtle exit animation 'animate-out slide-out-to-top duration-200' before removal. 6. Consider extracting to a reusable <Toast> or <Notification> component.",
-      "user_benefit": "Users experience smoother, less intrusive notifications. Auto-dismiss means users don't need to manually close routine messages. Reduced motion for users who prefer it. Screen readers properly announce notifications.",
+      "current_state": "The tour has Next/Finish and Skip buttons (lines 209-211, 268-286). ArrowLeft keyboard shortcut works (lines 113-115) but there's no visible Previous button. Users can only go forward visually or skip entirely.",
+      "proposed_change": "Add a Previous button next to Skip when currentStep > 0. Use text-xs font-bold text-zinc-500 hover:text-white uppercase tracking-wider styling like the Skip button. Add Material Icon 'arrow_back' before the text. On click: setCurrentStep(c => c - 1). Place it in the button group at lines 208-214 (spotlight mode) and 268-275 (centered mode).",
+      "user_benefit": "Users can easily review previous tour steps without needing to restart the entire tour or know keyboard shortcuts, making onboarding more user-friendly.",
       "status": "draft",
-      "created_at": "2026-01-06T21:45:00.000Z"
+      "created_at": "2026-01-08T04:40:00.000Z"
     },
     {
-      "id": "uiux-003",
+      "id": "uiux-018",
       "type": "ui_ux_improvements",
-      "title": "Add Keyboard Navigation to Profile Dropdown Menu",
-      "description": "Enhance the profile dropdown menu in Header.tsx with proper ARIA menu pattern including role='menu', role='menuitem', aria-expanded, keyboard navigation with arrow keys, and focus management.",
-      "rationale": "The profile dropdown (lines 169-208 in Header.tsx) lacks standard dropdown menu accessibility. Users cannot navigate menu items with arrow keys, and the menu lacks proper ARIA roles for screen readers. This creates a barrier for keyboard-only and screen reader users.",
-      "category": "accessibility",
-      "affected_components": [
-        "src/components/layout/Header.tsx",
-        "src/components/features/GenerativeSidebar.tsx"
-      ],
-      "screenshots": [],
-      "current_state": "Profile button at line 160 toggles showProfileMenu state but lacks aria-expanded attribute. Dropdown container at line 169 lacks role='menu'. Individual buttons within lack role='menuitem'. No keyboard navigation - users cannot use arrow keys to navigate items. Focus does not move to first menu item when opened.",
-      "proposed_change": "1. Add aria-expanded={showProfileMenu} and aria-haspopup='menu' to profile button. 2. Add role='menu' and aria-label='User menu' to dropdown container. 3. Add role='menuitem' and tabIndex={-1} to each menu item button. 4. Implement useEffect with keydown listener for ArrowDown/ArrowUp navigation between items. 5. Move focus to first menu item when dropdown opens. 6. Close menu and return focus to trigger on ESC. 7. Close menu when clicking outside. 8. Apply same pattern to model selector dropdown in GenerativeSidebar.tsx (line 157).",
-      "user_benefit": "Keyboard users can navigate dropdown menus efficiently with arrow keys. Screen readers properly announce menu structure and current focus. Menu behavior matches user expectations from native OS menus.",
-      "status": "draft",
-      "created_at": "2026-01-06T21:45:00.000Z"
-    },
-    {
-      "id": "uiux-004",
-      "type": "ui_ux_improvements",
-      "title": "Add Skeleton Loading States for Gallery and Components",
-      "description": "Replace simple spinner loading indicators with content-shaped skeleton screens for ImageGallery, tab content areas, and Suspense fallbacks. Skeleton screens provide better perceived performance by showing the approximate layout of content while loading.",
-      "rationale": "Current loading states (e.g., lines 510, 517, 526, 535 in App.tsx) use simple spinning circles. Research shows skeleton screens reduce perceived load time by up to 50% because users see a preview of incoming content structure. This is especially important for image-heavy content like the gallery.",
-      "category": "performance",
-      "affected_components": [
-        "src/App.tsx",
-        "src/components/features/ImageGallery.tsx"
-      ],
-      "screenshots": [],
-      "current_state": "Suspense fallbacks at lines 510, 517, 526, 535 in App.tsx show generic spinning circle with 'border-b-2 border-[color]' pattern. ImageGallery loading state (if any) likely shows spinner. Users see blank space with spinner, providing no information about what will appear.",
-      "proposed_change": "1. Create reusable <SkeletonCard> component with shimmer animation ('animate-pulse bg-zinc-800 rounded-xl'). 2. Create <GallerySkeleton> showing grid of 6-8 card placeholders matching gallery card dimensions. 3. Create <StudioSkeleton> showing canvas area + sidebar outlines. 4. Create <ChatSkeleton> showing message bubble outlines. 5. Replace Suspense fallback spinners with appropriate skeleton components. 6. Use consistent shimmer animation: 'animate-pulse' with subtle gradient overlay. 7. Match skeleton shapes to actual component layouts for seamless transition.",
-      "user_benefit": "Users perceive faster load times and understand what content is coming. Reduced cognitive load from layout shifts when content appears. Professional, polished feel that matches modern web applications.",
-      "status": "draft",
-      "created_at": "2026-01-06T21:45:00.000Z"
-    },
-    {
-      "id": "uiux-005",
-      "type": "ui_ux_improvements",
-      "title": "Improve Voice Agent Connection Feedback",
-      "description": "Enhance the voice agent toggle button and LiveActionPanel with better visual and potentially haptic feedback during connection states. Add intermediate 'connecting' state, connection error recovery UI, and clearer status indicators.",
-      "rationale": "The voice agent button (lines 107-118 in Header.tsx) only shows two states: active (green pulse) and inactive. Users don't see feedback during the connection process or understand why connection might fail. LiveActionPanel could benefit from clearer status transitions.",
+      "title": "Add Voice Status Text Label During Connection States",
+      "description": "Add a brief animated text badge below the voice button to clarify connection states (Connecting, Connected, Failed) without requiring tooltip hover.",
+      "rationale": "The voice button uses color and icon changes to indicate state but users may not understand what amber spinning sync vs red error_outline means without hovering. Explicit text feedback reduces confusion.",
       "category": "interaction",
-      "affected_components": [
-        "src/components/layout/Header.tsx",
-        "src/components/features/LiveActionPanel.tsx",
-        "src/App.tsx"
-      ],
+      "affected_components": ["src/components/layout/Header.tsx"],
       "screenshots": [],
-      "current_state": "Voice button at lines 107-118 shows binary state with immediate toggle. No 'connecting' animation during the async connect() call (lines 59-67 in App.tsx). Connection errors show generic notification. LiveActionPanel status bar (lines 85-100) shows connected/not connected but no intermediate states.",
-      "proposed_change": "1. Add 'isConnecting' state to track connection in progress. 2. Show intermediate button state during connection: amber/yellow color with spinning icon instead of mic icon. 3. Add aria-label that reflects current state: 'Connecting to voice agent...' during connection. 4. Show connection progress indicator in LiveActionPanel status bar. 5. Add haptic feedback on mobile when connection succeeds (navigator.vibrate([50]) if supported). 6. Show retry button in notification on connection failure instead of generic message. 7. Add subtle audio feedback (short tone) on successful connection. 8. Update button title/tooltip dynamically: 'Connecting...' / 'Connected - Click to disconnect' / 'Click to connect voice agent'.",
-      "user_benefit": "Users clearly understand the current state of voice agent connection. Intermediate feedback reduces uncertainty during async operations. Haptic/audio feedback confirms successful actions for users who may not be looking at the screen. Clear recovery path from errors.",
+      "current_state": "Voice button (lines 170-217) shows different states via gradient backgrounds and icons but state meaning is only conveyed via title/aria-label tooltips. Users must hover to understand 'Connecting to Benno...' vs 'Connection failed - Click to retry'.",
+      "proposed_change": "Add a small text badge below the voice button during transitional states. Wrap the button in a relative container with flex-col. Add a span with absolute positioning showing: 'Connecting...' (text-amber-400), 'Connected' (text-green-400, fade out after 2s), 'Failed' (text-red-400). Use text-[8px] font-bold uppercase tracking-wider. Add aria-live='polite' for screen reader announcements.",
+      "user_benefit": "Users immediately understand voice agent status without hovering for tooltips, improving trust and reducing confusion about the voice feature state.",
       "status": "draft",
-      "created_at": "2026-01-06T21:45:00.000Z"
+      "created_at": "2026-01-08T04:40:00.000Z"
+    },
+    {
+      "id": "uiux-019",
+      "type": "ui_ux_improvements",
+      "title": "Add Focus Ring to Form Inputs for Accessibility",
+      "description": "Enhance the visibility of focus states on form inputs by adding visible focus rings in addition to subtle border color changes.",
+      "rationale": "Current inputs use border color changes on focus (border-purple-500/50) which may not provide sufficient contrast for users with low vision. WCAG 2.1 requires focus indicators to be clearly visible (at least 3:1 contrast).",
+      "category": "accessibility",
+      "affected_components": ["src/components/auth/AuthModal.tsx", "src/components/features/GenerativeSidebar.tsx", "src/styles.ts"],
+      "screenshots": [],
+      "current_state": "AuthModal inputs use 'focus:border-purple-500/50' (line 258, 272, 293, etc). GenerativeSidebar textarea uses 'focus:border-pink-500' (line 386). INPUT_NEU in styles.ts adds glow but no ring. These are subtle color changes that may fail accessibility requirements.",
+      "proposed_change": "Add 'focus:ring-2 focus:ring-purple-500/50 focus:ring-offset-2 focus:ring-offset-zinc-900' to all text inputs in AuthModal and GenerativeSidebar. Update INPUT_NEU in styles.ts to include ring styles. Add 'contrast-more:focus:ring-4 contrast-more:focus:ring-white' for high-contrast mode support (matching Toast.tsx pattern lines 127-128).",
+      "user_benefit": "Users navigating with keyboard can clearly see which element is focused, improving accessibility for users with visual impairments and those who prefer keyboard navigation.",
+      "status": "draft",
+      "created_at": "2026-01-08T04:40:00.000Z"
+    },
+    {
+      "id": "uiux-020",
+      "type": "ui_ux_improvements",
+      "title": "Add Character Count to Prompt Textarea with Length Guidance",
+      "description": "Add a live character count indicator to the prompt textarea in GenerativeSidebar with color feedback to guide users toward optimal prompt lengths.",
+      "rationale": "AI image generation prompts have optimal length ranges. Too short may lack detail, too long may confuse the model. Users currently have no feedback about prompt length or guidance on ideal ranges for best results.",
+      "category": "usability",
+      "affected_components": ["src/components/features/GenerativeSidebar.tsx"],
+      "screenshots": [],
+      "current_state": "The textarea for background generation (line 385-390) has placeholder text but no character count or length guidance. Users type without knowing if their prompt is too brief or approaching model limits. The placeholder suggests a prompt style but doesn't indicate length.",
+      "proposed_change": "Add a character count display below the textarea: '<span>{genPrompt.length}</span> / 500'. Apply color coding: text-zinc-500 for 0-50 (add hint 'Add more detail'), text-zinc-400 for 50-100, text-green-500 for 100-350 (optimal range), text-yellow-500 for 350-450 (verbose), text-red-400 for 450+ (may truncate). Add aria-describedby linking to helper text explaining optimal 100-300 char range.",
+      "user_benefit": "Users receive real-time feedback on prompt length, helping them craft more effective prompts that produce better AI generation results. Reduces wasted generation attempts from under-specified prompts.",
+      "status": "draft",
+      "created_at": "2026-01-08T04:40:00.000Z"
     }
-  ]
+  ],
+  "metadata": {
+    "generated_at": "2026-01-08T04:40:00.000Z",
+    "agent": "ui_ux_improvements_ideation_agent",
+    "total_ideas": 5,
+    "categories": {
+      "usability": 3,
+      "accessibility": 1,
+      "performance": 0,
+      "visual": 0,
+      "interaction": 1
+    },
+    "analysis_method": "static_code_analysis",
+    "components_analyzed": [
+      "src/App.tsx",
+      "src/components/layout/Header.tsx",
+      "src/components/ui/Toast.tsx",
+      "src/components/features/GenerativeSidebar.tsx",
+      "src/components/auth/AuthModal.tsx",
+      "src/components/features/OnboardingTour.tsx",
+      "src/styles.ts"
+    ],
+    "verified_implementations": [
+      "OnboardingTour spotlight highlighting - IMPLEMENTED (lines 129-219)",
+      "Profile dropdown click-outside-to-close - IMPLEMENTED (lines 262-266 in Header.tsx)",
+      "Reference images preview grid - IMPLEMENTED (lines 356-382 in GenerativeSidebar.tsx)",
+      "OnboardingTour keyboard navigation - IMPLEMENTED",
+      "Focus trap in modals - IMPLEMENTED",
+      "Dropdown keyboard navigation - IMPLEMENTED"
+    ],
+    "notes": "Previous ideas (011, 013, 015) were found to already be implemented upon detailed code review. These fresh ideas (016-020) target verified gaps: password visibility, visible back navigation, voice status labels, focus accessibility, and prompt length guidance. All proposed changes reference specific line numbers for implementation accuracy."
+  }
 }

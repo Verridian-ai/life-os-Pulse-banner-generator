@@ -7,11 +7,16 @@ import {
     PROFILE_ZONE_CONSTRAINT
 } from './llm-types';
 
+import { validatePrompt, validateChatHistory } from '../utils/inputValidation';
+
 export const generateDesignChatResponse = async (
-    prompt: string,
+    rawPrompt: string,
     images: string[] = [],
     history: { role: string; parts: Part[] }[] = [],
 ) => {
+    const prompt = validatePrompt(rawPrompt);
+    validateChatHistory(history);
+
     // Construct messages on client to maintain state control, but send to server for execution
     const messages: ChatMessage[] = history.map((h) => ({
         role: h.role === 'model' ? 'assistant' : 'user',
@@ -36,10 +41,13 @@ export const generateDesignChatResponse = async (
 };
 
 export const generateAgentResponse = async (
-    userTranscript: string,
+    rawUserTranscript: string,
     currentScreenshot: string | null,
     history: { role: string; parts: Part[] }[] = [],
 ) => {
+    const userTranscript = validatePrompt(rawUserTranscript);
+    validateChatHistory(history);
+
     const messages: ChatMessage[] = history.map(h => ({ role: h.role === 'model' ? 'assistant' : 'user', content: h.parts?.[0]?.text || '' }));
 
     const content: OpenRouterContentItem[] = [{ type: 'text', text: userTranscript }];
@@ -57,7 +65,8 @@ export const generateAgentResponse = async (
     return { text: response.text };
 };
 
-export const generateThinkingResponse = async (prompt: string) => {
+export const generateThinkingResponse = async (rawPrompt: string) => {
+    const prompt = validatePrompt(rawPrompt);
     const messages = [{ role: 'system', content: 'You are a deep thinking assistant.' }, { role: 'user', content: prompt }];
 
     const response = await api.post<{ text: string }>('/api/ai/chat', {
@@ -69,7 +78,10 @@ export const generateThinkingResponse = async (prompt: string) => {
     return { text: response.text, groundingMetadata: null };
 };
 
-export const generateSearchResponse = async (prompt: string, history: { role: string; parts: Part[] }[] = []) => {
+export const generateSearchResponse = async (rawPrompt: string, history: { role: string; parts: Part[] }[] = []) => {
+    const prompt = validatePrompt(rawPrompt);
+    validateChatHistory(history);
+
     // Construct messages for Perplexity (Online Model)
     // Perplexity works best with standard OpenAI-like message format
     const messages: ChatMessage[] = history.map((h) => ({
@@ -96,7 +108,8 @@ export const generateSearchResponse = async (prompt: string, history: { role: st
     return { text: response.text, groundingMetadata: null };
 };
 
-export const generatePromptFromRefImages = async (images: string[], userHint: string) => {
+export const generatePromptFromRefImages = async (images: string[], rawUserHint: string) => {
+    const userHint = validatePrompt(rawUserHint);
     const content: OpenRouterContentItem[] = [{ type: 'text', text: `Analyze these reference images. Hint: ${userHint}. Return a prompt.` }];
     images.forEach(img => content.push({ type: 'image_url', image_url: { url: img } }));
 

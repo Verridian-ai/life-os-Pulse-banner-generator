@@ -1,9 +1,34 @@
-// Model Router - Intelligent model selection with hybrid auto/manual modes
-
 import { MODELS } from '../constants';
 import type { ModelMetadata } from '../types/ai';
+import { modelPreferencesStorage, modelMetricsStorage } from './storageManager'; // Updated import
 
 export type OperationType = 'text' | 'vision' | 'reasoning' | 'image_gen' | 'image_edit' | 'coding';
+
+// ... (existing code)
+
+/**
+ * Track model performance metric
+ */
+export const trackModelPerformance = (metric: Omit<import('../types/ai').PerformanceMetric, 'timestamp'> & { timestamp?: number }) => {
+  try {
+    const fullMetric: import('../types/ai').PerformanceMetric = {
+      timestamp: Date.now(),
+      ...metric,
+    };
+
+    // Get existing metrics
+    // We use a specific key 'performance_log' within the model metrics namespace
+    const EXISTING_KEY = 'performance_log';
+    const logs = modelMetricsStorage.get<import('../types/ai').PerformanceMetric[]>(EXISTING_KEY) || [];
+    const updated = [...logs, fullMetric].slice(-1000); // Keep last 1000
+    modelMetricsStorage.set(EXISTING_KEY, updated);
+
+    // Dispatch event for hooks to react
+    window.dispatchEvent(new Event('model-metric-tracked'));
+  } catch (e) {
+    console.error('Failed to track model performance:', e);
+  }
+};
 
 /**
  * Select the best model for a given operation type
@@ -286,14 +311,123 @@ export const getModelWithFallback = (operation: OperationType, preferredModel?: 
  * Cache model selection preferences
  */
 export const cacheModelSelection = (operation: OperationType, modelId: string) => {
-  const key = `model_pref_${operation}`;
-  localStorage.setItem(key, modelId);
+  modelPreferencesStorage.set(operation, modelId);
 };
 
 /**
  * Get cached model selection
  */
 export const getCachedModelSelection = (operation: OperationType): string | null => {
-  const key = `model_pref_${operation}`;
-  return localStorage.getItem(key);
+  return modelPreferencesStorage.get<string>(operation);
 };
+
+// Interface for real-world stats compatible with useModelMetrics
+export interface ModelRealtimeMetrics {
+  byModel: Record<
+    string,
+    {
+      avgTime: number;
+      successRate: number;
+      calls: number;
+    }
+  >;
+}
+
+export interface ModelComparisonResult {
+  modelId: string;
+  score: number;
+  ranking: number;
+  reason: string;
+  metrics: {
+    avgTime: number | null;
+    successRate: number | null;
+    cost: number;
+  };
+}
+
+/**
+ * Compare and rank models based on theoretical metadata and real usage stats
+ */
+export const compareModelPerformance = (
+  candidateModels: string[],
+  realWorldStats: ModelRealtimeMetrics | null,
+  criteria: 'speed' | 'quality' | 'cost' | 'balanced' = 'balanced',
+): ModelComparisonResult[] => {
+  const results = candidateModels.map((modelId) => {
+    const metadata = getModelMetadataById(modelId);
+    const realStats = realWorldStats?.byModel[modelId];
+
+    // Defaults (Theoretical)
+    let avgTime = metadata?.avgResponseTime || 2000;
+    let quality = metadata?.qualityScore || 80;
+    const cost = metadata?.costPerCall || 0.001;
+    let successRate = 100;
+
+    // Merge Real-world stats if available (and statistically significant, e.g., > 3 calls)
+    if (realStats && realStats.calls > 3) {
+      // Blend 70% real, 30% theoretical for time
+      avgTime = realStats.avgTime * 0.7 + avgTime * 0.3;
+      // Use real success rate
+      successRate = realStats.successRate;
+    }
+
+    // Normalization factors (approximate)
+    const normalizedTime = Math.max(0, 1 - avgTime / 10000); // Higher is better (faster)
+    const normalizedQuality = quality / 100;
+    const normalizedCost = Math.max(0, 1 - cost * 50); // Higher is cheaper (assuming max usually < $0.02)
+    const normalizedSuccess = successRate / 100;
+
+    // Calculate Score
+    let score = 0;
+    let reason = '';
+
+    switch (criteria) {
+      case 'speed':
+        score = normalizedTime * 0.6 + normalizedSuccess * 0.3 + normalizedCost * 0.1;
+        break;
+      case 'quality':
+        score = normalizedQuality * 0.7 + normalizedSuccess * 0.3;
+        break;
+      case 'cost':
+        score = normalizedCost * 0.8 + normalizedSuccess * 0.2;
+        break;
+      case 'balanced':
+      default:
+        score =
+          normalizedQuality * 0.4 + normalizedTime * 0.3 + normalizedCost * 0.2 + normalizedSuccess * 0.1;
+        break;
+    }
+
+    // Determine primary reason
+    if (criteria === 'balanced') {
+      if (normalizedTime > 0.8) reason = 'Fastest';
+      else if (normalizedQuality > 0.95) reason = 'Best Quality';
+      else if (normalizedCost > 0.95) reason = 'Best Value';
+      else reason = 'Reliable';
+    } else if (criteria === 'speed') reason = 'Speed Optimized';
+    else if (criteria === 'quality') reason = 'Quality Authorized';
+
+    return {
+      modelId,
+      score,
+      ranking: 0, // Assigned after sort
+      reason,
+      metrics: {
+        avgTime: realStats?.avgTime || null,
+        successRate: realStats?.successRate || null,
+        cost,
+      },
+    };
+  });
+
+  // Sort by score descending
+  return results
+    .sort((a, b) => b.score - a.score)
+    .map((res, index) => ({
+      ...res,
+      ranking: index + 1,
+    }));
+};
+
+
+

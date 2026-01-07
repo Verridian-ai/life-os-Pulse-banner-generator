@@ -9,12 +9,19 @@ import {
   UpscaleImageCommand,
   RestoreImageCommand,
   EnhanceFaceCommand,
+  BatchUpscaleCommand,
+  BatchRemoveBackgroundCommand,
 } from './commands/imageCommands';
 import {
   AddTextElementCommand,
   UpdateElementCommand,
   DeleteElementCommand,
   ListElementsCommand,
+  BringToFrontCommand,
+  SendToBackCommand,
+  DuplicateElementCommand,
+  LockElementCommand,
+  GroupElementsCommand,
 } from './commands/canvasCommands';
 import {
   NavigateToTabCommand,
@@ -26,7 +33,9 @@ import {
   WriteEnhancedPromptCommand,
   AnalyzeImageCommand,
   AnalyzeBannerCommand,
+  CompareImagesCommand,
 } from './commands/analysisCommands';
+import { ToolSchemas } from './validationSchemas';
 
 export interface ToolCall {
   name: string;
@@ -56,6 +65,8 @@ export interface CanvasCallbacks {
   redo?: () => void;
   setActiveTab?: (tab: Tab) => void;
   setStudioMode?: (mode: StudioMode) => void;
+  bringToFront?: (id: string) => void;
+  sendToBack?: (id: string) => void;
 }
 
 /**
@@ -103,6 +114,14 @@ export class ActionExecutor {
     this.registerCommand(new WriteEnhancedPromptCommand());
     this.registerCommand(new AnalyzeImageCommand());
     this.registerCommand(new AnalyzeBannerCommand());
+    this.registerCommand(new CompareImagesCommand());
+    this.registerCommand(new BatchUpscaleCommand());
+    this.registerCommand(new BatchRemoveBackgroundCommand());
+    this.registerCommand(new BringToFrontCommand());
+    this.registerCommand(new SendToBackCommand());
+    this.registerCommand(new DuplicateElementCommand());
+    this.registerCommand(new LockElementCommand());
+    this.registerCommand(new GroupElementsCommand());
   }
 
   public registerCommand(command: Command) {
@@ -146,6 +165,21 @@ export class ActionExecutor {
    */
   async executeToolCall(toolCall: ToolCall): Promise<ActionResult> {
     console.log('[ActionExecutor] Executing tool:', toolCall.name, toolCall.args);
+
+    // Validate arguments if a schema exists
+    const schema = ToolSchemas[toolCall.name];
+    if (schema) {
+      const validationResult = schema.safeParse(toolCall.args);
+      if (!validationResult.success) {
+        console.error(`[ActionExecutor] Invalid arguments for ${toolCall.name}:`, validationResult.error);
+        return {
+          success: false,
+          error: `Invalid arguments: ${validationResult.error.message}`,
+        };
+      }
+      // Use validated arguments (though we still pass original args as commands expect specific types, 
+      // Zod ensures they match structure)
+    }
 
     const command = this.commands.get(toolCall.name);
 

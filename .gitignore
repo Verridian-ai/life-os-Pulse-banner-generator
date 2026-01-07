@@ -14,7 +14,12 @@ dist-ssr
 
 # Environment variables (SECURITY: Never commit API keys!)
 .env
+.env.local
+.env.production
+.env.development
 .env.test
+.env*.local
+server/.env
 
 # Editor directories and files
 .vscode/*

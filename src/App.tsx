@@ -13,6 +13,10 @@ const QuickGenerateWizard = lazy(() => import('./components/features/QuickGenera
 const SettingsModal = lazy(() => import('./components/features/SettingsModal').then(m => ({ default: m.SettingsModal })));
 const AuthModal = lazy(() => import('./components/auth/AuthModal').then(m => ({ default: m.AuthModal })));
 const LinkedInContentStudio = lazy(() => import('./features/linkedin-posts').then(m => ({ default: m.LinkedInContentStudio })));
+
+// Admin pages (lazy loaded)
+const AdminDashboard = lazy(() => import('./features/admin').then(m => ({ default: m.AdminDashboard })));
+const AdminUsers = lazy(() => import('./features/admin').then(m => ({ default: m.AdminUsers })));
 import {
   ScreenReaderAnnouncerProvider,
   useAnnouncer,
@@ -95,35 +99,35 @@ const AppContent = () => {
   // Auth state
   const { isAuthenticated, isLoading } = useAuth();
 
-    const {
-      bgImage,
-      setBgImage,
-      refImages,
-      selectedElementId,
-      deleteElement,
-      addElement,
-      elements,
-      showSafeZones,
-      setShowSafeZones,
-      canvasRef,
-      updateElement
-    } = useCanvas();
-  
-      // Generation States
-      const [genPrompt, setGenPrompt] = useState('');
-      const [genSize, setGenSize] = useState<'1K' | '2K' | '4K'>('1K');
-      const [isGenerating, setIsGenerating] = useState(false); // Used in handleGenerate
-      const [isMagicPrompting, setIsMagicPrompting] = useState(false);
-      const [isEnhancing, setIsEnhancing] = useState(false);
-    
-      // Register voice agent setters
-      const { registerPromptSetter, registerTabSetter } = voiceAgent;
-      useEffect(() => {
-        registerPromptSetter(setGenPrompt);
-        registerTabSetter(setActiveTab, setStudioMode);
-      }, [registerPromptSetter, registerTabSetter]);
-      const [editPrompt, setEditPrompt] = useState('');
-      const [isEditing, setIsEditing] = useState(false);  // Register setGenPrompt with voice agent for voice-to-prompt enhancement
+  const {
+    bgImage,
+    setBgImage,
+    refImages,
+    selectedElementId,
+    deleteElement,
+    addElement,
+    elements,
+    showSafeZones,
+    setShowSafeZones,
+    canvasRef,
+    updateElement
+  } = useCanvas();
+
+  // Generation States
+  const [genPrompt, setGenPrompt] = useState('');
+  const [genSize, setGenSize] = useState<'1K' | '2K' | '4K'>('1K');
+  const [isGenerating, setIsGenerating] = useState(false); // Used in handleGenerate
+  const [isMagicPrompting, setIsMagicPrompting] = useState(false);
+  const [isEnhancing, setIsEnhancing] = useState(false);
+
+  // Register voice agent setters
+  const { registerPromptSetter, registerTabSetter } = voiceAgent;
+  useEffect(() => {
+    registerPromptSetter(setGenPrompt);
+    registerTabSetter(setActiveTab, setStudioMode);
+  }, [registerPromptSetter, registerTabSetter]);
+  const [editPrompt, setEditPrompt] = useState('');
+  const [isEditing, setIsEditing] = useState(false);  // Register setGenPrompt with voice agent for voice-to-prompt enhancement
   useEffect(() => {
     voiceAgent.registerPromptSetter(setGenPrompt);
     voiceAgent.registerTabSetter(setActiveTab, setStudioMode);
@@ -209,8 +213,8 @@ const AppContent = () => {
     setIsEditing(true);
     setTimeout(() => setIsEditing(false), 2000);
   };
-  const handleRemoveBg = () => {};
-  const handleUpscale = () => {};
+  const handleRemoveBg = () => { };
+  const handleUpscale = () => { };
 
   // Keyboard shortcuts
   // eslint-disable-next-line
@@ -264,15 +268,15 @@ const AppContent = () => {
       announce('Design saved', 'polite');
     }
   }), [
-    genPrompt, 
-    showChatHistory, 
-    announce, 
-    openModal, 
-    closeModal, 
-    handleDelete, 
-    handleDuplicate, 
-    handleZoom, 
-    handleToggleSafeZones, 
+    genPrompt,
+    showChatHistory,
+    announce,
+    openModal,
+    closeModal,
+    handleDelete,
+    handleDuplicate,
+    handleZoom,
+    handleToggleSafeZones,
     handleExport,
     toast
   ]);
@@ -339,8 +343,8 @@ const AppContent = () => {
       />
       <Suspense fallback={null}>
         {showQuickGen && (
-          <QuickGenerateWizard 
-            onClose={() => setShowQuickGen(false)} 
+          <QuickGenerateWizard
+            onClose={() => setShowQuickGen(false)}
             onComplete={() => {
               setShowQuickGen(false);
               setActiveTab(Tab.STUDIO);
@@ -423,7 +427,7 @@ const AppContent = () => {
                   {[...Array(8)].map((_, i) => <Skeleton height={200} key={i} />)}
                 </div>
               }>
-                <ImageGallery />
+                <ImageGallery onNavigateToStudio={() => setStudioMode(StudioMode.CANVAS)} />
               </Suspense>
             )}
           </div>
@@ -484,7 +488,70 @@ const AppContent = () => {
   );
 };
 
+// Simple path-based router for admin pages
+function AdminRouter(): React.ReactElement | null {
+  const path = window.location.pathname;
+
+  if (path === '/admin' || path === '/admin/') {
+    return (
+      <Suspense fallback={<AdminLoadingFallback />}>
+        <AdminDashboard />
+      </Suspense>
+    );
+  }
+
+  if (path.startsWith('/admin/users')) {
+    return (
+      <Suspense fallback={<AdminLoadingFallback />}>
+        <AdminUsers />
+      </Suspense>
+    );
+  }
+
+  // Add more admin routes here as needed:
+  // /admin/agents -> AdminAgents
+  // /admin/observability -> AdminObservability
+  // /admin/audit -> AdminAuditLogs
+
+  // Default to dashboard for unknown /admin/* paths
+  if (path.startsWith('/admin')) {
+    return (
+      <Suspense fallback={<AdminLoadingFallback />}>
+        <AdminDashboard />
+      </Suspense>
+    );
+  }
+
+  return null;
+}
+
+function AdminLoadingFallback(): React.ReactElement {
+  return (
+    <div className="min-h-screen bg-black flex items-center justify-center">
+      <div className="text-center">
+        <div className="inline-flex items-center justify-center w-16 h-16 bg-purple-600/20 rounded-2xl mb-4">
+          <span className="material-icons text-3xl text-purple-500 animate-spin">sync</span>
+        </div>
+        <p className="text-zinc-400 text-sm">Loading admin...</p>
+      </div>
+    </div>
+  );
+}
+
 function App() {
+  const path = window.location.pathname;
+  const isAdminPath = path.startsWith('/admin');
+
+  // Render admin pages separately (they have their own layout)
+  if (isAdminPath) {
+    return (
+      <ToastProvider>
+        <ToastContainer />
+        <AdminRouter />
+      </ToastProvider>
+    );
+  }
+
   return (
     <ToastProvider>
       <ToastContainer />
@@ -511,6 +578,8 @@ function VoiceAgentWrapper({ children }: { children: React.ReactNode }) {
     elements,
     undo,
     redo,
+    bringToFront,
+    sendToBack,
   } = useCanvas();
 
   const handleVoiceUpdate = React.useCallback(
@@ -531,9 +600,11 @@ function VoiceAgentWrapper({ children }: { children: React.ReactNode }) {
       getElements: () => elements,
       undo,
       redo,
+      bringToFront,
+      sendToBack,
       // setActiveTab will be registered by AppContent via registerTabSetter
     }),
-    [addElement, updateElement, deleteElement, elements, undo, redo]
+    [addElement, updateElement, deleteElement, elements, undo, redo, bringToFront, sendToBack]
   );
 
   return (

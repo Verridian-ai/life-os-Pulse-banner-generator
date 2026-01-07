@@ -491,6 +491,83 @@ export const INPAINT_TEXT_BOX_PRESETS: TextBoxPreset[] = [
   { id: 'quote_box', label: 'Quote Box', width: 500, height: 100, useCase: 'Testimonials/quotes' },
 ];
 
+export interface TextPreset {
+  id: string;
+  label: string;
+  icon: string;
+  styles: {
+    fontSize: number;
+    fontWeight: string;
+    fontFamily: string;
+    textTransform?: 'none' | 'uppercase' | 'lowercase' | 'capitalize';
+    letterSpacing?: number;
+    color: string;
+  };
+}
+
+export const TEXT_ELEMENT_PRESETS: TextPreset[] = [
+  {
+    id: 'headline',
+    label: 'Headline',
+    icon: 'title',
+    styles: {
+      fontSize: 72,
+      fontWeight: '800',
+      fontFamily: 'Inter',
+      textTransform: 'uppercase',
+      letterSpacing: -2,
+      color: '#ffffff',
+    },
+  },
+  {
+    id: 'tagline',
+    label: 'Tagline',
+    icon: 'short_text',
+    styles: {
+      fontSize: 24,
+      fontWeight: '500',
+      fontFamily: 'Inter',
+      textTransform: 'uppercase',
+      letterSpacing: 4,
+      color: '#a1a1aa',
+    },
+  },
+  {
+    id: 'body',
+    label: 'Body Text',
+    icon: 'notes',
+    styles: {
+      fontSize: 18,
+      fontWeight: '400',
+      fontFamily: 'Inter',
+      color: '#e4e4e7',
+    },
+  },
+  {
+    id: 'cta',
+    label: 'CTA Button',
+    icon: 'smart_button',
+    styles: {
+      fontSize: 20,
+      fontWeight: '700',
+      fontFamily: 'Inter',
+      textTransform: 'uppercase',
+      color: '#ffffff',
+    },
+  },
+  {
+    id: 'name_plate',
+    label: 'Name Plate',
+    icon: 'badge',
+    styles: {
+      fontSize: 32,
+      fontWeight: '700',
+      fontFamily: 'Playfair Display',
+      color: '#ffffff',
+    },
+  },
+];
+
 export const MODELS = {
   // Gemini Models (via OpenRouter)
   textBasic: 'google/gemini-3-pro-preview', // Gemini 3.0 Pro Preview

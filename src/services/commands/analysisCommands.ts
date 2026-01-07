@@ -128,3 +128,47 @@ export class AnalyzeBannerCommand implements Command {
     }
   }
 }
+
+export class CompareImagesCommand implements Command {
+  name = 'compare_images';
+
+  async execute(args: { target_image?: string; reference_image?: string }, context: CommandContext): Promise<ActionResult> {
+    const targetImage = args.target_image || context.getCanvasImage();
+    const referenceImage = args.reference_image; // In future, fallback to history
+
+    console.log('[CompareImagesCommand] Comparing images');
+
+    if (!targetImage) {
+      return {
+        success: false,
+        error: 'No target image available to compare.',
+      };
+    }
+
+    if (!referenceImage) {
+      return {
+        success: false,
+        error: 'No reference image provided. Please provide a reference image URL to compare against.',
+      };
+    }
+
+    // Dynamic import to avoid circular dependency if any
+    const { compareImages } = await import('../imageAnalysisService');
+
+    try {
+      const comparison = await compareImages(targetImage, referenceImage);
+
+      return {
+        success: true,
+        result: JSON.stringify(comparison, null, 2),
+        action: 'compare_images',
+      };
+    } catch (error) {
+      console.error('[CompareImagesCommand] Failed:', error);
+      return {
+        success: false,
+        error: error instanceof Error ? error.message : 'Image comparison failed',
+      };
+    }
+  }
+}

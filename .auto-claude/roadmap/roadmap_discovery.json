@@ -123,8 +123,15 @@
       "Built for the Careersy Community with career-focused features"
     ],
     "market_position": "Nanobanna Pro positions itself as a specialized AI-powered tool for career professionals, sitting between complex professional tools (Figma, Photoshop) and generic template platforms (Canva, Crello). The focus on LinkedIn/career branding with voice AI and multi-model orchestration creates a unique niche for career-conscious professionals who want professional results without design expertise.",
-    "competitor_pain_points": [],
-    "competitor_analysis_available": false
+    "competitor_pain_points": [
+      "Billing, subscription, and cancellation issues are the #1 complaint across Canva, Adobe Express, VistaCreate, and Placeit",
+      "UI complexity and extra clicks frustrate users - 2024/2025 redesigns made workflows less efficient",
+      "Performance issues (slow loading, lag) plague complex projects in general-purpose design tools",
+      "Generic design tools lack LinkedIn-specific features like safe zone handling and optimal dimensions",
+      "Template saturation means designs look similar across thousands of businesses",
+      "AI integration often hinders rather than helps - Adobe Express users complain AI is obtrusive"
+    ],
+    "competitor_analysis_available": true
   },
   "constraints": {
     "technical": [
@@ -151,5 +158,5 @@
       "Langfuse for LLM observability"
     ]
   },
-  "created_at": "2026-01-06T12:00:00Z"
+  "created_at": "2026-01-08T12:00:00Z"
 }

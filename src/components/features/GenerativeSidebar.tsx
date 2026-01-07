@@ -5,6 +5,7 @@ import { PromptLibrary } from './PromptLibrary';
 import { BTN_BASE, BTN_NEU_SOLID } from '../../styles';
 import { ImageToolsPanel } from './ImageToolsPanel';
 import { EnhanceButton } from '../ui/EnhanceButton';
+import { useDropdownKeyboard } from '../../hooks/useDropdownKeyboard';
 
 import { IMAGE_MODELS } from '../../constants';
 
@@ -95,6 +96,21 @@ const GenerativeSidebarComponent: React.FC<GenerativeSidebarProps> = ({
     localStorage.setItem('nanobanna-sidebar-mode', activeMode);
   }, [activeMode]);
 
+  const { focusedIndex, handleKeyDown, menuRef, buttonRef, itemRefs } = useDropdownKeyboard(
+    showModelDropdown,
+    setShowModelDropdown,
+    IMAGE_MODELS.length,
+    (index) => {
+      setSelectedModelId(IMAGE_MODELS[index].id);
+      setShowModelDropdown(false);
+    }
+  );
+
+  // eslint-disable-next-line react-hooks/preserve-manual-memoization
+  const setItemRef = useCallback((index: number) => (el: HTMLButtonElement | null) => {
+    itemRefs.current[index] = el;
+  }, [itemRefs]);
+
   // Get selected model details
   const selectedModel = IMAGE_MODELS.find((m) => m.id === selectedModelId) || IMAGE_MODELS[0];
 
@@ -156,12 +172,16 @@ const GenerativeSidebarComponent: React.FC<GenerativeSidebarProps> = ({
           {/* Model Selector Dropdown - Ultra compact on small screens */}
           <div className='relative'>
             <button
+              ref={buttonRef}
               onClick={() => setShowModelDropdown(!showModelDropdown)}
-              className={`min-h-[44px] bg-pink-500/10 text-pink-400 rounded-full border border-pink-500/20 font-black uppercase shadow-[0_0_10px_rgba(236,72,153,0.2)] hover:bg-pink-500/20 transition flex items-center touch-manipulation active:scale-95 ${
-                isCompact
-                  ? 'w-11 justify-center'
-                  : 'px-2 sm:px-3 py-2 gap-1 text-[9px] sm:text-[10px] tracking-wide sm:tracking-widest'
-              }`}
+              onKeyDown={handleKeyDown}
+              aria-haspopup='listbox'
+              aria-expanded={showModelDropdown}
+              aria-label='Select AI Model'
+              className={`min-h-[44px] bg-pink-500/10 text-pink-400 rounded-full border border-pink-500/20 font-black uppercase shadow-[0_0_10px_rgba(236,72,153,0.2)] hover:bg-pink-500/20 transition flex items-center touch-manipulation active:scale-95 ${isCompact
+                ? 'w-11 justify-center'
+                : 'px-2 sm:px-3 py-2 gap-1 text-[9px] sm:text-[10px] tracking-wide sm:tracking-widest'
+                }`}
               title={selectedModel.name}
             >
               <span className='material-icons text-sm'>{selectedModel.icon}</span>
@@ -178,16 +198,28 @@ const GenerativeSidebarComponent: React.FC<GenerativeSidebarProps> = ({
 
             {/* Dropdown Menu */}
             {showModelDropdown && (
-              <div className='absolute top-full right-0 mt-2 w-56 bg-zinc-900 border border-white/10 rounded-xl shadow-2xl z-50 overflow-hidden'>
-                {IMAGE_MODELS.map((model) => (
+              <div
+                ref={menuRef}
+                role='listbox'
+                aria-label='AI Models'
+                className='absolute top-full right-0 mt-2 w-56 bg-zinc-900 border border-white/10 rounded-xl shadow-2xl z-50 overflow-hidden'
+              >
+                {IMAGE_MODELS.map((model, index) => (
                   <button
                     key={model.id}
+                    ref={setItemRef(index)}
+                    role='option'
+                    aria-selected={selectedModelId === model.id}
+                    tabIndex={focusedIndex === index ? 0 : -1}
+                    onKeyDown={handleKeyDown}
                     onClick={() => {
                       setSelectedModelId(model.id);
                       setShowModelDropdown(false);
                     }}
-                    className={`w-full px-3 py-2.5 text-left hover:bg-white/5 transition flex items-center gap-2 ${selectedModelId === model.id ? 'bg-pink-500/10 border-l-2 border-pink-500' : ''
-                      }`}
+                    className={`w-full px-3 py-2.5 text-left transition flex items-center gap-2 ${selectedModelId === model.id
+                      ? 'bg-pink-500/10 border-l-2 border-pink-500'
+                      : 'hover:bg-white/5'
+                      } ${focusedIndex === index ? 'bg-white/5 ring-1 ring-inset ring-pink-500/50' : ''}`}
                   >
                     <span className='material-icons text-sm text-pink-400'>{model.icon}</span>
                     <div className='flex-1 min-w-0'>
@@ -257,9 +289,19 @@ const GenerativeSidebarComponent: React.FC<GenerativeSidebarProps> = ({
           <div className='absolute top-0 right-0 w-24 h-24 bg-pink-500/10 blur-2xl rounded-full -mr-10 -mt-10 pointer-events-none'></div>
 
           <div className='flex justify-between items-center mb-3 sm:mb-4 relative z-10'>
-            <label className='text-[9px] sm:text-[10px] font-black text-zinc-400 uppercase tracking-widest'>
-              Background Gen
-            </label>
+            <div className='flex items-baseline gap-2'>
+              <label className='text-[9px] sm:text-[10px] font-black text-zinc-400 uppercase tracking-widest'>
+                Background Gen
+              </label>
+              {genPrompt.length > 0 && (
+                <span className={`text-[9px] font-bold uppercase tracking-wider transition-colors duration-300 ${genPrompt.length < 15 ? 'text-amber-500' :
+                  genPrompt.length < 350 ? 'text-emerald-500' :
+                    'text-amber-500'
+                  }`}>
+                  {genPrompt.length} chars
+                </span>
+              )}
+            </div>
             <button
               onClick={() => setShowPromptLibrary(!showPromptLibrary)}
               className={`text-zinc-500 hover:text-purple-400 transition flex items-center gap-1 ${showPromptLibrary ? 'text-purple-400' : ''}`}
@@ -272,7 +314,7 @@ const GenerativeSidebarComponent: React.FC<GenerativeSidebarProps> = ({
 
           {showPromptLibrary ? (
             <div className='h-[350px] relative z-10'>
-              <PromptLibrary 
+              <PromptLibrary
                 onSelect={(p) => { setGenPrompt(p); setShowPromptLibrary(false); }}
                 onClose={() => setShowPromptLibrary(false)}
               />
@@ -320,17 +362,46 @@ const GenerativeSidebarComponent: React.FC<GenerativeSidebarProps> = ({
                 </button>
               </div>
 
+              {/* Reference Images Preview */}
+              {refImages.length > 0 && (
+                <div className='mb-3 sm:mb-4 relative z-10'>
+                  <div className='flex items-center justify-between mb-1.5'>
+                    <label className='text-[9px] sm:text-[10px] font-black text-zinc-400 uppercase tracking-widest flex items-center gap-1.5'>
+                      <span className='material-icons text-purple-400 text-xs'>collections</span>
+                      Reference Context
+                    </label>
+                    <span className='text-[9px] font-bold text-zinc-500 bg-zinc-900 border border-white/10 px-1.5 py-0.5 rounded'>
+                      {refImages.length} Active
+                    </span>
+                  </div>
+                  <div className='grid grid-cols-4 gap-2 bg-black/20 p-2 rounded-xl border border-white/5'>
+                    {refImages.map((img, i) => (
+                      <div key={i} className='aspect-square rounded-lg overflow-hidden border border-white/10 relative group bg-zinc-900 cursor-help shadow-sm hover:border-purple-500/50 transition-colors' title="Reference image used for generation">
+                        <img
+                          src={img}
+                          alt={`Reference ${i + 1}`}
+                          className='w-full h-full object-cover transition-transform duration-500 group-hover:scale-110'
+                        />
+                        <div className='absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end justify-center p-1'>
+                          <div className='w-1.5 h-1.5 bg-purple-500 rounded-full shadow-[0_0_8px_rgba(168,85,247,0.8)] mb-1'></div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
               <div className='relative z-10'>
                 <textarea
-                  className='w-full bg-zinc-900/50 border border-white/10 rounded-xl sm:rounded-2xl p-2.5 sm:p-3 md:p-4 text-xs md:text-sm font-medium text-white focus:border-pink-500 focus:outline-none resize-none h-20 sm:h-24 md:h-32 mb-3 sm:mb-4 placeholder-zinc-600 shadow-[inset_0_2px_4px_rgba(0,0,0,0.5)] transition-all'
+                  className='w-full bg-zinc-900/50 border border-white/10 rounded-xl sm:rounded-2xl p-2.5 sm:p-3 md:p-4 text-xs md:text-sm font-medium text-white focus:border-pink-500 focus:ring-2 focus:ring-pink-500/50 focus:outline-none resize-none h-20 sm:h-24 md:h-32 mb-3 sm:mb-4 placeholder-zinc-600 shadow-[inset_0_2px_4px_rgba(0,0,0,0.5)] transition-all'
                   placeholder={isCompact ? "Describe your vision..." : "Describe your vision (e.g., 'A futuristic city skyline in purple and teal')..."}
                   value={genPrompt}
                   onChange={(e) => setGenPrompt(e.target.value)}
                 />
-                
+
                 {/* Save Prompt Button Overlay */}
                 {genPrompt.trim() && (
-                  <button 
+                  <button
                     onClick={handleSavePrompt}
                     disabled={isSavingPrompt}
                     className='absolute bottom-6 right-2 p-2 text-zinc-500 hover:text-pink-400 transition bg-black/40 rounded-lg backdrop-blur-sm'
@@ -438,9 +509,19 @@ const GenerativeSidebarComponent: React.FC<GenerativeSidebarProps> = ({
           <div className='absolute top-0 right-0 w-24 h-24 bg-yellow-500/10 blur-2xl rounded-full -mr-10 -mt-10 pointer-events-none'></div>
 
           <div className='flex items-center justify-between mb-3 sm:mb-4 relative z-10'>
-            <label className='text-[9px] sm:text-[10px] font-black text-zinc-400 uppercase tracking-widest'>
-              Magic Edit
-            </label>
+            <div className='flex items-baseline gap-2'>
+              <label className='text-[9px] sm:text-[10px] font-black text-zinc-400 uppercase tracking-widest'>
+                Magic Edit
+              </label>
+              {editPrompt.length > 0 && (
+                <span className={`text-[9px] font-bold uppercase tracking-wider transition-colors duration-300 ${editPrompt.length < 15 ? 'text-amber-500' :
+                  editPrompt.length < 350 ? 'text-emerald-500' :
+                    'text-amber-500'
+                  }`}>
+                  {editPrompt.length} chars
+                </span>
+              )}
+            </div>
             <EnhanceButton
               prompt={editPrompt}
               onEnhanced={setEditPrompt}
@@ -451,7 +532,7 @@ const GenerativeSidebarComponent: React.FC<GenerativeSidebarProps> = ({
           </div>
 
           <textarea
-            className='w-full bg-zinc-900/50 border border-white/10 rounded-xl sm:rounded-2xl p-2.5 sm:p-4 text-xs sm:text-sm font-medium text-white focus:border-yellow-500 focus:outline-none resize-none h-20 sm:h-24 mb-3 sm:mb-4 placeholder-zinc-600 shadow-[inset_0_2px_4px_rgba(0,0,0,0.5)] relative z-10'
+            className='w-full bg-zinc-900/50 border border-white/10 rounded-xl sm:rounded-2xl p-2.5 sm:p-4 text-xs sm:text-sm font-medium text-white focus:border-yellow-500 focus:ring-2 focus:ring-yellow-500/50 focus:outline-none resize-none h-20 sm:h-24 mb-3 sm:mb-4 placeholder-zinc-600 shadow-[inset_0_2px_4px_rgba(0,0,0,0.5)] relative z-10'
             placeholder={isCompact ? "Describe your edit..." : "E.g., 'Add a laptop to the desk', 'Make the lighting warmer'..."}
             value={editPrompt}
             onChange={(e) => setEditPrompt(e.target.value)}

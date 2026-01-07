@@ -18,17 +18,9 @@
           "path": "src",
           "purpose": "Source code"
         },
-        "api": {
-          "path": "api",
-          "purpose": "API endpoints"
-        },
         "services": {
           "path": "services",
           "purpose": "Business logic"
-        },
-        "tests": {
-          "path": "tests",
-          "purpose": "Tests"
         }
       },
       "entry_point": "src/App.tsx",
@@ -40,10 +32,11 @@
         "@types/react-dom",
         "@vitejs/plugin-react",
         "autoprefixer",
-        "lucide-react",
         "postcss",
         "react",
         "react-dom",
+        "react-virtualized-auto-sizer",
+        "react-window",
         "tailwindcss",
         "typescript",
         "vite"
@@ -53,16 +46,15 @@
         "@testing-library/jest-dom",
         "@testing-library/react",
         "@testing-library/user-event",
+        "@types/react-virtualized-auto-sizer",
+        "@types/react-window",
         "@typescript-eslint/eslint-plugin",
         "@typescript-eslint/parser",
-        "@vercel/node",
         "@vitest/coverage-v8",
-        "eslint",
-        "eslint-config-prettier"
+        "eslint"
       ],
       "testing": "Vitest",
       "e2e_testing": "Playwright",
-      "test_directory": "tests",
       "dockerfile": "Dockerfile",
       "environment": {
         "variables": {
@@ -106,21 +98,21 @@
             "source": ".env.test",
             "type": "path",
             "sensitive": true,
-            "required": true
+            "required": false
           },
           "VITE_OPENAI_API_KEY": {
             "value": "<REDACTED>",
             "source": ".env.test",
             "type": "path",
             "sensitive": true,
-            "required": true
+            "required": false
           },
           "VITE_REPLICATE_API_KEY": {
             "value": "<REDACTED>",
             "source": ".env.test",
             "type": "path",
             "sensitive": true,
-            "required": true
+            "required": false
           },
           "LANGFUSE_SECRET_KEY": {
             "value": "<REDACTED>",
@@ -155,33 +147,12 @@
             "source": ".env.test",
             "type": "path",
             "sensitive": true,
-            "required": true
-          },
-          "VITE_API_URL": {
-            "value": null,
-            "source": ".env.example",
-            "type": "string",
-            "sensitive": false,
-            "required": true
-          },
-          "VITE_LANGFUSE_URL": {
-            "value": null,
-            "source": ".env.example",
-            "type": "string",
-            "sensitive": false,
-            "required": true
-          },
-          "VITE_LANGFUSE_PUBLIC_KEY": {
-            "value": null,
-            "source": ".env.example",
-            "type": "string",
-            "sensitive": true,
-            "required": true
+            "required": false
           }
         },
-        "required_count": 7,
+        "required_count": 0,
         "optional_count": 0,
-        "detected_count": 16
+        "detected_count": 13
       },
       "api": {
         "routes": [
@@ -310,32 +281,14 @@
             "file": "server\\src\\index.ts",
             "framework": "Express",
             "requires_auth": false
-          },
-          {
-            "path": "/health",
-            "methods": [
-              "GET"
-            ],
-            "file": ".auto-claude\\worktrees\\tasks\\001-split-llm-ts-into-domain-specific-service-modules\\server\\src\\index.ts",
-            "framework": "Express",
-            "requires_auth": false
-          },
-          {
-            "path": "*",
-            "methods": [
-              "GET"
-            ],
-            "file": ".auto-claude\\worktrees\\tasks\\001-split-llm-ts-into-domain-specific-service-modules\\server\\src\\index.ts",
-            "framework": "Express",
-            "requires_auth": false
           }
         ],
-        "total_routes": 16,
+        "total_routes": 14,
         "methods": [
-          "PUT",
+          "GET",
           "DELETE",
-          "POST",
-          "GET"
+          "PUT",
+          "POST"
         ],
         "protected_routes": []
       },
@@ -1477,59 +1430,89 @@
           "users": {
             "table": "users",
             "fields": {},
-            "file": ".auto-claude\\worktrees\\tasks\\001-split-llm-ts-into-domain-specific-service-modules\\server\\src\\db\\schema.ts",
+            "file": "server\\src\\db\\schema.ts",
             "orm": "Drizzle"
           },
           "sessions": {
             "table": "sessions",
             "fields": {},
-            "file": ".auto-claude\\worktrees\\tasks\\001-split-llm-ts-into-domain-specific-service-modules\\server\\src\\db\\schema.ts",
+            "file": "server\\src\\db\\schema.ts",
             "orm": "Drizzle"
           },
           "profiles": {
             "table": "profiles",
             "fields": {},
-            "file": ".auto-claude\\worktrees\\tasks\\001-split-llm-ts-into-domain-specific-service-modules\\server\\src\\db\\schema.ts",
+            "file": "server\\src\\db\\schema.ts",
             "orm": "Drizzle"
           },
           "userPreferences": {
             "table": "user_preferences",
             "fields": {},
-            "file": ".auto-claude\\worktrees\\tasks\\001-split-llm-ts-into-domain-specific-service-modules\\server\\src\\db\\schema.ts",
+            "file": "server\\src\\db\\schema.ts",
             "orm": "Drizzle"
           },
           "userApiKeys": {
             "table": "user_api_keys",
             "fields": {},
-            "file": ".auto-claude\\worktrees\\tasks\\001-split-llm-ts-into-domain-specific-service-modules\\server\\src\\db\\schema.ts",
+            "file": "server\\src\\db\\schema.ts",
+            "orm": "Drizzle"
+          },
+          "teams": {
+            "table": "teams",
+            "fields": {},
+            "file": "server\\src\\db\\schema.ts",
+            "orm": "Drizzle"
+          },
+          "teamMembers": {
+            "table": "team_members",
+            "fields": {},
+            "file": "server\\src\\db\\schema.ts",
+            "orm": "Drizzle"
+          },
+          "brandProfiles": {
+            "table": "brand_profiles",
+            "fields": {},
+            "file": "server\\src\\db\\schema.ts",
             "orm": "Drizzle"
           },
           "chatConversations": {
             "table": "chat_conversations",
             "fields": {},
-            "file": ".auto-claude\\worktrees\\tasks\\001-split-llm-ts-into-domain-specific-service-modules\\server\\src\\db\\schema.ts",
+            "file": "server\\src\\db\\schema.ts",
             "orm": "Drizzle"
           },
           "chatMessages": {
             "table": "chat_messages",
             "fields": {},
-            "file": ".auto-claude\\worktrees\\tasks\\001-split-llm-ts-into-domain-specific-service-modules\\server\\src\\db\\schema.ts",
+            "file": "server\\src\\db\\schema.ts",
             "orm": "Drizzle"
           },
           "voiceTranscripts": {
             "table": "voice_transcripts",
             "fields": {},
-            "file": ".auto-claude\\worktrees\\tasks\\001-split-llm-ts-into-domain-specific-service-modules\\server\\src\\db\\schema.ts",
+            "file": "server\\src\\db\\schema.ts",
             "orm": "Drizzle"
           },
           "images": {
             "table": "images",
             "fields": {},
-            "file": ".auto-claude\\worktrees\\tasks\\001-split-llm-ts-into-domain-specific-service-modules\\server\\src\\db\\schema.ts",
+            "file": "server\\src\\db\\schema.ts",
             "orm": "Drizzle"
           },
-          "designs": {
-            "table": "designs",
+          "promptLibrary": {
+            "table": "prompt_library",
+            "fields": {},
+            "file": "server\\src\\db\\schema.ts",
+            "orm": "Drizzle"
+          },
+          "sharedLinks": {
+            "table": "shared_links",
+            "fields": {},
+            "file": "server\\src\\db\\schema.ts",
+            "orm": "Drizzle"
+          },
+          "comments": {
+            "table": "comments",
             "fields": {},
             "file": "server\\src\\db\\schema.ts",
             "orm": "Drizzle"
@@ -1537,131 +1520,17 @@
           "emailVerificationTokens": {
             "table": "email_verification_tokens",
             "fields": {},
-            "file": ".auto-claude\\worktrees\\tasks\\001-split-llm-ts-into-domain-specific-service-modules\\server\\src\\db\\schema.ts",
+            "file": "server\\src\\db\\schema.ts",
             "orm": "Drizzle"
           },
           "passwordResetTokens": {
             "table": "password_reset_tokens",
             "fields": {},
-            "file": ".auto-claude\\worktrees\\tasks\\001-split-llm-ts-into-domain-specific-service-modules\\server\\src\\db\\schema.ts",
-            "orm": "Drizzle"
-          },
-          "llmTraces": {
-            "table": "llm_traces",
-            "fields": {},
-            "file": "server\\src\\db\\schema.ts",
-            "orm": "Drizzle"
-          },
-          "apiMetrics": {
-            "table": "api_metrics",
-            "fields": {},
-            "file": "server\\src\\db\\schema.ts",
-            "orm": "Drizzle"
-          },
-          "dailyStats": {
-            "table": "daily_stats",
-            "fields": {},
-            "file": "server\\src\\db\\schema.ts",
-            "orm": "Drizzle"
-          },
-          "adminUsers": {
-            "table": "admin_users",
-            "fields": {},
-            "file": "server\\src\\db\\schema.ts",
-            "orm": "Drizzle"
-          },
-          "adminAuditLog": {
-            "table": "admin_audit_log",
-            "fields": {},
-            "file": "server\\src\\db\\schema.ts",
-            "orm": "Drizzle"
-          },
-          "adminRateLimits": {
-            "table": "admin_rate_limits",
-            "fields": {},
-            "file": "server\\src\\db\\schema.ts",
-            "orm": "Drizzle"
-          },
-          "errorLogs": {
-            "table": "error_logs",
-            "fields": {},
-            "file": "server\\src\\db\\schema.ts",
-            "orm": "Drizzle"
-          },
-          "requestLogs": {
-            "table": "request_logs",
-            "fields": {},
-            "file": "server\\src\\db\\schema.ts",
-            "orm": "Drizzle"
-          },
-          "agentConfigs": {
-            "table": "agent_configs",
-            "fields": {},
-            "file": "server\\src\\db\\schema.ts",
-            "orm": "Drizzle"
-          },
-          "agentSkills": {
-            "table": "agent_skills",
-            "fields": {},
-            "file": "server\\src\\db\\schema.ts",
-            "orm": "Drizzle"
-          },
-          "agentContextDocs": {
-            "table": "agent_context_docs",
-            "fields": {},
-            "file": "server\\src\\db\\schema.ts",
-            "orm": "Drizzle"
-          },
-          "agentMcpConnections": {
-            "table": "agent_mcp_connections",
-            "fields": {},
-            "file": "server\\src\\db\\schema.ts",
-            "orm": "Drizzle"
-          },
-          "agentAuditLogs": {
-            "table": "agent_audit_logs",
-            "fields": {},
-            "file": "server\\src\\db\\schema.ts",
-            "orm": "Drizzle"
-          },
-          "agentRuntimeState": {
-            "table": "agent_runtime_state",
-            "fields": {},
-            "file": "server\\src\\db\\schema.ts",
-            "orm": "Drizzle"
-          },
-          "agentMemories": {
-            "table": "agent_memories",
-            "fields": {},
-            "file": "server\\src\\db\\schema.ts",
-            "orm": "Drizzle"
-          },
-          "creditTiers": {
-            "table": "credit_tiers",
-            "fields": {},
-            "file": "server\\src\\db\\schema.ts",
-            "orm": "Drizzle"
-          },
-          "userCreditAccounts": {
-            "table": "user_credit_accounts",
-            "fields": {},
-            "file": "server\\src\\db\\schema.ts",
-            "orm": "Drizzle"
-          },
-          "creditTransactions": {
-            "table": "credit_transactions",
-            "fields": {},
-            "file": "server\\src\\db\\schema.ts",
-            "orm": "Drizzle"
-          },
-          "tierFeatureLimits": {
-            "table": "tier_feature_limits",
-            "fields": {},
             "file": "server\\src\\db\\schema.ts",
             "orm": "Drizzle"
           }
         },
-        "total_models": 60,
+        "total_models": 46,
         "model_names": [
           "ACL",
           "DatasetDatabase",
@@ -1697,39 +1566,24 @@
           "profiles",
           "userPreferences",
           "userApiKeys",
+          "teams",
+          "teamMembers",
+          "brandProfiles",
           "chatConversations",
           "chatMessages",
           "voiceTranscripts",
           "images",
-          "designs",
+          "promptLibrary",
+          "sharedLinks",
+          "comments",
           "emailVerificationTokens",
-          "passwordResetTokens",
-          "llmTraces",
-          "apiMetrics",
-          "dailyStats",
-          "adminUsers",
-          "adminAuditLog",
-          "adminRateLimits",
-          "errorLogs",
-          "requestLogs",
-          "agentConfigs",
-          "agentSkills",
-          "agentContextDocs",
-          "agentMcpConnections",
-          "agentAuditLogs",
-          "agentRuntimeState",
-          "agentMemories",
-          "creditTiers",
-          "userCreditAccounts",
-          "creditTransactions",
-          "tierFeatureLimits"
+          "passwordResetTokens"
         ]
       },
       "monitoring": {
         "health_checks": [
           "/health",
           "/health/detailed",
-          "/health",
           "/health"
         ]
       }

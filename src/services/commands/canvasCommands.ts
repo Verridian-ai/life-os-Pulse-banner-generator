@@ -12,8 +12,21 @@ export class AddTextElementCommand implements Command {
     fontSize?: number;
     color?: string;
     fontFamily?: string;
+    fontWeight?: string;
+    textTransform?: 'none' | 'uppercase' | 'lowercase' | 'capitalize';
+    letterSpacing?: number;
   }, context: CommandContext): ActionResult {
-    const { text, x = 792, y = 198, fontSize = 48, color = '#ffffff', fontFamily = 'Inter' } = args;
+    const {
+      text,
+      x = 792,
+      y = 198,
+      fontSize = 48,
+      color = '#ffffff',
+      fontFamily = 'Inter',
+      fontWeight = '600',
+      textTransform = 'none',
+      letterSpacing = 0
+    } = args;
 
     console.log('[AddTextElementCommand] Adding text:', { text, x, y, fontSize, color });
 
@@ -33,7 +46,9 @@ export class AddTextElementCommand implements Command {
       fontSize,
       color,
       fontFamily,
-      fontWeight: '600',
+      fontWeight,
+      textTransform,
+      letterSpacing,
       textAlign: 'center',
     };
 
@@ -126,5 +141,91 @@ export class ListElementsCommand implements Command {
       result: JSON.stringify(summary, null, 2),
       action: 'list_elements',
     };
+  }
+}
+
+export class BringToFrontCommand implements Command {
+  name = 'bring_to_front';
+
+  execute(args: { element_id: string }, context: CommandContext): ActionResult {
+    const { element_id } = args;
+    console.log('[BringToFront] bringing to front:', element_id);
+
+    if (!context.canvasCallbacks.bringToFront) {
+      return { success: false, error: 'Layer ops not supported' };
+    }
+
+    context.canvasCallbacks.bringToFront(element_id);
+
+    return {
+      success: true,
+      result: `Brought element ${element_id} to front`,
+      action: 'bring_to_front',
+    };
+  }
+}
+
+export class SendToBackCommand implements Command {
+  name = 'send_to_back';
+
+  execute(args: { element_id: string }, context: CommandContext): ActionResult {
+    const { element_id } = args;
+    console.log('[SendToBack] sending to back:', element_id);
+
+    if (!context.canvasCallbacks.sendToBack) {
+      return { success: false, error: 'Layer ops not supported' };
+    }
+
+    context.canvasCallbacks.sendToBack(element_id);
+
+    return {
+      success: true,
+      result: `Sent element ${element_id} to back`,
+      action: 'send_to_back',
+    };
+  }
+}
+
+export class DuplicateElementCommand implements Command {
+  name = 'duplicate_element';
+
+  execute(args: { element_id: string }, context: CommandContext): ActionResult {
+    const { element_id } = args;
+    if (!context.canvasCallbacks.getElements || !context.canvasCallbacks.addElement) {
+      return { success: false, error: 'Canvas state access missing' };
+    }
+
+    const elements = context.canvasCallbacks.getElements();
+    const original = elements.find(e => e.id === element_id);
+    if (!original) return { success: false, error: 'Element not found' };
+
+    const clone: BannerElement = {
+      ...original,
+      id: `${original.type}-${Date.now()}`,
+      x: original.x + 20,
+      y: original.y + 20,
+    };
+
+    context.canvasCallbacks.addElement(clone);
+    return { success: true, result: `Duplicated element ${element_id}`, action: 'duplicate_element' };
+  }
+}
+
+export class LockElementCommand implements Command {
+  name = 'lock_element';
+  execute(args: { element_id: string }, context: CommandContext): ActionResult {
+    if (!context.canvasCallbacks.updateElement) {
+      return { success: false, error: 'Cannot update element' };
+    }
+    context.canvasCallbacks.updateElement(args.element_id, { locked: true });
+    return { success: true, result: `Locked element ${args.element_id}` };
+  }
+}
+
+export class GroupElementsCommand implements Command {
+  name = 'group_elements';
+  execute(_args: { element_ids: string[] }, _context: CommandContext): ActionResult {
+    // Basic stub since group logic is complex
+    return { success: false, error: 'Grouping not implemented' };
   }
 }

@@ -26,22 +26,77 @@ interface RateLimitRecord {
     resetTime: number;
 }
 
-// In-memory store for rate limit tracking
-// Key: IP address or custom key, Value: request count and reset time
-const rateLimitStore = new Map<string, RateLimitRecord>();
+import Redis from 'ioredis';
+import { config } from 'dotenv';
+config(); // Ensure env vars loaded
 
-// Cleanup interval to prevent memory leaks (runs every 5 minutes)
-const CLEANUP_INTERVAL_MS = 5 * 60 * 1000;
+// Initialize Redis client if configuration exists
+let redisClient: Redis | null = null;
+if (process.env.REDIS_URL) {
+    console.log('[RateLimit] Initializing Redis connection...');
+    redisClient = new Redis(process.env.REDIS_URL, {
+        retryStrategy: (times) => Math.min(times * 50, 2000), // Exponential backoff
+        maxRetriesPerRequest: 3
+    });
 
-// Periodic cleanup of expired entries
+    redisClient.on('error', (err) => {
+        console.error('[RateLimit] Redis error:', err);
+    });
+
+    redisClient.on('connect', () => {
+        console.log('[RateLimit] Redis connected');
+    });
+} else {
+    console.warn('[RateLimit] REDIS_URL not found, falling back to in-memory store');
+}
+
+
+// In-memory fallback store
+const memoryStore = new Map<string, RateLimitRecord>();
+
+// Cleanup interval for memory store (runs every 5 minutes)
+const MEMORY_CLEANUP_INTERVAL_MS = 5 * 60 * 1000;
 setInterval(() => {
     const now = Date.now();
-    for (const [key, record] of rateLimitStore.entries()) {
+    for (const [key, record] of memoryStore.entries()) {
         if (now > record.resetTime) {
-            rateLimitStore.delete(key);
+            memoryStore.delete(key);
         }
     }
-}, CLEANUP_INTERVAL_MS);
+}, MEMORY_CLEANUP_INTERVAL_MS);
+
+
+// Helper for getting rate limit data
+async function getRateLimit(key: string): Promise<RateLimitRecord | null> {
+    if (redisClient) {
+        try {
+            const data = await redisClient.get(`ratelimit:${key}`);
+            return data ? JSON.parse(data) : null;
+        } catch (e) {
+            console.error('[RateLimit] Redis get error, fallback to memory', e);
+            // Fallback to memory on error implies potentially fresh start for this key in memory context context
+            // Ideally we might want circuit breaker here. For now, simple fallback behavior or just return null
+            return null;
+        }
+    }
+    return memoryStore.get(key) || null;
+}
+
+// Helper for setting rate limit data
+async function setRateLimit(key: string, record: RateLimitRecord, ttlMs: number): Promise<void> {
+    if (redisClient) {
+        try {
+            // Set with expiry
+            await redisClient.set(`ratelimit:${key}`, JSON.stringify(record), 'PX', ttlMs);
+        } catch (e) {
+            console.error('[RateLimit] Redis set error', e);
+            // Fallback to memory
+            memoryStore.set(key, record);
+        }
+        return;
+    }
+    memoryStore.set(key, record);
+}
 
 /**
  * Extracts the client IP address from the request
@@ -75,17 +130,6 @@ function getClientIp(c: Context): string {
 
 /**
  * Rate limiting middleware factory
- *
- * @param options - Configuration options for rate limiting
- * @returns Hono middleware function
- *
- * @example
- * // Limit login attempts to 5 per minute
- * authRouter.post('/login', rateLimit({ limit: 5, windowMs: 60000 }), handler);
- *
- * @example
- * // Apply global limit to all AI routes
- * aiRouter.use('*', rateLimit({ limit: 30, windowMs: 60000 }));
  */
 export function rateLimit(options: RateLimitOptions) {
     const {
@@ -100,8 +144,8 @@ export function rateLimit(options: RateLimitOptions) {
         const key = keyGenerator ? keyGenerator(c) : getClientIp(c);
         const now = Date.now();
 
-        // Get or initialize the rate limit record
-        let record = rateLimitStore.get(key);
+        // Get current record
+        let record = await getRateLimit(key);
 
         // If no record or window has expired, start fresh
         if (!record || now > record.resetTime) {
@@ -109,7 +153,8 @@ export function rateLimit(options: RateLimitOptions) {
                 count: 1,
                 resetTime: now + windowMs
             };
-            rateLimitStore.set(key, record);
+
+            await setRateLimit(key, record, windowMs);
 
             // Set rate limit headers for transparency
             c.header('X-RateLimit-Limit', String(limit));
@@ -143,6 +188,11 @@ export function rateLimit(options: RateLimitOptions) {
 
         // Increment counter
         record.count++;
+        // Calculate remaining TTL
+        const remainingTtl = Math.max(0, record.resetTime - Date.now());
+
+        // Update record
+        await setRateLimit(key, record, remainingTtl);
 
         // Set rate limit headers
         c.header('X-RateLimit-Limit', String(limit));

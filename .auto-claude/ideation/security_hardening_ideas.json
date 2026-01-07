@@ -3,122 +3,158 @@
     {
       "id": "sec-001",
       "type": "security_hardening",
-      "title": "Upgrade vulnerable npm dependencies with known CVEs",
-      "description": "npm audit reveals 4 vulnerabilities in dependencies: esbuild (<=0.24.2) has a moderate severity request handling issue, path-to-regexp (4.0.0-6.2.2) has a HIGH severity ReDoS vulnerability enabling denial of service via backtracking regex, and undici (<=5.28.5) has two moderate vulnerabilities including insufficient random values and certificate handling issues.",
-      "rationale": "High severity vulnerabilities like ReDoS in path-to-regexp can be exploited by attackers to cause denial of service by crafting malicious URLs. The undici vulnerabilities could compromise secure communications.",
-      "category": "dependencies",
-      "severity": "high",
-      "affectedFiles": ["package.json", "package-lock.json", "@vercel/node dependency"],
-      "vulnerability": "CWE-1333: Inefficient Regular Expression Complexity, CWE-330: Insufficient Random Values",
-      "currentRisk": "ReDoS attacks on routing, potential DoS via path-to-regexp. Certificate validation issues in undici could allow MITM attacks.",
-      "remediation": "Run `npm audit fix --force` to upgrade @vercel/node to version 2.3.0 (breaking change). Alternatively, upgrade individual packages: path-to-regexp to >=6.3.0, undici to >=5.28.6, esbuild to >=0.25.0. Review breaking changes in @vercel/node before upgrading.",
+      "title": "Proxy Voice WebSocket Connections Through Server to Protect API Keys",
+      "description": "The OpenAI Realtime API key is retrieved via `/api/user/voice-key` endpoint and sent to the client. The client uses this key directly in WebSocket subprotocol headers (`openai-insecure-api-key.${this.apiKey}`) in `openaiRealtimeClient.ts` line 337-341. This exposes the actual API key in browser developer tools, network inspection, and client-side JavaScript memory.",
+      "rationale": "Exposing API keys to the client-side is a critical security flaw. The key can be stolen via browser extensions, XSS attacks, man-in-the-middle proxies, or simply by users inspecting network traffic. A compromised OpenAI key could result in significant financial costs (voice API pricing) and abuse. The key is literally named 'insecure-api-key' in the WebSocket protocol.",
+      "category": "secrets_management",
+      "severity": "critical",
+      "affectedFiles": [
+        "src/services/openaiRealtimeClient.ts",
+        "src/services/apiKeyStorage.ts",
+        "server/src/routes/user.ts"
+      ],
+      "vulnerability": "CWE-200: Exposure of Sensitive Information to an Unauthorized Actor",
+      "currentRisk": "OpenAI API keys are fully exposed to client browsers, enabling unauthorized API usage, potential financial abuse, and key theft",
+      "remediation": "Implement a server-side WebSocket proxy that maintains the OpenAI Realtime connection on the backend. Architecture: Client ↔ Your Server (WebSocket) ↔ OpenAI (WebSocket with API key). The client connects to your server which relays audio bidirectionally. This keeps the API key entirely server-side. Consider using a Node.js WebSocket library (ws) to proxy connections.",
       "references": [
-        "https://github.com/advisories/GHSA-9wv6-86v2-598j",
-        "https://github.com/advisories/GHSA-67mh-4wv8-2f99",
-        "https://github.com/advisories/GHSA-c76h-2ccp-4975"
+        "https://owasp.org/www-community/vulnerabilities/Improper_key_management",
+        "https://platform.openai.com/docs/guides/realtime",
+        "https://cwe.mitre.org/data/definitions/200.html"
       ],
       "compliance": ["SOC2", "PCI-DSS"]
     },
     {
       "id": "sec-002",
       "type": "security_hardening",
-      "title": "Hash password reset tokens before database storage",
-      "description": "In server/src/routes/auth.ts line 216, password reset tokens are stored in plaintext in the database with an explicit comment noting 'Storing plain token for MVP simplicity, usually hash it'. This leaves reset tokens vulnerable if the database is compromised.",
-      "rationale": "Password reset tokens grant full account takeover capability. If an attacker gains read access to the database (via SQL injection, backup leak, or insider threat), they can use any unexpired reset token to take over accounts. Hashing tokens with SHA-256 prevents this attack vector.",
+      "title": "Implement Server-Side Password Strength Validation",
+      "description": "The signup endpoint in `server/src/routes/auth.ts` (line 17-21) only validates that password is a non-empty string (`!password || typeof password !== 'string'`). There are no password complexity requirements enforced, allowing users to register with trivially weak passwords like '1', 'a', or 'password'.",
+      "rationale": "Weak passwords are a primary attack vector even with rate limiting and account lockout in place. Users often reuse passwords across services, and weak passwords can be compromised through offline dictionary attacks if the database is ever breached. The existing Argon2 hashing protects against rainbow tables but not against dictionary attacks on weak passwords.",
       "category": "authentication",
       "severity": "high",
-      "affectedFiles": ["server/src/routes/auth.ts", "server/src/db/schema.ts"],
-      "vulnerability": "CWE-522: Insufficiently Protected Credentials",
-      "currentRisk": "Database breach exposes all active password reset tokens, enabling mass account takeover",
-      "remediation": "1. Hash the reset token with SHA-256 before storing: `const tokenHash = crypto.createHash('sha256').update(token).digest('hex')`. 2. Send the unhashed token to user via email. 3. When validating, hash the submitted token and compare to stored hash. 4. Rename 'tokenHash' column if needed for clarity (it's currently storing plaintext despite the name).",
-      "references": [
-        "https://cheatsheetseries.owasp.org/cheatsheets/Forgot_Password_Cheat_Sheet.html",
-        "https://cwe.mitre.org/data/definitions/522.html"
+      "affectedFiles": [
+        "server/src/routes/auth.ts"
       ],
-      "compliance": ["SOC2", "GDPR"]
+      "vulnerability": "CWE-521: Weak Password Requirements",
+      "currentRisk": "Users can set trivially weak passwords (e.g., '1', 'password123'), making accounts vulnerable to credential stuffing even with account lockout protection",
+      "remediation": "Add server-side password validation middleware requiring: minimum 8 characters, at least one uppercase letter, one lowercase letter, one number. Consider checking against Have I Been Pwned API for breached passwords. Example validation: `if (password.length < 8 || !/[A-Z]/.test(password) || !/[a-z]/.test(password) || !/[0-9]/.test(password)) return error;`",
+      "references": [
+        "https://cheatsheetseries.owasp.org/cheatsheets/Authentication_Cheat_Sheet.html#implement-proper-password-strength-controls",
+        "https://pages.nist.gov/800-63-3/sp800-63b.html#memsecret"
+      ],
+      "compliance": ["SOC2", "NIST 800-63B"]
     },
     {
       "id": "sec-003",
       "type": "security_hardening",
-      "title": "Implement CSRF protection for state-changing endpoints",
-      "description": "The application lacks CSRF (Cross-Site Request Forgery) protection. State-changing endpoints like /api/auth/login, /api/user/api-keys, and /api/designs rely solely on session cookies for authentication. An attacker could trick authenticated users into performing unwanted actions by embedding requests in malicious websites.",
-      "rationale": "Without CSRF tokens, any website can submit forms to the application on behalf of authenticated users. This is particularly dangerous for API key management and account operations. The SameSite cookie attribute provides partial protection but is insufficient for older browsers and certain attack vectors.",
-      "category": "authorization",
+      "title": "Add Input Length Limits and Sanitization for AI Prompts",
+      "description": "AI endpoints in `server/src/routes/ai.ts` accept user prompts without enforcing maximum length limits or sanitization. The `/api/ai/chat`, `/api/ai/image/generate`, and `/api/ai/image/edit` routes pass prompts directly to external APIs. Only `/api/ai/prompt/enhance` has basic string validation (`typeof prompt !== 'string'`).",
+      "rationale": "Without input validation, malicious users could: 1) Submit extremely long prompts (megabytes) causing excessive API costs and timeouts, 2) Attempt prompt injection attacks to manipulate AI behavior or extract system prompts, 3) Abuse the service for generating harmful content via carefully crafted prompts.",
+      "category": "input_validation",
       "severity": "medium",
       "affectedFiles": [
-        "server/src/index.ts",
-        "server/src/routes/auth.ts",
-        "server/src/routes/user.ts",
-        "src/services/api.ts"
+        "server/src/routes/ai.ts",
+        "server/src/routes/replicate.ts"
       ],
-      "vulnerability": "CWE-352: Cross-Site Request Forgery (CSRF)",
-      "currentRisk": "Authenticated users visiting malicious sites could unknowingly trigger account changes, API key modifications, or design deletions",
-      "remediation": "1. Create server/src/lib/csrf.ts with token generation using crypto.randomBytes(32). 2. Set CSRF token in a double-submit cookie pattern. 3. Add CSRF middleware to validate X-CSRF-Token header on POST/PUT/DELETE requests. 4. Update frontend api.ts to include CSRF token from cookie in request headers. 5. Consider using Hono's built-in csrf middleware.",
+      "vulnerability": "CWE-400: Uncontrolled Resource Consumption / CWE-74: Prompt Injection",
+      "currentRisk": "Resource exhaustion from oversized prompts, potential prompt injection attacks, excessive API costs from abuse",
+      "remediation": "1. Add maximum length validation for all prompts (e.g., 10,000 characters). 2. Implement a prompt validation middleware that runs before AI routes. 3. Log and monitor for suspicious patterns like 'ignore previous instructions', 'you are now', or system prompt extraction attempts. 4. Consider implementing semantic content filtering for generated outputs.",
       "references": [
-        "https://cheatsheetseries.owasp.org/cheatsheets/Cross-Site_Request_Forgery_Prevention_Cheat_Sheet.html",
-        "https://cwe.mitre.org/data/definitions/352.html"
+        "https://simonwillison.net/2022/Sep/12/prompt-injection/",
+        "https://owasp.org/www-project-web-security-testing-guide/latest/4-Web_Application_Security_Testing/07-Input_Validation_Testing/"
       ],
-      "compliance": ["OWASP Top 10 A01:2021"]
+      "compliance": ["SOC2"]
     },
     {
       "id": "sec-004",
       "type": "security_hardening",
-      "title": "Remove API key access from localStorage in ModelSelector component",
-      "description": "The ModelSelector component (src/components/features/ModelSelector.tsx line 29) still reads API keys directly from localStorage. While the main apiKeyStorage service has been updated to use server-side storage, this legacy pattern could lead to inconsistent behavior and expose keys to XSS attacks.",
-      "rationale": "localStorage is accessible to any JavaScript running on the page, making stored secrets vulnerable to XSS attacks. Although the migration to server-side storage is underway, legacy code patterns that access localStorage directly could cause confusion and security regressions. The migrateLocalStorageToNeon function in apiKeyStorage.ts also reads from localStorage for migration purposes but doesn't clear the old values.",
-      "category": "secrets_management",
+      "title": "Enable Content Safety Filters on Generate-Layer Endpoint",
+      "description": "In `server/src/routes/replicate.ts` line 342, the generate-layer endpoint has `disable_safety_checker: true` hard-coded, explicitly bypassing Replicate's content moderation. This is the only endpoint where safety is explicitly disabled - other endpoints have it enabled or use defaults.",
+      "rationale": "Disabling content safety filters specifically for the generate-layer endpoint creates an attack vector for generating inappropriate content. While other endpoints have safety enabled, users could target this specific endpoint to bypass moderation. This could expose the platform to legal liability and Replicate ToS violations.",
+      "category": "configuration",
       "severity": "medium",
       "affectedFiles": [
-        "src/components/features/ModelSelector.tsx",
-        "src/services/apiKeyStorage.ts"
+        "server/src/routes/replicate.ts"
       ],
-      "vulnerability": "CWE-312: Cleartext Storage of Sensitive Information",
-      "currentRisk": "XSS vulnerability anywhere in the app could extract API keys from localStorage. Legacy code may bypass intended server-side key storage.",
-      "remediation": "1. Update ModelSelector to get API key availability status from AIContext or call getUserAPIKeys() instead of localStorage.getItem('openrouter_api_key'). 2. After successful migration, clear localStorage keys using localStorage.removeItem(). 3. Add a cleanup function in migrateLocalStorageToNeon() that removes keys after successful server storage. 4. Search codebase for all localStorage.getItem calls referencing *_api_key and update them.",
+      "vulnerability": "CWE-1188: Insecure Default Initialization of Resource",
+      "currentRisk": "The generate-layer endpoint bypasses content moderation, enabling generation of potentially harmful or policy-violating images",
+      "remediation": "Remove `disable_safety_checker: true` from line 342 in replicate.ts. The default Replicate behavior with safety enabled should be sufficient for professional use cases. If there's a legitimate need for unfiltered generation, make it a server-controlled configuration with audit logging, not hard-coded.",
       "references": [
-        "https://cheatsheetseries.owasp.org/cheatsheets/HTML5_Security_Cheat_Sheet.html#local-storage",
-        "https://cwe.mitre.org/data/definitions/312.html"
+        "https://replicate.com/docs/topics/safety"
       ],
-      "compliance": ["SOC2", "PCI-DSS"]
+      "compliance": ["Platform ToS", "Content Policy"]
     },
     {
       "id": "sec-005",
       "type": "security_hardening",
-      "title": "Implement Content Security Policy (CSP) headers",
-      "description": "The application has basic security headers (X-Frame-Options, X-XSS-Protection, X-Content-Type-Options) but lacks a Content Security Policy. CSP is the most effective defense against XSS attacks, controlling which sources can load scripts, styles, images, and other resources.",
-      "rationale": "Without CSP, any injected script can execute and exfiltrate data. Given this app handles API keys and uses multiple AI service integrations, CSP provides critical defense-in-depth against XSS. The application already connects to known external domains (replicate.com, openrouter.ai, googleapis.com) that can be whitelisted.",
-      "category": "configuration",
-      "severity": "medium",
+      "title": "Add Explicit .env.local to .gitignore",
+      "description": "The `.gitignore` contains `*.local` pattern and explicit `.env` and `.env.test` entries. While `*.local` should match `.env.local`, some git versions handle dotfile glob patterns inconsistently. Multiple .env files exist: `.env`, `.env.local`, `.env.test`, `server/.env`, and `.auto-claude/.env`.",
+      "rationale": "Environment files containing API keys (OPENAI, REPLICATE, OPENROUTER, etc.) must never be committed. Even brief accidental commits persist in git history. The current setup relies on glob patterns which may behave differently across git versions and platforms.",
+      "category": "secrets_management",
+      "severity": "low",
       "affectedFiles": [
-        "server/src/index.ts",
-        "nginx.conf"
+        ".gitignore"
       ],
-      "vulnerability": "CWE-1021: Improper Restriction of Rendered UI Layers or Frames",
-      "currentRisk": "XSS attacks can freely execute malicious JavaScript, steal session cookies (unless HttpOnly), exfiltrate API keys from localStorage, and perform actions on behalf of users",
-      "remediation": "Add CSP header in server/src/index.ts security headers middleware. Start with report-only mode: `Content-Security-Policy-Report-Only: default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https://*.replicate.delivery https://*.supabase.co; connect-src 'self' https://api.replicate.com https://openrouter.ai https://generativelanguage.googleapis.com; frame-ancestors 'none';` Monitor violations before enforcing. Gradually remove 'unsafe-inline' by using nonces or hashes.",
+      "vulnerability": "CWE-312: Cleartext Storage of Sensitive Information",
+      "currentRisk": "Potential accidental commit of environment files if gitignore patterns don't match on all systems",
+      "remediation": "Explicitly add all environment files to .gitignore: `.env.local`, `server/.env`, `.auto-claude/.env`. Run `git status` to verify. Consider adding a pre-commit hook using `git-secrets` or `detect-secrets` to scan for API key patterns before each commit.",
       "references": [
-        "https://developer.mozilla.org/en-US/docs/Web/HTTP/CSP",
-        "https://cheatsheetseries.owasp.org/cheatsheets/Content_Security_Policy_Cheat_Sheet.html"
+        "https://github.com/awslabs/git-secrets",
+        "https://github.com/Yelp/detect-secrets"
       ],
-      "compliance": ["OWASP Top 10 A05:2021", "SOC2"]
+      "compliance": ["SOC2"]
     }
   ],
   "metadata": {
-    "dependenciesScanned": 51,
-    "knownVulnerabilities": 4,
-    "filesAnalyzed": 89,
-    "criticalIssues": 0,
-    "highIssues": 2,
-    "mediumIssues": 3,
-    "lowIssues": 0,
-    "generatedAt": "2026-01-06T22:00:00Z",
+    "dependenciesScanned": 510,
+    "knownVulnerabilities": 0,
+    "filesAnalyzed": 32,
+    "criticalIssues": 1,
+    "highIssues": 1,
+    "mediumIssues": 2,
+    "lowIssues": 1,
+    "generatedAt": "2026-01-08T04:50:00Z",
+    "analysisScope": [
+      "Authentication flows (Lucia, Argon2 password hashing, sessions)",
+      "Authorization (rate limiting with Redis, CSRF protection, account lockout)",
+      "Input validation (AI prompts, authentication)",
+      "API key management (server-side storage, voice key exposure)",
+      "Security headers (CSP, HSTS, X-Frame-Options)",
+      "AI safety controls (Replicate safety checkers)",
+      "Dependency vulnerabilities (npm audit)",
+      "WebSocket security (OpenAI Realtime)"
+    ],
+    "positiveFindings": [
+      "Strong password hashing with Argon2 (memory=19456, time=2, parallelism=1)",
+      "CSRF protection enabled globally via hono/csrf middleware",
+      "Rate limiting on auth endpoints (5/min login, 3/min signup, 3/min forgot-password, 5/min reset-password)",
+      "Rate limiting on AI endpoints (30 requests/minute)",
+      "Account lockout implemented (5 failed attempts → 15 min lock)",
+      "Password reset tokens properly hashed (SHA-256) before database storage",
+      "User enumeration prevention with generic error messages",
+      "No known npm vulnerabilities (0 critical, 0 high, 0 moderate)",
+      "API keys stored server-side in Neon, masked for client display",
+      "HttpOnly session cookies via Lucia authentication",
+      "Comprehensive security headers: HSTS (2 years), CSP, X-Frame-Options (SAMEORIGIN), X-Content-Type-Options (nosniff), Referrer-Policy",
+      "CSP script-src 'self' - no unsafe-eval or unsafe-inline for scripts",
+      "No dangerous patterns (innerHTML, eval, dangerouslySetInnerHTML) in React code",
+      "Session invalidation on password reset",
+      "Legacy localStorage API key cleanup function exists (forceClearLegacyKeys)",
+      "Failed login attempts tracked per-account with lockout"
+    ],
     "scanDetails": {
-      "passwordHashing": "Argon2id with strong parameters (✓ secure)",
-      "rateLimiting": "Implemented on auth and AI endpoints (✓ secure)",
-      "sessionManagement": "Lucia with HttpOnly cookies (✓ secure)",
-      "securityHeaders": "Basic headers present, CSP missing (⚠ needs improvement)",
-      "csrfProtection": "Not implemented (⚠ needs implementation)",
-      "dependencyVulnerabilities": "4 vulnerabilities found (⚠ needs patching)"
+      "npmAudit": "Clean - 0 vulnerabilities in 510 dependencies",
+      "passwordHashing": "Argon2 with OWASP-recommended parameters",
+      "rateLimiting": "Redis-backed with in-memory fallback",
+      "sessionManagement": "Lucia with HttpOnly cookies, session refresh on stale",
+      "csrfProtection": "Global hono/csrf middleware",
+      "accountLockout": "5 failed attempts → 15 minute lock, reset on success",
+      "securityHeaders": "HSTS, CSP (strict script-src), X-Frame-Options, X-Content-Type-Options",
+      "apiKeyStorage": "Server-side Neon database, masked for display, migration cleanup exists"
+    },
+    "previousFindingsStatus": {
+      "sec-001-old": "INVALID - CSP does NOT have unsafe-inline/unsafe-eval for scripts. Only style-src has unsafe-inline which is standard for CSS-in-JS/Tailwind.",
+      "sec-004-old": "ADDRESSED - forceClearLegacyKeys() function exists at line 176-191 in apiKeyStorage.ts",
+      "sec-005-old": "ALREADY IMPLEMENTED - Account lockout exists in auth.ts lines 104-150 with failedLoginAttempts and lockedUntil fields"
     }
   }
 }

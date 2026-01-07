@@ -1,5 +1,5 @@
 {
-  "id": "roadmap-20260106",
+  "id": "roadmap-2026-01-08-143000",
   "project_name": "Nanobanna Pro",
   "version": "1.0",
   "vision": "AI-powered LinkedIn banner designer that creates stunning professional banners in seconds using multi-LLM orchestration and voice-powered workflows",
@@ -15,8 +15,8 @@
   "phases": [
     {
       "id": "phase-1",
-      "name": "Foundation & Polish",
-      "description": "Stabilize the platform, fix technical debt, and enhance core AI generation capabilities to solidify competitive advantages",
+      "name": "Foundation & Quick Wins",
+      "description": "Complete core feature gaps, address critical technical debt, and implement high-impact quick wins that differentiate from competitors",
       "order": 1,
       "status": "planned",
       "features": [
@@ -24,125 +24,96 @@
         "feature-2",
         "feature-3",
         "feature-4",
-        "feature-5"
+        "feature-5",
+        "feature-6",
+        "feature-7"
       ],
       "milestones": [
         {
           "id": "milestone-1-1",
-          "title": "TypeScript Cleanup Complete",
-          "description": "All 47+ 'any' types resolved with proper interfaces, improving code quality and maintainability",
-          "features": [
-            "feature-1"
-          ],
+          "title": "Template Library Launch",
+          "description": "Users can quickly start designs from curated professional templates, addressing the cold-start problem for new users",
+          "features": ["feature-1"],
           "status": "planned"
         },
         {
           "id": "milestone-1-2",
-          "title": "Test Suite Restored",
-          "description": "CI tests re-enabled with comprehensive coverage, ensuring reliable deployments",
-          "features": [
-            "feature-2"
-          ],
+          "title": "TypeScript Health Restored",
+          "description": "Codebase has proper type coverage, enabling safer development and better IDE support",
+          "features": ["feature-2", "feature-3"],
           "status": "planned"
         },
         {
           "id": "milestone-1-3",
-          "title": "Quick Start Templates Live",
-          "description": "Users can generate professional banners from templates in under 30 seconds",
-          "features": [
-            "feature-3"
-          ],
+          "title": "Partner Agent MVP",
+          "description": "Autonomous AI assistance available for guided design workflows, completing T016-T021 from work board",
+          "features": ["feature-4"],
+          "status": "planned"
+        },
+        {
+          "id": "milestone-1-4",
+          "title": "LinkedIn Premium Slideshow Support",
+          "description": "Users can create coordinated 5-banner slideshows for LinkedIn Premium, addressing new market opportunity",
+          "features": ["feature-5"],
           "status": "planned"
         }
       ]
     },
     {
       "id": "phase-2",
-      "name": "User Experience Excellence",
-      "description": "Streamline onboarding, enhance usability, and address competitor pain points around UI complexity and performance",
+      "name": "User Experience Enhancement",
+      "description": "Improve usability, add competitive features that address competitor pain points, and enhance the design workflow",
       "order": 2,
       "status": "planned",
       "features": [
-        "feature-6",
-        "feature-7",
         "feature-8",
         "feature-9",
         "feature-10",
-        "feature-11"
+        "feature-11",
+        "feature-12",
+        "feature-13",
+        "feature-14"
       ],
       "milestones": [
         {
           "id": "milestone-2-1",
-          "title": "Zero-to-Banner in 60 Seconds",
-          "description": "New users can create and export their first banner within 60 seconds of signing up",
-          "features": [
-            "feature-6",
-            "feature-7"
-          ],
+          "title": "Advanced Typography System",
+          "description": "Professional-grade text controls rivaling dedicated design tools",
+          "features": ["feature-8"],
           "status": "planned"
         },
         {
           "id": "milestone-2-2",
-          "title": "Performance Optimized",
-          "description": "App loads in under 2 seconds, canvas operations feel instant, no lag during generation",
-          "features": [
-            "feature-8"
-          ],
+          "title": "Design Analytics Live",
+          "description": "Users can track how their banners perform and get AI-powered improvement suggestions",
+          "features": ["feature-9", "feature-10"],
           "status": "planned"
         },
         {
           "id": "milestone-2-3",
-          "title": "Mobile-Ready Design Experience",
-          "description": "Full banner creation capability on mobile devices with touch-optimized controls",
-          "features": [
-            "feature-10"
-          ],
+          "title": "Mobile-First Experience",
+          "description": "Full design capabilities on mobile devices, addressing competitor weakness",
+          "features": ["feature-11"],
+          "status": "planned"
+        },
+        {
+          "id": "milestone-2-4",
+          "title": "Enhanced Onboarding",
+          "description": "Interactive tutorials and personalized starting recommendations",
+          "features": ["feature-12", "feature-13"],
           "status": "planned"
         }
       ]
     },
     {
       "id": "phase-3",
-      "name": "Social & Publishing Integration",
-      "description": "Enable direct publishing workflows and team collaboration features that competitors lack",
+      "name": "Scale & Collaboration",
+      "description": "Enable team workflows, expand platform reach, and add enterprise-ready features",
       "order": 3,
       "status": "planned",
       "features": [
-        "feature-12",
-        "feature-13",
-        "feature-14",
         "feature-15",
-        "feature-16"
-      ],
-      "milestones": [
-        {
-          "id": "milestone-3-1",
-          "title": "One-Click LinkedIn Publishing",
-          "description": "Users can publish banners directly to LinkedIn without leaving the app",
-          "features": [
-            "feature-12"
-          ],
-          "status": "planned"
-        },
-        {
-          "id": "milestone-3-2",
-          "title": "Team Collaboration Live",
-          "description": "Teams can share brand profiles and collaborate on designs",
-          "features": [
-            "feature-14",
-            "feature-15"
-          ],
-          "status": "planned"
-        }
-      ]
-    },
-    {
-      "id": "phase-4",
-      "name": "Intelligent Automation",
-      "description": "Deploy the Partner Agent system and advanced analytics for autonomous AI assistance",
-      "order": 4,
-      "status": "planned",
-      "features": [
+        "feature-16",
         "feature-17",
         "feature-18",
         "feature-19",
@@ -150,54 +121,61 @@
       ],
       "milestones": [
         {
-          "id": "milestone-4-1",
-          "title": "Partner Agent System Operational",
-          "description": "AI agents autonomously assist users with banner creation and optimization",
-          "features": [
-            "feature-17"
-          ],
+          "id": "milestone-3-1",
+          "title": "Team Collaboration Launch",
+          "description": "Organizations can collaborate on brand assets with shared workspaces and approval workflows",
+          "features": ["feature-15", "feature-16"],
           "status": "planned"
         },
         {
-          "id": "milestone-4-2",
-          "title": "Analytics Dashboard Deployed",
-          "description": "Users can track design performance and engagement metrics",
-          "features": [
-            "feature-18"
-          ],
+          "id": "milestone-3-2",
+          "title": "LinkedIn Direct Integration",
+          "description": "One-click publishing to LinkedIn profiles without leaving Nanobanna Pro",
+          "features": ["feature-17"],
+          "status": "planned"
+        },
+        {
+          "id": "milestone-3-3",
+          "title": "Real-Time Collaboration",
+          "description": "Multiple team members can work on designs simultaneously",
+          "features": ["feature-18"],
           "status": "planned"
         }
       ]
     },
     {
-      "id": "phase-5",
+      "id": "phase-4",
       "name": "Future Vision",
-      "description": "Advanced features for power users, including motion graphics, real-time collaboration, and enterprise capabilities",
-      "order": 5,
+      "description": "Experimental features, platform expansion, and long-term innovation",
+      "order": 4,
       "status": "planned",
       "features": [
         "feature-21",
         "feature-22",
         "feature-23",
-        "feature-24"
+        "feature-24",
+        "feature-25"
       ],
       "milestones": [
         {
-          "id": "milestone-5-1",
-          "title": "Animated Banners Available",
-          "description": "Users can create animated/motion banners for LinkedIn covers and video backgrounds",
-          "features": [
-            "feature-21"
-          ],
+          "id": "milestone-4-1",
+          "title": "Motion Graphics Support",
+          "description": "Animated banners and video content for platforms that support them",
+          "features": ["feature-21"],
           "status": "planned"
         },
         {
-          "id": "milestone-5-2",
-          "title": "Real-Time Collaboration Live",
-          "description": "Multiple users can edit the same design simultaneously with live cursors",
-          "features": [
-            "feature-22"
-          ],
+          "id": "milestone-4-2",
+          "title": "AI Brand Coach",
+          "description": "Proactive AI assistance that helps users develop and maintain personal branding strategies",
+          "features": ["feature-22", "feature-23"],
+          "status": "planned"
+        },
+        {
+          "id": "milestone-4-3",
+          "title": "Platform Ecosystem",
+          "description": "API and integrations for third-party tools and enterprise workflows",
+          "features": ["feature-24", "feature-25"],
           "status": "planned"
         }
       ]
@@ -206,680 +184,610 @@
   "features": [
     {
       "id": "feature-1",
-      "title": "TypeScript Type Safety Audit",
-      "description": "Resolve all 47+ 'any' types identified in T007 audit with proper TypeScript interfaces. This improves code quality, enables better IDE support, and prevents runtime type errors.",
-      "rationale": "Technical debt reduces development velocity and increases bug risk. Proper types enable faster feature development and easier onboarding for new contributors.",
+      "title": "Professional Template Library",
+      "description": "Curated collection of professionally designed LinkedIn banner templates organized by industry, role, and style. Templates are AI-generated to ensure uniqueness (not recycled like competitors) with easy one-click customization.",
+      "rationale": "Addresses cold-start problem for new users and directly counters competitor pain point of 'template saturation' where designs look similar. AI-generated templates ensure each user gets unique starting points. Unlike Canva/VistaCreate templates used by thousands, ours are dynamically generated.",
       "priority": "must",
       "complexity": "medium",
-      "impact": "medium",
+      "impact": "high",
       "phase_id": "phase-1",
       "dependencies": [],
-      "status": "planned",
+      "status": "idea",
       "acceptance_criteria": [
-        "Zero 'any' types in src/ directory",
-        "All AI response types properly defined",
-        "Canvas state types fully typed",
-        "Build passes with strict TypeScript checks"
+        "50+ unique AI-generated templates available across 10 industry categories",
+        "Templates respect LinkedIn safe zones and profile picture overlay areas",
+        "One-click template application to canvas",
+        "Template customization preserves brand kit colors and fonts",
+        "Templates load in under 2 seconds"
       ],
       "user_stories": [
-        "As a developer, I want proper TypeScript types so that I can catch errors at compile time and have better IDE autocomplete"
+        "As a job seeker, I want to start from a professional template so that I can create a polished banner quickly without design skills",
+        "As a marketing professional, I want industry-specific templates so that I can create relevant banners for different client sectors"
       ],
-      "competitor_insight_ids": [],
-      "linked_spec_id": "032-typescript-type-safety-audit"
+      "competitor_insight_ids": ["pain-3-6", "pain-6-3", "pain-6-6"]
     },
     {
       "id": "feature-2",
-      "title": "Restore Test Suite in CI",
-      "description": "Re-enable the temporarily disabled tests in CI pipeline and achieve comprehensive test coverage for critical paths including AI generation, canvas operations, and authentication.",
-      "rationale": "Tests were disabled to unblock deployment but this creates risk. Reliable CI prevents regressions and enables confident deployments.",
+      "title": "TypeScript Interface Remediation",
+      "description": "Replace 47+ 'any' types identified in T007 audit with proper TypeScript interfaces. This improves code safety, IDE autocomplete, and reduces runtime errors.",
+      "rationale": "Technical debt reduction that improves development velocity and code quality. Prevents runtime errors that could frustrate users, addressing the reliability issues competitors face (Microsoft Designer crashes, Canva outages).",
       "priority": "must",
       "complexity": "medium",
       "impact": "medium",
       "phase_id": "phase-1",
-      "dependencies": [
-        "feature-1"
-      ],
-      "status": "planned",
+      "dependencies": [],
+      "status": "idea",
       "acceptance_criteria": [
-        "All existing tests passing in CI",
-        "Code coverage >70% for src/services/",
-        "E2E tests for critical user flows",
-        "Tests run in under 5 minutes"
+        "All 47+ 'any' types replaced with proper interfaces",
+        "No new TypeScript errors introduced",
+        "Build succeeds with strict mode enabled",
+        "All existing tests pass"
       ],
       "user_stories": [
-        "As a developer, I want reliable tests so that I can deploy with confidence without breaking existing functionality"
+        "As a developer, I want proper type definitions so that I can catch errors at compile time",
+        "As a user, I want a stable application so that I don't lose work to crashes"
       ],
-      "competitor_insight_ids": [],
-      "linked_spec_id": "033-restore-test-suite-in-ci"
+      "competitor_insight_ids": ["pain-4-3"]
     },
     {
       "id": "feature-3",
-      "title": "Professional Template Library",
-      "description": "Curated library of industry-specific LinkedIn banner templates (Tech, Finance, Healthcare, Creative, etc.) that users can customize with AI. Templates address common professional scenarios like job searching, thought leadership, and company promotion.",
-      "rationale": "Users with limited design skills struggle to start from scratch. Templates provide instant professional starting points, directly addressing the pain point of 'lack of design skills'. This differentiates from Canva's generic templates by being LinkedIn-specific and career-focused.",
+      "title": "Re-enable CI Test Suite",
+      "description": "Fix and re-enable tests that were temporarily disabled to unblock deployment. Add additional test coverage for critical paths including canvas operations, AI generation, and authentication flows.",
+      "rationale": "Tests were disabled as noted in technical debt. Re-enabling ensures regression prevention and maintains code quality, preventing the reliability issues that plague competitors like Microsoft Designer (crashes, lost work).",
       "priority": "must",
       "complexity": "medium",
-      "impact": "high",
+      "impact": "medium",
       "phase_id": "phase-1",
-      "dependencies": [],
-      "status": "planned",
+      "dependencies": ["feature-2"],
+      "status": "idea",
       "acceptance_criteria": [
-        "At least 20 industry-specific templates available",
-        "Templates respect LinkedIn safe zones",
-        "AI can customize any template element",
-        "Templates load in under 1 second",
-        "Each template has preview and description"
+        "All previously disabled tests are re-enabled and passing",
+        "Test coverage reaches 70% for critical paths",
+        "CI pipeline runs tests on every PR",
+        "E2E tests cover core user journeys"
       ],
       "user_stories": [
-        "As a job seeker, I want to select a professional template so that I can create a polished banner without design expertise",
-        "As a marketing professional, I want industry-specific templates so that my banner reflects my professional domain"
+        "As a developer, I want comprehensive tests so that I can ship changes with confidence",
+        "As a user, I want a reliable application so that my designs are never lost"
       ],
-      "competitor_insight_ids": [
-        "pain-1-1",
-        "pain-6-1",
-        "pain-4-5"
-      ],
-      "linked_spec_id": "034-professional-template-library"
+      "competitor_insight_ids": ["pain-4-3", "pain-1-3"]
     },
     {
       "id": "feature-4",
-      "title": "Enhanced Brand Consistency Enforcement",
-      "description": "Upgrade the brand consistency panel to automatically enforce brand guidelines during AI generation. When generating or editing images, AI should respect brand colors, fonts, and style preferences without manual intervention.",
-      "rationale": "Users struggle to maintain brand consistency across designs. Canva requires manual checking; Nanobanna Pro can automatically enforce brand rules during AI generation, making it effortless.",
-      "priority": "should",
-      "complexity": "medium",
+      "title": "Partner Agent System (Autonomous AI Assistant)",
+      "description": "Implement the Partner Agent system (T016-T021 from work board) for autonomous AI-guided design assistance. The agent can suggest improvements, execute multi-step workflows, and provide proactive design recommendations.",
+      "rationale": "Completes queued work (T016-T021) and addresses the market gap where AI is either absent or intrusive. Unlike Adobe Express AI that users call 'intrusive' and Microsoft Designer AI that adds unwanted elements, Partner Agent assists only when invited and with user approval for actions.",
+      "priority": "must",
+      "complexity": "high",
       "impact": "high",
       "phase_id": "phase-1",
       "dependencies": [],
-      "status": "planned",
+      "status": "idea",
       "acceptance_criteria": [
-        "Brand colors automatically applied to AI generations",
-        "Font preferences respected in text overlays",
-        "Style guidelines (minimal, bold, etc.) influence generation",
-        "Warning shown when generation might violate brand rules",
-        "One-click brand compliance check for existing designs"
+        "Agent can analyze current canvas and suggest improvements",
+        "Agent can execute approved multi-step workflows autonomously",
+        "All agent actions require explicit user approval before execution",
+        "Agent respects brand kit constraints when making suggestions",
+        "Agent can be enabled/disabled at any time"
       ],
       "user_stories": [
-        "As a marketing professional, I want my brand guidelines automatically enforced so that all my banners look consistent without manual checking",
-        "As a content creator, I want AI to remember my brand style so that every generation matches my personal brand"
+        "As a non-designer, I want an AI partner that guides me so that I can create professional results without knowing design principles",
+        "As a power user, I want to approve AI suggestions before execution so that I maintain creative control"
       ],
-      "competitor_insight_ids": [
-        "pain-5-4"
-      ],
-      "linked_spec_id": "035-enhanced-brand-consistency-enforcement"
+      "competitor_insight_ids": ["pain-2-1", "pain-4-1", "pain-5-3"]
     },
     {
       "id": "feature-5",
-      "title": "Optimized Bundle Size & Code Splitting",
-      "description": "Implement aggressive code splitting and lazy loading to reduce initial bundle size. Heavy features like canvas editor, AI services, and voice components should load on demand.",
-      "rationale": "Competitors like Canva and Adobe Express suffer from performance issues with complex projects. Optimized loading creates a faster, more responsive experience that directly addresses user frustration with slow tools.",
+      "title": "LinkedIn Premium Banner Slideshow Support",
+      "description": "Support creating coordinated sets of 5 banners for LinkedIn Premium's banner slideshow feature (introduced Dec 2024). Includes theme consistency tools and preview carousel.",
+      "rationale": "Addresses market gap: No design tools optimize for LinkedIn Premium's new 5-banner slideshow format. First-mover advantage in this emerging feature space. Career-focused professionals (our target) are more likely to be Premium subscribers.",
+      "priority": "should",
+      "complexity": "medium",
+      "impact": "high",
+      "phase_id": "phase-1",
+      "dependencies": [],
+      "status": "idea",
+      "acceptance_criteria": [
+        "Users can create linked sets of 5 coordinated banners",
+        "Visual consistency tools ensure colors, fonts, and themes match across set",
+        "Preview carousel shows how rotation will appear on LinkedIn",
+        "Export all 5 banners in optimal format with single action",
+        "AI can generate thematically related variations for the set"
+      ],
+      "user_stories": [
+        "As a LinkedIn Premium user, I want to create a banner slideshow so that my profile stays fresh and engaging",
+        "As a content creator, I want coordinated banner sets so that I can tell a visual story on my profile"
+      ],
+      "competitor_insight_ids": []
+    },
+    {
+      "id": "feature-6",
+      "title": "Enhanced Mobile Cropping Preview",
+      "description": "Real-time preview showing exactly how banners will appear on mobile LinkedIn, including profile picture overlap, app chrome, and responsive scaling behaviors.",
+      "rationale": "Directly addresses market gap: Generic tools don't handle LinkedIn-specific safe zones and mobile cropping. Users of Canva complain mobile experience is 'basically unusable' and VistaCreate iPad version is 'just magnified iPhone version'. Our preview ensures designs work perfectly on all devices.",
+      "priority": "must",
+      "complexity": "low",
+      "impact": "high",
+      "phase_id": "phase-1",
+      "dependencies": [],
+      "status": "idea",
+      "acceptance_criteria": [
+        "Toggle between desktop and mobile preview modes",
+        "Mobile preview shows exact LinkedIn app chrome with profile picture overlay",
+        "Warning indicators appear when content enters danger zones",
+        "Preview updates in real-time as canvas is edited",
+        "Supports all device sizes (iPhone, Android variants)"
+      ],
+      "user_stories": [
+        "As a professional, I want to see how my banner looks on mobile so that important content isn't cut off",
+        "As a designer, I want safe zone warnings so that I can position elements optimally for all devices"
+      ],
+      "competitor_insight_ids": ["pain-1-6", "pain-3-3", "pain-8-4"]
+    },
+    {
+      "id": "feature-7",
+      "title": "Bundle Size Optimization & Code Splitting",
+      "description": "Implement aggressive code splitting, tree shaking, and lazy loading to reduce initial bundle size. Target 50% reduction in time-to-interactive.",
+      "rationale": "Performance issues frustrate users across competitors - Canva has slow download speeds, Adobe Express has performance lag, Figma slows with large files. Fast, snappy performance becomes a key differentiator.",
       "priority": "should",
       "complexity": "medium",
       "impact": "medium",
       "phase_id": "phase-1",
       "dependencies": [],
-      "status": "planned",
+      "status": "idea",
       "acceptance_criteria": [
-        "Initial bundle under 200KB gzipped",
-        "Canvas editor loads on first navigation to /studio",
-        "Voice components load only when voice feature activated",
-        "Lighthouse performance score >90",
-        "Time to Interactive under 3 seconds"
+        "Initial bundle size reduced by 40%+",
+        "Time to interactive under 2 seconds on 3G connections",
+        "Canvas editor and AI services lazy-loaded",
+        "Lighthouse performance score of 90+",
+        "No perceived loading delays during navigation"
       ],
       "user_stories": [
-        "As a user on a slow connection, I want the app to load quickly so that I can start creating without waiting",
-        "As a mobile user, I want efficient loading so that I don't waste my data plan"
+        "As a user on slow connection, I want fast page loads so that I can start designing quickly",
+        "As a mobile user, I want minimal data usage so that I can design anywhere"
       ],
-      "competitor_insight_ids": [
-        "pain-1-4",
-        "pain-2-3"
-      ],
-      "linked_spec_id": "036-optimized-bundle-size-code-splitting"
-    },
-    {
-      "id": "feature-6",
-      "title": "Guided Onboarding Flow",
-      "description": "Interactive onboarding that guides new users through creating their first banner in 60 seconds. Shows key features like AI generation, voice commands, and brand settings while the user creates a real output.",
-      "rationale": "First impression is critical. Competitors have cluttered UIs that overwhelm users. A focused onboarding that produces a real result creates immediate value and demonstrates the AI-powered workflow.",
-      "priority": "must",
-      "complexity": "medium",
-      "impact": "high",
-      "phase_id": "phase-2",
-      "dependencies": [
-        "feature-3"
-      ],
-      "status": "planned",
-      "acceptance_criteria": [
-        "New users complete first banner within 60 seconds",
-        "Onboarding shows AI generation, templates, and export",
-        "Users can skip onboarding if desired",
-        "Completion rate tracked for optimization",
-        "Optional voice command tutorial included"
-      ],
-      "user_stories": [
-        "As a new user, I want to be guided through creating my first banner so that I understand the tool's capabilities immediately",
-        "As someone unfamiliar with AI tools, I want a clear tutorial so that I feel confident using the features"
-      ],
-      "competitor_insight_ids": [
-        "pain-1-1",
-        "pain-2-1",
-        "pain-6-1"
-      ],
-      "linked_spec_id": "037-guided-onboarding-flow"
-    },
-    {
-      "id": "feature-7",
-      "title": "Quick Generate Mode",
-      "description": "Simplified one-click banner generation where users answer 3 questions (industry, style preference, key message) and AI generates 4 banner variants instantly. No canvas editing required for basic use cases.",
-      "rationale": "Many users just want a professional banner quickly without learning a design tool. This addresses the time-consuming nature of traditional design while maintaining quality through AI.",
-      "priority": "should",
-      "complexity": "medium",
-      "impact": "high",
-      "phase_id": "phase-2",
-      "dependencies": [
-        "feature-3"
-      ],
-      "status": "planned",
-      "acceptance_criteria": [
-        "3-question wizard captures user intent",
-        "4 banner variants generated within 30 seconds",
-        "Users can select, refine, or regenerate variants",
-        "Direct export without canvas editing if satisfied",
-        "Option to 'Edit in Studio' for further customization"
-      ],
-      "user_stories": [
-        "As a busy professional, I want to generate a banner with minimal input so that I can update my LinkedIn in minutes",
-        "As someone who dislikes design tools, I want a simple wizard so that I get professional results without learning the software"
-      ],
-      "competitor_insight_ids": [
-        "pain-6-3",
-        "pain-4-5"
-      ],
-      "linked_spec_id": "038-quick-generate-mode"
+      "competitor_insight_ids": ["pain-1-4", "pain-2-5", "pain-5-4"]
     },
     {
       "id": "feature-8",
-      "title": "Performance Optimization Suite",
-      "description": "Comprehensive performance improvements including canvas rendering optimization, AI request caching, optimistic UI updates, and background processing for heavy operations.",
-      "rationale": "Canva and Adobe Express users consistently complain about slow performance and lag. A fast, responsive experience is a key differentiator for Nanobanna Pro.",
-      "priority": "must",
+      "title": "Advanced Typography Controls",
+      "description": "Professional typography system with kerning, leading, tracking, OpenType features, text on path, and multi-style text blocks. Includes font pairing suggestions.",
+      "rationale": "Addresses known gap from discovery: 'Advanced typography controls' needed. Canva users complain about lack of granular control. Professional-grade typography enables career-focused users to create standout banners.",
+      "priority": "should",
       "complexity": "high",
-      "impact": "high",
+      "impact": "medium",
       "phase_id": "phase-2",
-      "dependencies": [
-        "feature-5"
-      ],
-      "status": "planned",
+      "dependencies": [],
+      "status": "idea",
       "acceptance_criteria": [
-        "Canvas operations complete in under 100ms",
-        "AI generation shows progress within 2 seconds",
-        "Previous generations cached for instant replay",
-        "UI never freezes during heavy operations",
-        "Memory usage under 500MB for typical sessions"
+        "Kerning, leading, and tracking adjustable via sliders",
+        "Text can follow curved paths",
+        "Multiple text styles within single text block",
+        "AI-powered font pairing suggestions from brand kit",
+        "OpenType features (ligatures, stylistic alternates) available"
       ],
       "user_stories": [
-        "As a user creating multiple banners, I want instant canvas response so that I can work efficiently",
-        "As a user with a lower-end device, I want smooth performance so that I can use the tool without frustration"
+        "As a marketing professional, I want fine typography control so that my client banners look polished",
+        "As a personal branding enthusiast, I want font pairing suggestions so that my typography looks professional"
       ],
-      "competitor_insight_ids": [
-        "pain-1-4",
-        "pain-2-3",
-        "pain-2-7"
-      ],
-      "linked_spec_id": "039-performance-optimization-suite"
+      "competitor_insight_ids": ["pain-1-5"]
     },
     {
       "id": "feature-9",
-      "title": "Advanced Typography Controls",
-      "description": "Professional typography features including custom font uploads, text effects (shadows, outlines, gradients), variable font size within text boxes, and precise text positioning with numeric input.",
-      "rationale": "Canva users complain about text alignment issues and limited typography control. VistaCreate lacks precise pixel positioning. Professional typography control differentiates from simplified competitors.",
+      "title": "Design Performance Analytics Dashboard",
+      "description": "Track how banners perform via optional LinkedIn profile analytics integration. Shows impressions, profile views, and engagement changes correlated with banner updates.",
+      "rationale": "Addresses known gap: 'Analytics dashboard for design performance'. Career-focused tools are fragmented - by integrating analytics, users can see ROI of their banner designs and make data-driven improvements.",
       "priority": "should",
-      "complexity": "medium",
-      "impact": "medium",
+      "complexity": "high",
+      "impact": "high",
       "phase_id": "phase-2",
       "dependencies": [],
-      "status": "planned",
+      "status": "idea",
       "acceptance_criteria": [
-        "Users can upload and use custom fonts",
-        "Text effects panel with shadows, outlines, gradients",
-        "Variable text sizes in same text box",
-        "Numeric X/Y positioning input for precision",
-        "Text alignment shows accurate guides"
+        "Dashboard shows profile view trends over time",
+        "Banner change events annotated on timeline",
+        "Before/after comparison for banner updates",
+        "AI insights suggest improvements based on performance data",
+        "Privacy-first design with opt-in only"
       ],
       "user_stories": [
-        "As a brand manager, I want to use my company's custom font so that my banner matches our brand guidelines exactly",
-        "As a designer, I want precise positioning controls so that I can align elements perfectly"
+        "As a job seeker, I want to know if my new banner increases profile views so that I can optimize my personal brand",
+        "As a content creator, I want to see engagement trends so that I can create more effective banners"
       ],
-      "competitor_insight_ids": [
-        "pain-1-6",
-        "pain-3-2",
-        "pain-5-1"
-      ],
-      "linked_spec_id": "040-advanced-typography-controls"
+      "competitor_insight_ids": []
     },
     {
       "id": "feature-10",
-      "title": "Mobile-Optimized Design Experience",
-      "description": "Full-featured mobile interface with touch-optimized canvas controls, mobile-friendly AI generation, and responsive design across all device sizes. Voice commands become even more valuable on mobile.",
-      "rationale": "Most LinkedIn users access via mobile. Competitors have desktop-first experiences that don't translate well to mobile. A truly mobile-optimized experience addresses this market gap.",
+      "title": "AI Design Improvement Suggestions",
+      "description": "Proactive AI analysis of current banner with specific improvement suggestions for composition, color harmony, readability, and brand consistency. Not intrusive - shown only when requested.",
+      "rationale": "Addresses market gap: AI integrations often hinder rather than help. Unlike Adobe Express AI that's 'intrusive' and 'cuts into workflows', our suggestions appear only on demand and explain reasoning. Multi-LLM approach ensures quality suggestions.",
       "priority": "should",
-      "complexity": "high",
+      "complexity": "medium",
       "impact": "high",
       "phase_id": "phase-2",
-      "dependencies": [
-        "feature-5",
-        "feature-8"
-      ],
-      "status": "planned",
+      "dependencies": ["feature-4"],
+      "status": "idea",
       "acceptance_criteria": [
-        "Full banner creation possible on mobile",
-        "Touch gestures for pan, zoom, select",
-        "Voice commands work seamlessly on mobile",
-        "Responsive UI adapts to screen size",
-        "Mobile-specific quick actions"
+        "Analysis available via explicit 'Get Suggestions' action only",
+        "Suggestions include visual previews of changes",
+        "Each suggestion explains design principle behind it",
+        "One-click application of individual suggestions",
+        "Suggestions respect brand kit constraints"
       ],
       "user_stories": [
-        "As a mobile user, I want to create banners on my phone so that I can update my LinkedIn while commuting",
-        "As a voice-first user, I want to use voice commands on mobile so that I can design hands-free"
+        "As a non-designer, I want actionable improvement suggestions so that I can learn design principles",
+        "As a professional, I want optional AI assistance so that it doesn't interrupt my workflow"
       ],
-      "competitor_insight_ids": [
-        "pain-2-1"
-      ],
-      "linked_spec_id": "041-mobile-optimized-design-experience"
+      "competitor_insight_ids": ["pain-2-1", "pain-4-1"]
     },
     {
       "id": "feature-11",
-      "title": "Keyboard Shortcuts Enhancement",
-      "description": "Comprehensive keyboard shortcut system with visual overlay, customizable shortcuts, and power-user workflows. Common operations accessible without reaching for the mouse.",
-      "rationale": "Competitor UI redesigns require extra clicks. Keyboard shortcuts enable efficient workflows for power users, addressing frustration with cluttered interfaces requiring multiple clicks.",
-      "priority": "could",
+      "title": "Full Mobile Design Experience",
+      "description": "Complete mobile-optimized interface for creating and editing banners on phones and tablets. Includes touch-optimized controls, gesture support, and voice commands.",
+      "rationale": "Competitors fail at mobile - Canva mobile is 'basically unusable' and 'laggy, choppy, distorted', VistaCreate iPad is 'just magnified iPhone version'. Voice commands make mobile design practical where touch is limiting.",
+      "priority": "should",
+      "complexity": "high",
+      "impact": "high",
+      "phase_id": "phase-2",
+      "dependencies": ["feature-7"],
+      "status": "idea",
+      "acceptance_criteria": [
+        "All canvas operations work with touch gestures",
+        "Mobile-specific UI with larger touch targets",
+        "Voice commands for all major operations",
+        "Performance maintained at 60fps on mid-range devices",
+        "Offline editing with automatic sync when connected"
+      ],
+      "user_stories": [
+        "As a professional on-the-go, I want to edit banners from my phone so that I can make quick updates anywhere",
+        "As a tablet user, I want touch-optimized controls so that design feels natural"
+      ],
+      "competitor_insight_ids": ["pain-1-6", "pain-3-3"]
+    },
+    {
+      "id": "feature-12",
+      "title": "Interactive Onboarding Tutorial",
+      "description": "Step-by-step interactive tutorial for new users covering canvas basics, AI generation, voice commands, and brand kit setup. Progress saved across sessions.",
+      "rationale": "Reduces time to first successful banner - a key success metric. Unlike Figma with high learning curve, or Microsoft Designer requiring 365 subscription, our onboarding makes the tool accessible immediately.",
+      "priority": "should",
       "complexity": "low",
       "impact": "medium",
       "phase_id": "phase-2",
       "dependencies": [],
-      "status": "planned",
+      "status": "idea",
       "acceptance_criteria": [
-        "Shortcut overlay shown with ? key",
-        "All major canvas operations have shortcuts",
-        "Shortcuts customizable per user",
-        "AI generation triggerable via keyboard",
-        "Navigation between tabs via keyboard"
+        "Tutorial completes in under 5 minutes",
+        "Each step has try-it-yourself interaction",
+        "Progress persists across sessions",
+        "Skip option for experienced users",
+        "Contextual tips appear as user explores"
       ],
       "user_stories": [
-        "As a power user, I want keyboard shortcuts so that I can work faster without using the mouse",
-        "As a designer familiar with other tools, I want customizable shortcuts so that I can use my muscle memory"
+        "As a new user, I want guided onboarding so that I understand the tool quickly",
+        "As a returning user, I want to skip tutorials so that I can get to work immediately"
       ],
-      "competitor_insight_ids": [
-        "pain-1-1",
-        "pain-2-1"
-      ],
-      "linked_spec_id": "042-keyboard-shortcuts-enhancement"
+      "competitor_insight_ids": ["pain-5-5", "pain-4-5"]
     },
     {
-      "id": "feature-12",
-      "title": "Direct LinkedIn Publishing",
-      "description": "OAuth integration with LinkedIn to publish banners directly from Nanobanna Pro. Users can update their profile banner, create posts with banner images, and schedule banner updates.",
-      "rationale": "No competitor offers direct LinkedIn integration for banners. Users currently download and manually upload. One-click publishing removes friction and addresses the market gap for LinkedIn-specific tools.",
-      "priority": "must",
+      "id": "feature-13",
+      "title": "Personalized Starting Recommendations",
+      "description": "AI-powered suggestions for new users based on their role, industry, and stated goals. Recommends templates, colors, and styles tailored to their personal brand.",
+      "rationale": "68% of marketers struggle with visual content creation. By understanding user context upfront, we reduce decision paralysis and help users create effective banners faster. Part of solving the cold-start problem.",
+      "priority": "could",
+      "complexity": "medium",
+      "impact": "medium",
+      "phase_id": "phase-2",
+      "dependencies": ["feature-1"],
+      "status": "idea",
+      "acceptance_criteria": [
+        "Brief questionnaire during onboarding (optional)",
+        "AI generates role-specific template recommendations",
+        "Suggested color palettes based on industry norms",
+        "Starting prompt suggestions for AI generation",
+        "Recommendations improve with usage"
+      ],
+      "user_stories": [
+        "As a new user, I want relevant suggestions so that I start with designs that fit my profession",
+        "As a job seeker in tech, I want tech-appropriate templates so that my banner resonates with recruiters"
+      ],
+      "competitor_insight_ids": ["pain-8-5"]
+    },
+    {
+      "id": "feature-14",
+      "title": "Undo/Redo History with Visual Timeline",
+      "description": "Enhanced history panel showing visual thumbnails of each state change. Users can jump to any previous state and branch from historical points.",
+      "rationale": "Microsoft Designer users report losing hours of work due to crashes with no reliable save/recovery. Visual history prevents work loss and enables experimentation without fear. Auto-save ensures nothing is ever lost.",
+      "priority": "should",
+      "complexity": "medium",
+      "impact": "medium",
+      "phase_id": "phase-2",
+      "dependencies": [],
+      "status": "idea",
+      "acceptance_criteria": [
+        "Visual thumbnail for each history state",
+        "Click to preview any historical state",
+        "Branch from any point to create variations",
+        "Auto-save every 30 seconds",
+        "History preserved across sessions"
+      ],
+      "user_stories": [
+        "As a designer, I want visual history so that I can quickly find and restore previous versions",
+        "As a user experimenting, I want to branch from history so that I can explore variations safely"
+      ],
+      "competitor_insight_ids": ["pain-4-3"]
+    },
+    {
+      "id": "feature-15",
+      "title": "Team Workspaces",
+      "description": "Shared workspaces for organizations with centralized brand assets, design templates, and approval workflows. Admin controls for brand kit enforcement.",
+      "rationale": "Addresses known gap: 'Team/organization accounts'. As LinkedIn competition increases (2.5 applicants per job posting, up from 1.5 in 2022), marketing teams need consistent branding across all employee banners. Figma's confusing multi-account billing creates opportunity.",
+      "priority": "should",
       "complexity": "high",
       "impact": "high",
       "phase_id": "phase-3",
       "dependencies": [],
-      "status": "planned",
+      "status": "idea",
       "acceptance_criteria": [
-        "LinkedIn OAuth login working",
-        "One-click publish to profile banner",
-        "Preview how banner looks on LinkedIn profile",
-        "Option to create LinkedIn post with banner",
-        "Handle LinkedIn image dimension requirements"
+        "Create shared workspaces with invite links",
+        "Role-based permissions (admin, designer, viewer)",
+        "Centralized brand kit enforced across workspace",
+        "Design approval workflow for admins",
+        "Activity log for all workspace actions"
       ],
       "user_stories": [
-        "As a LinkedIn user, I want to publish my banner directly so that I don't have to download and manually upload",
-        "As a job seeker, I want to quickly update my banner so that my profile stays fresh during my search"
+        "As a marketing manager, I want to manage team brand assets so that all employee banners are consistent",
+        "As a team member, I want to access shared templates so that I can quickly create on-brand banners"
       ],
-      "competitor_insight_ids": [],
-      "linked_spec_id": "043-direct-linkedin-publishing"
+      "competitor_insight_ids": ["pain-5-2"]
     },
     {
-      "id": "feature-13",
-      "title": "Multi-Platform Export Presets",
-      "description": "Pre-configured export presets for all major platforms (LinkedIn banner, YouTube channel art, X/Twitter header, Facebook cover) with automatic resizing and safe zone adjustments per platform.",
-      "rationale": "Users need banners for multiple platforms but each has different dimensions and safe zones. Automatic multi-platform export addresses the pain point of creating content for different dimensions.",
-      "priority": "should",
-      "complexity": "medium",
-      "impact": "high",
-      "phase_id": "phase-3",
-      "dependencies": [],
-      "status": "planned",
-      "acceptance_criteria": [
-        "One-click export for LinkedIn, YouTube, X/Twitter, Facebook",
-        "Automatic intelligent resizing/cropping",
-        "Safe zone preview per platform",
-        "Batch export all platforms at once",
-        "Custom dimension preset support"
-      ],
-      "user_stories": [
-        "As a content creator, I want to export for all my platforms so that I maintain consistent branding everywhere",
-        "As a social media manager, I want batch export so that I can update all client profiles efficiently"
-      ],
-      "competitor_insight_ids": [],
-      "linked_spec_id": "044-multi-platform-export-presets"
-    },
-    {
-      "id": "feature-14",
-      "title": "Team Brand Profiles",
-      "description": "Shared brand profiles that team members can use to ensure consistency across all designs. Admin can lock certain brand elements while allowing customization of others.",
-      "rationale": "Marketing teams need brand consistency across multiple designers. Competitors don't offer brand enforcement at the team level. This addresses the saturation problem where templates look the same.",
-      "priority": "should",
-      "complexity": "medium",
-      "impact": "medium",
-      "phase_id": "phase-3",
-      "dependencies": [
-        "feature-4"
-      ],
-      "status": "planned",
-      "acceptance_criteria": [
-        "Team admin can create shared brand profile",
-        "Team members inherit brand settings",
-        "Locked vs. customizable brand elements",
-        "Brand profile usage analytics",
-        "Multiple brand profiles per team (for agencies)"
-      ],
-      "user_stories": [
-        "As a team admin, I want to share brand guidelines so that all team members create consistent banners",
-        "As an agency, I want multiple brand profiles so that I can manage different client brands"
-      ],
-      "competitor_insight_ids": [
-        "pain-5-4"
-      ],
-      "linked_spec_id": "045-team-brand-profiles"
-    },
-    {
-      "id": "feature-15",
-      "title": "Design Sharing & Feedback",
-      "description": "Share designs with team members or external stakeholders for feedback. Viewers can leave comments on specific areas of the design without needing a Nanobanna account.",
-      "rationale": "Design approval often requires feedback loops. Enabling commenting and sharing streamlines the review process and differentiates from solo-designer tools.",
+      "id": "feature-16",
+      "title": "Design Approval Workflow",
+      "description": "Formal approval process for team designs with commenting, revision requests, and sign-off tracking. Integrates with team workspaces.",
+      "rationale": "Enterprise teams need governance. Unlike BannerBear which requires API integration, our approval workflow is built-in and code-free. Marketing teams managing client presence need audit trails and approval history.",
       "priority": "could",
       "complexity": "medium",
       "impact": "medium",
       "phase_id": "phase-3",
-      "dependencies": [],
-      "status": "planned",
+      "dependencies": ["feature-15"],
+      "status": "idea",
       "acceptance_criteria": [
-        "Generate shareable link for any design",
-        "Viewers can comment without account",
-        "Comments pinned to specific design areas",
-        "Email notification for new comments",
-        "Comment resolution workflow"
+        "Submit designs for approval with single click",
+        "Reviewers can comment on specific canvas areas",
+        "Revision requests with specific feedback",
+        "Approval history and audit trail",
+        "Email notifications for approval status changes"
       ],
       "user_stories": [
-        "As a designer, I want to share designs for approval so that stakeholders can review before publishing",
-        "As a manager, I want to leave feedback on specific areas so that the designer knows exactly what to change"
+        "As a designer, I want to submit for approval so that my manager can review before publishing",
+        "As a manager, I want to comment on specific areas so that feedback is clear and actionable"
       ],
-      "competitor_insight_ids": [],
-      "linked_spec_id": "046-design-sharing-feedback"
+      "competitor_insight_ids": ["pain-7-3"]
     },
     {
-      "id": "feature-16",
-      "title": "Transparent Usage Dashboard",
-      "description": "User dashboard showing API usage, generation history, and account status. Clear visibility into usage limits, no surprise charges, and easy account management.",
-      "rationale": "Billing transparency issues are the #1 complaint across Canva, Adobe, VistaCreate, and Placeit. Transparent usage tracking directly addresses this widespread pain point.",
+      "id": "feature-17",
+      "title": "Direct LinkedIn Publishing Integration",
+      "description": "One-click publishing of banners directly to LinkedIn profiles without leaving Nanobanna Pro. Supports immediate update and scheduled publishing.",
+      "rationale": "Addresses known gap: 'Direct LinkedIn publishing integration'. Career-focused tools are fragmented requiring users to download, navigate to LinkedIn, upload. Streamlined workflow increases adoption and usage frequency.",
+      "priority": "should",
+      "complexity": "high",
+      "impact": "high",
+      "phase_id": "phase-3",
+      "dependencies": [],
+      "status": "idea",
+      "acceptance_criteria": [
+        "LinkedIn OAuth connection for profile access",
+        "Preview exactly how banner will appear on profile",
+        "One-click publish with confirmation",
+        "Scheduled publishing for future dates",
+        "History of published banners with timestamps"
+      ],
+      "user_stories": [
+        "As a professional, I want to publish directly to LinkedIn so that I don't have to download and upload manually",
+        "As a content creator, I want to schedule banner changes so that my profile stays fresh automatically"
+      ],
+      "competitor_insight_ids": []
+    },
+    {
+      "id": "feature-18",
+      "title": "Real-Time Collaboration",
+      "description": "Multiple users can work on the same canvas simultaneously with live cursors, presence indicators, and real-time sync. Similar to Figma's collaboration but optimized for banner design.",
+      "rationale": "Addresses known gap: 'Real-time collaboration features'. While Figma excels here, it's overkill for banner design. Our focused collaboration for single-canvas banner design is simpler and faster to learn.",
+      "priority": "could",
+      "complexity": "high",
+      "impact": "medium",
+      "phase_id": "phase-3",
+      "dependencies": ["feature-15"],
+      "status": "idea",
+      "acceptance_criteria": [
+        "Multiple cursors visible in real-time",
+        "Changes sync within 100ms",
+        "Presence indicators show who's viewing",
+        "Conflict resolution for simultaneous edits",
+        "Chat/comments for real-time discussion"
+      ],
+      "user_stories": [
+        "As a manager, I want to collaborate live with my designer so that we can iterate quickly on designs",
+        "As a team, we want to see who's editing so that we don't overwrite each other's work"
+      ],
+      "competitor_insight_ids": []
+    },
+    {
+      "id": "feature-19",
+      "title": "Transparent Pricing & Easy Cancellation",
+      "description": "Crystal-clear pricing page with no hidden fees, one-click cancellation, pro-rated refunds, and account downgrade that preserves design access.",
+      "rationale": "Billing and subscription issues are #1 complaint across ALL major competitors. Canva BBB rating is 1.1/5 with 111 complaints, VistaCreate has subscription traps, Placeit has hidden fees. Trust is a differentiator.",
       "priority": "must",
       "complexity": "low",
       "impact": "high",
       "phase_id": "phase-3",
       "dependencies": [],
-      "status": "planned",
+      "status": "idea",
       "acceptance_criteria": [
-        "Real-time usage metrics visible",
-        "Warning before reaching limits",
-        "Generation history with timestamps",
-        "Clear display of account tier and benefits",
-        "One-click account management"
+        "Pricing page shows all fees including taxes upfront",
+        "One-click cancellation without contacting support",
+        "Pro-rated refunds for mid-cycle cancellations",
+        "Designs remain accessible after downgrade (view-only)",
+        "Clear trial terms with reminder before charge"
       ],
       "user_stories": [
-        "As a pilot user, I want to see my usage so that I know how much of the shared quota I've used",
-        "As a user, I want billing transparency so that I'm never surprised by charges"
+        "As a user, I want clear pricing so that I'm never surprised by charges",
+        "As a trial user, I want cancellation reminders so that I can decide before being charged"
       ],
-      "competitor_insight_ids": [
-        "pain-1-3",
-        "pain-2-4",
-        "pain-2-5",
-        "pain-3-3",
-        "pain-5-3"
-      ],
-      "linked_spec_id": "047-transparent-usage-dashboard"
-    },
-    {
-      "id": "feature-17",
-      "title": "Partner Agent System",
-      "description": "Autonomous AI agents (T016-T021) that proactively assist users with banner creation. Agents can suggest improvements, apply brand guidelines automatically, and guide users through complex workflows.",
-      "rationale": "Adobe Express users complain that AI integration hinders workflows. Partner Agents should assist without obstructing, providing suggestions that users can accept or ignore. This is the next evolution of AI-powered design assistance.",
-      "priority": "must",
-      "complexity": "high",
-      "impact": "high",
-      "phase_id": "phase-4",
-      "dependencies": [
-        "feature-4"
-      ],
-      "status": "planned",
-      "acceptance_criteria": [
-        "Agent suggests improvements during design",
-        "Agent respects user preferences and brand guidelines",
-        "Suggestions are non-intrusive and dismissable",
-        "Agent can execute approved multi-step workflows",
-        "Agent learns from user feedback over time"
-      ],
-      "user_stories": [
-        "As a user, I want AI suggestions while designing so that I can improve my banner without expertise",
-        "As a busy professional, I want the agent to handle repetitive tasks so that I can focus on creative decisions"
-      ],
-      "competitor_insight_ids": [
-        "pain-2-2"
-      ],
-      "linked_spec_id": "048-partner-agent-system"
-    },
-    {
-      "id": "feature-18",
-      "title": "Design Performance Analytics",
-      "description": "Analytics dashboard showing how designs perform after publishing. Track LinkedIn profile views, engagement metrics, and compare performance across different banner designs (A/B testing results).",
-      "rationale": "Users create banners but have no visibility into their impact. Analytics enable data-driven design decisions and demonstrate the value of banner updates for career growth.",
-      "priority": "should",
-      "complexity": "high",
-      "impact": "high",
-      "phase_id": "phase-4",
-      "dependencies": [
-        "feature-12"
-      ],
-      "status": "planned",
-      "acceptance_criteria": [
-        "LinkedIn profile view tracking (where API permits)",
-        "Before/after comparison for banner changes",
-        "A/B test winner identification",
-        "Trend visualization over time",
-        "Recommendations based on performance data"
-      ],
-      "user_stories": [
-        "As a job seeker, I want to know if my banner is helping my profile so that I can optimize for more views",
-        "As a marketer, I want A/B test results so that I can prove which designs perform better"
-      ],
-      "competitor_insight_ids": [],
-      "linked_spec_id": "049-design-performance-analytics"
-    },
-    {
-      "id": "feature-19",
-      "title": "Prompt Library & History",
-      "description": "Searchable library of successful AI prompts used in previous generations. Users can save, organize, and reuse prompts that produced good results. Community prompt sharing for Careersy members.",
-      "rationale": "AI prompt crafting is a skill many users lack. A prompt library with proven results helps users get better generations without learning prompt engineering.",
-      "priority": "should",
-      "complexity": "medium",
-      "impact": "medium",
-      "phase_id": "phase-4",
-      "dependencies": [],
-      "status": "planned",
-      "acceptance_criteria": [
-        "All prompts saved with generated results",
-        "Search and filter prompts by style/industry",
-        "Star favorite prompts for reuse",
-        "Community prompt gallery (opt-in sharing)",
-        "Prompt templates for common use cases"
-      ],
-      "user_stories": [
-        "As a user who got great results, I want to save my prompt so that I can reuse it later",
-        "As a new user, I want to browse successful prompts so that I learn what works"
-      ],
-      "linked_spec_id": "031-prompt-library-history",
-      "competitor_insight_ids": [
-        "pain-3-1",
-        "pain-3-6"
-      ]
+      "competitor_insight_ids": ["pain-1-2", "pain-2-4", "pain-3-4", "pain-5-2", "pain-6-1"]
     },
     {
       "id": "feature-20",
-      "title": "Scheduled Banner Updates",
-      "description": "Schedule automatic banner updates for specific dates/events (job search launch, conference season, quarterly refresh). Banner variants rotate automatically based on schedule.",
-      "rationale": "Dynamic banner content drives 30% more engagement according to market research. Scheduled updates enable users to maintain fresh profiles without manual intervention.",
+      "title": "Multi-Platform Banner Export",
+      "description": "Export optimized banners for multiple platforms (LinkedIn, YouTube, X/Twitter, Facebook) from a single design. Auto-resizing with platform-specific safe zone adjustments.",
+      "rationale": "Addresses pain point: 'Need for multi-platform content at different dimensions'. Content creators in secondary persona need banners across platforms. One design, multiple optimized exports saves significant time.",
+      "priority": "should",
+      "complexity": "medium",
+      "impact": "medium",
+      "phase_id": "phase-3",
+      "dependencies": [],
+      "status": "idea",
+      "acceptance_criteria": [
+        "Single design exports to all major platforms",
+        "Platform-specific safe zones respected",
+        "Preview each platform version before export",
+        "Batch export all platforms with one click",
+        "AI automatically adjusts composition for aspect ratio changes"
+      ],
+      "user_stories": [
+        "As a content creator, I want one design for all platforms so that my branding is consistent everywhere",
+        "As a small business owner, I want batch export so that I can update all platforms quickly"
+      ],
+      "competitor_insight_ids": []
+    },
+    {
+      "id": "feature-21",
+      "title": "Motion Graphics & Video Banners",
+      "description": "Create animated banners and short video loops for platforms that support them. Includes timeline editor, transition effects, and GIF/MP4 export.",
+      "rationale": "Addresses known gap: 'Animation/motion graphics support'. LinkedIn now supports carousels and video - animated banners stand out. Unlike Canva's broken video editor, ours focuses on short banner animations only.",
+      "priority": "could",
+      "complexity": "high",
+      "impact": "medium",
+      "phase_id": "phase-4",
+      "dependencies": [],
+      "status": "idea",
+      "acceptance_criteria": [
+        "Simple timeline editor for animations",
+        "Preset animation effects for text and elements",
+        "Transition between states for slideshow effect",
+        "GIF and MP4 export optimized for social platforms",
+        "Performance maintains 60fps during preview"
+      ],
+      "user_stories": [
+        "As a content creator, I want animated banners so that my profile stands out",
+        "As a marketer, I want video content so that I can capture attention in feeds"
+      ],
+      "competitor_insight_ids": ["pain-1-1"]
+    },
+    {
+      "id": "feature-22",
+      "title": "AI Personal Brand Coach",
+      "description": "Proactive AI assistant that helps users develop their personal brand strategy beyond just banner design. Suggests positioning, tone, and visual identity based on career goals.",
+      "rationale": "With 2.5 applicants per LinkedIn job posting (up from 1.5 in 2022), standing out is critical. Most tools help with execution but not strategy. AI Brand Coach addresses the 'what should my brand be?' question before 'how do I design it?'",
+      "priority": "could",
+      "complexity": "high",
+      "impact": "high",
+      "phase_id": "phase-4",
+      "dependencies": ["feature-4", "feature-9"],
+      "status": "idea",
+      "acceptance_criteria": [
+        "Initial brand discovery questionnaire",
+        "AI generates brand positioning recommendations",
+        "Visual identity guide with colors, fonts, imagery direction",
+        "Banner design suggestions aligned with brand strategy",
+        "Iterative refinement based on user feedback"
+      ],
+      "user_stories": [
+        "As a career changer, I want branding guidance so that I can position myself effectively",
+        "As a professional, I want strategic recommendations so that my visual brand supports my goals"
+      ],
+      "competitor_insight_ids": []
+    },
+    {
+      "id": "feature-23",
+      "title": "Competitive Banner Analysis",
+      "description": "AI analyzes banners from industry leaders and competitors to identify trends, effective patterns, and differentiation opportunities. Users can upload competitor banners for comparison.",
+      "rationale": "To stand out, users need to understand what others in their space are doing. Unlike generic design tools, we can provide career-specific competitive intelligence that helps users differentiate their personal brand.",
       "priority": "could",
       "complexity": "medium",
       "impact": "medium",
       "phase_id": "phase-4",
-      "dependencies": [
-        "feature-12"
-      ],
-      "status": "planned",
+      "dependencies": ["feature-4"],
+      "status": "idea",
       "acceptance_criteria": [
-        "Schedule banner changes for future dates",
-        "Automatic rotation between variants",
-        "Calendar view of scheduled changes",
-        "Notification before scheduled change",
-        "Option to preview scheduled banner"
+        "Upload competitor banners for analysis",
+        "AI identifies patterns, colors, and positioning",
+        "Suggestions for differentiation",
+        "Industry trend reports based on aggregated data",
+        "Privacy-respecting (no storage of uploaded competitor images)"
       ],
       "user_stories": [
-        "As a conference speaker, I want my banner to update automatically during events so that I promote my sessions",
-        "As a job seeker, I want to schedule a fresh banner weekly so that my profile stays active"
+        "As a job seeker, I want to see competitor banners so that I can differentiate myself",
+        "As a marketer, I want industry trends so that my designs are current"
       ],
-      "competitor_insight_ids": [],
-      "linked_spec_id": "050-scheduled-banner-updates"
-    },
-    {
-      "id": "feature-21",
-      "title": "Animated Banner Support",
-      "description": "Create animated/motion banners for LinkedIn video backgrounds and other platforms that support motion. Simple animations like parallax effects, subtle movements, and looping sequences.",
-      "rationale": "Static banners are table stakes. Animated content stands out in feeds and captures attention. This is a future differentiator as platforms increasingly support motion content.",
-      "priority": "could",
-      "complexity": "high",
-      "impact": "medium",
-      "phase_id": "phase-5",
-      "dependencies": [
-        "feature-8"
-      ],
-      "status": "planned",
-      "acceptance_criteria": [
-        "Basic animation presets (fade, slide, parallax)",
-        "Timeline editor for custom animations",
-        "Export as video and GIF formats",
-        "Preview animation in editor",
-        "Animation performance optimized"
-      ],
-      "user_stories": [
-        "As a content creator, I want animated banners so that my profile stands out from static banners",
-        "As a video creator, I want motion graphics so that my banner matches my content style"
-      ],
-      "competitor_insight_ids": [],
-      "linked_spec_id": "051-animated-banner-support"
-    },
-    {
-      "id": "feature-22",
-      "title": "Real-Time Collaboration",
-      "description": "Multiple users can edit the same design simultaneously with live cursors, real-time sync, and presence indicators. Built for agency teams and collaborative brand work.",
-      "rationale": "Adobe and Figma offer collaboration but not for specialized banner creation. Real-time collaboration enables teams to work together efficiently on brand assets.",
-      "priority": "could",
-      "complexity": "high",
-      "impact": "medium",
-      "phase_id": "phase-5",
-      "dependencies": [
-        "feature-14",
-        "feature-15"
-      ],
-      "status": "planned",
-      "acceptance_criteria": [
-        "Multiple users editing simultaneously",
-        "Live cursor showing collaborator positions",
-        "Real-time sync of all changes",
-        "Conflict resolution for simultaneous edits",
-        "Voice/video call integration (optional)"
-      ],
-      "user_stories": [
-        "As an agency team, I want to collaborate in real-time so that we can work on client banners together",
-        "As a remote team, I want live collaboration so that we can brainstorm designs during calls"
-      ],
-      "competitor_insight_ids": [],
-      "linked_spec_id": "052-real-time-collaboration"
-    },
-    {
-      "id": "feature-23",
-      "title": "Enterprise SSO & Admin Controls",
-      "description": "SAML/OIDC single sign-on for enterprise teams, admin dashboard for user management, and compliance features for regulated industries.",
-      "rationale": "Enterprise customers require SSO and admin controls for security and compliance. This opens up B2B revenue opportunities beyond individual users.",
-      "priority": "wont",
-      "complexity": "high",
-      "impact": "low",
-      "phase_id": "phase-5",
-      "dependencies": [
-        "feature-14"
-      ],
-      "status": "planned",
-      "acceptance_criteria": [
-        "SAML 2.0 SSO integration",
-        "Admin dashboard for user management",
-        "Role-based access controls",
-        "Audit logging for compliance",
-        "Data residency options"
-      ],
-      "user_stories": [
-        "As an IT admin, I want SSO so that employees can access with corporate credentials",
-        "As a compliance officer, I want audit logs so that we can meet regulatory requirements"
-      ],
-      "competitor_insight_ids": [],
-      "linked_spec_id": "053-enterprise-sso-admin-controls"
+      "competitor_insight_ids": []
     },
     {
       "id": "feature-24",
-      "title": "API for External Integrations",
-      "description": "Public API for third-party integrations, enabling banner generation from external tools like Zapier, Make, and custom applications.",
-      "rationale": "BannerBear serves the API market but requires technical skills. A simpler API with pre-built integrations enables automation without coding expertise.",
+      "title": "Public API for Automation",
+      "description": "RESTful API enabling developers to programmatically generate banners, apply templates, and manage designs. Supports webhook integrations for workflow automation.",
+      "rationale": "Unlike BannerBear which is API-only, we offer both UI and API. This enables power users and agencies to automate at scale while maintaining the accessible UI for non-technical users.",
       "priority": "wont",
       "complexity": "high",
-      "impact": "low",
-      "phase_id": "phase-5",
-      "dependencies": [],
-      "status": "planned",
+      "impact": "medium",
+      "phase_id": "phase-4",
+      "dependencies": ["feature-15"],
+      "status": "idea",
       "acceptance_criteria": [
-        "RESTful API for banner generation",
-        "Zapier integration published",
-        "Make (Integromat) integration",
-        "API documentation and examples",
+        "RESTful API with OpenAPI documentation",
+        "Authentication via API keys",
+        "Endpoints for generation, templates, and export",
+        "Webhook support for async operations",
         "Rate limiting and usage tracking"
       ],
       "user_stories": [
-        "As a developer, I want an API so that I can integrate banner generation into my workflows",
-        "As a marketer, I want Zapier integration so that I can automate banner creation without coding"
+        "As an agency, I want an API so that I can automate banner creation for clients",
+        "As a developer, I want webhooks so that I can integrate with my workflows"
       ],
-      "competitor_insight_ids": [
-        "pain-4-1",
-        "pain-4-5"
+      "competitor_insight_ids": ["pain-7-3"]
+    },
+    {
+      "id": "feature-25",
+      "title": "Enterprise SSO & Security",
+      "description": "SAML/OIDC single sign-on support, SOC 2 compliance preparation, data residency options, and advanced admin controls for enterprise customers.",
+      "rationale": "Enterprise adoption requires security compliance. Microsoft Designer requires M365 - we can serve enterprises without forcing ecosystem lock-in. SOC 2 opens doors to larger organizations.",
+      "priority": "wont",
+      "complexity": "high",
+      "impact": "medium",
+      "phase_id": "phase-4",
+      "dependencies": ["feature-15"],
+      "status": "idea",
+      "acceptance_criteria": [
+        "SAML 2.0 and OIDC SSO support",
+        "SOC 2 Type II audit preparation",
+        "Data residency options (US, EU)",
+        "Admin console for user management",
+        "Audit logs for compliance"
       ],
-      "linked_spec_id": "054-api-for-external-integrations"
+      "user_stories": [
+        "As an IT admin, I want SSO so that users authenticate through our identity provider",
+        "As a compliance officer, I want SOC 2 so that we can approve the vendor"
+      ],
+      "competitor_insight_ids": ["pain-4-5"]
     }
   ],
   "metadata": {
-    "created_at": "2026-01-06T13:00:00Z",
-    "updated_at": "2026-01-06T14:10:08.634Z",
+    "created_at": "2026-01-08T14:30:00Z",
+    "updated_at": "2026-01-08T14:30:00Z",
     "generated_by": "roadmap_features agent",
     "prioritization_framework": "MoSCoW",
     "competitor_analysis_used": true,
-    "competitor_count": 6,
-    "total_competitor_pain_points_analyzed": 35,
-    "market_gaps_identified": 8
+    "competitor_insights_referenced": 42,
+    "market_gaps_addressed": 10
   }
 }

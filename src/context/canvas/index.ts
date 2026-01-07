@@ -21,7 +21,7 @@ import { useCanvasState, CanvasStateProvider } from './CanvasStateContext';
 import { useElements, ElementsProvider } from './ElementsContext';
 import { useLayers, LayerProvider } from './LayerContext';
 import { useImages, ImageProvider } from './ImageContext';
-import { useHistory, HistoryProvider } from './HistoryContext';
+import { useHistory, HistoryProvider, type HistoryContextType } from './HistoryContext';
 
 /**
  * CombinedCanvasProvider - Wraps all canvas contexts in the correct order
@@ -100,6 +100,14 @@ export type CombinedCanvasContextType = {
   redo: () => void;
   addToHistory: (img: string) => void;
 
+  // Snapshots (from HistoryContext)
+  snapshots: HistoryContextType['snapshots'];
+  saveCurrentSnapshot: HistoryContextType['saveCurrentSnapshot'];
+  restoreSnapshot: HistoryContextType['restoreSnapshot'];
+  deleteSnapshot: HistoryContextType['deleteSnapshot'];
+  renameSnapshot: HistoryContextType['renameSnapshot'];
+  updateSnapshot: HistoryContextType['updateSnapshot'];
+
   // From ImageContext
   profilePic: string | null;
   setProfilePic: (img: string | null) => void;
@@ -167,6 +175,14 @@ export function useCanvas(): CombinedCanvasContextType {
     undo: history.undo,
     redo: history.redo,
     addToHistory: history.addToHistory,
+
+    // Snapshots
+    snapshots: history.snapshots,
+    saveCurrentSnapshot: history.saveCurrentSnapshot,
+    restoreSnapshot: history.restoreSnapshot,
+    deleteSnapshot: history.deleteSnapshot,
+    renameSnapshot: history.renameSnapshot,
+    updateSnapshot: history.updateSnapshot,
 
     // Images
     profilePic: images.profilePic,
