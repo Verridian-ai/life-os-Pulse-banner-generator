@@ -11,14 +11,17 @@ import {
     agentContextDocs,
     agentRuntimeState,
     userCreditAccounts,
-    creditTiers,
     creditTransactions,
-    llmTraces,
     apiMetrics,
     dailyStats,
 } from '../db/schema';
 import { eq, desc, sql, like, or, and, count } from 'drizzle-orm';
 import { adminMiddleware, requirePermission, getAdminContext } from '../lib/adminAuth';
+import { CogneeService } from '../services/cognee';
+import { LangfuseService } from '../services/langfuse';
+import { readFile } from 'fs/promises';
+import { existsSync } from 'fs';
+import { basename } from 'path';
 
 export const adminRouter = new Hono();
 
@@ -595,6 +598,109 @@ adminRouter.patch('/agents/:id', requirePermission('agent_configuration'), async
     }
 });
 
+/**
+ * POST /api/admin/agents/:id/documents
+ * Add context document to agent
+ */
+adminRouter.post('/agents/:id/documents', requirePermission('agent_configuration'), async (c) => {
+    try {
+        const agentId = c.req.param('id');
+        const body = await c.req.json();
+        const admin = getAdminContext(c);
+
+        const [agent] = await db
+            .select()
+            .from(agentConfigs)
+            .where(eq(agentConfigs.agentId, agentId))
+            .limit(1);
+
+        if (!agent) return c.json({ error: 'Agent not found' }, 404);
+
+        // 1. Live Cognee Ingestion
+        let cogneeDocId = body.cogneeDocId;
+        if (body.filePath && existsSync(body.filePath)) {
+            try {
+                const fileContent = await readFile(body.filePath);
+                const filename = basename(body.filePath);
+                cogneeDocId = await CogneeService.addDocument(agentId, fileContent, filename);
+            } catch (err) {
+                console.warn('[Admin] Cognee ingestion failed:', err);
+            }
+        }
+
+        const [doc] = await db
+            .insert(agentContextDocs)
+            .values({
+                agentId,
+                name: body.name,
+                type: body.type || 'text',
+                cogneeDocId,
+                filePath: body.filePath,
+                metadata: body.metadata || {},
+            })
+            .returning();
+
+        await db.insert(adminAuditLog).values({
+            adminUserId: admin!.adminId,
+            action: 'agent.add_document',
+            resource: 'agent',
+            resourceId: agentId,
+            details: { docId: doc.id, name: body.name },
+            status: 'success',
+        });
+
+        return c.json({ success: true, document: doc });
+    } catch (error) {
+        console.error('[Admin] Add doc error:', error);
+        return c.json({ error: 'Failed to add document' }, 500);
+    }
+});
+
+/**
+ * DELETE /api/admin/agents/:id/documents/:docId
+ * Remove context document
+ */
+adminRouter.delete('/agents/:id/documents/:docId', requirePermission('agent_configuration'), async (c) => {
+    try {
+        const agentId = c.req.param('id');
+        const docId = c.req.param('docId');
+        const admin = getAdminContext(c);
+
+        // 1. Get doc to find cogneeDocId
+        const [docToDelete] = await db
+            .select()
+            .from(agentContextDocs)
+            .where(and(eq(agentContextDocs.id, docId), eq(agentContextDocs.agentId, agentId)))
+            .limit(1);
+
+        if (docToDelete && docToDelete.cogneeDocId) {
+            try {
+                await CogneeService.removeDocument(docToDelete.cogneeDocId);
+            } catch (err) {
+                console.warn('[Admin] Cognee removal failed:', err);
+            }
+        }
+
+        await db
+            .delete(agentContextDocs)
+            .where(and(eq(agentContextDocs.id, docId), eq(agentContextDocs.agentId, agentId)));
+
+        await db.insert(adminAuditLog).values({
+            adminUserId: admin!.adminId,
+            action: 'agent.remove_document',
+            resource: 'agent',
+            resourceId: agentId,
+            details: { docId },
+            status: 'success',
+        });
+
+        return c.json({ success: true });
+    } catch (error) {
+        console.error('[Admin] Remove doc error:', error);
+        return c.json({ error: 'Failed to remove document' }, 500);
+    }
+});
+
 // ============================================================================
 // Observability
 // ============================================================================
@@ -607,21 +713,30 @@ adminRouter.get('/observability/traces', requirePermission('audit_log_access'), 
     try {
         const limit = parseInt(c.req.query('limit') || '50');
         const offset = parseInt(c.req.query('offset') || '0');
+        const page = Math.floor(offset / limit) + 1;
 
-        const traces = await db
-            .select()
-            .from(llmTraces)
-            .orderBy(desc(llmTraces.createdAt))
-            .limit(limit)
-            .offset(offset);
+        // Fetch Live Traces from Langfuse
+        const langfuseResp = await LangfuseService.getTraces(limit, page);
 
-        const [totalResult] = await db
-            .select({ count: count() })
-            .from(llmTraces);
+        // Map Langfuse shape to our UI shape
+        const traces = langfuseResp.data.map((t: any) => ({
+            id: t.id,
+            traceId: t.id,
+            name: t.name,
+            model: t.model,
+            status: t.status || 'success',
+            latencyMs: t.latency ? Math.round(t.latency * 1000) : 0,
+            totalTokens: t.usage?.total || 0,
+            costUsd: t.usage?.totalCost || 0,
+            createdAt: t.timestamp,
+            userId: t.userId,
+            input: t.input,
+            output: t.output
+        }));
 
         return c.json({
             traces,
-            total: totalResult?.count || 0,
+            total: langfuseResp.meta?.totalItems || 0,
         });
     } catch (error) {
         console.error('[Admin] List traces error:', error);
@@ -676,6 +791,78 @@ adminRouter.get('/observability/stats', requirePermission('audit_log_access'), a
     } catch (error) {
         console.error('[Admin] Get stats error:', error);
         return c.json({ error: 'Failed to get stats' }, 500);
+    }
+});
+
+
+
+// ============================================================================
+// Finance & Credits
+// ============================================================================
+
+/**
+ * GET /api/admin/finance/stats
+ * Get financial overview
+ */
+adminRouter.get('/finance/stats', requirePermission('financial_access'), async (c) => {
+    try {
+        const [stats] = await db
+            .select({
+                totalGranted: sql<number>`SUM(${userCreditAccounts.lifetimeCreditsGranted})`,
+                totalUsed: sql<number>`SUM(${userCreditAccounts.lifetimeCreditsUsed})`,
+                currentFloat: sql<number>`SUM(${userCreditAccounts.creditBalance})`,
+            })
+            .from(userCreditAccounts);
+
+        const [txStats] = await db
+            .select({
+                last24hVolume: sql<number>`SUM(${creditTransactions.amount})`,
+            })
+            .from(creditTransactions)
+            .where(sql`${creditTransactions.createdAt} > NOW() - INTERVAL '24 hours'`);
+
+        return c.json({
+            granted: stats?.totalGranted || 0,
+            used: stats?.totalUsed || 0,
+            float: stats?.currentFloat || 0,
+            volume24h: txStats?.last24hVolume || 0,
+        });
+
+    } catch (error) {
+        console.error('[Admin] Finance stats error:', error);
+        return c.json({ error: 'Failed to get finance stats' }, 500);
+    }
+});
+
+/**
+ * GET /api/admin/finance/transactions
+ * List global transactions
+ */
+adminRouter.get('/finance/transactions', requirePermission('financial_access'), async (c) => {
+    try {
+        const limit = parseInt(c.req.query('limit') || '50');
+        const offset = parseInt(c.req.query('offset') || '0');
+
+        const txs = await db
+            .select({
+                id: creditTransactions.id,
+                userId: creditTransactions.userId,
+                userEmail: users.email,
+                amount: creditTransactions.amount,
+                type: creditTransactions.type,
+                description: creditTransactions.description,
+                createdAt: creditTransactions.createdAt,
+            })
+            .from(creditTransactions)
+            .leftJoin(users, eq(creditTransactions.userId, users.id))
+            .orderBy(desc(creditTransactions.createdAt))
+            .limit(limit)
+            .offset(offset);
+
+        return c.json({ transactions: txs });
+    } catch (error) {
+        console.error('[Admin] List finance txs error:', error);
+        return c.json({ error: 'Failed to list transactions' }, 500);
     }
 });
 

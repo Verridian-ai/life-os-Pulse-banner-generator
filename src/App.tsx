@@ -18,6 +18,7 @@ const LinkedInContentStudio = lazy(() => import('./features/linkedin-posts').the
 const AdminDashboard = lazy(() => import('./features/admin').then(m => ({ default: m.AdminDashboard })));
 const AdminUsers = lazy(() => import('./features/admin').then(m => ({ default: m.AdminUsers })));
 const AdminAgents = lazy(() => import('./features/admin').then(m => ({ default: m.AdminAgents })));
+const AdminObservability = lazy(() => import('./features/admin').then(m => ({ default: m.AdminObservability })));
 import {
   ScreenReaderAnnouncerProvider,
   useAnnouncer,
@@ -533,8 +534,16 @@ function AdminRouter(): React.ReactElement | null {
     );
   }
 
+
+  if (path.startsWith('/admin/observability')) {
+    return (
+      <Suspense fallback={<AdminLoadingFallback />}>
+        <AdminObservability />
+      </Suspense>
+    );
+  }
+
   // Add more admin routes here as needed:
-  // /admin/observability -> AdminObservability
   // /admin/audit -> AdminAuditLogs
 
   // Default to dashboard for unknown /admin/* paths

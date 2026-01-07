@@ -3,6 +3,9 @@ import BannerCanvas from '../BannerCanvas';
 import { useCanvas } from '../../context/CanvasContext';
 import { useCanvasState } from '../../context/canvas';
 import { CanvasFormatSelector } from './editor/CanvasFormatSelector';
+import LayersPanel from './editor/LayersPanel';
+import AssetsPanel from './editor/AssetsPanel';
+import ExportPanel from './editor/ExportPanel';
 // import ImageToolsPanel from './ImageToolsPanel';
 import { useToast } from '../../hooks/useToast';
 
@@ -39,6 +42,7 @@ const CanvasEditor: React.FC = () => {
     redo,
     addElement,
     saveCurrentSnapshot,
+    updateElement,
   } = useCanvas();
 
   const handleSaveSnapshot = () => {
@@ -52,7 +56,9 @@ const CanvasEditor: React.FC = () => {
   const handleZoomOut = () => setZoom(Math.max(zoom - 0.1, 0.5));
   const handleZoomReset = () => setZoom(1.0);
 
-  // ... (handleProfileFaceEnhance, handleProfileRemoveBg unchanged)
+  // Placeholder handlers to satisfy JSX - functionality moved to panels/context but kept for compatibility
+  const handleProfileFaceEnhance = async () => { };
+  const handleProfileRemoveBg = async () => { };
 
   const handleAddText = () => {
     const newEl = {
@@ -63,6 +69,7 @@ const CanvasEditor: React.FC = () => {
       y: canvasFormat.height / 2,
       fontSize: 48,
       fontWeight: 'bold',
+      fontFamily: 'Inter',
       color: 'white',
       textAlign: 'center',
     };
@@ -70,9 +77,6 @@ const CanvasEditor: React.FC = () => {
     addElement(newEl as any);
     toast.success('Text element added');
   };
-  // Placeholder handlers to satisfy JSX
-  const handleProfileFaceEnhance = async () => { };
-  const handleProfileRemoveBg = async () => { };
 
   return (
     <div className='flex-1 p-4 md:p-6 lg:p-8 flex flex-col items-center justify-start overflow-auto w-full relative'>
@@ -142,7 +146,6 @@ const CanvasEditor: React.FC = () => {
         </div>
 
         <div className='w-full flex justify-start md:justify-center'>
-
           <BannerCanvas
             ref={canvasRef}
             backgroundImage={bgImage}
@@ -160,6 +163,13 @@ const CanvasEditor: React.FC = () => {
             canvasHeight={canvasFormat.height}
             zoom={zoom}
           />
+        </div>
+
+        {/* Tools Grid - Stacks on mobile */}
+        <div className='w-full grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mt-8 pb-20'>
+          <AssetsPanel />
+          <LayersPanel />
+          <ExportPanel />
         </div>
 
         {/* Mobile Quick Actions Bar */}
@@ -196,9 +206,6 @@ const CanvasEditor: React.FC = () => {
             </button>
           </div>
         )}
-
-        {/* Tools Grid - Stacks on mobile */}
-        {/* ... (Tools Grid unchanged) */}
       </div>
 
       <SnapshotsModal isOpen={showSnapshots} onClose={() => setShowSnapshots(false)} />

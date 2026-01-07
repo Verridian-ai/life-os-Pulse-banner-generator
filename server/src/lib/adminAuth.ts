@@ -11,6 +11,7 @@ export type AdminPermissions = {
     audit_log_access: boolean;
     system_settings: boolean;
     observability_config: boolean;
+    financial_access: boolean;
 };
 
 export type AdminContext = {
@@ -51,6 +52,7 @@ export const adminMiddleware = createMiddleware(async (c, next) => {
             audit_log_access: true,
             system_settings: true,
             observability_config: false,
+            financial_access: false,
         },
     };
 
