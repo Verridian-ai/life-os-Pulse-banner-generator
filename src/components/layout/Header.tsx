@@ -104,7 +104,7 @@ const Header: React.FC<HeaderProps> = React.memo(({
       <div className='flex items-center justify-between w-full md:w-auto md:justify-start'>
         <div className='flex items-center gap-2 md:gap-3 relative'>
           <img
-            src='/logo.png'
+            src='/assets/logo.svg'
             alt='Life OS Logo'
             className='h-12 w-12 md:h-16 md:w-16 lg:h-24 lg:w-24 object-contain -my-2 md:-my-4 lg:-my-6 drop-shadow-2xl relative z-10'
           />
