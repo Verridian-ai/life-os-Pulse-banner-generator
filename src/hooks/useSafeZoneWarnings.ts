@@ -10,7 +10,6 @@ import type { BannerElement } from '../types';
 import { CANVAS_FORMATS, type CanvasFormatId, type CanvasFormat } from '../constants';
 import {
   analyzeElementSafety,
-  calculateSafePosition,
   type SafeZoneWarning,
   type DangerLevel,
 } from '../utils/safeZoneUtils';

@@ -36,8 +36,9 @@ interface DatabaseUserAttributes {
 }
 
 import { createMiddleware } from 'hono/factory';
+import type { HonoEnv } from '../types';
 
-export const authMiddleware = createMiddleware(async (c, next) => {
+export const authMiddleware = createMiddleware<HonoEnv>(async (c, next) => {
     const user = c.get('user');
     if (!user) {
         return c.json({ error: 'Unauthorized' }, 401);

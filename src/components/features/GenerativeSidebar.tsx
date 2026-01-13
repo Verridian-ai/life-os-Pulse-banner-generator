@@ -1,9 +1,10 @@
-import React, { useState, useEffect, useCallback, memo, useRef } from 'react';
+import React, { useState, useEffect, useCallback, memo, useRef, useLayoutEffect } from 'react';
 import { useSpring } from '../../hooks/useSpring';
 import { useToast } from '../../hooks/useToast';
 import { api } from '../../services/api';
 import { PromptLibrary } from './PromptLibrary';
-import { BTN_BASE, BTN_NEU_SOLID } from '../../styles';
+import { BTN_BASE, BTN_NEU_SOLID, BTN_PINK_GLASS, BTN_PINK_ACTIVE, DROPDOWN_PANEL } from '../../styles';
+import { getDropdownAria, getOptionAria, getListboxAria } from '../../utils/a11y';
 import { ImageToolsPanel } from './ImageToolsPanel';
 import { EnhanceButton } from '../ui/EnhanceButton';
 import { usePromptEnhance } from '../../hooks/usePromptEnhance';
@@ -112,7 +113,7 @@ const GenerativeSidebarComponent: React.FC<GenerativeSidebarProps> = ({
     }
   );
 
-  const setItemRef = useCallback((index: number) => (el: HTMLButtonElement | null) => {
+  const setItemRef = useCallback((index: number) => (el: HTMLElement | null) => {
     itemRefs.current[index] = el;
   }, [itemRefs]);
 
@@ -155,6 +156,14 @@ const GenerativeSidebarComponent: React.FC<GenerativeSidebarProps> = ({
   const { value: sheetOffsetY, set: setSheetOffsetY, setImmediate: setSheetImmediate } = useSpring(0, 'snappy');
   const dragStartY = useRef<number | null>(null);
   const dragStartTime = useRef<number>(0);
+  const sheetRef = useRef<HTMLDivElement>(null);
+
+  // Apply spring animation via ref to avoid inline style lint errors
+  useLayoutEffect(() => {
+    if (sheetRef.current) {
+      sheetRef.current.style.setProperty('--sheet-offset-y', `${sheetOffsetY}px`);
+    }
+  }, [sheetOffsetY]);
 
   const handleTouchStart = (e: React.TouchEvent) => {
     dragStartY.current = e.touches[0].clientY;
@@ -240,10 +249,8 @@ const GenerativeSidebarComponent: React.FC<GenerativeSidebarProps> = ({
               type="button"
               onClick={() => setShowModelDropdown(!showModelDropdown)}
               onKeyDown={handleKeyDown}
-              aria-haspopup='listbox'
-              aria-expanded={showModelDropdown ? 'true' : 'false'}
-              aria-label='Select AI Model'
-              className={`min-h-[44px] bg-pink-500/10 text-pink-400 rounded-full border border-pink-500/20 font-black uppercase shadow-[0_0_10px_rgba(236,72,153,0.2)] hover:bg-pink-500/20 transition flex items-center touch-manipulation active:scale-95 ${isCompact
+              {...getDropdownAria(showModelDropdown, 'model-selector-listbox', 'Select AI Model')}
+              className={`min-h-[44px] rounded-full font-black uppercase flex items-center touch-manipulation active:scale-95 transition-all ${BTN_PINK_GLASS} ${isCompact
                 ? 'w-11 justify-center'
                 : 'px-2 sm:px-3 py-2 gap-1 text-[9px] sm:text-[10px] tracking-wide sm:tracking-widest'
                 }`}
@@ -264,26 +271,31 @@ const GenerativeSidebarComponent: React.FC<GenerativeSidebarProps> = ({
             {/* Dropdown Menu */}
             {showModelDropdown && (
               <div
+                id='model-selector-listbox'
                 ref={menuRef}
-                role='listbox'
-                aria-label='AI Models'
-                className='absolute top-full right-0 mt-2 w-56 bg-zinc-900 border border-white/10 rounded-xl shadow-2xl z-50 overflow-hidden'
+                {...getListboxAria('AI Models')}
+                className={DROPDOWN_PANEL}
               >
                 {IMAGE_MODELS.map((model, index) => (
-                  <button
+                  <div
                     key={model.id}
                     ref={setItemRef(index)}
-                    type="button"
-                    role='option'
-                    aria-selected={selectedModelId === model.id ? 'true' : 'false'}
+                    {...getOptionAria(selectedModelId === model.id)}
                     tabIndex={focusedIndex === index ? 0 : -1}
-                    onKeyDown={handleKeyDown}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter' || e.key === ' ') {
+                        e.preventDefault();
+                        setSelectedModelId(model.id);
+                        setShowModelDropdown(false);
+                      }
+                      handleKeyDown(e);
+                    }}
                     onClick={() => {
                       setSelectedModelId(model.id);
                       setShowModelDropdown(false);
                     }}
                     className={`w-full px-3 py-2.5 text-left transition flex items-center gap-2 ${selectedModelId === model.id
-                      ? 'bg-pink-500/10 border-l-2 border-pink-500'
+                      ? `${BTN_PINK_ACTIVE} border-l-2 border-l-pink-500`
                       : 'hover:bg-white/5'
                       } ${focusedIndex === index ? 'bg-white/5 ring-1 ring-inset ring-pink-500/50' : ''}`}
                   >
@@ -295,7 +307,7 @@ const GenerativeSidebarComponent: React.FC<GenerativeSidebarProps> = ({
                     {selectedModelId === model.id && (
                       <span className='material-icons text-sm text-pink-500'>check</span>
                     )}
-                  </button>
+                  </div>
                 ))}
               </div>
             )}
@@ -671,8 +683,8 @@ const GenerativeSidebarComponent: React.FC<GenerativeSidebarProps> = ({
   if (isMobile) {
     return (
       <div
-        className='fixed inset-x-0 bottom-0 z-50 bg-zinc-900 rounded-t-3xl border-t border-white/10 shadow-2xl safe-area-bottom flex flex-col max-h-[80vh] transition-transform will-change-transform'
-        style={{ transform: `translateY(${sheetOffsetY}px)` }}
+        ref={sheetRef}
+        className='fixed inset-x-0 bottom-0 z-50 bg-stone-900 rounded-t-3xl border-t border-white/10 shadow-2xl safe-area-bottom flex flex-col max-h-[80vh] transition-transform will-change-transform translate-y-[var(--sheet-offset-y)]'
       >
         {/* Drag handle indicator & Close Area - More compact */}
         <div

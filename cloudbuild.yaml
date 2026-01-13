@@ -57,9 +57,9 @@ images:
 
 substitutions:
   _GCS_BUCKET_NAME: "signal-user-files"
-  _CORS_ORIGIN: "https://life-os-verridian.ai,https://life-os-banner.verridian.ai,https://nanobanna.verridian.ai"
+  _CORS_ORIGIN: "https://life-os-banner.verridian.ai,https://nanobanna.verridian.ai"
   _COGNEE_API_URL: "https://cognee-api-ypjes2hexa-uc.a.run.app"
-  _WORKOS_REDIRECT_URI: "https://life-os-verridian.ai/api/auth/callback"
+  _WORKOS_REDIRECT_URI: "https://life-os-banner.verridian.ai/api/auth/callback"
   _WORKOS_ORG_ID: "org_01KETHAB24WTQT83FRYBETZGPW"
 
 options:

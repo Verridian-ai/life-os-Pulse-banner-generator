@@ -39,6 +39,7 @@
     "worktreeRoot": ".worktrees"
   },
   "enabledPlugins": {
-    "ralph-loop@claude-plugins-official": true
+    "ralph-loop@claude-plugins-official": true,
+    "hookify@claude-plugins-official": true
   }
 }

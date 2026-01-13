@@ -1,0 +1,125 @@
+================================================================================
+LOGO PACK COLLECTION SUMMARY
+================================================================================
+
+📁 ANZ
+   Location: /home/ubuntu/logo_packs/ANZ
+   Files (1):
+      • anz_logo.png (11.3 KB)
+   🔗 Official brand resource: https://www.anz.com.au/
+
+📁 Anthropic
+   Location: /home/ubuntu/logo_packs/Anthropic
+   Files (1):
+      • anthropic_logo.svg (1.9 KB)
+   🔗 Official brand resource: https://www.anthropic.com/
+
+📁 Atlassian
+   Location: /home/ubuntu/logo_packs/Atlassian
+   Files (19):
+      • Atlassian/Atlassian Logo Horizontal/PNG/Atlassian logo brand RGB 2x.png (7.3 KB)
+      • Atlassian/Atlassian Logo Horizontal/PNG/Atlassian logo inverse RGB 2x.png (5.6 KB)
+      • Atlassian/Atlassian Logo Horizontal/PNG/Atlassian logo neutral RGB 2x.png (7.2 KB)
+      • Atlassian/Atlassian Logo Horizontal/SVG/Atlassian logo brand RGB.svg (3.9 KB)
+      • Atlassian/Atlassian Logo Horizontal/SVG/Atlassian logo inverse RGB.svg (3.9 KB)
+      • Atlassian/Atlassian Logo Horizontal/SVG/Atlassian logo neutral RGB.svg (3.9 KB)
+      • Atlassian/Atlassian Mark/PNG@2x/Atlassian mark brand RGB.png (1.2 KB)
+      • Atlassian/Atlassian Mark/PNG@2x/Atlassian mark inverse RGB.png (985 bytes)
+      • Atlassian/Atlassian Mark/PNG@2x/Atlassian mark neutral RGB.png (1.1 KB)
+      • Atlassian/Atlassian Mark/SVG/Atlassian mark brand RGB.svg (1.1 KB)
+      • Atlassian/Atlassian Mark/SVG/Atlassian mark inverse RGB.svg (1.1 KB)
+      • Atlassian/Atlassian Mark/SVG/Atlassian mark neutral RGB.svg (1.1 KB)
+      • Atlassian/Strapline/PNG/atlassian-strapline-onecolor-blue 2x.png (16.3 KB)
+      • Atlassian/Strapline/PNG/atlassian-strapline-onecolor-neutral 2x.png (16.4 KB)
+      • Atlassian/Strapline/PNG/atlassian-strapline-onecolor-white 2x.png (14.8 KB)
+      • Atlassian/Strapline/SVG/atlassian-strapline-onecolor-blue.svg (7.9 KB)
+      • Atlassian/Strapline/SVG/atlassian-strapline-onecolor-neutral.svg (7.9 KB)
+      • Atlassian/Strapline/SVG/atlassian-strapline-onecolor-white.svg (7.9 KB)
+      • atlassian_logo.zip (106.3 KB)
+   🔗 Official brand resource: https://atlassian.design/foundations/logos/
+
+📁 CBA
+   Location: /home/ubuntu/logo_packs/CBA
+   Files (1):
+      • cba_logo.svg (1.2 KB)
+   🔗 Official brand resource: https://www.commbank.com.au/
+
+📁 GitHub
+   Location: /home/ubuntu/logo_packs/GitHub
+   Files (2):
+      • github_logo.png (5.8 KB)
+      • github_mark.png (7.1 KB)
+   🔗 Official brand resource: https://github.com/logos
+
+📁 Gmail
+   Location: /home/ubuntu/logo_packs/Gmail
+   Files (1):
+      • gmail_logo.png (12.4 KB)
+   🔗 Official brand resource: https://about.google/brand-resource-center/
+
+📁 Google
+   Location: /home/ubuntu/logo_packs/Google
+   Files (1):
+      • google_logo.png (13.2 KB)
+   🔗 Official brand resource: https://about.google/brand-resource-center/
+
+📁 Google_Calendar
+   Location: /home/ubuntu/logo_packs/Google_Calendar
+   Files (1):
+      • google_calendar_logo.png (15.9 KB)
+   🔗 Official brand resource: https://about.google/brand-resource-center/
+
+📁 JORA
+   Location: /home/ubuntu/logo_packs/JORA
+   Files (1):
+      • jora_logo_extracted.svg (1.7 KB)
+   🔗 Official brand resource: https://brandfolder.com/seek/jora
+
+📁 LinkedIn
+   Location: /home/ubuntu/logo_packs/LinkedIn
+   Files (1):
+      • linkedin_logo.svg (2.8 KB)
+   🔗 Official brand resource: https://brand.linkedin.com/downloads
+
+📁 Microsoft
+   Location: /home/ubuntu/logo_packs/Microsoft
+   Files (1):
+      • microsoft_logo.svg (3.1 KB)
+   🔗 Official brand resource: https://www.microsoft.com/
+
+📁 NAB
+   Location: /home/ubuntu/logo_packs/NAB
+   Files (1):
+      • nab_logo_extracted.svg (114 bytes)
+   🔗 Official brand resource: https://www.nab.com.au/
+
+📁 Notion
+   Location: /home/ubuntu/logo_packs/Notion
+   Files (1):
+      • notion_logo.png (11.1 KB)
+   🔗 Official brand resource: https://www.notion.so/
+
+📁 OpenAI
+   Location: /home/ubuntu/logo_packs/OpenAI
+   Files (1):
+      • openai_chatgpt_logo.svg (972 bytes)
+   🔗 Official brand resource: https://openai.com/brand/
+
+📁 SEEK
+   Location: /home/ubuntu/logo_packs/SEEK
+   Files (2):
+      • seek_favicon.ico (32.7 KB)
+      • seek_logo_extracted.svg (6.8 KB)
+   🔗 Official brand resource: https://www.seek.com.au/
+
+📁 Salesforce
+   Location: /home/ubuntu/logo_packs/Salesforce
+   Files (1):
+      • salesforce_logo.svg (7.9 KB)
+   🔗 Official brand resource: https://brand.salesforce.com/
+
+📁 Slack
+   Location: /home/ubuntu/logo_packs/Slack
+   Files (1):
+      • slack_logo.png (11.3 KB)
+   🔗 Official brand resource: https://brandfolder.com/slack

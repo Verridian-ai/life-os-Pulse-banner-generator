@@ -1,91 +1,260 @@
 @import "tailwindcss";
 
 /* ============================================
-   NANOBANNA PRO - RESPONSIVE CSS FRAMEWORK
-   Optimized for all devices and browsers
-   Last Updated: 2025-12-29
+   NANOBANNA PRO - STATE-OF-THE-ART CSS FRAMEWORK
+   Production-Grade Neumorphism + Glassmorphism
+   Aesthetic Physics | Anti-Slop Compliant
+   Last Updated: 2026-01-13 | Version: 2.1.0 (Liquid Glass Update)
    ============================================ */
 
 /* ===========================================
-   0. DESIGN SYSTEM TOKENS (Signal Design System)
-   Palette: orange/emerald/stone | Font: Space Grotesk
-   Anti-Slop Compliant: No teal (#14B8A6) or AI purple
+   ANTI-SLOP COMPLIANCE MANIFEST
+   -------------------------------------------
+   BANNED COLORS (DO NOT USE):
+   - #A020F0 (AI Purple / "Slop Purple")
+   - #14B8A6 (Generic Teal)
+   - #FF00FF / #00FFFF (Y2K Magenta/Cyan)
+   - #000000 (Pure Black - use tinted darks)
+
+   BANNED PATTERNS:
+   - Inter for display/headings (body only)
+   - Bento Grid for hero sections
+   - Corporate Memphis illustrations
+   - 3-column symmetric grids
+
+   ALTERNATIVES:
+   - Dark backgrounds: #111111, #0f1419, #1a1b26
+   - Accent colors: Warm orange, Clay, Slate tones
+   - Display fonts: Space Grotesk, General Sans
+   =========================================== */
+
+/* ===========================================
+   1. DESIGN SYSTEM TOKENS - 3-TIER ARCHITECTURE
+   Tier 1: Primitives | Tier 2: Semantic | Tier 3: Component
    =========================================== */
 
 :root {
+  /* ===== TIER 1: PRIMITIVES ===== */
+
+  /* Base Palette (Anti-Slop: Warm Stone/Slate tones) */
+  --primitive-stone-50: #fafaf9;
+  --primitive-stone-100: #f5f5f4;
+  --primitive-stone-200: #e7e5e4;
+  --primitive-stone-500: #78716c;
+  --primitive-stone-700: #44403c;
+  --primitive-stone-800: #292524;
+  --primitive-stone-900: #1c1917;
+  --primitive-stone-950: #0c0a09;
+
+  /* Zinc Palette (For dark mode - NOT pure black) */
+  --primitive-zinc-50: #fafafa;
+  --primitive-zinc-100: #f4f4f5;
+  --primitive-zinc-400: #a1a1aa;
+  --primitive-zinc-800: #27272a;
+  --primitive-zinc-900: #18181b;
+  /* Anti-Slop: Use tinted black, not #000000 */
+  --primitive-zinc-950: #111111;
+
+  /* Brand Colors - Orange (Warm, Anti-Slop Compliant) */
+  --primitive-orange-400: #fb923c;
+  --primitive-orange-500: #f97316;
+  --primitive-orange-600: #ea580c;
+  --primitive-orange-700: #c2410c;
+
+  /* Accent - Emerald (NOT teal #14B8A6) */
+  --primitive-emerald-400: #34d399;
+  --primitive-emerald-500: #10b981;
+  --primitive-emerald-600: #059669;
+
+  /* Gold Accent (Premium feel) */
+  --primitive-gold-400: #fbbf24;
+  --primitive-gold-500: #d4a017;
+  --primitive-gold-600: #b8860b;
+
+  /* ===== TIER 2: SEMANTIC TOKENS ===== */
+
   /* Base Colors (Light Mode) */
-  --color-bg-base: #fafaf9;
-  /* stone-50 */
+  --color-bg-base: var(--primitive-stone-50);
   --color-bg-elevated: #ffffff;
-  --color-text-primary: #1c1917;
-  /* stone-900 */
-  --color-text-secondary: #78716c;
-  /* stone-500 */
+  --color-bg-sunken: var(--primitive-stone-100);
+  --color-text-primary: var(--primitive-stone-900);
+  --color-text-secondary: var(--primitive-stone-500);
+  --color-text-muted: var(--primitive-stone-700);
 
-  /* Brand Colors - Orange/Emerald (Anti-Slop Compliant) */
-  --color-brand-primary: #f97316;
-  /* orange-500 */
-  --color-brand-secondary: #10b981;
-  /* emerald-500 (NOT teal!) */
-  --color-brand-gradient: linear-gradient(135deg, #f97316 0%, #ea580c 100%);
+  /* Brand Colors */
+  --color-brand-primary: var(--primitive-orange-500);
+  --color-brand-primary-hover: var(--primitive-orange-600);
+  --color-brand-secondary: var(--primitive-emerald-500);
+  --color-brand-accent: var(--primitive-gold-500);
+  --color-brand-gradient: linear-gradient(135deg, var(--primitive-orange-500) 0%, var(--primitive-orange-600) 100%);
+  --color-brand-gradient-hover: linear-gradient(135deg, var(--primitive-orange-600) 0%, var(--primitive-orange-700) 100%);
 
-  /* Shadow Colors (Neumorphism) */
-  --neu-shadow-dark: rgba(0, 0, 0, 0.15);
-  --neu-shadow-light: rgba(255, 255, 255, 0.7);
+  /* ===== NEUMORPHISM SYSTEM ===== */
 
-  /* Glass Colors (Glassmorphism) */
-  --glass-fill: rgba(255, 255, 255, 0.1);
-  --glass-border: rgba(255, 255, 255, 0.2);
+  /* Shadow Colors (Soft/Medium/Harsh variants) */
+  --neu-shadow-dark: rgba(0, 0, 0, 0.12);
+  --neu-shadow-dark-medium: rgba(0, 0, 0, 0.18);
+  --neu-shadow-dark-harsh: rgba(0, 0, 0, 0.25);
+  --neu-shadow-light: rgba(255, 255, 255, 0.8);
+  --neu-shadow-light-medium: rgba(255, 255, 255, 0.6);
+  --neu-shadow-light-harsh: rgba(255, 255, 255, 0.4);
 
-  /* Depth distances */
+  /* Glow Colors (For interactive states) */
+  --neu-glow-primary: rgba(249, 115, 22, 0.3);
+  --neu-glow-primary-intense: rgba(249, 115, 22, 0.5);
+  --neu-glow-success: rgba(16, 185, 129, 0.3);
+  --neu-glow-gold: rgba(212, 160, 23, 0.3);
+
+  /* Depth Tokens (xs → xl scale) */
   --neu-depth-xs: 2px;
   --neu-depth-sm: 3px;
   --neu-depth-md: 6px;
   --neu-depth-lg: 12px;
+  --neu-depth-xl: 20px;
 
-  /* Blur radii (2x depth) */
+  /* Blur Radii (2x depth ratio) */
   --neu-blur-xs: 4px;
   --neu-blur-sm: 6px;
   --neu-blur-md: 12px;
   --neu-blur-lg: 24px;
-}
+  --neu-blur-xl: 40px;
 
-/* Dark Mode (Default for Signal) */
-@media (prefers-color-scheme: dark) {
-  :root {
-    --color-bg-base: #09090b;
-    /* zinc-950 */
-    --color-bg-elevated: #18181b;
-    /* zinc-900 */
-    --color-text-primary: #fafafa;
-    /* zinc-50 */
-    --color-text-secondary: #a1a1aa;
-    /* zinc-400 */
+  /* ===== GLASSMORPHISM 4-LAYER SYSTEM ===== */
 
-    --neu-shadow-dark: rgba(0, 0, 0, 0.5);
-    --neu-shadow-light: rgba(255, 255, 255, 0.03);
+  /* Layer 1: Fill (Translucent tint) */
+  --glass-fill-light: rgba(255, 255, 255, 0.08);
+  --glass-fill-medium: rgba(255, 255, 255, 0.12);
+  --glass-fill-heavy: rgba(255, 255, 255, 0.18);
+  --glass-fill: var(--glass-fill-medium);
 
-    --glass-fill: rgba(24, 24, 27, 0.6);
-    --glass-border: rgba(255, 255, 255, 0.05);
-  }
-}
+  /* Layer 2: Blur (Frosted effect) - NEVER animate! */
+  --glass-blur-mobile: 12px;   /* Budget: max 20px */
+  --glass-blur-desktop: 20px;  /* Budget: max 40px */
+  --glass-saturate: 180%;
 
-/* Force dark mode for Signal */
-.dark {
-  --color-bg-base: #09090b;
-  --color-bg-elevated: #18181b;
-  --color-text-primary: #fafafa;
-  --color-text-secondary: #a1a1aa;
+  /* Layer 3: Noise (Grain texture - via SVG) */
+  --glass-noise-opacity: 0.03;
 
-  --neu-shadow-dark: rgba(0, 0, 0, 0.5);
-  --neu-shadow-light: rgba(255, 255, 255, 0.03);
+  /* Layer 4: Border (Refractive edge) */
+  --glass-border-light: rgba(255, 255, 255, 0.15);
+  --glass-border-medium: rgba(255, 255, 255, 0.25);
+  --glass-border-heavy: rgba(255, 255, 255, 0.35);
+  --glass-border: var(--glass-border-medium);
 
-  --glass-fill: rgba(24, 24, 27, 0.6);
-  --glass-border: rgba(255, 255, 255, 0.05);
+  /* Subtle variants */
+  --glass-subtle: rgba(255, 255, 255, 0.05);
+
+  /* ===== AESTHETIC PHYSICS TOKENS ===== */
+  /* "Luxury Lag" - Simulated mass via interpolation */
+
+  /* Lerp Factors (Linear Interpolation) */
+  /* Formula: v_current = v_current + (v_target - v_current) × factor */
+  --lerp-instant: 1;        /* No lag, immediate */
+  --lerp-snappy: 0.25;      /* Quick response */
+  --lerp-smooth: 0.15;      /* Default UI */
+  --lerp-buttery: 0.10;     /* Smooth scroll feel */
+  --lerp-heavy: 0.06;       /* "Heavy" cursor/drag feel */
+  --lerp-glacial: 0.03;     /* Dramatic slowdown */
+
+  /* Spring Physics Config */
+  /* For Framer Motion / React Spring integration */
+  --spring-tension-stiff: 400;
+  --spring-tension-default: 170;
+  --spring-tension-gentle: 120;
+  --spring-friction-default: 12;
+  --spring-friction-heavy: 20;
+  --spring-mass-default: 1;
+  --spring-mass-heavy: 2;
+
+  /* Easing Curves (Cubic Bezier) */
+  --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-out-quint: cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-in-out-quint: cubic-bezier(0.83, 0, 0.17, 1);
+  --ease-spring: cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  --ease-bounce: cubic-bezier(0.68, -0.55, 0.265, 1.55);
+  --ease-luxury: cubic-bezier(0.4, 0, 0.2, 1);
+
+  /* ===== ANIMATION DURATIONS ===== */
+  --duration-instant: 0.1s;
+  --duration-fast: 0.15s;
+  --duration-normal: 0.2s;
+  --duration-slow: 0.3s;
+  --duration-slower: 0.5s;
+  --duration-slowest: 0.8s;
+
+  /* ===== FOCUS STATES ===== */
+  --focus-ring-color: var(--primitive-orange-500);
+  --focus-ring-width: 2px;
+  --focus-ring-offset: 2px;
 }
 
 /* ===========================================
-   0.5 NEUMORPHIC UTILITIES
+   DARK MODE - Anti-Slop Compliant
+   Using #111111 (tinted black) NOT #000000
+   =========================================== */
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    /* Anti-Slop: #111111 tinted black, not pure #000000 */
+    --color-bg-base: var(--primitive-zinc-950);
+    --color-bg-elevated: var(--primitive-zinc-900);
+    --color-bg-sunken: #0a0a0b;
+    /* 85% white for optimal dark mode readability */
+    --color-text-primary: rgba(250, 250, 250, 0.95);
+    --color-text-secondary: var(--primitive-zinc-400);
+    --color-text-muted: rgba(161, 161, 170, 0.7);
+
+    /* Neumorphism for dark mode */
+    --neu-shadow-dark: rgba(0, 0, 0, 0.6);
+    --neu-shadow-dark-medium: rgba(0, 0, 0, 0.7);
+    --neu-shadow-dark-harsh: rgba(0, 0, 0, 0.8);
+    --neu-shadow-light: rgba(255, 255, 255, 0.04);
+    --neu-shadow-light-medium: rgba(255, 255, 255, 0.06);
+    --neu-shadow-light-harsh: rgba(255, 255, 255, 0.08);
+
+    /* Glassmorphism dark mode */
+    --glass-fill-light: rgba(24, 24, 27, 0.4);
+    --glass-fill-medium: rgba(24, 24, 27, 0.6);
+    --glass-fill-heavy: rgba(24, 24, 27, 0.8);
+    --glass-fill: var(--glass-fill-medium);
+    --glass-border-light: rgba(255, 255, 255, 0.05);
+    --glass-border-medium: rgba(255, 255, 255, 0.08);
+    --glass-border-heavy: rgba(255, 255, 255, 0.12);
+    --glass-border: var(--glass-border-medium);
+  }
+}
+
+/* Force dark mode for Signal (class-based override) */
+.dark {
+  /* Anti-Slop: #111111 tinted black */
+  --color-bg-base: var(--primitive-zinc-950);
+  --color-bg-elevated: var(--primitive-zinc-900);
+  --color-bg-sunken: #0a0a0b;
+  --color-text-primary: rgba(250, 250, 250, 0.95);
+  --color-text-secondary: var(--primitive-zinc-400);
+  --color-text-muted: rgba(161, 161, 170, 0.7);
+
+  /* Neumorphism */
+  --neu-shadow-dark: rgba(0, 0, 0, 0.6);
+  --neu-shadow-dark-medium: rgba(0, 0, 0, 0.7);
+  --neu-shadow-dark-harsh: rgba(0, 0, 0, 0.8);
+  --neu-shadow-light: rgba(255, 255, 255, 0.04);
+  --neu-shadow-light-medium: rgba(255, 255, 255, 0.06);
+  --neu-shadow-light-harsh: rgba(255, 255, 255, 0.08);
+
+  /* Glassmorphism */
+  --glass-fill-light: rgba(24, 24, 27, 0.4);
+  --glass-fill-medium: rgba(24, 24, 27, 0.6);
+  --glass-fill-heavy: rgba(24, 24, 27, 0.8);
+  --glass-fill: var(--glass-fill-medium);
+  --glass-border-light: rgba(255, 255, 255, 0.05);
+  --glass-border-medium: rgba(255, 255, 255, 0.08);
+  --glass-border-heavy: rgba(255, 255, 255, 0.12);
+  --glass-border: var(--glass-border-medium);
+}
+
+/* ===========================================
+   2. TAILWIND UTILITIES LAYER
    =========================================== */
 
 @layer utilities {
@@ -94,45 +263,172 @@
   }
 }
 
-/* Raised surface (convex) */
-.neu-raised {
+/* ===========================================
+   3. PRODUCTION-GRADE NEUMORPHISM SYSTEM
+   -------------------------------------------
+   Based on 2026 research: Soft/Medium/Harsh variants
+   with interactive states and accessibility fallbacks
+   =========================================== */
+
+/* Neumorphic Raised Surfaces (Convex) */
+/* Use for cards, buttons, interactive elements */
+
+.neu-raised-xs {
+  background: var(--color-bg-elevated);
+  border-radius: 8px;
+  box-shadow:
+    var(--neu-depth-xs) var(--neu-depth-xs) var(--neu-blur-xs) var(--neu-shadow-dark),
+    calc(var(--neu-depth-xs) * -1) calc(var(--neu-depth-xs) * -1) var(--neu-blur-xs) var(--neu-shadow-light);
+  border: 0.5px solid rgba(255, 255, 255, 0.05);
+}
+
+.neu-raised-sm {
+  background: var(--color-bg-elevated);
+  border-radius: 12px;
+  box-shadow:
+    var(--neu-depth-sm) var(--neu-depth-sm) var(--neu-blur-sm) var(--neu-shadow-dark),
+    calc(var(--neu-depth-sm) * -1) calc(var(--neu-depth-sm) * -1) var(--neu-blur-sm) var(--neu-shadow-light);
+  border: 0.5px solid rgba(255, 255, 255, 0.05);
+}
+
+.neu-raised,
+.neu-raised-md {
   background: var(--color-bg-elevated);
   border-radius: 16px;
   box-shadow:
     var(--neu-depth-md) var(--neu-depth-md) var(--neu-blur-md) var(--neu-shadow-dark),
     calc(var(--neu-depth-md) * -1) calc(var(--neu-depth-md) * -1) var(--neu-blur-md) var(--neu-shadow-light);
-  border: 0.5px solid rgba(0, 0, 0, 0.05);
+  border: 0.5px solid rgba(255, 255, 255, 0.05);
 }
 
-/* Inset surface (concave) */
-.neu-inset {
-  background: var(--color-bg-base);
-  border-radius: 12px;
+.neu-raised-lg {
+  background: var(--color-bg-elevated);
+  border-radius: 20px;
+  box-shadow:
+    var(--neu-depth-lg) var(--neu-depth-lg) var(--neu-blur-lg) var(--neu-shadow-dark),
+    calc(var(--neu-depth-lg) * -1) calc(var(--neu-depth-lg) * -1) var(--neu-blur-lg) var(--neu-shadow-light);
+  border: 0.5px solid rgba(255, 255, 255, 0.08);
+}
+
+/* Neumorphic Inset Surfaces (Concave) */
+/* Use for input fields, wells, pressed states */
+
+.neu-inset-xs {
+  background: var(--color-bg-sunken, var(--color-bg-base));
+  border-radius: 6px;
+  box-shadow:
+    inset var(--neu-depth-xs) var(--neu-depth-xs) var(--neu-blur-xs) var(--neu-shadow-dark),
+    inset calc(var(--neu-depth-xs) * -1) calc(var(--neu-depth-xs) * -1) var(--neu-blur-xs) var(--neu-shadow-light);
+}
+
+.neu-inset-sm {
+  background: var(--color-bg-sunken, var(--color-bg-base));
+  border-radius: 8px;
   box-shadow:
     inset var(--neu-depth-sm) var(--neu-depth-sm) var(--neu-blur-sm) var(--neu-shadow-dark),
     inset calc(var(--neu-depth-sm) * -1) calc(var(--neu-depth-sm) * -1) var(--neu-blur-sm) var(--neu-shadow-light);
 }
 
+.neu-inset,
+.neu-inset-md {
+  background: var(--color-bg-sunken, var(--color-bg-base));
+  border-radius: 12px;
+  box-shadow:
+    inset var(--neu-depth-md) var(--neu-depth-md) var(--neu-blur-md) var(--neu-shadow-dark),
+    inset calc(var(--neu-depth-md) * -1) calc(var(--neu-depth-md) * -1) var(--neu-blur-md) var(--neu-shadow-light);
+}
+
+/* Neumorphic Interactive States */
+/* Pressed state - combines inset with slight raise for tactile feedback */
+
+.neu-pressed {
+  background: var(--color-bg-base);
+  border-radius: 12px;
+  box-shadow:
+    inset var(--neu-depth-xs) var(--neu-depth-xs) var(--neu-blur-sm) var(--neu-shadow-dark-medium),
+    inset calc(var(--neu-depth-xs) * -1) calc(var(--neu-depth-xs) * -1) var(--neu-blur-xs) var(--neu-shadow-light);
+  transform: scale(0.98);
+}
+
+/* Flat state - minimal shadow, smooth surface */
+.neu-flat {
+  background: var(--color-bg-elevated);
+  border-radius: 12px;
+  box-shadow:
+    1px 1px 3px var(--neu-shadow-dark),
+    -1px -1px 3px var(--neu-shadow-light);
+  border: 0.5px solid rgba(255, 255, 255, 0.03);
+}
+
+/* Neumorphic Button with Glow (Interactive) */
+.neu-button {
+  background: var(--color-bg-elevated);
+  border-radius: 12px;
+  box-shadow:
+    var(--neu-depth-sm) var(--neu-depth-sm) var(--neu-blur-sm) var(--neu-shadow-dark),
+    calc(var(--neu-depth-sm) * -1) calc(var(--neu-depth-sm) * -1) var(--neu-blur-sm) var(--neu-shadow-light);
+  border: 0.5px solid rgba(255, 255, 255, 0.05);
+  transition:
+    box-shadow var(--duration-normal) var(--ease-luxury),
+    transform var(--duration-fast) var(--ease-out-expo);
+}
+
+.neu-button:hover {
+  box-shadow:
+    var(--neu-depth-md) var(--neu-depth-md) var(--neu-blur-md) var(--neu-shadow-dark),
+    calc(var(--neu-depth-md) * -1) calc(var(--neu-depth-md) * -1) var(--neu-blur-md) var(--neu-shadow-light),
+    0 0 20px var(--neu-glow-primary);
+}
+
+.neu-button:active {
+  box-shadow:
+    inset var(--neu-depth-xs) var(--neu-depth-xs) var(--neu-blur-xs) var(--neu-shadow-dark),
+    inset calc(var(--neu-depth-xs) * -1) calc(var(--neu-depth-xs) * -1) var(--neu-blur-xs) var(--neu-shadow-light);
+  transform: scale(0.98);
+}
+
+/* Primary Glow Button (Brand colored) */
+.neu-button-primary {
+  background: var(--color-brand-gradient);
+  border-radius: 12px;
+  box-shadow:
+    var(--neu-depth-sm) var(--neu-depth-sm) var(--neu-blur-md) var(--neu-shadow-dark),
+    0 4px 20px var(--neu-glow-primary);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  transition:
+    box-shadow var(--duration-normal) var(--ease-luxury),
+    transform var(--duration-fast) var(--ease-out-expo);
+}
+
+.neu-button-primary:hover {
+  box-shadow:
+    var(--neu-depth-md) var(--neu-depth-md) var(--neu-blur-lg) var(--neu-shadow-dark),
+    0 8px 30px var(--neu-glow-primary-intense);
+}
+
+.neu-button-primary:active {
+  transform: scale(0.98);
+  box-shadow:
+    var(--neu-depth-xs) var(--neu-depth-xs) var(--neu-blur-sm) var(--neu-shadow-dark),
+    0 2px 10px var(--neu-glow-primary);
+}
+
 /* ===========================================
-   1. BASE STYLES
+   4. BASE STYLES
    =========================================== */
 
 body {
   font-family: 'Space Grotesk', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  /* Prevent horizontal scroll on mobile */
   overflow-x: hidden;
-  /* Smooth scrolling for anchor links */
   scroll-behavior: smooth;
-  /* Dark mode default for Signal */
   background-color: var(--color-bg-base);
   color: var(--color-text-primary);
 }
 
 /* Reduce motion for users who prefer it */
 @media (prefers-reduced-motion: reduce) {
-
   *,
   *::before,
   *::after {
@@ -144,22 +440,15 @@ body {
 }
 
 /* ===========================================
-   2. SCROLLBAR STYLES (Cross-browser)
+   5. SCROLLBAR STYLES (Cross-browser)
    =========================================== */
 
-/* IE and Edge (legacy) */
+/* Hide scrollbar utility */
 .scrollbar-hide {
   -ms-overflow-style: none;
+  scrollbar-width: none;
 }
 
-/* Firefox 64+ (Baseline 2024) */
-@supports (scrollbar-width: none) {
-  .scrollbar-hide {
-    scrollbar-width: none;
-  }
-}
-
-/* Webkit browsers (Chrome, Safari, Edge 79+, Opera) */
 .scrollbar-hide::-webkit-scrollbar {
   display: none;
   width: 0;
@@ -167,13 +456,18 @@ body {
 }
 
 /* Custom styled scrollbar for visible areas */
+.scrollbar-styled {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255, 255, 255, 0.2) transparent;
+}
+
 .scrollbar-styled::-webkit-scrollbar {
   width: 8px;
   height: 8px;
 }
 
 .scrollbar-styled::-webkit-scrollbar-track {
-  background: rgba(255, 255, 255, 0.05);
+  background: var(--glass-subtle);
   border-radius: 4px;
 }
 
@@ -187,7 +481,7 @@ body {
 }
 
 /* ===========================================
-   3. SAFE AREA UTILITIES (iPhone X+, notched devices)
+   6. SAFE AREA UTILITIES (iPhone X+, notched devices)
    =========================================== */
 
 .safe-area-top {
@@ -207,14 +501,11 @@ body {
 }
 
 .safe-area-all {
-  padding-top: env(safe-area-inset-top, 0px);
-  padding-bottom: env(safe-area-inset-bottom, 0px);
-  padding-left: env(safe-area-inset-left, 0px);
-  padding-right: env(safe-area-inset-right, 0px);
+  padding: env(safe-area-inset-top, 0px) env(safe-area-inset-right, 0px) env(safe-area-inset-bottom, 0px) env(safe-area-inset-left, 0px);
 }
 
 /* Safe area with max() for minimum padding */
-@supports(padding: max(0px)) {
+@supports (padding: max(0px)) {
   .safe-area-x {
     padding-left: max(1.25rem, env(safe-area-inset-left));
     padding-right: max(1.25rem, env(safe-area-inset-right));
@@ -231,78 +522,210 @@ body {
 }
 
 /* ===========================================
-   4. GLASSMORPHISM (Cross-browser with fallbacks)
+   7. PRODUCTION GLASSMORPHISM - 4-LAYER SYSTEM
+   -------------------------------------------
+   Layer 1: Fill (translucent tint)
+   Layer 2: Blur (backdrop-filter - NEVER animate!)
+   Layer 3: Noise (grain texture via SVG)
+   Layer 4: Border (refractive edge)
+
+   Blur Budget: Mobile 20px max | Desktop 40px max
    =========================================== */
 
-/* Base glass effect with solid fallback */
-.glass {
-  background: rgba(0, 0, 0, 0.8);
+/* SVG Noise Pattern for Layer 3 */
+/* Embedded as data URI for zero network requests */
+.glass-noise::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  opacity: var(--glass-noise-opacity);
+  pointer-events: none;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+  mix-blend-mode: overlay;
 }
 
-/* Progressive enhancement for browsers supporting backdrop-filter */
+/* Base Glass Effect with Solid Fallback */
+/* For browsers without backdrop-filter support */
+.glass {
+  position: relative;
+  /* Layer 1: Fill (solid fallback) */
+  background: rgba(17, 17, 17, 0.85);
+  /* Layer 4: Border */
+  border: 1px solid var(--glass-border);
+  /* GPU optimization */
+  transform: translateZ(0);
+  backface-visibility: hidden;
+}
+
+/* Progressive Enhancement - Full 4-Layer Stack */
 @supports (backdrop-filter: blur(10px)) or (-webkit-backdrop-filter: blur(10px)) {
-  .glass {
-    background: rgba(0, 0, 0, 0.4);
-    backdrop-filter: blur(12px) saturate(150%);
-    -webkit-backdrop-filter: blur(12px) saturate(150%);
-  }
-
+  /* Light Glass - For light overlays on dark backgrounds */
   .glass-light {
-    background: rgba(255, 255, 255, 0.1);
-    backdrop-filter: blur(12px) saturate(150%);
-    -webkit-backdrop-filter: blur(12px) saturate(150%);
+    position: relative;
+    /* Layer 1: Fill */
+    background: var(--glass-fill-light);
+    /* Layer 2: Blur (Liquid Glass 2026) */
+    -webkit-backdrop-filter: blur(20px) saturate(200%);
+    backdrop-filter: blur(20px) saturate(200%);
+    /* Layer 4: Border */
+    border: 1px solid var(--glass-border-light);
+    /* GPU optimization */
+    transform: translateZ(0);
   }
 
+  /* Medium Glass - Default, balanced effect */
+  .glass,
+  .glass-medium {
+    position: relative;
+    /* Layer 1: Fill */
+    background: var(--glass-fill-medium);
+    /* Layer 2: Blur (Liquid Glass 2026) */
+    -webkit-backdrop-filter: blur(20px) saturate(200%);
+    backdrop-filter: blur(20px) saturate(200%);
+    /* Layer 4: Border */
+    border: 1px solid var(--glass-border-medium);
+    /* GPU optimization */
+    transform: translateZ(0);
+  }
+
+  /* Heavy Glass - Maximum frosted effect */
+  .glass-heavy,
   .glass-dark {
-    background: rgba(0, 0, 0, 0.6);
-    backdrop-filter: blur(16px) saturate(180%);
-    -webkit-backdrop-filter: blur(16px) saturate(180%);
+    position: relative;
+    /* Layer 1: Fill */
+    background: var(--glass-fill-heavy);
+    /* Layer 2: Blur (Liquid Glass 2026) */
+    -webkit-backdrop-filter: blur(24px) saturate(220%);
+    backdrop-filter: blur(24px) saturate(220%);
+    /* Layer 4: Border */
+    border: 1px solid var(--glass-border-heavy);
+    /* GPU optimization */
+    transform: translateZ(0);
   }
 
-  /* Optimized blur for mobile (performance) */
-  @media (max-width: 767px) {
+  /* Frosted Glass - Apple-style heavy frost */
+  .glass-frosted {
+    position: relative;
+    /* Layer 1: Fill - heavier tint */
+    background: rgba(24, 24, 27, 0.7);
+    /* Layer 2: Blur - maximum allowed */
+    -webkit-backdrop-filter: blur(20px) saturate(180%);
+    backdrop-filter: blur(20px) saturate(180%);
+    /* Layer 4: Border */
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    /* GPU optimization */
+    transform: translateZ(0);
+  }
 
+  /* ===== MOBILE BLUR OPTIMIZATION ===== */
+  /* Budget: Max 20px blur on mobile for 60fps */
+  @media (max-width: 767px) {
     .glass,
     .glass-light,
-    .glass-dark {
-      backdrop-filter: blur(8px);
-      -webkit-backdrop-filter: blur(8px);
+    .glass-medium,
+    .glass-heavy,
+    .glass-dark,
+    .glass-frosted {
+      /* Reduced blur for mobile performance */
+      -webkit-backdrop-filter: blur(var(--glass-blur-mobile)) saturate(150%);
+      backdrop-filter: blur(var(--glass-blur-mobile)) saturate(150%);
     }
   }
 
-  /* Enhanced blur for desktop */
+  /* ===== DESKTOP ENHANCED BLUR ===== */
+  /* Budget: Max 40px blur on desktop */
   @media (min-width: 1024px) {
-    .glass-desktop {
-      backdrop-filter: blur(20px) saturate(180%);
-      -webkit-backdrop-filter: blur(20px) saturate(180%);
+    .glass,
+    .glass-medium {
+      -webkit-backdrop-filter: blur(var(--glass-blur-desktop)) saturate(var(--glass-saturate));
+      backdrop-filter: blur(var(--glass-blur-desktop)) saturate(var(--glass-saturate));
+    }
+
+    .glass-heavy,
+    .glass-dark {
+      -webkit-backdrop-filter: blur(24px) saturate(200%);
+      backdrop-filter: blur(24px) saturate(200%);
+    }
+
+    .glass-frosted {
+      -webkit-backdrop-filter: blur(32px) saturate(180%);
+      backdrop-filter: blur(32px) saturate(180%);
+    }
+
+    /* Maximum desktop blur */
+    .glass-desktop-max {
+      -webkit-backdrop-filter: blur(40px) saturate(180%);
+      backdrop-filter: blur(40px) saturate(180%);
     }
   }
 }
 
-/* GPU acceleration for glass elements */
-.glass,
-.glass-light,
-.glass-dark {
+/* Add noise layer to glass elements */
+.glass.glass-noise::before,
+.glass-light.glass-noise::before,
+.glass-medium.glass-noise::before,
+.glass-heavy.glass-noise::before,
+.glass-frosted.glass-noise::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  opacity: var(--glass-noise-opacity);
+  pointer-events: none;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+  mix-blend-mode: overlay;
+}
+
+/* GPU acceleration utility */
+.glass-gpu {
   transform: translateZ(0);
-  will-change: auto;
+  backface-visibility: hidden;
+  will-change: transform; /* Use sparingly - only for animated glass */
 }
 
 /* ===========================================
-   5. ACCESSIBILITY OVERRIDES (MANDATORY)
+   8. ACCESSIBILITY OVERRIDES (MANDATORY)
+   -------------------------------------------
+   WCAG 2.1 Non-text Contrast compliance
+   All depth effects MUST have fallbacks for:
+   - prefers-contrast: more (High Contrast)
+   - forced-colors: active (Windows HCM)
+   - prefers-reduced-motion: reduce
    =========================================== */
 
-/* High contrast mode - removes soft shadows, adds borders */
-@media (prefers-contrast: more) {
+/* ===== HIGH CONTRAST MODE ===== */
+/* Removes soft shadows, adds clear borders for visibility */
 
+@media (prefers-contrast: more) {
+  /* Glassmorphism - All variants */
   .glass,
   .glass-light,
-  .glass-dark {
+  .glass-medium,
+  .glass-heavy,
+  .glass-dark,
+  .glass-frosted,
+  .glass-panel {
     background: black !important;
     border: 2px solid white !important;
-    backdrop-filter: none !important;
     -webkit-backdrop-filter: none !important;
+    backdrop-filter: none !important;
   }
 
+  /* Remove noise overlay in high contrast */
+  .glass-noise::before {
+    display: none !important;
+  }
+
+  /* Neumorphism - All raised variants */
+  .neu-raised-xs,
+  .neu-raised-sm,
+  .neu-raised,
+  .neu-raised-md,
+  .neu-raised-lg,
+  .neu-flat,
+  .neu-button,
+  .neu-button-primary,
   .neu-card,
   .neumorphic {
     background: white !important;
@@ -310,24 +733,64 @@ body {
     box-shadow: none !important;
   }
 
+  /* Neumorphism - Inset variants */
+  .neu-inset-xs,
+  .neu-inset-sm,
+  .neu-inset,
+  .neu-inset-md,
+  .neu-pressed {
+    background: #e0e0e0 !important;
+    border: 2px solid black !important;
+    box-shadow: none !important;
+  }
+
+  /* Buttons and interactive elements */
   button,
   [role="button"] {
     border: 2px solid currentColor !important;
   }
+
+  /* Hover states - use border change instead of glow */
+  .hover-lift:hover,
+  .hover-glow:hover,
+  .hover-scale:hover {
+    box-shadow: none !important;
+    border: 3px solid black !important;
+  }
 }
 
-/* Windows High Contrast Mode (forced colors) */
-@media (forced-colors: active) {
+/* ===== WINDOWS HIGH CONTRAST MODE (FORCED COLORS) ===== */
+/* Uses system colors for maximum compatibility */
 
+@media (forced-colors: active) {
+  /* Glassmorphism - All variants */
   .glass,
   .glass-light,
-  .glass-dark {
+  .glass-medium,
+  .glass-heavy,
+  .glass-dark,
+  .glass-frosted,
+  .glass-panel {
     background: Canvas !important;
     border: 2px solid ButtonText !important;
-    backdrop-filter: none !important;
     -webkit-backdrop-filter: none !important;
+    backdrop-filter: none !important;
   }
 
+  /* Remove noise overlay */
+  .glass-noise::before {
+    display: none !important;
+  }
+
+  /* Neumorphism - All raised variants */
+  .neu-raised-xs,
+  .neu-raised-sm,
+  .neu-raised,
+  .neu-raised-md,
+  .neu-raised-lg,
+  .neu-flat,
+  .neu-button,
+  .neu-button-primary,
   .neu-card,
   .neumorphic {
     background: Canvas !important;
@@ -335,6 +798,18 @@ body {
     box-shadow: none !important;
   }
 
+  /* Neumorphism - Inset variants */
+  .neu-inset-xs,
+  .neu-inset-sm,
+  .neu-inset,
+  .neu-inset-md,
+  .neu-pressed {
+    background: Canvas !important;
+    border: 2px inset ButtonText !important;
+    box-shadow: none !important;
+  }
+
+  /* Buttons */
   button,
   [role="button"] {
     border: 2px solid ButtonText !important;
@@ -347,10 +822,34 @@ body {
     background: Highlight !important;
     color: HighlightText !important;
   }
+
+  /* Focus indicators - critical for accessibility */
+  :focus-visible {
+    outline: 3px solid Highlight !important;
+    outline-offset: 2px !important;
+  }
+
+  /* Links */
+  a {
+    color: LinkText !important;
+  }
+
+  a:visited {
+    color: VisitedText !important;
+  }
+
+  /* Hover states */
+  .hover-lift:hover,
+  .hover-glow:hover,
+  .hover-scale:hover {
+    box-shadow: none !important;
+    transform: none !important;
+    border: 3px solid Highlight !important;
+  }
 }
 
 /* ===========================================
-   6. TOUCH TARGET SIZES
+   9. TOUCH TARGET SIZES
    =========================================== */
 
 /* Minimum 44x44px for iOS, 48x48dp for Android (Material Design) */
@@ -366,7 +865,6 @@ body {
 
 /* Ensure buttons have adequate touch targets on mobile */
 @media (max-width: 767px) {
-
   button,
   [role="button"],
   a,
@@ -379,7 +877,7 @@ body {
 }
 
 /* ===========================================
-   7. RESPONSIVE TYPOGRAPHY
+   10. RESPONSIVE TYPOGRAPHY
    =========================================== */
 
 /* Fluid typography using clamp() */
@@ -412,29 +910,25 @@ body {
 }
 
 /* ===========================================
-   8. RESPONSIVE CONTAINER
+   11. RESPONSIVE CONTAINER
    =========================================== */
 
 .container-responsive {
   width: 100%;
-  margin-left: auto;
-  margin-right: auto;
-  padding-left: 1rem;
-  padding-right: 1rem;
+  margin-inline: auto;
+  padding-inline: 1rem;
 }
 
 @media (min-width: 640px) {
   .container-responsive {
-    padding-left: 1.5rem;
-    padding-right: 1.5rem;
+    padding-inline: 1.5rem;
   }
 }
 
 @media (min-width: 1024px) {
   .container-responsive {
     max-width: 960px;
-    padding-left: 2rem;
-    padding-right: 2rem;
+    padding-inline: 2rem;
   }
 }
 
@@ -457,18 +951,17 @@ body {
 }
 
 /* ===========================================
-   9. BROWSER-SPECIFIC FIXES
+   12. BROWSER-SPECIFIC FIXES
    =========================================== */
 
 /* Safari-specific fixes */
 @supports (-webkit-touch-callout: none) {
-
   /* Fix for Safari momentum scrolling */
   .scroll-container {
     -webkit-overflow-scrolling: touch;
   }
 
-  /* Fix for Safari input zoom on focus */
+  /* Fix for Safari input zoom on focus - 16px prevents zoom */
   input[type="text"],
   input[type="email"],
   input[type="password"],
@@ -476,31 +969,25 @@ body {
   textarea,
   select {
     font-size: 16px;
-    /* Prevents zoom on iOS Safari */
   }
 }
 
-/* Firefox-specific fixes */
-@-moz-document url-prefix() {
-
-  /* Firefox scrollbar styling */
+/* Standard scrollbar styling (Firefox 64+, Chrome 121+) */
+@supports (scrollbar-color: auto) {
   * {
     scrollbar-width: thin;
     scrollbar-color: rgba(255, 255, 255, 0.2) transparent;
   }
 }
 
-/* Edge/IE input placeholder fix */
-input::-ms-input-placeholder {
+/* Modern placeholder styling */
+::placeholder {
   color: rgba(255, 255, 255, 0.5);
-}
-
-input:-ms-input-placeholder {
-  color: rgba(255, 255, 255, 0.5);
+  opacity: 1;
 }
 
 /* ===========================================
-   10. RESPONSIVE UTILITIES
+   13. RESPONSIVE UTILITIES
    =========================================== */
 
 /* Hide on specific device sizes */
@@ -523,22 +1010,10 @@ input:-ms-input-placeholder {
 }
 
 /* Show only on specific breakpoints */
-.show-xs-only {
-  display: none;
-}
-
-.show-sm-only {
-  display: none;
-}
-
-.show-md-only {
-  display: none;
-}
-
-.show-lg-only {
-  display: none;
-}
-
+.show-xs-only,
+.show-sm-only,
+.show-md-only,
+.show-lg-only,
 .show-xl-only {
   display: none;
 }
@@ -574,7 +1049,7 @@ input:-ms-input-placeholder {
 }
 
 /* ===========================================
-   10.5 ORIENTATION-SPECIFIC UTILITIES
+   14. ORIENTATION-SPECIFIC UTILITIES
    =========================================== */
 
 /* Landscape-only grid for mobile/tablet */
@@ -587,6 +1062,7 @@ input:-ms-input-placeholder {
   .landscape-grid {
     grid-template-columns: 1.2fr 1fr;
     height: 100vh;
+    height: 100dvh;
     overflow: hidden;
   }
 
@@ -607,7 +1083,7 @@ input:-ms-input-placeholder {
 }
 
 /* ===========================================
-   11. PRINT STYLES
+   15. PRINT STYLES
    =========================================== */
 
 @media print {
@@ -619,8 +1095,8 @@ input:-ms-input-placeholder {
   .glass-light,
   .glass-dark {
     background: white !important;
-    backdrop-filter: none !important;
     -webkit-backdrop-filter: none !important;
+    backdrop-filter: none !important;
   }
 
   body {
@@ -630,7 +1106,7 @@ input:-ms-input-placeholder {
 }
 
 /* ===========================================
-   12. PERFORMANCE OPTIMIZATIONS
+   16. PERFORMANCE OPTIMIZATIONS
    =========================================== */
 
 /* GPU layers for animated elements (use sparingly) */
@@ -646,13 +1122,13 @@ input:-ms-input-placeholder {
 }
 
 /* ===========================================
-   13. BANNER CANVAS SPECIFIC STYLES
+   17. BANNER CANVAS SPECIFIC STYLES
    =========================================== */
 
 /* LinkedIn banner aspect ratio container */
 .banner-aspect-ratio {
-  aspect-ratio: 4 / 1;
   /* LinkedIn banner ratio: 1584x396 */
+  aspect-ratio: 4 / 1;
 }
 
 /* Responsive canvas sizing */
@@ -664,8 +1140,8 @@ input:-ms-input-placeholder {
 
 @media (min-width: 768px) {
   .canvas-container {
-    max-width: calc(100vw - 320px);
     /* Account for sidebar */
+    max-width: calc(100vw - 320px);
   }
 }
 
@@ -676,7 +1152,7 @@ input:-ms-input-placeholder {
 }
 
 /* ===========================================
-   14. FORM INPUTS (Cross-browser)
+   18. FORM INPUTS (Cross-browser)
    =========================================== */
 
 /* Reset default appearance */
@@ -690,8 +1166,7 @@ select {
 
 /* Focus visible for keyboard users */
 :focus-visible {
-  outline: 2px solid #f97316;
-  /* orange-500 (Anti-Slop compliant) */
+  outline: 2px solid var(--focus-ring-color);
   outline-offset: 2px;
 }
 
@@ -701,14 +1176,14 @@ select {
 }
 
 /* ===========================================
-   15. LOADING STATES
+   19. LOADING STATES & ANIMATIONS
    =========================================== */
 
+/* Skeleton shimmer animation */
 @keyframes skeleton-shimmer {
   0% {
     transform: translateX(-100%);
   }
-
   100% {
     transform: translateX(100%);
   }
@@ -717,81 +1192,75 @@ select {
 .skeleton {
   position: relative;
   overflow: hidden;
-  background-color: rgba(255, 255, 255, 0.05);
-  /* Base color */
+  background-color: var(--glass-subtle);
 }
 
 .skeleton::after {
   content: '';
   position: absolute;
-  top: 0;
-  right: 0;
-  bottom: 0;
-  left: 0;
+  inset: 0;
   transform: translateX(-100%);
-  background-image: linear-gradient(90deg,
-      rgba(255, 255, 255, 0) 0,
-      rgba(255, 255, 255, 0.05) 20%,
-      /* Subtle shine */
-      rgba(255, 255, 255, 0.1) 60%,
-      /* Peak shine */
-      rgba(255, 255, 255, 0) 100%);
+  background-image: linear-gradient(
+    90deg,
+    rgba(255, 255, 255, 0) 0%,
+    rgba(255, 255, 255, 0.05) 20%,
+    rgba(255, 255, 255, 0.1) 60%,
+    rgba(255, 255, 255, 0) 100%
+  );
   animation: skeleton-shimmer 2s infinite;
-  /* Slower, more elegant speed */
 }
 
 /* Reduce animation for users who prefer */
 @media (prefers-reduced-motion: reduce) {
-  .skeleton {
+  .skeleton::after {
     animation: none;
+  }
+
+  .skeleton {
     background: rgba(255, 255, 255, 0.1);
   }
 }
 
 /* Toast notification animations */
 @keyframes slide-in-right {
-  0% {
+  from {
     transform: translateX(100%);
     opacity: 0;
   }
-
-  100% {
+  to {
     transform: translateX(0);
     opacity: 1;
   }
 }
 
 @keyframes slide-out-right {
-  0% {
+  from {
     transform: translateX(0);
     opacity: 1;
   }
-
-  100% {
+  to {
     transform: translateX(100%);
     opacity: 0;
   }
 }
 
 .animate-slide-in-right {
-  animation: slide-in-right 0.3s ease-out forwards;
+  animation: slide-in-right var(--duration-slow) ease-out forwards;
 }
 
 .animate-slide-out-right {
-  animation: slide-out-right 0.3s ease-in forwards;
+  animation: slide-out-right var(--duration-slow) ease-in forwards;
 }
 
 /* Respect reduced motion for toast animations */
 @media (prefers-reduced-motion: reduce) {
-
   .animate-slide-in-right,
   .animate-slide-out-right {
     animation: none;
   }
 }
 
-/* Toast Progress Bar Animation
-   Shows remaining time before auto-dismiss */
+/* Toast Progress Bar Animation */
 @keyframes toast-progress {
   from {
     transform: scaleX(1);
@@ -805,6 +1274,7 @@ select {
   animation-name: toast-progress;
   animation-timing-function: linear;
   animation-fill-mode: forwards;
+  transform-origin: left;
 }
 
 /* Hide progress bar for reduced motion preference */
@@ -815,31 +1285,32 @@ select {
 }
 
 /* ===========================================
-   16. TYPOGRAPHY PANEL CUSTOM STYLES
+   20. TYPOGRAPHY PANEL CUSTOM STYLES
    =========================================== */
 
 /* Glass Panel (Four-layer glassmorphism stack) */
 .glass-panel {
   /* Layer 1: Fill */
   background: var(--glass-fill);
-
-  /* Layer 2: Blur with saturation */
-  backdrop-filter: blur(12px) saturate(180%);
-  -webkit-backdrop-filter: blur(12px) saturate(180%);
-
-  /* Layer 4: Border */
+  /* Layer 2: Border */
   border: 1px solid var(--glass-border);
-
   /* GPU optimization */
   transform: translateZ(0);
-  will-change: auto;
 }
 
-/* Mobile blur optimization */
-@media (max-width: 767px) {
+@supports (backdrop-filter: blur(10px)) or (-webkit-backdrop-filter: blur(10px)) {
   .glass-panel {
-    backdrop-filter: blur(8px) saturate(150%);
-    -webkit-backdrop-filter: blur(8px) saturate(150%);
+    /* Layer 3: Blur with saturation (Liquid Glass 2026) */
+    -webkit-backdrop-filter: blur(20px) saturate(200%);
+    backdrop-filter: blur(20px) saturate(200%);
+  }
+
+  /* Mobile blur optimization */
+  @media (max-width: 767px) {
+    .glass-panel {
+      -webkit-backdrop-filter: blur(8px) saturate(150%);
+      backdrop-filter: blur(8px) saturate(150%);
+    }
   }
 }
 
@@ -853,7 +1324,7 @@ input[type="range"].slider-thumb {
 
 /* Slider track - Webkit (Chrome, Safari, Edge) */
 input[type="range"].slider-thumb::-webkit-slider-track {
-  background: rgba(255, 255, 255, 0.1);
+  background: var(--glass-fill);
   height: 8px;
   border-radius: 4px;
 }
@@ -868,7 +1339,7 @@ input[type="range"].slider-thumb::-webkit-slider-thumb {
   cursor: pointer;
   border: 2px solid rgba(255, 255, 255, 0.3);
   box-shadow: 0 2px 8px rgba(249, 115, 22, 0.4);
-  transition: all 0.2s ease;
+  transition: transform var(--duration-normal) ease, box-shadow var(--duration-normal) ease;
 }
 
 input[type="range"].slider-thumb::-webkit-slider-thumb:hover {
@@ -878,7 +1349,7 @@ input[type="range"].slider-thumb::-webkit-slider-thumb:hover {
 
 /* Slider track - Firefox */
 input[type="range"].slider-thumb::-moz-range-track {
-  background: rgba(255, 255, 255, 0.1);
+  background: var(--glass-fill);
   height: 8px;
   border-radius: 4px;
 }
@@ -891,7 +1362,7 @@ input[type="range"].slider-thumb::-moz-range-thumb {
   cursor: pointer;
   border: 2px solid rgba(255, 255, 255, 0.3);
   box-shadow: 0 2px 8px rgba(249, 115, 22, 0.4);
-  transition: all 0.2s ease;
+  transition: transform var(--duration-normal) ease, box-shadow var(--duration-normal) ease;
 }
 
 input[type="range"].slider-thumb::-moz-range-thumb:hover {
@@ -904,8 +1375,8 @@ input[type="range"].slider-thumb::-moz-range-thumb:hover {
   .glass-panel {
     background: white !important;
     border: 2px solid black !important;
-    backdrop-filter: none !important;
     -webkit-backdrop-filter: none !important;
+    backdrop-filter: none !important;
   }
 
   input[type="range"].slider-thumb::-webkit-slider-track {
@@ -936,8 +1407,8 @@ input[type="range"].slider-thumb::-moz-range-thumb:hover {
   .glass-panel {
     background: Canvas !important;
     border: 2px solid ButtonText !important;
-    backdrop-filter: none !important;
     -webkit-backdrop-filter: none !important;
+    backdrop-filter: none !important;
   }
 
   input[type="range"].slider-thumb {
@@ -969,7 +1440,7 @@ input[type="range"].slider-thumb::-moz-range-thumb:hover {
 }
 
 /* ===========================================
-   17. MICRO-INTERACTIONS & ANIMATIONS
+   21. MICRO-INTERACTIONS & ANIMATIONS
    =========================================== */
 
 /* Shimmer animation for loading states */
@@ -977,7 +1448,6 @@ input[type="range"].slider-thumb::-moz-range-thumb:hover {
   0% {
     background-position: 200% 0;
   }
-
   100% {
     background-position: -200% 0;
   }
@@ -989,12 +1459,10 @@ input[type="range"].slider-thumb::-moz-range-thumb:hover {
 
 /* Bounce X animation for directional hints */
 @keyframes bounce-x {
-
   0%,
   100% {
     transform: translateX(0);
   }
-
   50% {
     transform: translateX(4px);
   }
@@ -1006,46 +1474,42 @@ input[type="range"].slider-thumb::-moz-range-thumb:hover {
 
 /* Fade in slide up animation */
 @keyframes fade-in-up {
-  0% {
+  from {
     opacity: 0;
     transform: translateY(10px);
   }
-
-  100% {
+  to {
     opacity: 1;
     transform: translateY(0);
   }
 }
 
 .animate-fade-in-up {
-  animation: fade-in-up 0.3s ease-out forwards;
+  animation: fade-in-up var(--duration-slow) ease-out forwards;
 }
 
 /* Scale in animation */
 @keyframes scale-in {
-  0% {
+  from {
     opacity: 0;
     transform: scale(0.95);
   }
-
-  100% {
+  to {
     opacity: 1;
     transform: scale(1);
   }
 }
 
 .animate-scale-in {
-  animation: scale-in 0.2s ease-out forwards;
+  animation: scale-in var(--duration-normal) ease-out forwards;
 }
 
 /* Subtle pulse glow for active states */
 @keyframes pulse-glow {
-
   0%,
   100% {
     box-shadow: 0 0 0 0 rgba(249, 115, 22, 0.4);
   }
-
   50% {
     box-shadow: 0 0 20px 4px rgba(249, 115, 22, 0.2);
   }
@@ -1057,7 +1521,6 @@ input[type="range"].slider-thumb::-moz-range-thumb:hover {
 
 /* Respect reduced motion preferences */
 @media (prefers-reduced-motion: reduce) {
-
   .animate-shimmer,
   .animate-bounce-x,
   .animate-fade-in-up,
@@ -1065,4 +1528,272 @@ input[type="range"].slider-thumb::-moz-range-thumb:hover {
   .animate-pulse-glow {
     animation: none;
   }
+}
+
+/* ===========================================
+   22. AESTHETIC PHYSICS - "LUXURY LAG" SYSTEM
+   -------------------------------------------
+   Based on 2026 High-End Web Research:
+   - Lerp-based interpolation for "mass" simulation
+   - Spring physics for natural motion
+   - Exponential easing for premium feel
+
+   Integration: Use with Framer Motion / GSAP / Lenis
+   Formula: v = v + (target - v) × lerpFactor
+   =========================================== */
+
+/* ===== TRANSITION UTILITIES (Lerp-Derived) ===== */
+
+/* Instant - No lag, immediate response */
+.transition-instant {
+  transition-duration: var(--duration-instant);
+  transition-timing-function: linear;
+}
+
+/* Snappy - Quick response, light feel (lerp: 0.25) */
+.transition-snappy {
+  transition-duration: var(--duration-fast);
+  transition-timing-function: var(--ease-out-expo);
+}
+
+/* Smooth - Default UI transitions (lerp: 0.15) */
+.transition-smooth {
+  transition-duration: var(--duration-normal);
+  transition-timing-function: var(--ease-luxury);
+}
+
+/* Buttery - Smooth scroll feel (lerp: 0.10) */
+.transition-buttery {
+  transition-duration: var(--duration-slow);
+  transition-timing-function: var(--ease-out-quint);
+}
+
+/* Heavy - "Heavy" cursor/drag feel (lerp: 0.06) */
+.transition-heavy {
+  transition-duration: var(--duration-slower);
+  transition-timing-function: var(--ease-in-out-quint);
+}
+
+/* Glacial - Dramatic slowdown (lerp: 0.03) */
+.transition-glacial {
+  transition-duration: var(--duration-slowest);
+  transition-timing-function: var(--ease-in-out-quint);
+}
+
+/* ===== SPRING PHYSICS ANIMATIONS ===== */
+/* CSS approximations of spring physics for common interactions */
+
+/* Spring bounce - Overshoot then settle */
+@keyframes spring-bounce {
+  0% {
+    transform: scale(0.9);
+    opacity: 0;
+  }
+  50% {
+    transform: scale(1.05);
+  }
+  75% {
+    transform: scale(0.98);
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+.animate-spring-bounce {
+  animation: spring-bounce 0.5s var(--ease-spring) forwards;
+}
+
+/* Spring slide - Elastic slide in */
+@keyframes spring-slide-up {
+  0% {
+    transform: translateY(30px);
+    opacity: 0;
+  }
+  60% {
+    transform: translateY(-5px);
+    opacity: 1;
+  }
+  80% {
+    transform: translateY(2px);
+  }
+  100% {
+    transform: translateY(0);
+  }
+}
+
+.animate-spring-slide-up {
+  animation: spring-slide-up 0.6s var(--ease-out-expo) forwards;
+}
+
+/* Spring press - Tactile button press */
+@keyframes spring-press {
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(0.95);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+.animate-spring-press {
+  animation: spring-press 0.2s var(--ease-spring);
+}
+
+/* Wobble - Attention-grabbing shake */
+@keyframes spring-wobble {
+  0%, 100% {
+    transform: translateX(0) rotate(0);
+  }
+  15% {
+    transform: translateX(-4px) rotate(-1deg);
+  }
+  30% {
+    transform: translateX(3px) rotate(1deg);
+  }
+  45% {
+    transform: translateX(-2px) rotate(-0.5deg);
+  }
+  60% {
+    transform: translateX(1px) rotate(0.5deg);
+  }
+  75% {
+    transform: translateX(-1px) rotate(0);
+  }
+}
+
+.animate-spring-wobble {
+  animation: spring-wobble 0.6s var(--ease-out-expo);
+}
+
+/* ===== LUXURY HOVER TRANSITIONS ===== */
+/* Pre-built hover states with premium feel */
+
+.hover-lift {
+  transition:
+    transform var(--duration-normal) var(--ease-out-expo),
+    box-shadow var(--duration-slow) var(--ease-luxury);
+}
+
+.hover-lift:hover {
+  transform: translateY(-4px);
+  box-shadow:
+    0 20px 40px rgba(0, 0, 0, 0.15),
+    0 8px 16px rgba(0, 0, 0, 0.1);
+}
+
+.hover-glow {
+  transition:
+    box-shadow var(--duration-normal) var(--ease-luxury),
+    border-color var(--duration-fast) var(--ease-out-expo);
+}
+
+.hover-glow:hover {
+  box-shadow: 0 0 30px var(--neu-glow-primary);
+  border-color: rgba(249, 115, 22, 0.3);
+}
+
+.hover-scale {
+  transition: transform var(--duration-fast) var(--ease-spring);
+}
+
+.hover-scale:hover {
+  transform: scale(1.02);
+}
+
+.hover-scale:active {
+  transform: scale(0.98);
+}
+
+/* ===== STAGGER ANIMATION DELAYS ===== */
+/* For list/grid item entrance animations */
+
+.stagger-1 { animation-delay: 0.05s; }
+.stagger-2 { animation-delay: 0.1s; }
+.stagger-3 { animation-delay: 0.15s; }
+.stagger-4 { animation-delay: 0.2s; }
+.stagger-5 { animation-delay: 0.25s; }
+.stagger-6 { animation-delay: 0.3s; }
+.stagger-7 { animation-delay: 0.35s; }
+.stagger-8 { animation-delay: 0.4s; }
+
+/* ===== SCROLL-TRIGGERED ANIMATIONS ===== */
+/* Use with Intersection Observer in JS */
+
+.scroll-reveal {
+  opacity: 0;
+  transform: translateY(20px);
+  transition:
+    opacity var(--duration-slower) var(--ease-out-expo),
+    transform var(--duration-slower) var(--ease-out-quint);
+}
+
+.scroll-reveal.revealed {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.scroll-reveal-scale {
+  opacity: 0;
+  transform: scale(0.95);
+  transition:
+    opacity var(--duration-slower) var(--ease-out-expo),
+    transform var(--duration-slower) var(--ease-spring);
+}
+
+.scroll-reveal-scale.revealed {
+  opacity: 1;
+  transform: scale(1);
+}
+
+/* ===== REDUCED MOTION OVERRIDE ===== */
+/* MANDATORY: Respect user preferences */
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-spring-bounce,
+  .animate-spring-slide-up,
+  .animate-spring-press,
+  .animate-spring-wobble {
+    animation: none;
+  }
+
+  .transition-instant,
+  .transition-snappy,
+  .transition-smooth,
+  .transition-buttery,
+  .transition-heavy,
+  .transition-glacial {
+    transition-duration: 0.01ms !important;
+  }
+
+  .hover-lift:hover,
+  .hover-scale:hover {
+    transform: none;
+  }
+
+  .scroll-reveal,
+  .scroll-reveal-scale {
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
+}
+
+/* ===========================================
+   23. SETTINGS MODAL - USAGE BAR
+   =========================================== */
+
+/* Dynamic width for credit usage bar using CSS custom property */
+.usage-bar[data-usage-percent]::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 100%;
+  width: calc(var(--usage-percent, 0) * 1%);
+  background: inherit;
 }

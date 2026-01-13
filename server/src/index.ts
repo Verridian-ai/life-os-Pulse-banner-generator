@@ -51,9 +51,6 @@ app.use('*', cors({
         'http://localhost:3033',
         'http://localhost:8888',
         // Production domains
-        'https://life-os-verridian.ai',
-        'http://life-os-verridian.ai',
-        'https://www.life-os-verridian.ai',
         'https://life-os-banner.verridian.ai',
         'https://nanobanna-pro-237245874937.us-central1.run.app',
         'https://nanobanna.verridian.ai',

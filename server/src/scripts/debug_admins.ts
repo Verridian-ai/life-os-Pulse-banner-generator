@@ -1,7 +1,6 @@
 
 import { db } from '../db';
 import { users, adminUsers } from '../db/schema';
-import { eq } from 'drizzle-orm';
 
 async function main() {
     console.log('--- USERS ---');

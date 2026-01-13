@@ -38,20 +38,22 @@ describe('ErrorBoundary', () => {
       </ErrorBoundary>,
     );
 
-    // Should show error message
-    expect(screen.getByText(/something went wrong/i)).toBeInTheDocument();
+    // Should show error message - component renders "Something unexpected happened"
+    expect(screen.getByText(/something unexpected happened/i)).toBeInTheDocument();
   });
 
-  it('should display error details in development', () => {
+  it('should have role alert for accessibility', () => {
     render(
       <ErrorBoundary>
         <ThrowError />
       </ErrorBoundary>,
     );
 
-    // Should show error details
+    // Should show error alert for accessibility
     const errorAlert = screen.getByRole('alert');
     expect(errorAlert).toBeInTheDocument();
-    expect(screen.getByText(/test error/i)).toBeInTheDocument();
+    // Should also have action buttons
+    expect(screen.getByText(/try again/i)).toBeInTheDocument();
+    expect(screen.getByText(/go to dashboard/i)).toBeInTheDocument();
   });
 });

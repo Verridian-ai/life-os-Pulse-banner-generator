@@ -91,6 +91,6 @@ export const requirePermission = (permission: keyof AdminPermissions) => {
 /**
  * Helper to get admin context from request
  */
-export const getAdminContext = (c: any): AdminContext | null => {
-    return c.get('admin') || null;
+export const getAdminContext = (c: { get: (key: string) => unknown }): AdminContext | null => {
+    return (c.get('admin') as AdminContext) || null;
 };

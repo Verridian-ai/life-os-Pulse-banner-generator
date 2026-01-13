@@ -10,6 +10,10 @@ export const users = pgTable('users', {
     hashedPassword: text('hashed_password'),
     failedLoginAttempts: integer('failed_login_attempts').default(0),
     lockedUntil: timestamp('locked_until'),
+    // WorkOS Integration Fields
+    workosUserId: text('workos_user_id').unique(),
+    emailVerified: boolean('email_verified').default(false),
+    authProvider: text('auth_provider').default('password'), // 'password', 'google', 'github', 'microsoft', 'sso'
     createdAt: timestamp('created_at').defaultNow(),
     updatedAt: timestamp('updated_at').defaultNow(),
 });
@@ -441,6 +445,49 @@ export const agentAuditLogs = pgTable('agent_audit_logs', {
     timestamp: timestamp('timestamp').notNull().defaultNow(),
 });
 
+// Agent Version History (Phase 8)
+export const agentVersionHistory = pgTable('agent_version_history', {
+    id: uuid('id').defaultRandom().primaryKey(),
+    agentId: text('agent_id').notNull(),
+    version: integer('version').notNull(),
+    systemPrompt: text('system_prompt'),
+    parameters: jsonb('parameters').default({}),
+    changedBy: text('changed_by'),
+    changeReason: text('change_reason'),
+    createdAt: timestamp('created_at').notNull().defaultNow(),
+});
+
+// Agent Cost Budgets (Phase 8)
+export const agentCostBudgets = pgTable('agent_cost_budgets', {
+    id: uuid('id').defaultRandom().primaryKey(),
+    agentId: text('agent_id').notNull().unique(),
+    dailyLimitUsd: numeric('daily_limit_usd'),
+    monthlyLimitUsd: numeric('monthly_limit_usd'),
+    alertThresholdPercent: integer('alert_threshold_percent').default(80),
+    currentDailySpend: numeric('current_daily_spend').default('0'),
+    currentMonthlySpend: numeric('current_monthly_spend').default('0'),
+    lastDailyReset: timestamp('last_daily_reset').defaultNow(),
+    lastMonthlyReset: timestamp('last_monthly_reset').defaultNow(),
+    createdAt: timestamp('created_at').defaultNow(),
+    updatedAt: timestamp('updated_at').defaultNow(),
+});
+
+// Agent Test Results (Phase 8)
+export const agentTestResults = pgTable('agent_test_results', {
+    id: uuid('id').defaultRandom().primaryKey(),
+    agentId: text('agent_id').notNull(),
+    input: text('input').notNull(),
+    output: text('output'),
+    model: text('model'),
+    tokensUsed: integer('tokens_used'),
+    latencyMs: integer('latency_ms'),
+    costUsd: numeric('cost_usd'),
+    status: text('status').notNull().default('success'), // 'success', 'error'
+    error: text('error'),
+    runBy: text('run_by'), // Admin user who ran the test
+    createdAt: timestamp('created_at').notNull().defaultNow(),
+});
+
 // ============================================================================
 // CREDIT & BILLING SYSTEM
 // ============================================================================
@@ -575,3 +622,158 @@ export const dailyStats = pgTable('daily_stats', {
     errorCount: integer('error_count').default(0),
     createdAt: timestamp('created_at').notNull().defaultNow(),
 });
+
+// ============================================================================
+// WORKOS AUTHENTICATION SYSTEM
+// ============================================================================
+
+export const workosOrganizations = pgTable('workos_organizations', {
+    id: uuid('id').defaultRandom().primaryKey(),
+    workosOrgId: text('workos_org_id').notNull().unique(),
+    name: text('name').notNull(),
+    domains: text('domains').array().default([]),
+    allowProfilesOutsideOrg: boolean('allow_profiles_outside_org').default(true),
+    ssoEnabled: boolean('sso_enabled').default(false),
+    scimEnabled: boolean('scim_enabled').default(false),
+    metadata: jsonb('metadata').default({}),
+    createdAt: timestamp('created_at').defaultNow(),
+    updatedAt: timestamp('updated_at').defaultNow(),
+});
+
+export const workosSsoConnections = pgTable('workos_sso_connections', {
+    id: uuid('id').defaultRandom().primaryKey(),
+    workosConnectionId: text('workos_connection_id').notNull().unique(),
+    workosOrgId: text('workos_org_id').references(() => workosOrganizations.workosOrgId, { onDelete: 'cascade' }),
+    name: text('name').notNull(),
+    connectionType: text('connection_type').notNull(), // 'GoogleOAuth', 'GitHubOAuth', 'MicrosoftOAuth', 'SAML', 'OIDC'
+    state: text('state').notNull().default('draft'), // 'draft', 'active', 'inactive'
+    domains: text('domains').array().default([]),
+    metadata: jsonb('metadata').default({}),
+    createdAt: timestamp('created_at').defaultNow(),
+    updatedAt: timestamp('updated_at').defaultNow(),
+});
+
+export const workosDirectories = pgTable('workos_directories', {
+    id: uuid('id').defaultRandom().primaryKey(),
+    workosDirectoryId: text('workos_directory_id').notNull().unique(),
+    workosOrgId: text('workos_org_id').references(() => workosOrganizations.workosOrgId, { onDelete: 'cascade' }),
+    name: text('name').notNull(),
+    type: text('type').notNull(), // 'azure_scim', 'okta_scim', 'google_apps', etc.
+    state: text('state').notNull().default('linked'), // 'linked', 'deleting'
+    primaryEndpoint: text('primary_endpoint'),
+    bearerToken: text('bearer_token'), // Encrypted
+    userCount: integer('user_count').default(0),
+    groupCount: integer('group_count').default(0),
+    lastSyncAt: timestamp('last_sync_at'),
+    createdAt: timestamp('created_at').defaultNow(),
+    updatedAt: timestamp('updated_at').defaultNow(),
+});
+
+export const workosSessions = pgTable('workos_sessions', {
+    id: uuid('id').defaultRandom().primaryKey(),
+    userId: text('user_id').notNull().references(() => users.id, { onDelete: 'cascade' }),
+    workosSessionId: text('workos_session_id').unique(),
+    accessToken: text('access_token'),
+    refreshToken: text('refresh_token'),
+    authProvider: text('auth_provider').notNull(), // 'google', 'github', 'microsoft', 'sso', 'magic_link'
+    ipAddress: text('ip_address'),
+    userAgent: text('user_agent'),
+    expiresAt: timestamp('expires_at', { withTimezone: true }).notNull(),
+    createdAt: timestamp('created_at').defaultNow(),
+    updatedAt: timestamp('updated_at').defaultNow(),
+});
+
+export const workosWebhookEvents = pgTable('workos_webhook_events', {
+    id: uuid('id').defaultRandom().primaryKey(),
+    eventId: text('event_id').notNull().unique(),
+    eventType: text('event_type').notNull(), // 'user.created', 'dsync.user.created', etc.
+    payload: jsonb('payload').notNull(),
+    processed: boolean('processed').default(false),
+    processedAt: timestamp('processed_at'),
+    error: text('error'),
+    createdAt: timestamp('created_at').defaultNow(),
+});
+
+export const workosAuthAttempts = pgTable('workos_auth_attempts', {
+    id: uuid('id').defaultRandom().primaryKey(),
+    email: text('email').notNull(),
+    authMethod: text('auth_method').notNull(), // 'password', 'oauth', 'sso', 'magic_link'
+    provider: text('provider'), // 'google', 'github', 'microsoft'
+    success: boolean('success').notNull(),
+    failureReason: text('failure_reason'),
+    ipAddress: text('ip_address'),
+    userAgent: text('user_agent'),
+    createdAt: timestamp('created_at').defaultNow(),
+});
+
+// ============================================================================
+// STRIPE BILLING SYSTEM (Phase 4)
+// ============================================================================
+
+export const stripeCustomers = pgTable('stripe_customers', {
+    id: uuid('id').defaultRandom().primaryKey(),
+    userId: text('user_id').notNull().references(() => users.id, { onDelete: 'cascade' }).unique(),
+    stripeCustomerId: text('stripe_customer_id').notNull().unique(),
+    email: text('email').notNull(),
+    name: text('name'),
+    defaultPaymentMethodId: text('default_payment_method_id'),
+    metadata: jsonb('metadata').default({}),
+    createdAt: timestamp('created_at').defaultNow(),
+    updatedAt: timestamp('updated_at').defaultNow(),
+});
+
+export const stripeSubscriptions = pgTable('stripe_subscriptions', {
+    id: uuid('id').defaultRandom().primaryKey(),
+    userId: text('user_id').notNull().references(() => users.id, { onDelete: 'cascade' }),
+    stripeSubscriptionId: text('stripe_subscription_id').notNull().unique(),
+    stripeCustomerId: text('stripe_customer_id').notNull(),
+    status: text('status').notNull(), // 'active', 'canceled', 'past_due', 'trialing', 'incomplete'
+    tierId: text('tier_id').references(() => creditTiers.id),
+    priceId: text('price_id').notNull(),
+    currentPeriodStart: timestamp('current_period_start', { withTimezone: true }).notNull(),
+    currentPeriodEnd: timestamp('current_period_end', { withTimezone: true }).notNull(),
+    cancelAtPeriodEnd: boolean('cancel_at_period_end').default(false),
+    canceledAt: timestamp('canceled_at', { withTimezone: true }),
+    trialStart: timestamp('trial_start', { withTimezone: true }),
+    trialEnd: timestamp('trial_end', { withTimezone: true }),
+    metadata: jsonb('metadata').default({}),
+    createdAt: timestamp('created_at').defaultNow(),
+    updatedAt: timestamp('updated_at').defaultNow(),
+});
+
+export const stripeInvoices = pgTable('stripe_invoices', {
+    id: uuid('id').defaultRandom().primaryKey(),
+    userId: text('user_id').notNull().references(() => users.id, { onDelete: 'cascade' }),
+    stripeInvoiceId: text('stripe_invoice_id').notNull().unique(),
+    stripeSubscriptionId: text('stripe_subscription_id'),
+    stripeCustomerId: text('stripe_customer_id').notNull(),
+    status: text('status').notNull(), // 'draft', 'open', 'paid', 'void', 'uncollectible'
+    amountDue: integer('amount_due').notNull(), // In cents
+    amountPaid: integer('amount_paid').default(0),
+    currency: text('currency').notNull().default('usd'),
+    invoicePdfUrl: text('invoice_pdf_url'),
+    hostedInvoiceUrl: text('hosted_invoice_url'),
+    periodStart: timestamp('period_start', { withTimezone: true }),
+    periodEnd: timestamp('period_end', { withTimezone: true }),
+    paidAt: timestamp('paid_at', { withTimezone: true }),
+    createdAt: timestamp('created_at').defaultNow(),
+    updatedAt: timestamp('updated_at').defaultNow(),
+});
+
+export const stripeWebhookEvents = pgTable('stripe_webhook_events', {
+    id: uuid('id').defaultRandom().primaryKey(),
+    stripeEventId: text('stripe_event_id').notNull().unique(),
+    eventType: text('event_type').notNull(),
+    payload: jsonb('payload').notNull(),
+    processed: boolean('processed').default(false),
+    processedAt: timestamp('processed_at'),
+    error: text('error'),
+    createdAt: timestamp('created_at').defaultNow(),
+});
+
+// ============================================================================
+// ALIASES (for backward compatibility with existing code)
+// ============================================================================
+
+export const subscriptions = stripeSubscriptions;
+export const invoices = stripeInvoices;

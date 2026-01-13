@@ -197,8 +197,15 @@ function LiveIndicator({ isLive = true }: { isLive?: boolean }) {
   );
 }
 
+// Platform type for PlatformCard
+interface Platform {
+  id: string;
+  name: string;
+  description: string;
+}
+
 // Platform Card with Neumorphic + Glass styling and 3D image
-export function PlatformCard({ platform, onClick }: { platform: any; onClick: (id: string) => void }) {
+export function PlatformCard({ platform, onClick }: { platform: Platform; onClick: (id: string) => void }) {
   const [isHovered, setIsHovered] = useState(false);
   const branding = platformBranding[platform.id as keyof typeof platformBranding] || platformBranding.linkedin;
 
@@ -305,6 +312,14 @@ export function PlatformCard({ platform, onClick }: { platform: any; onClick: (i
   );
 }
 
+// Design type for RecentDesignCard
+interface Design {
+  id: string;
+  platform: string;
+  title: string;
+  updatedAt: string;
+}
+
 // Recent Design Card with Neumorphic + Glass styling
 export function RecentDesignCard({
   design,
@@ -312,7 +327,7 @@ export function RecentDesignCard({
   onDelete,
   onDuplicate
 }: {
-  design: any;
+  design: Design;
   onClick: (id: string) => void;
   onDelete: (id: string) => void;
   onDuplicate: (id: string) => void

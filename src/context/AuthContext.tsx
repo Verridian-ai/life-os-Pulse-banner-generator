@@ -7,6 +7,10 @@ import {
   signIn as authSignIn,
   signInWithGoogle as authSignInWithGoogle,
   signInWithGitHub as authSignInWithGitHub,
+  signInWithMicrosoft as authSignInWithMicrosoft,
+  signInWithSSO as authSignInWithSSO,
+  sendMagicLink as authSendMagicLink,
+  getWorkosStatus,
   signOut as authSignOut,
   onAuthStateChange,
   getCurrentUser,
@@ -18,6 +22,14 @@ import type { UserPreferences as ApiUserPreferences } from '../types/api';
 import { IdleTimeoutWarning } from '../components/auth/IdleTimeoutWarning';
 import { useToast } from '../hooks/useToast';
 
+// WorkOS status type
+interface WorkosStatus {
+  enabled: boolean;
+  providers: string[];
+  ssoEnabled: boolean;
+  magicLinkEnabled: boolean;
+}
+
 interface AuthContextType {
   // Auth user (from session)
   authUser: AppUser | null;
@@ -26,6 +38,10 @@ interface AuthContextType {
   session: AppSession | null;
   isLoading: boolean;
   isAuthenticated: boolean;
+
+  // WorkOS status
+  workosStatus: WorkosStatus;
+  isSSOUser: boolean;
 
   // Auth methods
   signUp: (
@@ -38,11 +54,14 @@ interface AuthContextType {
     },
   ) => Promise<{ error: Error | null }>;
   signIn: (email: string, password: string) => Promise<{ error: Error | null }>;
-  signInWithGoogle: () => Promise<{ error: Error | null }>;
-  signInWithGitHub: () => Promise<{ error: Error | null }>;
+  signInWithGoogle: (returnTo?: string) => Promise<{ error: Error | null }>;
+  signInWithGitHub: (returnTo?: string) => Promise<{ error: Error | null }>;
+  signInWithMicrosoft: (returnTo?: string) => Promise<{ error: Error | null }>;
+  signInWithSSO: (domain?: string, returnTo?: string) => Promise<{ error: Error | null }>;
+  sendMagicLink: (email: string, returnTo?: string) => Promise<{ success: boolean; error: Error | null }>;
   signOut: () => Promise<{ error: Error | null }>;
   refreshProfile: () => Promise<void>;
-  
+
   // Timeout settings
   updateTimeoutSettings: (minutes: number) => Promise<void>;
   timeoutDuration: number; // in minutes
@@ -68,6 +87,14 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
   const [session, setSession] = useState<AppSession | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+
+  // WorkOS state
+  const [workosStatus, setWorkosStatus] = useState<WorkosStatus>({
+    enabled: false,
+    providers: [],
+    ssoEnabled: false,
+    magicLinkEnabled: false,
+  });
 
   // Timeout state
   const [timeoutDuration, setTimeoutDuration] = useState<number>(30); // Default 30 min
@@ -196,6 +223,19 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     };
   }, [authUser, timeoutDuration, resetTimers, showTimeoutWarning]);
 
+  // Load WorkOS status on mount
+  useEffect(() => {
+    const loadWorkosStatus = async () => {
+      try {
+        const status = await getWorkosStatus();
+        setWorkosStatus(status);
+      } catch (error) {
+        console.error('Failed to load WorkOS status:', error);
+      }
+    };
+    loadWorkosStatus();
+  }, []);
+
   // Initialize auth state
   useEffect(() => {
     const initAuth = async () => {
@@ -313,14 +353,34 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     return { error };
   };
 
-  // Sign in with Google
-  const signInWithGoogle = async (): Promise<{ error: Error | null }> => {
-    return authSignInWithGoogle();
+  // Sign in with Google (WorkOS OAuth)
+  const signInWithGoogle = async (returnTo?: string): Promise<{ error: Error | null }> => {
+    const result = await authSignInWithGoogle(returnTo);
+    return { error: result.error };
   };
 
-  // Sign in with GitHub
-  const signInWithGitHub = async (): Promise<{ error: Error | null }> => {
-    return authSignInWithGitHub();
+  // Sign in with GitHub (WorkOS OAuth)
+  const signInWithGitHub = async (returnTo?: string): Promise<{ error: Error | null }> => {
+    const result = await authSignInWithGitHub(returnTo);
+    return { error: result.error };
+  };
+
+  // Sign in with Microsoft (WorkOS OAuth)
+  const signInWithMicrosoft = async (returnTo?: string): Promise<{ error: Error | null }> => {
+    const result = await authSignInWithMicrosoft(returnTo);
+    return { error: result.error };
+  };
+
+  // Sign in with Enterprise SSO
+  const signInWithSSO = async (domain?: string, returnTo?: string): Promise<{ error: Error | null }> => {
+    const result = await authSignInWithSSO(domain, returnTo);
+    return { error: result.error };
+  };
+
+  // Send Magic Link
+  const sendMagicLink = async (email: string, returnTo?: string): Promise<{ success: boolean; error: Error | null }> => {
+    const result = await authSendMagicLink(email, returnTo);
+    return { success: result.success, error: result.error };
   };
 
   // Sign out (Public)
@@ -328,16 +388,26 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     return performSignOut();
   };
 
+  // Check if current user is an SSO user
+  const isSSOUser = authUser?.app_metadata?.provider
+    ? ['google', 'github', 'microsoft', 'sso'].includes(authUser.app_metadata.provider as string)
+    : false;
+
   const value: AuthContextType = {
     authUser,
     user,
     session,
     isLoading,
     isAuthenticated: !!authUser,
+    workosStatus,
+    isSSOUser,
     signUp,
     signIn,
     signInWithGoogle,
     signInWithGitHub,
+    signInWithMicrosoft,
+    signInWithSSO,
+    sendMagicLink,
     signOut,
     refreshProfile,
     updateTimeoutSettings,

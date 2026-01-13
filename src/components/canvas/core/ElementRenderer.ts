@@ -90,7 +90,7 @@ export function measureTextElement(
 export function drawTextElement(
   ctx: CanvasRenderingContext2D,
   el: BannerElement,
-  rectX: number,
+  _rectX: number,
 ): void {
   // Apply opacity
   const opacity = el.opacity !== undefined ? el.opacity / 100 : 1;

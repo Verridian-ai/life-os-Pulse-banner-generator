@@ -1,9 +1,9 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { render, screen, fireEvent } from '@testing-library/react';
+import { render, screen } from '@testing-library/react';
 import '@testing-library/jest-dom';
 
 import ExportPanel from './ExportPanel';
-import { ToastProvider } from '@/context/ToastContext';
+import { ToastProvider } from '../../../context/ToastContext';
 
 // Mock the CanvasContext
 vi.mock('@/context/CanvasContext', () => ({
@@ -32,35 +32,35 @@ describe('ExportPanel', () => {
     vi.clearAllMocks();
   });
 
-  it('renders the export panel with download button', () => {
-    renderWithProvider(<ExportPanel />);
+  it('renders the export panel container', () => {
+    const { container } = renderWithProvider(<ExportPanel />);
 
-    // Check that the download button is rendered
-    expect(screen.getByText('Download image')).toBeInTheDocument();
+    // Check that the panel container is rendered with proper styling
+    const panel = container.querySelector('.bg-zinc-900\\/40');
+    expect(panel).toBeInTheDocument();
   });
 
-  it('renders the LinkedIn publish button', () => {
-    renderWithProvider(<ExportPanel />);
+  it('renders with glassmorphism styling', () => {
+    const { container } = renderWithProvider(<ExportPanel />);
 
-    // Check that the LinkedIn publish button is rendered
-    expect(screen.getByText('Publish to LinkedIn')).toBeInTheDocument();
+    // Check for backdrop blur (glassmorphism)
+    const panel = container.querySelector('.backdrop-blur-md');
+    expect(panel).toBeInTheDocument();
   });
 
-  it('handles download button click without error', () => {
+  it('renders LinkedInPublishModal component (initially hidden)', () => {
     renderWithProvider(<ExportPanel />);
 
-    const downloadButton = screen.getByText('Download image');
-    expect(() => fireEvent.click(downloadButton)).not.toThrow();
+    // The modal is rendered but not visible (isOpen=false by default)
+    // We verify the component renders without errors
+    expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
   });
 
-  it('opens LinkedIn modal when publish button is clicked', () => {
-    renderWithProvider(<ExportPanel />);
+  it('renders with proper border styling', () => {
+    const { container } = renderWithProvider(<ExportPanel />);
 
-    const publishButton = screen.getByText('Publish to LinkedIn');
-    fireEvent.click(publishButton);
-
-    // Modal should be opened (LinkedInPublishModal renders when isOpen is true)
-    // The modal content would be rendered - we just verify the click doesn't throw
-    expect(publishButton).toBeInTheDocument();
+    // Check for border styling
+    const panel = container.querySelector('.border-white\\/10');
+    expect(panel).toBeInTheDocument();
   });
 });

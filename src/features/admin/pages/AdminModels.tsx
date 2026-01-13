@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useRef, useLayoutEffect } from 'react';
 import { AdminLayout } from '../components/AdminLayout';
 import { AdminGuard } from '../components/AdminGuard';
 import { getModelPerformance } from '../services/adminApi';
@@ -59,12 +59,11 @@ function ModelCard({ model, ranking }: { model: ModelPerformanceStats; ranking?:
             <div className="flex items-start justify-between mb-4">
                 <div className="flex items-center gap-3">
                     {ranking && (
-                        <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold ${
-                            ranking === 1 ? 'bg-yellow-500/20 text-yellow-400' :
+                        <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold ${ranking === 1 ? 'bg-yellow-500/20 text-yellow-400' :
                             ranking === 2 ? 'bg-zinc-400/20 text-zinc-300' :
-                            ranking === 3 ? 'bg-amber-600/20 text-amber-500' :
-                            'bg-zinc-700/50 text-zinc-400'
-                        }`}>
+                                ranking === 3 ? 'bg-amber-600/20 text-amber-500' :
+                                    'bg-zinc-700/50 text-zinc-400'
+                            }`}>
                             #{ranking}
                         </div>
                     )}
@@ -136,6 +135,25 @@ function ModelCard({ model, ranking }: { model: ModelPerformanceStats; ranking?:
     );
 }
 
+function ScoreBar({ score }: { score: number }): React.ReactElement {
+    const barRef = useRef<HTMLDivElement>(null);
+
+    useLayoutEffect(() => {
+        if (barRef.current) {
+            barRef.current.style.width = `${score * 100}%`;
+        }
+    }, [score]);
+
+    return (
+        <div className="w-16 h-2 bg-zinc-700 rounded-full overflow-hidden">
+            <div
+                ref={barRef}
+                className="h-full bg-gradient-to-r from-purple-500 to-blue-500 rounded-full"
+            />
+        </div>
+    );
+}
+
 function ComparisonTable({ models, criteria }: { models: ModelPerformanceStats[]; criteria: ComparisonCriteria }): React.ReactElement {
     // Calculate scores based on criteria
     const rankedModels = useMemo(() => {
@@ -199,12 +217,11 @@ function ComparisonTable({ models, criteria }: { models: ModelPerformanceStats[]
                         return (
                             <tr key={model.modelId} className="hover:bg-white/5 transition">
                                 <td className="px-4 py-3">
-                                    <span className={`inline-flex w-6 h-6 items-center justify-center rounded-full text-xs font-bold ${
-                                        model.ranking === 1 ? 'bg-yellow-500/20 text-yellow-400' :
+                                    <span className={`inline-flex w-6 h-6 items-center justify-center rounded-full text-xs font-bold ${model.ranking === 1 ? 'bg-yellow-500/20 text-yellow-400' :
                                         model.ranking === 2 ? 'bg-zinc-400/20 text-zinc-300' :
-                                        model.ranking === 3 ? 'bg-amber-600/20 text-amber-500' :
-                                        'bg-zinc-700/50 text-zinc-400'
-                                    }`}>
+                                            model.ranking === 3 ? 'bg-amber-600/20 text-amber-500' :
+                                                'bg-zinc-700/50 text-zinc-400'
+                                        }`}>
                                         {model.ranking}
                                     </span>
                                 </td>
@@ -235,12 +252,7 @@ function ComparisonTable({ models, criteria }: { models: ModelPerformanceStats[]
                                 </td>
                                 <td className="px-4 py-3 text-right">
                                     <div className="flex items-center justify-end gap-2">
-                                        <div className="w-16 h-2 bg-zinc-700 rounded-full overflow-hidden">
-                                            <div
-                                                className="h-full bg-gradient-to-r from-purple-500 to-blue-500 rounded-full"
-                                                style={{ width: `${model.score * 100}%` }}
-                                            />
-                                        </div>
+                                        <ScoreBar score={model.score} />
                                         <span className="text-white font-medium w-12 text-right">
                                             {(model.score * 100).toFixed(0)}
                                         </span>
@@ -309,11 +321,10 @@ export function AdminModels(): React.ReactElement {
                                     <button
                                         key={days}
                                         onClick={() => setTimeRange(days)}
-                                        className={`px-3 py-1.5 text-xs font-medium rounded-md transition ${
-                                            timeRange === days
-                                                ? 'bg-purple-600 text-white'
-                                                : 'text-zinc-400 hover:text-white'
-                                        }`}
+                                        className={`px-3 py-1.5 text-xs font-medium rounded-md transition ${timeRange === days
+                                            ? 'bg-purple-600 text-white'
+                                            : 'text-zinc-400 hover:text-white'
+                                            }`}
                                     >
                                         {days}d
                                     </button>
@@ -323,22 +334,20 @@ export function AdminModels(): React.ReactElement {
                             <div className="flex bg-zinc-800 rounded-lg p-1">
                                 <button
                                     onClick={() => setViewMode('cards')}
-                                    className={`px-3 py-1.5 text-xs font-medium rounded-md transition flex items-center gap-1 ${
-                                        viewMode === 'cards'
-                                            ? 'bg-purple-600 text-white'
-                                            : 'text-zinc-400 hover:text-white'
-                                    }`}
+                                    className={`px-3 py-1.5 text-xs font-medium rounded-md transition flex items-center gap-1 ${viewMode === 'cards'
+                                        ? 'bg-purple-600 text-white'
+                                        : 'text-zinc-400 hover:text-white'
+                                        }`}
                                 >
                                     <span className="material-icons text-sm">grid_view</span>
                                     Cards
                                 </button>
                                 <button
                                     onClick={() => setViewMode('comparison')}
-                                    className={`px-3 py-1.5 text-xs font-medium rounded-md transition flex items-center gap-1 ${
-                                        viewMode === 'comparison'
-                                            ? 'bg-purple-600 text-white'
-                                            : 'text-zinc-400 hover:text-white'
-                                    }`}
+                                    className={`px-3 py-1.5 text-xs font-medium rounded-md transition flex items-center gap-1 ${viewMode === 'comparison'
+                                        ? 'bg-purple-600 text-white'
+                                        : 'text-zinc-400 hover:text-white'
+                                        }`}
                                 >
                                     <span className="material-icons text-sm">leaderboard</span>
                                     Compare
@@ -405,11 +414,10 @@ export function AdminModels(): React.ReactElement {
                             <div className="flex gap-2">
                                 <button
                                     onClick={() => setProviderFilter(null)}
-                                    className={`px-3 py-1.5 text-xs font-medium rounded-lg transition ${
-                                        providerFilter === null
-                                            ? 'bg-white/10 text-white'
-                                            : 'text-zinc-400 hover:text-white'
-                                    }`}
+                                    className={`px-3 py-1.5 text-xs font-medium rounded-lg transition ${providerFilter === null
+                                        ? 'bg-white/10 text-white'
+                                        : 'text-zinc-400 hover:text-white'
+                                        }`}
                                 >
                                     All Providers
                                 </button>
@@ -419,11 +427,10 @@ export function AdminModels(): React.ReactElement {
                                         <button
                                             key={provider}
                                             onClick={() => setProviderFilter(provider)}
-                                            className={`px-3 py-1.5 text-xs font-medium rounded-lg transition ${
-                                                providerFilter === provider
-                                                    ? `${style.bg} ${style.text} border ${style.border}`
-                                                    : 'text-zinc-400 hover:text-white'
-                                            }`}
+                                            className={`px-3 py-1.5 text-xs font-medium rounded-lg transition ${providerFilter === provider
+                                                ? `${style.bg} ${style.text} border ${style.border}`
+                                                : 'text-zinc-400 hover:text-white'
+                                                }`}
                                         >
                                             {provider}
                                         </button>
@@ -439,11 +446,10 @@ export function AdminModels(): React.ReactElement {
                                         <button
                                             key={c}
                                             onClick={() => setComparisonCriteria(c)}
-                                            className={`px-3 py-1.5 text-xs font-medium rounded-lg capitalize transition ${
-                                                comparisonCriteria === c
-                                                    ? 'bg-purple-600 text-white'
-                                                    : 'text-zinc-400 hover:text-white bg-zinc-800'
-                                            }`}
+                                            className={`px-3 py-1.5 text-xs font-medium rounded-lg capitalize transition ${comparisonCriteria === c
+                                                ? 'bg-purple-600 text-white'
+                                                : 'text-zinc-400 hover:text-white bg-zinc-800'
+                                                }`}
                                         >
                                             {c}
                                         </button>

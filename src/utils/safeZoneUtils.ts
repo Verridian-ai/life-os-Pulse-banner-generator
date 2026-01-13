@@ -238,8 +238,10 @@ export function calculateSafePosition(
     // Rectangular zone - find shortest escape path
     const zoneRight = zone.x + zone.width;
     const zoneBottom = zone.y + zone.height;
-    const elemRight = bounds.x + bounds.width;
-    const elemBottom = bounds.y + bounds.height;
+    // Element bounds used for escape distance calculations
+    const _elemRight = bounds.x + bounds.width;
+    const _elemBottom = bounds.y + bounds.height;
+    void _elemRight; void _elemBottom; // Reserved for future edge-case handling
 
     // Calculate distances to each edge
     const escapeLeft = bounds.x - zone.x + bounds.width;

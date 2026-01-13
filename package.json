@@ -17,10 +17,15 @@
     "test:run": "vitest run",
     "test:coverage": "vitest run --coverage",
     "test:watch": "vitest --watch",
-    "prepare": "husky"
+    "prepare": "husky",
+    "preload-memory": "tsx scripts/preload-cognee-memory.ts",
+    "batch-cognify": "tsx scripts/batch-cognify-agents.ts",
+    "install-mcp": "powershell -ExecutionPolicy Bypass -File scripts/install-all-mcp-servers.ps1",
+    "test-plugins": "tsx scripts/test-all-plugins.ts"
   },
   "dependencies": {
     "@datadog/browser-rum": "^6.25.1",
+    "@stripe/stripe-js": "^8.6.1",
     "@tailwindcss/postcss": "^4.1.18",
     "@types/file-saver": "^2.0.7",
     "@types/node": "^22.14.0",

@@ -8,6 +8,21 @@ import { users, emailVerificationTokens, passwordResetTokens, profiles, userPref
 import { sendVerificationEmail, sendPasswordResetEmail } from '../lib/email';
 import { randomBytes, createHash } from 'crypto';
 import { authRateLimit } from '../lib/rateLimit';
+import {
+    WORKOS_ENABLED,
+    getOAuthAuthorizationUrl,
+    getSsoAuthorizationUrlByOrg,
+    sendMagicLink,
+    createOAuthState,
+    parseOAuthState,
+    workosConfig,
+    type OAuthProvider,
+} from '../lib/workos';
+import {
+    handleOAuthCallback,
+    handleSsoCallback,
+    handleMagicLinkAuth,
+} from '../lib/authBridge';
 
 // Helper for password strength
 const validatePasswordStrength = (password: string): string | null => {
@@ -321,4 +336,268 @@ authRouter.post('/reset-password', authRateLimit.resetPassword, async (c) => {
     return c.json({ success: true, message: 'Password reset successfully' });
 });
 
+// ============================================================================
+// WORKOS OAUTH ENDPOINTS
+// ============================================================================
+
+// Check if WorkOS is available
+authRouter.get('/workos/status', async (c) => {
+    return c.json({
+        enabled: WORKOS_ENABLED,
+        providers: WORKOS_ENABLED ? ['google', 'github', 'microsoft'] : [],
+        ssoEnabled: WORKOS_ENABLED,
+        magicLinkEnabled: WORKOS_ENABLED,
+    });
+});
+
+// Start OAuth flow
+authRouter.get('/workos/authorize', async (c) => {
+    if (!WORKOS_ENABLED) {
+        return c.json({ error: 'WorkOS is not configured' }, 503);
+    }
+
+    const provider = c.req.query('provider') as 'google' | 'github' | 'microsoft';
+    const returnTo = c.req.query('returnTo') || '/studio';
+
+    if (!provider || !['google', 'github', 'microsoft'].includes(provider)) {
+        return c.json({ error: 'Invalid provider. Use: google, github, or microsoft' }, 400);
+    }
+
+    // Map to WorkOS provider names
+    const providerMap: Record<string, OAuthProvider> = {
+        google: 'GoogleOAuth',
+        github: 'GitHubOAuth',
+        microsoft: 'MicrosoftOAuth',
+    };
+
+    const workosProvider = providerMap[provider];
+    const state = createOAuthState(workosProvider, returnTo);
+
+    try {
+        const authUrl = getOAuthAuthorizationUrl(workosProvider, state);
+        return c.redirect(authUrl);
+    } catch (error) {
+        console.error('[Auth] Failed to generate OAuth URL:', error);
+        return c.json({ error: 'Failed to start OAuth flow' }, 500);
+    }
+});
+
+// OAuth callback
+authRouter.get('/workos/callback', async (c) => {
+    if (!WORKOS_ENABLED) {
+        return c.json({ error: 'WorkOS is not configured' }, 503);
+    }
+
+    const code = c.req.query('code');
+    const stateParam = c.req.query('state');
+    const error = c.req.query('error');
+    const errorDescription = c.req.query('error_description');
+
+    // Handle OAuth errors
+    if (error) {
+        console.error('[Auth] OAuth error:', error, errorDescription);
+        return c.redirect(`/?error=${encodeURIComponent(errorDescription || error)}`);
+    }
+
+    if (!code || !stateParam) {
+        return c.redirect('/?error=missing_code');
+    }
+
+    // Parse and validate state
+    const state = parseOAuthState(stateParam);
+    if (!state) {
+        return c.redirect('/?error=invalid_state');
+    }
+
+    // Get IP and user agent for logging
+    const ipAddress = c.req.header('x-forwarded-for')?.split(',')[0] || c.req.header('x-real-ip');
+    const userAgent = c.req.header('user-agent');
+
+    const result = await handleOAuthCallback(code, state.provider, ipAddress, userAgent);
+
+    if (!result.success) {
+        return c.redirect(`/?error=${encodeURIComponent(result.error || 'auth_failed')}`);
+    }
+
+    // Set session cookie
+    if (result.session) {
+        const sessionCookie = lucia.createSessionCookie(result.session.id);
+        c.header('Set-Cookie', sessionCookie.serialize(), { append: true });
+    }
+
+    // Redirect to original destination or default
+    const returnTo = state.returnTo || '/studio';
+
+    // If new user, redirect to onboarding
+    if (result.isNewUser) {
+        return c.redirect('/onboarding?welcome=true');
+    }
+
+    return c.redirect(returnTo);
+});
+
+// Start SSO flow (enterprise)
+authRouter.get('/sso/authorize', async (c) => {
+    if (!WORKOS_ENABLED) {
+        return c.json({ error: 'WorkOS is not configured' }, 503);
+    }
+
+    const domain = c.req.query('domain');
+    const organizationId = c.req.query('organization_id') || workosConfig.orgId;
+    const returnTo = c.req.query('returnTo') || '/studio';
+
+    if (!organizationId && !domain) {
+        return c.json({ error: 'Either domain or organization_id is required' }, 400);
+    }
+
+    const state = Buffer.from(JSON.stringify({
+        type: 'sso',
+        returnTo,
+        csrfToken: crypto.randomUUID(),
+    })).toString('base64url');
+
+    try {
+        const authUrl = getSsoAuthorizationUrlByOrg(organizationId, state);
+        return c.redirect(authUrl);
+    } catch (error) {
+        console.error('[Auth] Failed to generate SSO URL:', error);
+        return c.json({ error: 'Failed to start SSO flow' }, 500);
+    }
+});
+
+// SSO callback
+authRouter.get('/sso/callback', async (c) => {
+    if (!WORKOS_ENABLED) {
+        return c.json({ error: 'WorkOS is not configured' }, 503);
+    }
+
+    const code = c.req.query('code');
+    const stateParam = c.req.query('state');
+    const error = c.req.query('error');
+
+    if (error) {
+        console.error('[Auth] SSO error:', error);
+        return c.redirect(`/?error=${encodeURIComponent(error)}`);
+    }
+
+    if (!code) {
+        return c.redirect('/?error=missing_code');
+    }
+
+    let returnTo = '/studio';
+    if (stateParam) {
+        try {
+            const state = JSON.parse(Buffer.from(stateParam, 'base64url').toString('utf-8'));
+            returnTo = state.returnTo || '/studio';
+        } catch {
+            // Ignore state parsing errors
+        }
+    }
+
+    const ipAddress = c.req.header('x-forwarded-for')?.split(',')[0] || c.req.header('x-real-ip');
+    const userAgent = c.req.header('user-agent');
+
+    const result = await handleSsoCallback(code, ipAddress, userAgent);
+
+    if (!result.success) {
+        return c.redirect(`/?error=${encodeURIComponent(result.error || 'sso_failed')}`);
+    }
+
+    if (result.session) {
+        const sessionCookie = lucia.createSessionCookie(result.session.id);
+        c.header('Set-Cookie', sessionCookie.serialize(), { append: true });
+    }
+
+    if (result.isNewUser) {
+        return c.redirect('/onboarding?welcome=true&sso=true');
+    }
+
+    return c.redirect(returnTo);
+});
+
+// Send magic link
+authRouter.post('/magic-link', authRateLimit.forgotPassword, async (c) => {
+    if (!WORKOS_ENABLED) {
+        return c.json({ error: 'WorkOS is not configured' }, 503);
+    }
+
+    const { email, returnTo } = await c.req.json();
+
+    if (!email || typeof email !== 'string') {
+        return c.json({ error: 'Valid email is required' }, 400);
+    }
+
+    try {
+        await sendMagicLink(email, returnTo);
+        return c.json({
+            success: true,
+            message: 'Magic link sent to your email',
+        });
+    } catch (error) {
+        console.error('[Auth] Failed to send magic link:', error);
+        // Don't reveal if email exists or not
+        return c.json({
+            success: true,
+            message: 'If the email exists, a magic link has been sent',
+        });
+    }
+});
+
+// Magic link callback
+authRouter.get('/magic-link/callback', async (c) => {
+    if (!WORKOS_ENABLED) {
+        return c.json({ error: 'WorkOS is not configured' }, 503);
+    }
+
+    const code = c.req.query('code');
+    const email = c.req.query('email');
+    const error = c.req.query('error');
+
+    if (error) {
+        return c.redirect(`/?error=${encodeURIComponent(error)}`);
+    }
+
+    if (!code || !email) {
+        return c.redirect('/?error=missing_params');
+    }
+
+    const ipAddress = c.req.header('x-forwarded-for')?.split(',')[0] || c.req.header('x-real-ip');
+    const userAgent = c.req.header('user-agent');
+
+    const result = await handleMagicLinkAuth(code, email, ipAddress, userAgent);
+
+    if (!result.success) {
+        return c.redirect(`/?error=${encodeURIComponent(result.error || 'magic_link_failed')}`);
+    }
+
+    if (result.session) {
+        const sessionCookie = lucia.createSessionCookie(result.session.id);
+        c.header('Set-Cookie', sessionCookie.serialize(), { append: true });
+    }
+
+    if (result.isNewUser) {
+        return c.redirect('/onboarding?welcome=true');
+    }
+
+    return c.redirect('/studio');
+});
+
+// Get available auth providers for a domain
+authRouter.get('/providers', async (c) => {
+    const domain = c.req.query('domain');
+
+    const providers: string[] = ['password']; // Always available
+
+    if (WORKOS_ENABLED) {
+        providers.push('google', 'github', 'microsoft', 'magic_link');
+
+        // If domain provided, check for SSO
+        if (domain) {
+            // In production, you'd check if domain has SSO configured
+            providers.push('sso');
+        }
+    }
+
+    return c.json({ providers });
+});
 

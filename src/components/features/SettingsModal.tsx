@@ -3,6 +3,10 @@ import { getUserAPIKeys, saveUserAPIKeys } from '../../services/apiKeyStorage';
 import { testOpenRouterKey, testReplicateKey } from '../../services/apiKeyValidator';
 import { useFocusTrap } from '../../hooks/useFocusTrap';
 import { useAuth } from '../../context/AuthContext';
+import { SubscriptionStatus } from '../../features/billing/components/SubscriptionStatus';
+import { PricingCards } from '../../features/billing/components/PricingCards';
+import { BillingHistory } from '../../features/billing/components/BillingHistory';
+import { getSubscription, type SubscriptionResponse } from '../../features/billing/services/billingApi';
 
 // Credit types
 interface UserCredits {
@@ -115,7 +119,11 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
   const { updateTimeoutSettings, timeoutDuration } = useAuth();
 
   // Settings tab
-  const [activeTab, setActiveTab] = useState<'credits' | 'api-keys'>('credits');
+  const [activeTab, setActiveTab] = useState<'credits' | 'billing' | 'api-keys'>('credits');
+
+  // Billing state
+  const [billingData, setBillingData] = useState<SubscriptionResponse | null>(null);
+  const [isLoadingBilling, setIsLoadingBilling] = useState(false);
 
   // Credits state
   const [credits, setCredits] = useState<UserCredits | null>(null);
@@ -180,6 +188,26 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
 
     fetchCredits();
   }, [isOpen]);
+
+  // Load billing data when modal opens or billing tab is selected
+  useEffect(() => {
+    if (!isOpen || activeTab !== 'billing') return;
+    if (billingData) return; // Already loaded
+
+    const fetchBilling = async () => {
+      setIsLoadingBilling(true);
+      try {
+        const data = await getSubscription();
+        setBillingData(data);
+      } catch (error) {
+        console.error('[Settings] Failed to fetch billing:', error);
+      } finally {
+        setIsLoadingBilling(false);
+      }
+    };
+
+    fetchBilling();
+  }, [isOpen, activeTab, billingData]);
 
   // Load settings on mount
   useEffect(() => {
@@ -392,26 +420,35 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
           <button
             type='button'
             onClick={() => setActiveTab('credits')}
-            className={`flex-1 py-2 px-4 rounded-xl text-xs font-bold uppercase tracking-wider transition ${
-              activeTab === 'credits'
-                ? 'bg-purple-600 text-white'
-                : 'bg-zinc-800 text-zinc-400 hover:bg-zinc-700'
-            }`}
+            className={`flex-1 py-2 px-3 rounded-xl text-xs font-bold uppercase tracking-wider transition ${activeTab === 'credits'
+              ? 'bg-purple-600 text-white'
+              : 'bg-zinc-800 text-zinc-400 hover:bg-zinc-700'
+              }`}
           >
             <span className='material-icons text-sm mr-1 align-middle'>payments</span>
             Credits
           </button>
           <button
             type='button'
+            onClick={() => setActiveTab('billing')}
+            className={`flex-1 py-2 px-3 rounded-xl text-xs font-bold uppercase tracking-wider transition ${activeTab === 'billing'
+              ? 'bg-purple-600 text-white'
+              : 'bg-zinc-800 text-zinc-400 hover:bg-zinc-700'
+              }`}
+          >
+            <span className='material-icons text-sm mr-1 align-middle'>credit_card</span>
+            Billing
+          </button>
+          <button
+            type='button'
             onClick={() => setActiveTab('api-keys')}
-            className={`flex-1 py-2 px-4 rounded-xl text-xs font-bold uppercase tracking-wider transition ${
-              activeTab === 'api-keys'
-                ? 'bg-purple-600 text-white'
-                : 'bg-zinc-800 text-zinc-400 hover:bg-zinc-700'
-            }`}
+            className={`flex-1 py-2 px-3 rounded-xl text-xs font-bold uppercase tracking-wider transition ${activeTab === 'api-keys'
+              ? 'bg-purple-600 text-white'
+              : 'bg-zinc-800 text-zinc-400 hover:bg-zinc-700'
+              }`}
           >
             <span className='material-icons text-sm mr-1 align-middle'>key</span>
-            API Keys
+            Keys
           </button>
         </div>
 
@@ -450,10 +487,11 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
                     </div>
                     <div className='h-2 bg-zinc-800 rounded-full overflow-hidden'>
                       <div
-                        className='h-full bg-gradient-to-r from-purple-500 to-pink-500 transition-all duration-300'
-                        style={{
-                          width: `${Math.min(100, (credits.lifetimeUsed / Math.max(1, credits.lifetimeGranted)) * 100)}%`,
-                        }}
+                        className='h-full bg-gradient-to-r from-purple-500 to-pink-500 transition-all duration-300 usage-bar'
+                        data-usage-percent={Math.min(
+                          100,
+                          (credits.lifetimeUsed / Math.max(1, credits.lifetimeGranted)) * 100
+                        )}
                       />
                     </div>
                   </div>
@@ -506,9 +544,8 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
                         >
                           <div className='flex items-center gap-2'>
                             <span
-                              className={`material-icons text-sm ${
-                                tx.amount > 0 ? 'text-green-500' : 'text-red-400'
-                              }`}
+                              className={`material-icons text-sm ${tx.amount > 0 ? 'text-green-500' : 'text-red-400'
+                                }`}
                             >
                               {tx.amount > 0 ? 'add_circle' : 'remove_circle'}
                             </span>
@@ -517,9 +554,8 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
                             </span>
                           </div>
                           <span
-                            className={`text-xs font-bold ${
-                              tx.amount > 0 ? 'text-green-400' : 'text-red-400'
-                            }`}
+                            className={`text-xs font-bold ${tx.amount > 0 ? 'text-green-400' : 'text-red-400'
+                              }`}
                           >
                             {tx.amount > 0 ? '+' : ''}{tx.amount}
                           </span>
@@ -558,326 +594,365 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
           </div>
         )}
 
+        {/* Billing Tab */}
+        {activeTab === 'billing' && (
+          <div className='space-y-6'>
+            {isLoadingBilling ? (
+              <div className='flex items-center justify-center py-12'>
+                <span className='material-icons animate-spin text-purple-500'>sync</span>
+                <span className='ml-2 text-zinc-400 text-sm'>Loading billing...</span>
+              </div>
+            ) : (
+              <>
+                {/* Subscription Status */}
+                <SubscriptionStatus
+                  subscription={billingData?.subscription || null}
+                  credits={billingData?.credits || { balance: 0, tier: 'free' }}
+                  onRefresh={() => {
+                    setBillingData(null); // Force refresh
+                  }}
+                />
+
+                {/* Pricing Cards */}
+                <div>
+                  <h3 className='text-[10px] font-bold text-zinc-400 uppercase tracking-widest mb-4'>
+                    Available Plans
+                  </h3>
+                  <PricingCards
+                    currentTier={billingData?.credits?.tier || 'free'}
+                    onError={(error) => {
+                      console.error('[Settings] Billing error:', error);
+                    }}
+                  />
+                </div>
+
+                {/* Billing History */}
+                <BillingHistory limit={5} />
+              </>
+            )}
+          </div>
+        )}
+
         {/* API Keys Tab */}
         {activeTab === 'api-keys' && (
-        <div className='space-y-6'>
-          {/* OpenRouter Section */}
-          <div>
-            <label
-              htmlFor='openrouter-key'
-              className='block text-[10px] font-bold text-zinc-500 uppercase tracking-widest mb-2'
-            >
-              OpenRouter API Key
-            </label>
-            <input
-              id='openrouter-key'
-              type='password'
-              value={openRouterKey}
-              onChange={(e) => {
-                setOpenRouterKey(e.target.value);
-                setOpenRouterStatus('untested');
-              }}
-              placeholder='sk-or-...'
-              className='w-full bg-zinc-950 border border-white/10 rounded-xl px-4 py-3 text-white text-xs font-medium focus-ring transition placeholder-zinc-700'
-            />
-            <div className='flex items-center justify-between mt-2'>
-              <button
-                type='button'
-                onClick={handleTestOpenRouter}
-                disabled={!openRouterKey || openRouterStatus === 'testing'}
-                className='text-xs px-3 py-1 bg-purple-600 hover:bg-purple-700 rounded transition disabled:opacity-50 disabled:cursor-not-allowed focus-ring'
+          <div className='space-y-6'>
+            {/* OpenRouter Section */}
+            <div>
+              <label
+                htmlFor='openrouter-key'
+                className='block text-[10px] font-bold text-zinc-500 uppercase tracking-widest mb-2'
               >
-                {openRouterStatus === 'testing' ? 'Testing...' : 'Test Connection'}
-              </button>
-              <ConnectionStatus status={openRouterStatus} />
-            </div>
-            <p className='text-[9px] text-zinc-600 mt-2'>
-              <a
-                href='https://openrouter.ai/keys'
-                target='_blank'
-                rel='noopener noreferrer'
-                className='text-purple-400 hover:text-purple-300 underline inline-flex items-center gap-1 focus-ring rounded-sm'
-              >
-                Get your OpenRouter API key
-                <span className='material-icons text-[10px]'>open_in_new</span>
-              </a>
-            </p>
-          </div>
-
-          {/* Chat Model Dropdown */}
-          <div>
-            <label
-              htmlFor='chat-model-select'
-              className='block text-[10px] font-bold text-zinc-500 uppercase tracking-widest mb-2'
-            >
-              Chat/Assistant Model
-            </label>
-            <div className='relative'>
-              <select
-                id='chat-model-select'
-                value={chatModel}
-                onChange={(e) => setChatModel(e.target.value)}
-                className='w-full bg-zinc-950 border border-white/10 rounded-xl px-4 py-3 pr-10 text-white text-xs font-medium focus-ring transition appearance-none cursor-pointer'
-              >
-                {COMMON_MODELS.map((m) => (
-                  <option key={m.id} value={m.id}>
-                    {m.name}
-                  </option>
-                ))}
-                <option value='custom'>+ Custom Model ID</option>
-              </select>
-              <span className='absolute right-4 top-1/2 -translate-y-1/2 text-zinc-500 pointer-events-none material-icons text-sm'>expand_more</span>
-            </div>
-            {chatModel === 'custom' && (
+                OpenRouter API Key
+              </label>
               <input
-                type='text'
-                value={customChatModel}
-                onChange={(e) => setCustomChatModel(e.target.value)}
-                placeholder='e.g., openai/gpt-4'
-                className='w-full px-4 py-2 mt-2 bg-zinc-800 border border-purple-500/30 rounded-xl text-white text-xs font-medium focus-ring transition placeholder-zinc-500'
+                id='openrouter-key'
+                type='password'
+                value={openRouterKey}
+                onChange={(e) => {
+                  setOpenRouterKey(e.target.value);
+                  setOpenRouterStatus('untested');
+                }}
+                placeholder='sk-or-...'
+                className='w-full bg-zinc-950 border border-white/10 rounded-xl px-4 py-3 text-white text-xs font-medium focus-ring transition placeholder-zinc-700'
               />
-            )}
-          </div>
-
-          {/* Image Generation Model Dropdown */}
-          <div>
-            <label
-              htmlFor='image-gen-model-select'
-              className='block text-[10px] font-bold text-zinc-500 uppercase tracking-widest mb-2'
-            >
-              Image Generation Model
-            </label>
-            <div className='relative'>
-              <select
-                id='image-gen-model-select'
-                value={imageGenModel}
-                onChange={(e) => setImageGenModel(e.target.value)}
-                className='w-full bg-zinc-950 border border-white/10 rounded-xl px-4 py-3 pr-10 text-white text-xs font-medium focus-ring transition appearance-none cursor-pointer'
-              >
-                {IMAGE_MODELS.map((m) => (
-                  <option key={m.id} value={m.id}>
-                    {m.name}
-                  </option>
-                ))}
-              </select>
-              <span className='absolute right-4 top-1/2 -translate-y-1/2 text-zinc-500 pointer-events-none material-icons text-sm'>expand_more</span>
-            </div>
-            <p className='text-[9px] text-zinc-600 mt-2'>
-              Nano Banana Pro requires preview access. Falls back to Nano Banana if unavailable.
-            </p>
-          </div>
-
-          {/* Magic Edit Model Dropdown (NEW) */}
-          <div>
-            <label
-              htmlFor='magic-edit-model-select'
-              className='block text-[10px] font-bold text-zinc-500 uppercase tracking-widest mb-2'
-            >
-              Magic Edit Model
-            </label>
-            <div className='relative'>
-              <select
-                id='magic-edit-model-select'
-                value={magicEditModel}
-                onChange={(e) => setMagicEditModel(e.target.value)}
-                className='w-full bg-zinc-950 border border-white/10 rounded-xl px-4 py-3 pr-10 text-white text-xs font-medium focus-ring transition appearance-none cursor-pointer'
-              >
-                {MAGIC_EDIT_MODELS.map((m) => (
-                  <option key={m.id} value={m.id}>
-                    {m.name}
-                  </option>
-                ))}
-              </select>
-              <span className='absolute right-4 top-1/2 -translate-y-1/2 text-zinc-500 pointer-events-none material-icons text-sm'>expand_more</span>
-            </div>
-          </div>
-
-          {/* Session Timeout */}
-          <div>
-            <label
-              htmlFor='session-timeout-select'
-              className='block text-[10px] font-bold text-zinc-500 uppercase tracking-widest mb-2'
-            >
-              Session Idle Timeout
-            </label>
-            <div className='relative'>
-              <select
-                id='session-timeout-select'
-                value={sessionTimeout}
-                onChange={(e) => setSessionTimeout(Number(e.target.value))}
-                className='w-full bg-zinc-950 border border-white/10 rounded-xl px-4 py-3 pr-10 text-white text-xs font-medium focus-ring transition appearance-none cursor-pointer'
-              >
-                <option value={15}>15 Minutes</option>
-                <option value={30}>30 Minutes (Default)</option>
-                <option value={60}>1 Hour</option>
-                <option value={120}>2 Hours</option>
-                <option value={0.5}>Test Mode (30s)</option>
-                <option value={0}>Disabled</option>
-              </select>
-              <span className='absolute right-4 top-1/2 -translate-y-1/2 text-zinc-500 pointer-events-none material-icons text-sm'>expand_more</span>
-            </div>
-            <p className='text-[9px] text-zinc-600 mt-2'>
-              Automatically logout after inactivity to protect your account.
-            </p>
-          </div>
-
-          {/* Divider */}
-          <div className='border-t border-white/10' />
-
-          {/* OpenAI Section (Optional - for Voice Chat) */}
-          <div>
-            <label
-              htmlFor='openai-key'
-              className='block text-[10px] font-bold text-zinc-500 uppercase tracking-widest mb-2 flex justify-between items-center'
-            >
-              <span>OpenAI API (Optional)</span>
-              <span className='text-[9px] text-zinc-600'>For voice chat / live assistant</span>
-            </label>
-            <input
-              id='openai-key'
-              type='password'
-              value={openaiKey}
-              onChange={(e) => {
-                setOpenaiKey(e.target.value);
-                setOpenaiStatus('untested');
-              }}
-              placeholder='sk-...'
-              className='w-full bg-zinc-950 border border-white/10 rounded-xl px-4 py-3 text-white text-xs font-medium focus-ring transition placeholder-zinc-700'
-            />
-            {openaiKey && (
               <div className='flex items-center justify-between mt-2'>
                 <button
                   type='button'
-                  onClick={handleTestOpenAI}
-                  disabled={openaiStatus === 'testing'}
+                  onClick={handleTestOpenRouter}
+                  disabled={!openRouterKey || openRouterStatus === 'testing'}
                   className='text-xs px-3 py-1 bg-purple-600 hover:bg-purple-700 rounded transition disabled:opacity-50 disabled:cursor-not-allowed focus-ring'
                 >
-                  {openaiStatus === 'testing' ? 'Testing...' : 'Test Connection'}
+                  {openRouterStatus === 'testing' ? 'Testing...' : 'Test Connection'}
                 </button>
-                <ConnectionStatus status={openaiStatus} />
+                <ConnectionStatus status={openRouterStatus} />
               </div>
-            )}
-            <p className='text-[9px] text-zinc-600 mt-2'>
-              <a
-                href='https://platform.openai.com/api-keys'
-                target='_blank'
-                rel='noopener noreferrer'
-                className='text-purple-400 hover:text-purple-300 underline inline-flex items-center gap-1 focus-ring rounded-sm'
-              >
-                Get your OpenAI API key
-                <span className='material-icons text-[10px]'>open_in_new</span>
-              </a>
-            </p>
-          </div>
-
-          {/* Replicate Section (Optional) */}
-          <div>
-            <label
-              htmlFor='replicate-key'
-              className='block text-[10px] font-bold text-zinc-500 uppercase tracking-widest mb-2 flex justify-between items-center'
-            >
-              <span>Replicate API (Optional)</span>
-              <span className='text-[9px] text-zinc-600'>For upscaling, background removal</span>
-            </label>
-            <input
-              id='replicate-key'
-              type='password'
-              value={replicateKey}
-              onChange={(e) => {
-                setReplicateKey(e.target.value);
-                setReplicateStatus('untested');
-              }}
-              placeholder='r8_...'
-              className='w-full bg-zinc-950 border border-white/10 rounded-xl px-4 py-3 text-white text-xs font-medium focus-ring transition placeholder-zinc-700'
-            />
-            {replicateKey && (
-              <div className='flex items-center justify-between mt-2'>
-                <button
-                  type='button'
-                  onClick={handleTestReplicate}
-                  disabled={replicateStatus === 'testing'}
-                  className='text-xs px-3 py-1 bg-purple-600 hover:bg-purple-700 rounded transition disabled:opacity-50 disabled:cursor-not-allowed focus-ring'
+              <p className='text-[9px] text-zinc-600 mt-2'>
+                <a
+                  href='https://openrouter.ai/keys'
+                  target='_blank'
+                  rel='noopener noreferrer'
+                  className='text-purple-400 hover:text-purple-300 underline inline-flex items-center gap-1 focus-ring rounded-sm'
                 >
-                  {replicateStatus === 'testing' ? 'Testing...' : 'Test Connection'}
-                </button>
-                <ConnectionStatus status={replicateStatus} />
+                  Get your OpenRouter API key
+                  <span className='material-icons text-[10px]'>open_in_new</span>
+                </a>
+              </p>
+            </div>
+
+            {/* Chat Model Dropdown */}
+            <div>
+              <label
+                htmlFor='chat-model-select'
+                className='block text-[10px] font-bold text-zinc-500 uppercase tracking-widest mb-2'
+              >
+                Chat/Assistant Model
+              </label>
+              <div className='relative'>
+                <select
+                  id='chat-model-select'
+                  value={chatModel}
+                  onChange={(e) => setChatModel(e.target.value)}
+                  className='w-full bg-zinc-950 border border-white/10 rounded-xl px-4 py-3 pr-10 text-white text-xs font-medium focus-ring transition appearance-none cursor-pointer'
+                >
+                  {COMMON_MODELS.map((m) => (
+                    <option key={m.id} value={m.id}>
+                      {m.name}
+                    </option>
+                  ))}
+                  <option value='custom'>+ Custom Model ID</option>
+                </select>
+                <span className='absolute right-4 top-1/2 -translate-y-1/2 text-zinc-500 pointer-events-none material-icons text-sm'>expand_more</span>
               </div>
-            )}
-            <p className='text-[9px] text-zinc-600 mt-2'>
-              <a
-                href='https://replicate.com/account/api-tokens'
-                target='_blank'
-                rel='noopener noreferrer'
-                className='text-purple-400 hover:text-purple-300 underline inline-flex items-center gap-1 focus-ring rounded-sm'
-              >
-                Get your Replicate API token
-                <span className='material-icons text-[10px]'>open_in_new</span>
-              </a>
-            </p>
+              {chatModel === 'custom' && (
+                <input
+                  type='text'
+                  value={customChatModel}
+                  onChange={(e) => setCustomChatModel(e.target.value)}
+                  placeholder='e.g., openai/gpt-4'
+                  className='w-full px-4 py-2 mt-2 bg-zinc-800 border border-purple-500/30 rounded-xl text-white text-xs font-medium focus-ring transition placeholder-zinc-500'
+                />
+              )}
+            </div>
 
-            {/* Upscale Model Selection - shown when Replicate key is provided */}
-            {replicateKey && (
-              <div className='mt-4'>
-                <label
-                  htmlFor='upscale-model-select'
-                  className='block text-[10px] font-bold text-zinc-500 uppercase tracking-widest mb-2'
+            {/* Image Generation Model Dropdown */}
+            <div>
+              <label
+                htmlFor='image-gen-model-select'
+                className='block text-[10px] font-bold text-zinc-500 uppercase tracking-widest mb-2'
+              >
+                Image Generation Model
+              </label>
+              <div className='relative'>
+                <select
+                  id='image-gen-model-select'
+                  value={imageGenModel}
+                  onChange={(e) => setImageGenModel(e.target.value)}
+                  className='w-full bg-zinc-950 border border-white/10 rounded-xl px-4 py-3 pr-10 text-white text-xs font-medium focus-ring transition appearance-none cursor-pointer'
                 >
-                  Upscale Model (Replicate)
-                </label>
-                <div className='relative'>
-                  <select
-                    id='upscale-model-select'
-                    value={upscaleModel}
-                    onChange={(e) => setUpscaleModel(e.target.value)}
-                    className='w-full bg-zinc-950 border border-white/10 rounded-xl px-4 py-3 pr-10 text-white text-xs font-medium focus-ring transition appearance-none cursor-pointer'
+                  {IMAGE_MODELS.map((m) => (
+                    <option key={m.id} value={m.id}>
+                      {m.name}
+                    </option>
+                  ))}
+                </select>
+                <span className='absolute right-4 top-1/2 -translate-y-1/2 text-zinc-500 pointer-events-none material-icons text-sm'>expand_more</span>
+              </div>
+              <p className='text-[9px] text-zinc-600 mt-2'>
+                Nano Banana Pro requires preview access. Falls back to Nano Banana if unavailable.
+              </p>
+            </div>
+
+            {/* Magic Edit Model Dropdown (NEW) */}
+            <div>
+              <label
+                htmlFor='magic-edit-model-select'
+                className='block text-[10px] font-bold text-zinc-500 uppercase tracking-widest mb-2'
+              >
+                Magic Edit Model
+              </label>
+              <div className='relative'>
+                <select
+                  id='magic-edit-model-select'
+                  value={magicEditModel}
+                  onChange={(e) => setMagicEditModel(e.target.value)}
+                  className='w-full bg-zinc-950 border border-white/10 rounded-xl px-4 py-3 pr-10 text-white text-xs font-medium focus-ring transition appearance-none cursor-pointer'
+                >
+                  {MAGIC_EDIT_MODELS.map((m) => (
+                    <option key={m.id} value={m.id}>
+                      {m.name}
+                    </option>
+                  ))}
+                </select>
+                <span className='absolute right-4 top-1/2 -translate-y-1/2 text-zinc-500 pointer-events-none material-icons text-sm'>expand_more</span>
+              </div>
+            </div>
+
+            {/* Session Timeout */}
+            <div>
+              <label
+                htmlFor='session-timeout-select'
+                className='block text-[10px] font-bold text-zinc-500 uppercase tracking-widest mb-2'
+              >
+                Session Idle Timeout
+              </label>
+              <div className='relative'>
+                <select
+                  id='session-timeout-select'
+                  value={sessionTimeout}
+                  onChange={(e) => setSessionTimeout(Number(e.target.value))}
+                  className='w-full bg-zinc-950 border border-white/10 rounded-xl px-4 py-3 pr-10 text-white text-xs font-medium focus-ring transition appearance-none cursor-pointer'
+                >
+                  <option value={15}>15 Minutes</option>
+                  <option value={30}>30 Minutes (Default)</option>
+                  <option value={60}>1 Hour</option>
+                  <option value={120}>2 Hours</option>
+                  <option value={0.5}>Test Mode (30s)</option>
+                  <option value={0}>Disabled</option>
+                </select>
+                <span className='absolute right-4 top-1/2 -translate-y-1/2 text-zinc-500 pointer-events-none material-icons text-sm'>expand_more</span>
+              </div>
+              <p className='text-[9px] text-zinc-600 mt-2'>
+                Automatically logout after inactivity to protect your account.
+              </p>
+            </div>
+
+            {/* Divider */}
+            <div className='border-t border-white/10' />
+
+            {/* OpenAI Section (Optional - for Voice Chat) */}
+            <div>
+              <label
+                htmlFor='openai-key'
+                className='block text-[10px] font-bold text-zinc-500 uppercase tracking-widest mb-2 flex justify-between items-center'
+              >
+                <span>OpenAI API (Optional)</span>
+                <span className='text-[9px] text-zinc-600'>For voice chat / live assistant</span>
+              </label>
+              <input
+                id='openai-key'
+                type='password'
+                value={openaiKey}
+                onChange={(e) => {
+                  setOpenaiKey(e.target.value);
+                  setOpenaiStatus('untested');
+                }}
+                placeholder='sk-...'
+                className='w-full bg-zinc-950 border border-white/10 rounded-xl px-4 py-3 text-white text-xs font-medium focus-ring transition placeholder-zinc-700'
+              />
+              {openaiKey && (
+                <div className='flex items-center justify-between mt-2'>
+                  <button
+                    type='button'
+                    onClick={handleTestOpenAI}
+                    disabled={openaiStatus === 'testing'}
+                    className='text-xs px-3 py-1 bg-purple-600 hover:bg-purple-700 rounded transition disabled:opacity-50 disabled:cursor-not-allowed focus-ring'
                   >
-                    {UPSCALE_MODELS.map((m) => (
-                      <option key={m.id} value={m.id}>
-                        {m.name}
-                      </option>
-                    ))}
-                  </select>
-                  <span className='absolute right-4 top-1/2 -translate-y-1/2 text-zinc-500 pointer-events-none material-icons text-sm'>expand_more</span>
+                    {openaiStatus === 'testing' ? 'Testing...' : 'Test Connection'}
+                  </button>
+                  <ConnectionStatus status={openaiStatus} />
                 </div>
-                <p className='text-[9px] text-zinc-600 mt-2'>
-                  Real-ESRGAN for general upscaling, SwinIR for restoration, CodeFormer for faces
+              )}
+              <p className='text-[9px] text-zinc-600 mt-2'>
+                <a
+                  href='https://platform.openai.com/api-keys'
+                  target='_blank'
+                  rel='noopener noreferrer'
+                  className='text-purple-400 hover:text-purple-300 underline inline-flex items-center gap-1 focus-ring rounded-sm'
+                >
+                  Get your OpenAI API key
+                  <span className='material-icons text-[10px]'>open_in_new</span>
+                </a>
+              </p>
+            </div>
+
+            {/* Replicate Section (Optional) */}
+            <div>
+              <label
+                htmlFor='replicate-key'
+                className='block text-[10px] font-bold text-zinc-500 uppercase tracking-widest mb-2 flex justify-between items-center'
+              >
+                <span>Replicate API (Optional)</span>
+                <span className='text-[9px] text-zinc-600'>For upscaling, background removal</span>
+              </label>
+              <input
+                id='replicate-key'
+                type='password'
+                value={replicateKey}
+                onChange={(e) => {
+                  setReplicateKey(e.target.value);
+                  setReplicateStatus('untested');
+                }}
+                placeholder='r8_...'
+                className='w-full bg-zinc-950 border border-white/10 rounded-xl px-4 py-3 text-white text-xs font-medium focus-ring transition placeholder-zinc-700'
+              />
+              {replicateKey && (
+                <div className='flex items-center justify-between mt-2'>
+                  <button
+                    type='button'
+                    onClick={handleTestReplicate}
+                    disabled={replicateStatus === 'testing'}
+                    className='text-xs px-3 py-1 bg-purple-600 hover:bg-purple-700 rounded transition disabled:opacity-50 disabled:cursor-not-allowed focus-ring'
+                  >
+                    {replicateStatus === 'testing' ? 'Testing...' : 'Test Connection'}
+                  </button>
+                  <ConnectionStatus status={replicateStatus} />
+                </div>
+              )}
+              <p className='text-[9px] text-zinc-600 mt-2'>
+                <a
+                  href='https://replicate.com/account/api-tokens'
+                  target='_blank'
+                  rel='noopener noreferrer'
+                  className='text-purple-400 hover:text-purple-300 underline inline-flex items-center gap-1 focus-ring rounded-sm'
+                >
+                  Get your Replicate API token
+                  <span className='material-icons text-[10px]'>open_in_new</span>
+                </a>
+              </p>
+
+              {/* Upscale Model Selection - shown when Replicate key is provided */}
+              {replicateKey && (
+                <div className='mt-4'>
+                  <label
+                    htmlFor='upscale-model-select'
+                    className='block text-[10px] font-bold text-zinc-500 uppercase tracking-widest mb-2'
+                  >
+                    Upscale Model (Replicate)
+                  </label>
+                  <div className='relative'>
+                    <select
+                      id='upscale-model-select'
+                      value={upscaleModel}
+                      onChange={(e) => setUpscaleModel(e.target.value)}
+                      className='w-full bg-zinc-950 border border-white/10 rounded-xl px-4 py-3 pr-10 text-white text-xs font-medium focus-ring transition appearance-none cursor-pointer'
+                    >
+                      {UPSCALE_MODELS.map((m) => (
+                        <option key={m.id} value={m.id}>
+                          {m.name}
+                        </option>
+                      ))}
+                    </select>
+                    <span className='absolute right-4 top-1/2 -translate-y-1/2 text-zinc-500 pointer-events-none material-icons text-sm'>expand_more</span>
+                  </div>
+                  <p className='text-[9px] text-zinc-600 mt-2'>
+                    Real-ESRGAN for general upscaling, SwinIR for restoration, CodeFormer for faces
+                  </p>
+                </div>
+              )}
+            </div>
+
+            {/* Error Display */}
+            {testError && (
+              <div className='p-3 bg-red-500/10 border border-red-500/30 rounded-lg'>
+                <p className='text-xs text-red-400 flex items-center gap-2'>
+                  <span className='material-icons text-sm'>error</span>
+                  {testError}
                 </p>
               </div>
             )}
+
+            {/* Save Button */}
+            <button
+              type='button'
+              onClick={handleSave}
+              disabled={isSaving}
+              className='w-full h-12 rounded-xl font-bold uppercase tracking-wider text-xs transition-all flex items-center justify-center gap-2 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 disabled:opacity-50 disabled:cursor-not-allowed active:scale-[0.98]'
+            >
+              {isSaving ? (
+                <>
+                  <span className='material-icons animate-spin'>sync</span>
+                  Saving...
+                </>
+              ) : saved ? (
+                <>
+                  <span className='material-icons text-white'>check_circle</span>
+                  Saved!
+                </>
+              ) : (
+                'Save Settings'
+              )}
+            </button>
           </div>
-
-          {/* Error Display */}
-          {testError && (
-            <div className='p-3 bg-red-500/10 border border-red-500/30 rounded-lg'>
-              <p className='text-xs text-red-400 flex items-center gap-2'>
-                <span className='material-icons text-sm'>error</span>
-                {testError}
-              </p>
-            </div>
-          )}
-
-          {/* Save Button */}
-          <button
-            type='button'
-            onClick={handleSave}
-            disabled={isSaving}
-            className='w-full h-12 rounded-xl font-bold uppercase tracking-wider text-xs transition-all flex items-center justify-center gap-2 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 disabled:opacity-50 disabled:cursor-not-allowed active:scale-[0.98]'
-          >
-            {isSaving ? (
-              <>
-                <span className='material-icons animate-spin'>sync</span>
-                Saving...
-              </>
-            ) : saved ? (
-              <>
-                <span className='material-icons text-white'>check_circle</span>
-                Saved!
-              </>
-            ) : (
-              'Save Settings'
-            )}
-          </button>
-        </div>
         )}
       </div>
     </div>

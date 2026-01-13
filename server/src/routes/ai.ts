@@ -1,6 +1,5 @@
 
 import { Hono } from 'hono';
-import tracer from 'dd-trace';
 import { authMiddleware } from '../lib/auth';
 import { db } from '../db';
 import { userApiKeys } from '../db/schema';
@@ -8,6 +7,7 @@ import { eq } from 'drizzle-orm';
 import { PROMPT_ENHANCER_MODEL, type PromptEnhanceContext, generateSystemPrompt } from '../prompts/promptEnhancer';
 import { aiRateLimit } from '../lib/rateLimit';
 import { checkCredits, deductCredits, type OperationType } from '../services/creditService';
+import { traceLLMCall } from '../services/langfuseTracer';
 
 type Variables = {
     user: { id: string } | null;
@@ -63,35 +63,8 @@ const handleCredits = async (
     return { allowed: true, balance: result.newBalance };
 };
 
-// Helper for Datadog LLM Observability
-// Helper for Datadog LLM Observability
-// Helper for Datadog LLM Observability
-const traceLLMCall = async <T = any>(
-    model: string,
-    provider: string,
-    prompt: string | unknown[],
-    operationName: string,
-    apiCall: () => Promise<T>
-) => {
-    return tracer.trace(operationName, { resource: provider }, async (span) => {
-        span?.setTag('llm.model_name', model);
-        span?.setTag('llm.provider', provider);
-
-        // Set input prompt tag (handled differently for text vs array)
-        const promptText = typeof prompt === 'string' ? prompt : JSON.stringify(prompt);
-        span?.setTag('llm.input', promptText);
-
-        try {
-            const output = await apiCall();
-            const outputText = typeof output === 'string' ? output : JSON.stringify(output);
-            span?.setTag('llm.output', outputText);
-            return output;
-        } catch (error: unknown) {
-            span?.setTag('error', error);
-            throw error;
-        }
-    });
-};
+// Note: LLM observability now handled by Langfuse tracer (see services/langfuseTracer.ts)
+// The traceLLMCall function is imported from langfuseTracer for automatic tracing
 
 // --- Input Validation ---
 const validatePrompt = (prompt: unknown, maxLength: number = 2000): string => {

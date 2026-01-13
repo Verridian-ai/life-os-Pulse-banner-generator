@@ -25,8 +25,55 @@ const getAuthHeader = () => {
     return `Basic ${credentials}`;
 };
 
+interface LangfuseTraceData {
+    id: string;
+    name?: string;
+    model?: string;
+    status?: string;
+    latency?: number;
+    usage?: { totalTokens?: number; totalCost?: number };
+    timestamp?: string;
+    userId?: string;
+    input?: unknown;
+    output?: unknown;
+}
+
+interface LangfuseMeta {
+    totalItems?: number;
+    page?: number;
+    limit?: number;
+}
+
+interface LangfuseDailyMetricItem {
+    date?: string;
+    timestamp?: string;
+    countTraces?: number;
+    traceCount?: number;
+    countObservations?: number;
+    observationCount?: number;
+    usage?: { totalTokens?: number };
+    totalTokens?: number;
+    totalCost?: string;
+    cost?: string;
+    uniqueUsers?: number;
+    userCount?: number;
+    avgLatency?: number;
+    latencyMs?: number;
+    errorCount?: number;
+    errors?: number;
+}
+
+interface LangfuseAggregatedMetricItem {
+    timestamp?: string;
+    date?: string;
+    count_count?: number;
+    count?: number;
+    totalTokens_sum?: number;
+    latency_avg?: number;
+}
+
 export class LangfuseService {
-    static async getTraces(limit: number = 50, page: number = 1): Promise<{ data: any[], meta: any }> {
+    static async getTraces(limit: number = 50, page: number = 1): Promise<{ data: LangfuseTraceData[], meta: LangfuseMeta }> {
         if (!LANGFUSE_PUBLIC_KEY || !LANGFUSE_SECRET_KEY) {
             console.warn('[Langfuse] Missing credentials, returning empty list');
             return { data: [], meta: { totalItems: 0 } };
@@ -104,7 +151,7 @@ export class LangfuseService {
     /**
      * Transforms Langfuse daily metrics response to match our dailyStats schema
      */
-    private static transformDailyMetrics(data: any[]): DailyMetric[] {
+    private static transformDailyMetrics(data: LangfuseDailyMetricItem[]): DailyMetric[] {
         if (!Array.isArray(data)) return [];
 
         return data.map(item => ({
@@ -165,7 +212,7 @@ export class LangfuseService {
     /**
      * Transforms aggregated metrics API response to dailyStats format
      */
-    private static transformAggregatedMetrics(data: any[]): DailyMetric[] {
+    private static transformAggregatedMetrics(data: LangfuseAggregatedMetricItem[]): DailyMetric[] {
         return data.map(item => ({
             date: item.timestamp || item.date,
             totalRequests: item.count_count || item.count || 0,

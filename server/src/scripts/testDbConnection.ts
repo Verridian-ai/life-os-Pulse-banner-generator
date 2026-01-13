@@ -26,7 +26,7 @@ async function testConnection() {
     `);
     
     console.log(`✅ Found ${tables.length} tables in database:`);
-    tables.forEach((table: any) => {
+    tables.forEach((table: { table_name: string }) => {
       console.log(`  - ${table.table_name}`);
     });
 

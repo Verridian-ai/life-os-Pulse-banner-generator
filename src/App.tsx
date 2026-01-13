@@ -31,10 +31,18 @@ const AdminUsers = lazy(() => import('./features/admin').then(m => ({ default: m
 const AdminAgents = lazy(() => import('./features/admin').then(m => ({ default: m.AdminAgents })));
 const AdminModels = lazy(() => import('./features/admin').then(m => ({ default: m.AdminModels })));
 const AdminObservability = lazy(() => import('./features/admin').then(m => ({ default: m.AdminObservability })));
+const AdminFinance = lazy(() => import('./features/admin').then(m => ({ default: m.AdminFinance })));
+const AdminAudit = lazy(() => import('./features/admin/pages/AdminAudit').then(m => ({ default: m.AdminAudit })));
 const AssetGenerator = lazy(() => import('./features/admin/AssetGenerator').then(m => ({ default: m.AssetGenerator })));
 
 // Design System (lazy loaded)
 const DesignSystemPage = lazy(() => import('./features/design-system/DesignSystemPage').then(m => ({ default: m.DesignSystemPage })));
+
+// Onboarding (lazy loaded)
+const OnboardingPage = lazy(() => import('./features/onboarding').then(m => ({ default: m.OnboardingPage })));
+
+// Landing page (lazy loaded)
+const LandingPage = lazy(() => import('./features/landing').then(m => ({ default: m.LandingPage })));
 
 import {
   ScreenReaderAnnouncerProvider,
@@ -794,6 +802,22 @@ function AdminRouter(): React.ReactElement | null {
     );
   }
 
+  if (path.startsWith('/admin/finance')) {
+    return (
+      <Suspense fallback={<AdminLoadingFallback />}>
+        <AdminFinance />
+      </Suspense>
+    );
+  }
+
+  if (path.startsWith('/admin/audit')) {
+    return (
+      <Suspense fallback={<AdminLoadingFallback />}>
+        <AdminAudit />
+      </Suspense>
+    );
+  }
+
   // New Asset Generator Route
   if (path.startsWith('/admin/assets')) {
     return (
@@ -835,6 +859,51 @@ function App() {
   const path = window.location.pathname;
   const isAdminPath = path.startsWith('/admin');
   const isDesignPath = path.startsWith('/design');
+  const isOnboardingPath = path.startsWith('/onboarding');
+  const isLandingPath = path === '/welcome' || path === '/landing';
+
+  // Render marketing landing page
+  if (isLandingPath) {
+    return (
+      <>
+        <ToastContainer />
+        <Suspense fallback={
+          <div className="min-h-screen bg-zinc-950 flex items-center justify-center">
+            <div className="text-center">
+              <div className="w-16 h-16 border-4 border-purple-500 border-t-transparent rounded-full animate-spin mx-auto mb-4" />
+              <p className="text-zinc-400">Loading...</p>
+            </div>
+          </div>
+        }>
+          <LandingPage
+            onGetStarted={() => { window.location.href = '/onboarding'; }}
+            onSignIn={() => { window.location.href = '/'; }}
+          />
+        </Suspense>
+      </>
+    );
+  }
+
+  // Render onboarding pages (signup flow with plan selection)
+  if (isOnboardingPath) {
+    // Extract path segment after /onboarding/
+    const pathSegment = path.replace('/onboarding', '').replace(/^\//, '') || undefined;
+    return (
+      <>
+        <ToastContainer />
+        <Suspense fallback={
+          <div className="min-h-screen bg-zinc-950 flex items-center justify-center">
+            <div className="text-center">
+              <div className="w-16 h-16 border-4 border-purple-500 border-t-transparent rounded-full animate-spin mx-auto mb-4" />
+              <p className="text-zinc-400">Loading...</p>
+            </div>
+          </div>
+        }>
+          <OnboardingPage pathSegment={pathSegment} />
+        </Suspense>
+      </>
+    );
+  }
 
   // Render admin pages separately (they have their own layout)
   if (isAdminPath) {

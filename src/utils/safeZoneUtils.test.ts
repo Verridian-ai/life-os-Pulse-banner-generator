@@ -13,7 +13,7 @@ import {
   analyzeElementSafety,
 } from './safeZoneUtils';
 import type { BannerElement } from '../types';
-import type { SafeZoneConfig, CanvasFormat } from '../constants';
+import type { SafeZoneConfig, CanvasFormat, CanvasFormatId } from '../constants';
 
 describe('safeZoneUtils', () => {
   describe('getElementBounds', () => {
@@ -217,7 +217,8 @@ describe('safeZoneUtils', () => {
       // Should move element outside the zone
       const bounds = getElementBounds(element);
       const movedElement = { ...element, x: safePos.x, y: safePos.y };
-      const movedBounds = getElementBounds(movedElement);
+      // Verify moved element has valid bounds (used indirectly through position check)
+      void getElementBounds(movedElement);
 
       // New position should be outside zone or at edge
       expect(
@@ -259,7 +260,7 @@ describe('safeZoneUtils', () => {
 
   describe('analyzeElementSafety', () => {
     const mockFormat: CanvasFormat = {
-      id: 'test_format',
+      id: 'test_format' as CanvasFormatId,
       name: 'Test Format',
       width: 1000,
       height: 500,
@@ -276,6 +277,8 @@ describe('safeZoneUtils', () => {
           height: 200,
         },
       ],
+      description: 'Test Description',
+      icon: 'test_icon',
     };
 
     it('generates warnings for elements in danger zones', () => {

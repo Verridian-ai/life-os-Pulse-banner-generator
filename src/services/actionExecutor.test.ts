@@ -315,7 +315,7 @@ describe('ActionExecutor', () => {
         name: 'generate_background',
         args: {
           prompt: 123, // Invalid type, should be string
-        } as any,
+        } as unknown as Record<string, unknown>,
       };
 
       const result = await executor.executeToolCall(toolCall);

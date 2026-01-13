@@ -135,21 +135,169 @@ export const onAuthStateChange = (callback: AuthStateChangeCallback) => {
   };
 };
 
-export const signInWithGoogle = async () => {
-  console.warn('Google Sign-In needs backend endpoints /api/auth/login/google');
-  // In a real implementation: window.location.href = API_URL + '/auth/login/google';
-  return {
-    data: null,
-    error: new Error('Google Sign-In is temporarily disabled during migration.')
-  };
+// ============================================================================
+// WORKOS OAUTH METHODS
+// ============================================================================
+
+/**
+ * Get WorkOS status (enabled providers)
+ */
+export const getWorkosStatus = async (): Promise<{
+  enabled: boolean;
+  providers: string[];
+  ssoEnabled: boolean;
+  magicLinkEnabled: boolean;
+}> => {
+  try {
+    const res = await api.get<{
+      enabled: boolean;
+      providers: string[];
+      ssoEnabled: boolean;
+      magicLinkEnabled: boolean;
+    }>('/api/auth/workos/status');
+    return res;
+  } catch {
+    return {
+      enabled: false,
+      providers: [],
+      ssoEnabled: false,
+      magicLinkEnabled: false,
+    };
+  }
 };
 
-export const signInWithGitHub = async () => {
-  console.warn('GitHub Sign-In needs backend endpoints');
-  return {
-    data: null,
-    error: new Error('GitHub Sign-In is temporarily disabled during migration.')
-  };
+/**
+ * Sign in with Google (WorkOS OAuth)
+ */
+export const signInWithGoogle = async (returnTo?: string) => {
+  try {
+    const status = await getWorkosStatus();
+    if (!status.enabled || !status.providers.includes('google')) {
+      return {
+        data: null,
+        error: new Error('Google Sign-In is not available')
+      };
+    }
+
+    // Redirect to OAuth flow
+    const params = new URLSearchParams({
+      provider: 'google',
+      ...(returnTo && { returnTo }),
+    });
+    window.location.href = `/api/auth/workos/authorize?${params.toString()}`;
+
+    return { data: null, error: null };
+  } catch (error) {
+    return { data: null, error: error as Error };
+  }
+};
+
+/**
+ * Sign in with GitHub (WorkOS OAuth)
+ */
+export const signInWithGitHub = async (returnTo?: string) => {
+  try {
+    const status = await getWorkosStatus();
+    if (!status.enabled || !status.providers.includes('github')) {
+      return {
+        data: null,
+        error: new Error('GitHub Sign-In is not available')
+      };
+    }
+
+    const params = new URLSearchParams({
+      provider: 'github',
+      ...(returnTo && { returnTo }),
+    });
+    window.location.href = `/api/auth/workos/authorize?${params.toString()}`;
+
+    return { data: null, error: null };
+  } catch (error) {
+    return { data: null, error: error as Error };
+  }
+};
+
+/**
+ * Sign in with Microsoft (WorkOS OAuth)
+ */
+export const signInWithMicrosoft = async (returnTo?: string) => {
+  try {
+    const status = await getWorkosStatus();
+    if (!status.enabled || !status.providers.includes('microsoft')) {
+      return {
+        data: null,
+        error: new Error('Microsoft Sign-In is not available')
+      };
+    }
+
+    const params = new URLSearchParams({
+      provider: 'microsoft',
+      ...(returnTo && { returnTo }),
+    });
+    window.location.href = `/api/auth/workos/authorize?${params.toString()}`;
+
+    return { data: null, error: null };
+  } catch (error) {
+    return { data: null, error: error as Error };
+  }
+};
+
+/**
+ * Start enterprise SSO flow
+ */
+export const signInWithSSO = async (domain?: string, returnTo?: string) => {
+  try {
+    const status = await getWorkosStatus();
+    if (!status.ssoEnabled) {
+      return {
+        data: null,
+        error: new Error('SSO is not available')
+      };
+    }
+
+    const params = new URLSearchParams({
+      ...(domain && { domain }),
+      ...(returnTo && { returnTo }),
+    });
+    window.location.href = `/api/auth/sso/authorize?${params.toString()}`;
+
+    return { data: null, error: null };
+  } catch (error) {
+    return { data: null, error: error as Error };
+  }
+};
+
+/**
+ * Send magic link for passwordless login
+ */
+export const sendMagicLink = async (email: string, returnTo?: string) => {
+  try {
+    const res = await api.post<{ success: boolean; message: string; error?: string }>(
+      '/api/auth/magic-link',
+      { email, returnTo }
+    );
+
+    if (res.error) {
+      return { success: false, error: new Error(res.error) };
+    }
+
+    return { success: true, message: res.message, error: null };
+  } catch (error) {
+    return { success: false, error: error as Error };
+  }
+};
+
+/**
+ * Get available auth providers for a domain
+ */
+export const getAuthProviders = async (domain?: string): Promise<string[]> => {
+  try {
+    const params = domain ? `?domain=${encodeURIComponent(domain)}` : '';
+    const res = await api.get<{ providers: string[] }>(`/api/auth/providers${params}`);
+    return res.providers || ['password'];
+  } catch {
+    return ['password'];
+  }
 };
 
 // Profile Helper

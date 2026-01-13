@@ -3,12 +3,19 @@ import { render, screen, fireEvent } from '@testing-library/react';
 import '@testing-library/jest-dom';
 
 import { TypographyPanel } from './TypographyPanel';
-import type { BannerElement } from '@/types';
-import { CanvasStateProvider } from '@/context/canvas/CanvasStateContext';
-import { ElementsProvider } from '@/context/canvas/ElementsContext';
-import { ImageProvider } from '@/context/canvas/ImageContext';
-import { LayerProvider } from '@/context/canvas/LayerContext';
-import { HistoryProvider } from '@/context/canvas/HistoryContext';
+import type { BannerElement } from '../../../types';
+import { CanvasStateProvider } from '../../../context/canvas/CanvasStateContext';
+import { ElementsProvider } from '../../../context/canvas/ElementsContext';
+import { ImageProvider } from '../../../context/canvas/ImageContext';
+import { LayerProvider } from '../../../context/canvas/LayerContext';
+import { HistoryProvider } from '../../../context/canvas/HistoryContext';
+
+// Mock useCanvas hook since TypographyPanel uses it
+vi.mock('@/context/CanvasContext', () => ({
+  useCanvas: () => ({
+    addElement: vi.fn(),
+  }),
+}));
 
 // Test wrapper with required providers
 const TestWrapper: React.FC<{ children: React.ReactNode }> = ({ children }) => (

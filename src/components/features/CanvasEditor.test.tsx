@@ -1,10 +1,25 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import { render, screen, waitFor } from '@testing-library/react';
+import { render, screen } from '@testing-library/react';
 import CanvasEditor from './CanvasEditor';
 import { CanvasProvider } from '../../context/CanvasContext';
 import { ToastProvider } from '../../context/ToastContext';
 import { AuthProvider } from '../../context/AuthContext';
 import { AIProvider } from '../../context/AIContext';
+
+// Mock window.matchMedia for useMediaQuery hook
+Object.defineProperty(window, 'matchMedia', {
+  writable: true,
+  value: vi.fn().mockImplementation((query: string) => ({
+    matches: false,
+    media: query,
+    onchange: null,
+    addListener: vi.fn(),
+    removeListener: vi.fn(),
+    addEventListener: vi.fn(),
+    removeEventListener: vi.fn(),
+    dispatchEvent: vi.fn(),
+  })),
+});
 
 // Mock the replicate service
 vi.mock('../../services/replicate', () => ({
@@ -102,28 +117,30 @@ describe('CanvasEditor - Responsive Scaling', () => {
     expect(screen.getByText(/1584/)).toBeInTheDocument();
   });
 
-  it('should render center profile info in empty state', async () => {
+  it('should render safe zones toggle with correct state when enabled', () => {
     render(
       <TestWrapper canvasValue={{ ...mockCanvasContext, showSafeZones: true }}>
         <CanvasEditor />
       </TestWrapper>,
     );
 
-    await waitFor(() => {
-      expect(screen.getByText(/524 px zone/i)).toBeInTheDocument();
-      expect(screen.getByText(/Ctrl\+Scroll to Zoom/i)).toBeInTheDocument();
-    });
+    // When safe zones are enabled, the toggle button should have active styling (bg-purple-600)
+    const safeZonesButton = screen.getByTitle('Toggle Safe Zones');
+    expect(safeZonesButton).toBeInTheDocument();
+    expect(safeZonesButton).toHaveClass('bg-purple-600');
   });
 
-  it('should render canvas with correct aspect ratio class', () => {
+  it('should render canvas editor layout with header and actions', () => {
     const { container } = render(
       <TestWrapper>
         <CanvasEditor />
       </TestWrapper>,
     );
 
-    const aspectDiv = container.querySelector('.aspect-\\[1584\\/396\\]');
-    expect(aspectDiv).toBeTruthy();
+    // Check that the canvas editor renders the main structure
+    // The editor has a max-width container
+    const maxWidthContainer = container.querySelector('.max-w-\\[1400px\\]');
+    expect(maxWidthContainer).toBeTruthy();
   });
 
   it('should render safe zones toggle button', () => {

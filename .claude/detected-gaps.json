@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json.schemastore.org/claude-detected-gaps.json",
+  "version": "1.0.0",
+  "description": "Tracks skill gaps for self-healing system",
+  "last_updated": "2026-01-13",
+  "gaps": [],
+  "threshold": {
+    "notify_user": 2,
+    "prompt_creation": 3,
+    "auto_create": 5
+  },
+  "metadata": {
+    "total_gaps_detected": 0,
+    "skills_created": 0,
+    "gaps_resolved": 0
+  }
+}

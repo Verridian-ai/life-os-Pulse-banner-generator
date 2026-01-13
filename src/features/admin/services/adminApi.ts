@@ -39,6 +39,32 @@ export async function checkAdminStatus(): Promise<AdminStatus> {
     }
 }
 
+// ============================================================================
+// System Health
+// ============================================================================
+
+export type ServiceHealth = {
+    status: 'healthy' | 'degraded' | 'down';
+    latencyMs?: number;
+    message?: string;
+};
+
+export type SystemHealthResponse = {
+    overall: 'healthy' | 'degraded' | 'down';
+    services: {
+        database: ServiceHealth;
+        cognee: ServiceHealth;
+        langfuse: ServiceHealth;
+        stripe: ServiceHealth;
+        workos: ServiceHealth;
+    };
+    timestamp: string;
+};
+
+export async function getSystemHealth(): Promise<SystemHealthResponse> {
+    return fetchWithCredentials(`${API_BASE}/health`);
+}
+
 export async function getDashboardStats(): Promise<DashboardStats> {
     return fetchWithCredentials<DashboardStats>(`${API_BASE}/dashboard`);
 }
@@ -271,14 +297,165 @@ export async function listAuditLogs(params: ListAuditLogsParams = {}): Promise<L
 }
 
 // ============================================================================
-// Model Performance
+// Cost Breakdown
 // ============================================================================
 
-import type { ModelPerformanceResponse } from '../types';
+import type { ModelPerformanceResponse, CostBreakdownResponse, DailyMetric, LlmTrace } from '../types';
+
+export async function getCostBreakdown(params: {
+    days?: number;
+    groupBy?: 'model' | 'user' | 'operation';
+} = {}): Promise<CostBreakdownResponse> {
+    const searchParams = new URLSearchParams();
+    if (params.days) searchParams.set('days', String(params.days));
+    if (params.groupBy) searchParams.set('groupBy', params.groupBy);
+
+    return fetchWithCredentials(`${API_BASE}/observability/costs?${searchParams.toString()}`);
+}
+
+export async function getTraceDetail(traceId: string): Promise<{
+    trace: LlmTrace & { deepLink: string };
+}> {
+    return fetchWithCredentials(`${API_BASE}/observability/traces/${traceId}`);
+}
+
+export async function getDailyMetrics(days = 7): Promise<{
+    daily: DailyMetric[];
+}> {
+    return fetchWithCredentials(`${API_BASE}/observability/daily?days=${days}`);
+}
+
+// ============================================================================
+// Model Performance
+// ============================================================================
 
 export async function getModelPerformance(params: { days?: number } = {}): Promise<ModelPerformanceResponse> {
     const searchParams = new URLSearchParams();
     if (params.days) searchParams.set('days', String(params.days));
 
     return fetchWithCredentials(`${API_BASE}/models?${searchParams.toString()}`);
+}
+
+// ============================================================================
+// Billing Metrics
+// ============================================================================
+
+export type DailyRevenue = {
+    date: string;
+    revenue: number;
+    count: number;
+};
+
+export type BillingMetrics = {
+    enabled: boolean;
+    message?: string;
+    mrr: number;
+    totalActiveSubscribers: number;
+    subscribersByTier: {
+        free: number;
+        basic: number;
+        premium: number;
+    };
+    churnRate: number;
+    newSubscribersThisMonth: number;
+    cancelledThisMonth: number;
+    totalRevenue: number;
+    monthlyRevenue: number;
+    invoiceCount: number;
+    dailyRevenue: DailyRevenue[];
+};
+
+export type Subscriber = {
+    id: string;
+    tier: 'free' | 'basic' | 'premium';
+    status: string;
+    currentPeriodStart: string;
+    currentPeriodEnd: string;
+    cancelAtPeriodEnd: boolean;
+    createdAt: string;
+    userId: string;
+    userEmail: string;
+    userName: string | null;
+};
+
+export async function getBillingMetrics(): Promise<BillingMetrics> {
+    return fetchWithCredentials(`${API_BASE}/billing/metrics`);
+}
+
+export async function listSubscribers(params: {
+    limit?: number;
+    offset?: number;
+    tier?: string;
+    status?: string;
+} = {}): Promise<{ subscribers: Subscriber[]; total: number }> {
+    const searchParams = new URLSearchParams();
+    if (params.limit) searchParams.set('limit', String(params.limit));
+    if (params.offset) searchParams.set('offset', String(params.offset));
+    if (params.tier) searchParams.set('tier', params.tier);
+    if (params.status) searchParams.set('status', params.status);
+
+    return fetchWithCredentials(`${API_BASE}/billing/subscribers?${searchParams.toString()}`);
+}
+
+// ============================================================================
+// Agent Testing (Phase 8)
+// ============================================================================
+
+import type { AgentTestResult, AgentCostBudget, AgentVersionHistory } from '../types';
+
+export async function runAgentTest(agentId: string, prompt: string): Promise<{
+    success: boolean;
+    result: AgentTestResult;
+}> {
+    return fetchWithCredentials(`${API_BASE}/agents/${agentId}/test`, {
+        method: 'POST',
+        body: JSON.stringify({ prompt }),
+    });
+}
+
+export async function getAgentTestResults(agentId: string, limit = 20): Promise<{
+    results: AgentTestResult[];
+}> {
+    return fetchWithCredentials(`${API_BASE}/agents/${agentId}/test-results?limit=${limit}`);
+}
+
+// ============================================================================
+// Agent Budget Management (Phase 8)
+// ============================================================================
+
+export async function getAgentBudget(agentId: string): Promise<AgentCostBudget & { agentId: string }> {
+    return fetchWithCredentials(`${API_BASE}/agents/${agentId}/budget`);
+}
+
+export async function updateAgentBudget(
+    agentId: string,
+    data: {
+        dailyLimitUsd?: number | null;
+        monthlyLimitUsd?: number | null;
+        alertThresholdPercent?: number;
+    }
+): Promise<{ success: boolean; budget: AgentCostBudget }> {
+    return fetchWithCredentials(`${API_BASE}/agents/${agentId}/budget`, {
+        method: 'PATCH',
+        body: JSON.stringify(data),
+    });
+}
+
+// ============================================================================
+// Agent Version History (Phase 8)
+// ============================================================================
+
+export async function getAgentVersionHistory(agentId: string, limit = 20): Promise<{
+    versions: AgentVersionHistory[];
+}> {
+    return fetchWithCredentials(`${API_BASE}/agents/${agentId}/versions?limit=${limit}`);
+}
+
+export async function restoreAgentVersion(
+    agentId: string,
+    versionId: string
+): Promise<{ success: boolean; agent: AgentConfig; message: string }> {
+    return fetchWithCredentials(`${API_BASE}/agents/${agentId}/versions/${versionId}/restore`, {
+        method: 'POST',
+    });
 }

@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { AdminLayout } from '../components/AdminLayout';
 import { AdminGuard } from '../components/AdminGuard';
+import { SystemHealth } from '../components/SystemHealth';
 import { getDashboardStats } from '../services/adminApi';
 import type { DashboardStats } from '../types';
 
@@ -101,26 +102,44 @@ export function AdminDashboard(): React.ReactElement {
                         </div>
                     )}
 
-                    {/* Quick Links */}
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                        <QuickLink
-                            href="/admin/users"
-                            icon="people"
-                            title="Manage Users"
-                            description="View, edit, and manage user accounts"
-                        />
-                        <QuickLink
-                            href="/admin/agents"
-                            icon="smart_toy"
-                            title="Configure Agents"
-                            description="Edit agent prompts and settings"
-                        />
-                        <QuickLink
-                            href="/admin/observability"
-                            icon="insights"
-                            title="Observability"
-                            description="View traces, metrics, and logs"
-                        />
+                    {/* System Health & Quick Links */}
+                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                        {/* System Health */}
+                        <SystemHealth autoRefresh={true} refreshInterval={30000} />
+
+                        {/* Quick Links */}
+                        <div className="space-y-4">
+                            <h2 className="text-lg font-bold text-white flex items-center gap-2">
+                                <span className="material-icons text-purple-500">link</span>
+                                Quick Actions
+                            </h2>
+                            <div className="space-y-3">
+                                <QuickLink
+                                    href="/admin/users"
+                                    icon="people"
+                                    title="Manage Users"
+                                    description="View and manage user accounts"
+                                />
+                                <QuickLink
+                                    href="/admin/agents"
+                                    icon="smart_toy"
+                                    title="Configure Agents"
+                                    description="Edit agent prompts and settings"
+                                />
+                                <QuickLink
+                                    href="/admin/observability"
+                                    icon="insights"
+                                    title="Observability"
+                                    description="View traces, metrics, and logs"
+                                />
+                                <QuickLink
+                                    href="/admin/finance"
+                                    icon="payments"
+                                    title="Finance & Billing"
+                                    description="View revenue and billing metrics"
+                                />
+                            </div>
+                        </div>
                     </div>
                 </div>
             </AdminLayout>

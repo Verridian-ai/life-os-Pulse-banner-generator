@@ -9,7 +9,7 @@
 
 | ID | Title | Owner Agent | Impl Worktree | Review Worktree | Branch | Status | Started | Updated |
 |----|-------|-------------|---------------|-----------------|--------|--------|---------|---------|
-| - | No active tasks | - | - | - | - | - | - | - |
+| T016 | Cognee Persistent Memory System | Lead Architect | .worktrees/T016-impl | .worktrees/T016-rev | task/T016-cognee-memory | In Progress | 2026-01-13 | 2026-01-13 |
 
 ---
 
@@ -582,4 +582,162 @@
 
 ---
 
-*Last Updated: 2025-12-31*
+### T016: Cognee Persistent Memory System
+
+**Description**: Implement Cognee as a persistent RAG-based memory system for all Claude Code agents and skills. This provides a unified knowledge layer that enables cross-agent learning, context preservation across sessions, and 70-90% token reduction through intelligent retrieval.
+
+**Business Value**:
+- 89.9% cost reduction ($0.336 → $0.034 per request)
+- 60-75% faster response times (650ms vs 2-5s)
+- 92.5% accuracy in multi-hop reasoning (vs 40% traditional RAG)
+- Persistent knowledge across all agents and sessions
+
+**Acceptance Criteria**:
+
+**Phase 1: Docker Infrastructure**
+- [ ] Docker Compose configuration created (`docker-compose.cognee.yml`)
+- [ ] Cognee API running on `http://localhost:8000`
+- [ ] Neo4j graph database operational (ports 7474, 7687)
+- [ ] PostgreSQL metadata store operational
+- [ ] Persistent volumes mounted correctly (`cognee-data`, `cognee-system`, `neo4j-data`, `postgres-data`)
+- [ ] Health check returns 200 OK
+- [ ] API authentication working
+- [ ] Can add documents and cognify successfully
+
+**Phase 2: MCP Server Integration**
+- [ ] `.mcp.json` updated with Cognee HTTP transport
+- [ ] MCP server appears in `claude mcp list`
+- [ ] Can call `mcp__cognee__add` tool successfully
+- [ ] Can call `mcp__cognee__search` tool successfully
+- [ ] No authentication errors
+- [ ] Tools working in Claude Code session
+
+**Phase 3: Memory Skill Creation**
+- [ ] `.claude/skills/cognee_memory/skill.md` created
+- [ ] All MCP tools documented
+- [ ] Best practices section included
+- [ ] Namespace strategy documented (global, agent, session)
+- [ ] Example workflows provided
+- [ ] Skill appears in Claude Code skill list
+
+**Phase 4: Global Memory Preload**
+- [ ] Preload script created (`scripts/preload-cognee-memory.ts`)
+- [ ] CLAUDE.md added to global memory
+- [ ] `.claude/rules/shared_contract.md` added
+- [ ] `docs/ops/ROUTES.md` added
+- [ ] `docs/design/LIFE_OS_DESIGN_SYSTEM.md` added
+- [ ] `docs/ops/AGENT_CONTEXT.md` added
+- [ ] Cognify completes without errors
+- [ ] Can query for project information successfully
+- [ ] Knowledge graph visualization shows entities
+
+**Phase 5: Agent Integration**
+- [ ] Research Agent skill updated with memory hooks
+- [ ] Coding Agent skill updated with memory hooks
+- [ ] Debugging Agent skill updated with memory hooks
+- [ ] Decision Agent skill updated with memory hooks
+- [ ] Quick Tasks Agent skill updated with memory hooks
+- [ ] Pre-task memory loading working
+- [ ] Post-task knowledge storage working
+- [ ] Memory queries return relevant context
+
+**Phase 6: Monitoring & Optimization**
+- [ ] Memory statistics dashboard created
+- [ ] Cleanup job scheduled (weekly)
+- [ ] Search latency < 200ms p95
+- [ ] Knowledge graph accuracy >90%
+- [ ] Token savings tracked and reported
+- [ ] Performance metrics documented
+
+**General Requirements**:
+- [ ] All tests pass (`npm run test`)
+- [ ] Build succeeds (`npm run build`)
+- [ ] Documentation complete
+- [ ] No security vulnerabilities introduced
+
+**Affected Areas**:
+- `docker-compose.cognee.yml` (new)
+- `.mcp.json`
+- `.env.example` (add Cognee config)
+- `.claude/skills/cognee_memory/` (new)
+- `.claude/skills/research-agent/skill.md`
+- `.claude/skills/coding-agent/skill.md`
+- `.claude/skills/debugging-agent/skill.md`
+- `.claude/skills/decision-agent/skill.md`
+- `.claude/skills/quick-tasks-agent/skill.md`
+- `scripts/preload-cognee-memory.ts` (new)
+- `docs/COGNEE_PERSISTENT_MEMORY_RESEARCH.md` (already created)
+- Backend integration already exists:
+  - `server/src/services/cognee.ts`
+  - `server/src/routes/cognee.ts`
+  - `.github/workflows/cd-cognee.yml`
+
+**Assigned Agents**:
+- **Phase 1-3 Implementer**: Lead Architect (Sonnet)
+- **Phase 1-3 Reviewer**: Lead Architect (Opus)
+- **Phase 4 Implementer**: Research Agent (Haiku)
+- **Phase 4 Reviewer**: Lead Architect (Opus)
+- **Phase 5 Implementer**: Coding Agent (Sonnet)
+- **Phase 5 Reviewer**: Decision Agent (Opus)
+- **Phase 6 Implementer**: SRE Engineer (Sonnet)
+- **Phase 6 Reviewer**: SRE Engineer (Opus)
+
+**Test Plan**:
+
+**Unit Tests**:
+- Docker health checks pass
+- MCP tools callable
+- Memory add/search/cognify operations
+- Namespace isolation (agent_a vs agent_b)
+- Knowledge graph queries
+
+**Integration Tests**:
+- Cross-agent learning scenario
+- Session continuity test
+- Memory accuracy benchmark (100 docs, 50 queries)
+
+**Performance Tests**:
+- Token usage before/after (target: 70-90% reduction)
+- Response latency before/after (target: 60-75% improvement)
+- Search query latency (target: <200ms)
+
+**Manual Verification**:
+- Docker containers running
+- Neo4j browser accessible (http://localhost:7474)
+- Knowledge graph visualization
+- Agent memory queries return relevant results
+
+**Dependencies**:
+- Docker Desktop installed and running
+- OpenAI API key (for Cognee embeddings)
+- 8GB+ RAM available for containers
+- Internet connection for Docker image pulls
+
+**Risks & Mitigation**:
+- **Risk**: Docker deployment fails
+  - **Mitigation**: Use official Cognee image, test locally first, fallback to Cloud Run
+- **Risk**: Memory retrieval too slow
+  - **Mitigation**: Implement caching, optimize chunk sizes
+- **Risk**: Knowledge graph accuracy <90%
+  - **Mitigation**: Fine-tune extraction prompts, use higher quality LLM
+- **Risk**: Memory storage grows too large
+  - **Mitigation**: Implement archival and cleanup jobs
+
+**Estimated Timeline**:
+- Phase 1: 2-3 hours
+- Phase 2: 1-2 hours
+- Phase 3: 2 hours
+- Phase 4: 3 hours
+- Phase 5: 4-5 hours
+- Phase 6: 6-8 hours
+- **Total**: ~20-25 hours over 4 weeks
+
+**Status**: In Progress (Phase 1)
+**Created**: 2026-01-13
+**Updated**: 2026-01-13
+
+**Research Document**: `docs/COGNEE_PERSISTENT_MEMORY_RESEARCH.md`
+
+---
+
+*Last Updated: 2026-01-13*

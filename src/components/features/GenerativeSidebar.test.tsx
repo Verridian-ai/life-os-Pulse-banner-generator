@@ -4,6 +4,30 @@ import userEvent from '@testing-library/user-event';
 import GenerativeSidebar from './GenerativeSidebar';
 import { ToastProvider } from '../../context/ToastContext';
 
+// Mock window.matchMedia for useMediaQuery hook
+// This mock responds to max-width queries based on window.innerWidth
+Object.defineProperty(window, 'matchMedia', {
+  writable: true,
+  value: vi.fn().mockImplementation((query: string) => {
+    // Parse max-width from query like "(max-width: 767px)"
+    const maxWidthMatch = query.match(/max-width:\s*(\d+)px/);
+    const matches = maxWidthMatch
+      ? window.innerWidth <= parseInt(maxWidthMatch[1], 10)
+      : false;
+
+    return {
+      matches,
+      media: query,
+      onchange: null,
+      addListener: vi.fn(),
+      removeListener: vi.fn(),
+      addEventListener: vi.fn(),
+      removeEventListener: vi.fn(),
+      dispatchEvent: vi.fn(),
+    };
+  }),
+});
+
 // Test wrapper with required providers
 const TestWrapper: React.FC<{ children: React.ReactNode }> = ({ children }) => (
   <ToastProvider>{children}</ToastProvider>
@@ -31,6 +55,15 @@ vi.mock('../ui/EnhanceButton', () => ({
 // Mock ImageToolsPanel
 vi.mock('./ImageToolsPanel', () => ({
   ImageToolsPanel: () => <div data-testid="image-tools-panel">Image Tools Panel</div>,
+}));
+
+// Mock usePromptEnhance hook
+const mockEnhance = vi.fn().mockResolvedValue('enhanced prompt');
+vi.mock('../../hooks/usePromptEnhance', () => ({
+  usePromptEnhance: () => ({
+    enhance: mockEnhance,
+    isEnhancing: false,
+  }),
 }));
 
 describe('GenerativeSidebar', () => {
@@ -271,15 +304,18 @@ describe('GenerativeSidebar', () => {
       expect(screen.getByText('Prompt Enhance')).toBeInTheDocument();
     });
 
-    it('calls onEnhancePrompt when clicked', async () => {
+    it('calls enhance function when clicked', async () => {
       const user = userEvent.setup();
-      const onEnhancePrompt = vi.fn();
-      renderWithProvider(<GenerativeSidebar {...defaultProps} onEnhancePrompt={onEnhancePrompt} genPrompt="test prompt" />);
+      mockEnhance.mockClear();
+      renderWithProvider(<GenerativeSidebar {...defaultProps} genPrompt="test prompt" />);
 
       const enhanceButton = screen.getByText('Prompt Enhance');
       await user.click(enhanceButton);
 
-      expect(onEnhancePrompt).toHaveBeenCalledTimes(1);
+      // The component uses usePromptEnhance hook internally
+      await waitFor(() => {
+        expect(mockEnhance).toHaveBeenCalledWith('test prompt', expect.any(Object));
+      });
     });
 
     it('is disabled when prompt is empty', () => {
@@ -494,7 +530,8 @@ describe('GenerativeSidebar', () => {
       await user.click(editButton);
 
       await waitFor(() => {
-        expect(editButton).toHaveClass('from-yellow-600');
+        // Edit mode uses yellow-500 gradient when active
+        expect(editButton).toHaveClass('from-yellow-500');
       });
     });
   });
@@ -660,7 +697,10 @@ describe('GenerativeSidebar', () => {
       renderWithProvider(<GenerativeSidebar {...defaultProps} />);
 
       expect(screen.getByTitle(/Nano Banana Pro/i)).toBeInTheDocument();
-      expect(screen.getByTitle('Generate')).toBeInTheDocument();
+      // Mode buttons have titles - Generate includes keyboard shortcut in tooltip
+      // Multiple elements may have Generate in title (mode button + action button)
+      const generateElements = screen.getAllByTitle(/Generate.*Ctrl/i);
+      expect(generateElements.length).toBeGreaterThan(0);
       expect(screen.getByTitle('Edit')).toBeInTheDocument();
       expect(screen.getByTitle('Tools')).toBeInTheDocument();
     });

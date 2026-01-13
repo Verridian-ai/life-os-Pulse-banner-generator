@@ -340,4 +340,110 @@ export class CogneeService {
             return false;
         }
     }
+
+    /**
+     * Get detailed health status for Cognee service
+     * @returns Health status object with details
+     */
+    static async getHealthStatus(): Promise<{
+        healthy: boolean;
+        version?: string;
+        lastCheck: string;
+        services?: Record<string, boolean>;
+    }> {
+        try {
+            const response = await fetch(`${COGNEE_API_URL}/health`, {
+                method: 'GET',
+                headers: this.getHeaders()
+            });
+
+            if (!response.ok) {
+                return {
+                    healthy: false,
+                    lastCheck: new Date().toISOString(),
+                };
+            }
+
+            const data = await response.json().catch(() => ({}));
+
+            return {
+                healthy: true,
+                version: data.version || 'unknown',
+                lastCheck: new Date().toISOString(),
+                services: data.services || {},
+            };
+        } catch (error) {
+            console.error('[Cognee] Health status failed:', error);
+            return {
+                healthy: false,
+                lastCheck: new Date().toISOString(),
+            };
+        }
+    }
+
+    /**
+     * Get knowledge stats for an agent
+     * @param agentId - Agent ID
+     * @returns Stats about documents, embeddings, etc.
+     */
+    static async getAgentStats(agentId: string): Promise<{
+        documentCount: number;
+        embeddingStatus: 'ready' | 'processing' | 'none';
+        lastCognifyAt?: string;
+        datasetSize?: number;
+    }> {
+        try {
+            // Try to get dataset info
+            const response = await fetch(`${COGNEE_API_URL}/api/v1/datasets/agent_${agentId}`, {
+                method: 'GET',
+                headers: this.getHeaders()
+            });
+
+            if (!response.ok) {
+                if (response.status === 404) {
+                    return {
+                        documentCount: 0,
+                        embeddingStatus: 'none',
+                    };
+                }
+                throw new Error(`Cognee API error: ${response.status}`);
+            }
+
+            const data = await response.json();
+
+            // Parse dataset info
+            const documents = data.documents || data.files || [];
+            const documentCount = Array.isArray(documents) ? documents.length : 0;
+
+            // Check if knowledge graph exists
+            let embeddingStatus: 'ready' | 'processing' | 'none' = 'none';
+            if (data.graph_status === 'ready' || data.cognified === true) {
+                embeddingStatus = 'ready';
+            } else if (data.graph_status === 'processing' || data.processing === true) {
+                embeddingStatus = 'processing';
+            } else if (documentCount > 0) {
+                embeddingStatus = 'none'; // Has docs but not cognified
+            }
+
+            return {
+                documentCount,
+                embeddingStatus,
+                lastCognifyAt: data.last_cognify_at || data.lastCognifyAt,
+                datasetSize: data.size || data.total_size,
+            };
+        } catch (error) {
+            console.error('[Cognee] Get agent stats failed:', error);
+            return {
+                documentCount: 0,
+                embeddingStatus: 'none',
+            };
+        }
+    }
+
+    /**
+     * Check if Cognee is enabled (API key configured)
+     */
+    static isEnabled(): boolean {
+        return !!COGNEE_API_KEY && !!COGNEE_API_URL;
+    }
 }

@@ -137,7 +137,8 @@ describe('useAdminAuth', () => {
     });
 
     describe('permissions', () => {
-        const fullPermissions: AdminPermissions = {
+        // Full permissions config used for comprehensive test scenarios
+        const _fullPermissions: AdminPermissions = {
             user_management: true,
             agent_configuration: true,
             audit_log_access: true,
@@ -145,6 +146,7 @@ describe('useAdminAuth', () => {
             observability_config: true,
             financial_access: true,
         };
+        void _fullPermissions; // Reserved for expanded permission tests
 
         const partialPermissions: AdminPermissions = {
             user_management: true,

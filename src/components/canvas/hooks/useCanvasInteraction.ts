@@ -5,10 +5,10 @@
  * resizing, and rotation.
  */
 
-import { useState, useCallback, useRef, RefObject } from 'react';
+import { useState, useCallback, RefObject } from 'react';
 import { BannerElement } from '../../../types';
 import { rotatePoint } from '../core/CanvasRenderer';
-import { isOverHandle, ResizeHandle, ElementRect, getCursorForHandle, HANDLE_SIZE } from '../core/SelectionOverlay';
+import { isOverHandle, ResizeHandle, ElementRect, getCursorForHandle } from '../core/SelectionOverlay';
 
 /** Types of drag operations */
 export type DragMode = 'move' | 'resize' | 'rotate';

@@ -19,11 +19,14 @@ dist-ssr
 .env.development
 .env.test
 .env*.local
+.env.cognee
+.env.cognee.local
 server/.env
 
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json
+!.vscode/settings.json
 .idea
 .DS_Store
 *.suo

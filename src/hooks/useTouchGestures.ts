@@ -126,9 +126,11 @@ export function useTouchGestures(options: TouchGestureOptions = {}) {
     onGestureStart,
     onGestureEnd,
     pinchThreshold = 5,
-    panThreshold = 3,
+    // panThreshold reserved for future pan detection refinement
+    panThreshold: _panThreshold = 3,
     enabled = true,
   } = options;
+  void _panThreshold; // Suppress unused warning - reserved for future use
 
   const [gestureState, setGestureState] = useState<GestureState>({
     gestureType: 'none',

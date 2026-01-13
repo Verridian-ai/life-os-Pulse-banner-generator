@@ -123,14 +123,50 @@ export type AuditLogEntry = {
 
 export type LlmTrace = {
     id: string;
+    traceId?: string;
     agentId: string | null;
     model: string;
     input: unknown;
     output: unknown;
     totalTokens: number | null;
     durationMs: number | null;
+    latencyMs?: number | null;
     status: string | null;
+    costUsd?: number | null;
+    deepLink?: string | null;
+    userId?: string | null;
     createdAt: string;
+};
+
+export type CostBreakdownItem = {
+    key: string;
+    email?: string;
+    totalCost: number;
+    callCount: number;
+    avgCost: number;
+    totalTokens: number;
+};
+
+export type CostBreakdownResponse = {
+    breakdown: CostBreakdownItem[];
+    totals: {
+        totalCost: number;
+        totalCalls: number;
+        totalTokens: number;
+    };
+    groupBy: 'model' | 'user' | 'operation';
+    days: number;
+};
+
+export type DailyMetric = {
+    date: string;
+    totalRequests: number;
+    totalLlmCalls: number;
+    totalTokens: number;
+    totalCostUsd: string;
+    uniqueUsers: number;
+    avgLatencyMs: number | null;
+    errorCount: number;
 };
 
 export type ApiMetric = {
@@ -180,4 +216,46 @@ export type ModelRanking = {
         successRate: number | null;
         cost: number;
     };
+};
+
+// Agent Enhancement Types (Phase 8)
+export type AgentModelParameters = {
+    temperature: number;
+    maxTokens: number;
+    topP: number;
+    frequencyPenalty: number;
+    presencePenalty: number;
+    stopSequences: string[];
+};
+
+export type AgentCostBudget = {
+    dailyLimitUsd: number | null;
+    monthlyLimitUsd: number | null;
+    alertThresholdPercent: number;
+    currentDailySpend: number;
+    currentMonthlySpend: number;
+    isOverBudget: boolean;
+};
+
+export type AgentVersionHistory = {
+    id: string;
+    version: number;
+    systemPrompt: string;
+    parameters: AgentModelParameters;
+    changedBy: string | null;
+    changedAt: string;
+    changeReason: string | null;
+};
+
+export type AgentTestResult = {
+    id: string;
+    input: string;
+    output: string;
+    model: string;
+    tokensUsed: number;
+    latencyMs: number;
+    costUsd: number;
+    status: 'success' | 'error';
+    error?: string;
+    createdAt: string;
 };

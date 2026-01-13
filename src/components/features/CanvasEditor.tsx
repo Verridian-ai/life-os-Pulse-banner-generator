@@ -44,7 +44,7 @@ const CanvasEditor: React.FC = () => {
   } = useCanvas();
 
   // Safe zone warnings - reactive detection of elements in danger zones
-  const { warnings, hasWarnings, dangerCount, warningCount, snapToSafe, getElementDangerLevel } = useSafeZoneWarnings(elements, canvasFormatId);
+  const { warnings, hasWarnings, dangerCount, warningCount, snapToSafe } = useSafeZoneWarnings(elements, canvasFormatId);
 
   // Handler for auto-snap to safe position
   const handleSnapToSafe = React.useCallback(

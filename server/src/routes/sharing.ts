@@ -1,7 +1,7 @@
 import { Hono } from 'hono';
 import { db } from '../db';
 import { sharedLinks, designs, comments } from '../db/schema';
-import { eq, and, desc, gt } from 'drizzle-orm';
+import { eq, and, desc } from 'drizzle-orm';
 import { authMiddleware } from '../lib/auth';
 import { randomUUID } from 'crypto';
 

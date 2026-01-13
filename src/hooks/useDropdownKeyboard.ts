@@ -13,7 +13,7 @@ export function useDropdownKeyboard(
     const [focusedIndex, setFocusedIndex] = useState(-1);
     const menuRef = useRef<HTMLDivElement>(null);
     const buttonRef = useRef<HTMLButtonElement>(null);
-    const itemRefs = useRef<(HTMLButtonElement | null)[]>([]);
+    const itemRefs = useRef<(HTMLElement | null)[]>([]);
 
     // Update focus when focusedIndex changes
     useEffect(() => {

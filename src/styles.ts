@@ -60,8 +60,11 @@ export const BTN_GREEN_ACTIVE =
 export const BTN_NEU_SOLID =
   'bg-stone-800 text-stone-400 shadow-neu-sm border border-white/5 hover:text-white hover:scale-[1.02] active:scale-[0.98] min-h-[44px]';
 
-export const BTN_NEU_WHITE =
-  'bg-white text-black shadow-[0_0_15px_rgba(255,255,255,0.2)] hover:bg-stone-200 active:scale-[0.98]';
+// Pink (AI/Magic) button variants
+export const BTN_PINK_GLASS =
+  'bg-pink-500/10 text-pink-400 shadow-[0_0_10px_rgba(236,72,153,0.2)] border border-pink-500/20 hover:bg-pink-500/20 hover:text-pink-300 transition-all';
+export const BTN_PINK_ACTIVE =
+  'bg-pink-500/20 text-pink-300 shadow-[0_0_15px_rgba(236,72,153,0.4)] border border-pink-500/40';
 
 // Primary button - orange gradient (Anti-Slop compliant)
 export const BTN_PRIMARY =
@@ -73,12 +76,22 @@ export const BTN_SECONDARY =
 export const INPUT_NEU =
   'bg-stone-900 text-white shadow-[inset_3px_3px_6px_rgba(0,0,0,0.5),inset_-3px_-3px_6px_rgba(255,255,255,0.05)] border border-white/10 rounded-lg focus:outline-none focus:border-orange-500 focus:ring-2 focus:ring-orange-500/50 focus:shadow-[0_0_15px_rgba(249,115,22,0.2)] transition-all';
 
+// Admin/Dashboard specific form controls (Stone palette)
+export const ADMIN_INPUT =
+  'px-3 py-2 bg-stone-900 border border-white/10 rounded-lg text-white text-sm focus:outline-none focus:border-purple-500 focus:ring-1 focus:ring-purple-500/50 transition-all placeholder-zinc-500';
+
+export const ADMIN_SELECT =
+  'px-3 py-1.5 bg-stone-900 border border-white/10 rounded-lg text-white text-sm focus:outline-none focus:border-purple-500 focus:ring-1 focus:ring-purple-500/50 transition-all cursor-pointer';
+
 // Glass panel styles with stone neutrals
 export const GLASS_PANEL =
   'bg-stone-900/50 backdrop-blur-xl border border-white/5 rounded-2xl';
 
 export const GLASS_PANEL_LIGHT =
   'bg-white/5 backdrop-blur-xl border border-white/10 rounded-2xl';
+
+export const DROPDOWN_PANEL =
+  'absolute top-full right-0 mt-2 w-56 bg-stone-900 border border-white/10 rounded-xl shadow-2xl z-50 overflow-hidden';
 
 // Luxury easing (exported for inline styles)
 export const LUXURY_EASING = {

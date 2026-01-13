@@ -1,0 +1,93 @@
+{
+  "$schema": "https://json.schemastore.org/claude-skill-config.json",
+  "version": "1.0.0",
+  "skill_name": "cognee-memory-agent",
+  "enabled": true,
+  "model": "haiku",
+  "description": "Persistent memory system using Cognee knowledge graphs",
+
+  "datasets": {
+    "global": {
+      "name": "nanobanna_global",
+      "description": "Project-wide knowledge (CLAUDE.md, contracts, routes)",
+      "retention": "permanent",
+      "access": "all_agents"
+    },
+    "agent_research": {
+      "description": "Research agent findings and discoveries",
+      "retention": "30_days",
+      "access": ["research-agent", "orchestrator"]
+    },
+    "agent_coding": {
+      "description": "Coding agent implementation patterns",
+      "retention": "30_days",
+      "access": ["coding-agent", "orchestrator"]
+    },
+    "agent_debugging": {
+      "description": "Debugging agent root causes and fixes",
+      "retention": "30_days",
+      "access": ["debugging-agent", "orchestrator"]
+    },
+    "agent_qa": {
+      "description": "QA agent test results and coverage",
+      "retention": "14_days",
+      "access": ["qa-agent", "orchestrator"]
+    },
+    "agent_chrome_ui": {
+      "description": "Chrome UI agent visual verification results",
+      "retention": "7_days",
+      "access": ["chrome-ui-browser-agent", "orchestrator"]
+    },
+    "agent_security": {
+      "description": "Security agent vulnerability findings",
+      "retention": "90_days",
+      "access": ["security-agent", "orchestrator"]
+    },
+    "agent_database": {
+      "description": "Database agent schema and migration history",
+      "retention": "permanent",
+      "access": ["neon-manager", "orchestrator"]
+    },
+    "agent_release": {
+      "description": "Release agent deployment history",
+      "retention": "90_days",
+      "access": ["release-agent", "cloud-run-manager", "orchestrator"]
+    },
+    "agent_decisions": {
+      "description": "Decision agent architectural decisions",
+      "retention": "permanent",
+      "access": ["decision-agent", "orchestrator"]
+    }
+  },
+
+  "batch_cognify": {
+    "enabled": true,
+    "schedule": "0 3 * * *",
+    "datasets": [
+      "agent_research",
+      "agent_coding",
+      "agent_debugging",
+      "agent_qa",
+      "agent_chrome_ui"
+    ]
+  },
+
+  "pre_task_protocol": {
+    "enabled": true,
+    "load_global": true,
+    "load_agent_context": true,
+    "max_context_tokens": 5000
+  },
+
+  "post_task_protocol": {
+    "enabled": true,
+    "store_learnings": true,
+    "auto_cognify_threshold": 10
+  },
+
+  "api": {
+    "base_url": "http://localhost:8000",
+    "timeout_ms": 30000,
+    "retry_attempts": 3
+  }
+}

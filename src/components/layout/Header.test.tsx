@@ -1,296 +1,197 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { render, screen, fireEvent, waitFor } from '@testing-library/react';
+import { render, screen, fireEvent } from '@testing-library/react';
 import '@testing-library/jest-dom';
 
 import Header from './Header';
-import { Tab } from '../../constants';
 
-const mockAuthContext = {
-  isAuthenticated: true,
-  user: {
-    id: 'test-user',
-    email: 'test@example.com',
-    full_name: 'Test User',
-  },
-  authUser: null,
-  signOut: vi.fn(),
-  signIn: vi.fn(),
-  signUp: vi.fn(),
-  isLoading: false,
-  error: null,
-};
-
-// Mock useAuth hook
-vi.mock('../../context/AuthContext', async () => {
-  const actual = await vi.importActual('../../context/AuthContext');
-  return {
-    ...actual,
-    useAuth: () => mockAuthContext,
-  };
-});
-
-describe('Header - Keyboard Navigation', () => {
-  const mockProps = {
-    activeTab: Tab.STUDIO,
-    setActiveTab: vi.fn(),
-    onOpenSettings: vi.fn(),
-    onOpenAuth: vi.fn(),
-    onOpenInstructions: vi.fn(),
-    isVoiceActive: false,
-    voiceConnectionState: 'disconnected' as const,
-    onToggleVoice: vi.fn(),
+describe('Header', () => {
+  const defaultProps = {
+    onRefresh: vi.fn(),
+    isRefreshLoading: false,
+    onBackToDashboard: vi.fn(),
+    activePlatform: 'linkedin' as const,
   };
 
   beforeEach(() => {
     vi.clearAllMocks();
   });
 
-  it('opens dropdown menu when Enter is pressed on profile button', () => {
-    render(<Header {...mockProps} />);
+  describe('Logo and Branding', () => {
+    it('renders logo when not in studio mode', () => {
+      render(<Header />);
 
-    const profileButtons = screen.getAllByLabelText('User profile menu');
-    const profileButton = profileButtons[1]; // Use desktop button
-
-    // Menu should not be visible initially
-    expect(screen.queryByRole('menu')).not.toBeInTheDocument();
-
-    // Press Enter on profile button
-    fireEvent.keyDown(profileButton, { key: 'Enter', code: 'Enter' });
-
-    // Menu should now be visible
-    expect(screen.getByRole('menu')).toBeInTheDocument();
-  });
-
-  it('opens dropdown menu when Space is pressed on profile button', () => {
-    render(<Header {...mockProps} />);
-
-    const profileButtons = screen.getAllByLabelText('User profile menu');
-    const profileButton = profileButtons[1]; // Use desktop button
-
-    // Press Space on profile button
-    fireEvent.keyDown(profileButton, { key: ' ', code: 'Space' });
-
-    // Menu should be visible
-    expect(screen.getByRole('menu')).toBeInTheDocument();
-  });
-
-  it('closes dropdown menu when Escape is pressed', () => {
-    render(<Header {...mockProps} />);
-
-    const profileButtons = screen.getAllByLabelText('User profile menu');
-    const profileButton = profileButtons[1]; // Use desktop button
-
-    // Open menu
-    fireEvent.click(profileButton);
-    expect(screen.getByRole('menu')).toBeInTheDocument();
-
-    // Press Escape on a menu item
-    const menuItems = screen.getAllByRole('menuitem');
-    fireEvent.keyDown(menuItems[0], { key: 'Escape', code: 'Escape' });
-
-    // Menu should be closed
-    expect(screen.queryByRole('menu')).not.toBeInTheDocument();
-  });
-
-  it('navigates menu items with arrow keys', async () => {
-    render(<Header {...mockProps} />);
-
-    const profileButtons = screen.getAllByLabelText('User profile menu');
-    const profileButton = profileButtons[1]; // Use desktop button
-
-    // Open menu via keyboard (sets focusedIndex to 0)
-    fireEvent.keyDown(profileButton, { key: 'Enter', code: 'Enter' });
-
-    await waitFor(() => {
-      const menuItems = screen.getAllByRole('menuitem');
-      expect(menuItems).toHaveLength(2);
-
-      // First item should be focused when opened via keyboard
-      expect(menuItems[0]).toHaveAttribute('tabIndex', '0');
-      expect(menuItems[1]).toHaveAttribute('tabIndex', '-1');
+      const logo = screen.getByAltText('Life OS Logo');
+      expect(logo).toBeInTheDocument();
+      expect(logo).toHaveAttribute('src', '/assets/logo.svg');
     });
 
-    // Press ArrowDown
-    const menuItems = screen.getAllByRole('menuitem');
-    fireEvent.keyDown(menuItems[0], { key: 'ArrowDown', code: 'ArrowDown' });
+    it('hides logo when in studio mode (onBackToDashboard provided)', () => {
+      render(<Header {...defaultProps} />);
 
-    // Second item should now be focused
-    await waitFor(() => {
-      expect(menuItems[0]).toHaveAttribute('tabIndex', '-1');
-      expect(menuItems[1]).toHaveAttribute('tabIndex', '0');
+      expect(screen.queryByAltText('Life OS Logo')).not.toBeInTheDocument();
     });
   });
 
-  it('has proper ARIA attributes on profile button', () => {
-    render(<Header {...mockProps} />);
+  describe('Back to Dashboard Button', () => {
+    it('renders back button when onBackToDashboard is provided', () => {
+      render(<Header {...defaultProps} />);
 
-    const profileButtons = screen.getAllByLabelText('User profile menu');
-    const profileButton = profileButtons[1]; // Use desktop button
+      const backButton = screen.getByLabelText('Back to dashboard');
+      expect(backButton).toBeInTheDocument();
+    });
 
-    // Check ARIA attributes when closed
-    expect(profileButton).toHaveAttribute('aria-haspopup', 'menu');
-    expect(profileButton).toHaveAttribute('aria-expanded', 'false');
+    it('does not render back button when onBackToDashboard is not provided', () => {
+      render(<Header onRefresh={defaultProps.onRefresh} />);
 
-    // Open menu
-    fireEvent.click(profileButton);
+      expect(screen.queryByLabelText('Back to dashboard')).not.toBeInTheDocument();
+    });
 
-    // Check ARIA attributes when open
-    expect(profileButton).toHaveAttribute('aria-expanded', 'true');
-  });
+    it('calls onBackToDashboard when back button is clicked', () => {
+      const onBackToDashboard = vi.fn();
+      render(<Header {...defaultProps} onBackToDashboard={onBackToDashboard} />);
 
-  it('has proper ARIA attributes on menu and menu items', () => {
-    render(<Header {...mockProps} />);
+      const backButton = screen.getByLabelText('Back to dashboard');
+      fireEvent.click(backButton);
 
-    const profileButtons = screen.getAllByLabelText('User profile menu');
-    const profileButton = profileButtons[1]; // Use desktop button
-    fireEvent.click(profileButton);
+      expect(onBackToDashboard).toHaveBeenCalledTimes(1);
+    });
 
-    const menu = screen.getByRole('menu');
-    expect(menu).toHaveAttribute('aria-label', 'User profile menu');
+    it('has proper touch target size (44x44px minimum)', () => {
+      render(<Header {...defaultProps} />);
 
-    const menuItems = screen.getAllByRole('menuitem');
-    expect(menuItems).toHaveLength(2);
-
-    menuItems.forEach((item) => {
-      expect(item).toHaveAttribute('role', 'menuitem');
-      expect(item).toHaveAttribute('tabIndex');
+      const backButton = screen.getByLabelText('Back to dashboard');
+      expect(backButton).toHaveClass('min-w-[44px]', 'min-h-[44px]');
     });
   });
 
-  it('calls onOpenSettings when Enter is pressed on Settings menu item', async () => {
-    render(<Header {...mockProps} />);
+  describe('Platform Indicator', () => {
+    it('renders platform indicator for LinkedIn', () => {
+      render(<Header {...defaultProps} activePlatform="linkedin" />);
 
-    const profileButtons = screen.getAllByLabelText('User profile menu');
-    const profileButton = profileButtons[1]; // Use desktop button
-
-    // Open menu via keyboard to set focusedIndex to 0
-    fireEvent.keyDown(profileButton, { key: 'Enter', code: 'Enter' });
-
-    await waitFor(() => {
-      expect(screen.getByRole('menu')).toBeInTheDocument();
+      expect(screen.getByText('LinkedIn Studio')).toBeInTheDocument();
     });
 
-    const settingsItem = screen.getByText('Settings').closest('button');
-    expect(settingsItem).toBeInTheDocument();
+    it('renders platform indicator for YouTube', () => {
+      render(<Header {...defaultProps} activePlatform="youtube" />);
 
-    // Press Enter on Settings item (focusedIndex is 0 from keyboard open)
-    fireEvent.keyDown(settingsItem!, { key: 'Enter', code: 'Enter' });
-
-    expect(mockProps.onOpenSettings).toHaveBeenCalled();
-  });
-
-  it('navigates to first item with Home key', async () => {
-    render(<Header {...mockProps} />);
-
-    const profileButtons = screen.getAllByLabelText('User profile menu');
-    const profileButton = profileButtons[1]; // Use desktop button
-
-    // Open menu via keyboard to set focusedIndex
-    fireEvent.keyDown(profileButton, { key: 'Enter', code: 'Enter' });
-
-    await waitFor(() => {
-      expect(screen.getByRole('menu')).toBeInTheDocument();
+      expect(screen.getByText('YouTube Studio')).toBeInTheDocument();
     });
 
-    const menuItems = screen.getAllByRole('menuitem');
+    it('renders platform indicator for Instagram', () => {
+      render(<Header {...defaultProps} activePlatform="instagram" />);
 
-    // Press ArrowDown to move to second item
-    fireEvent.keyDown(menuItems[0], { key: 'ArrowDown', code: 'ArrowDown' });
+      expect(screen.getByText('Instagram Studio')).toBeInTheDocument();
+    });
 
-    // Press Home to go back to first item
-    fireEvent.keyDown(menuItems[1], { key: 'Home', code: 'Home' });
+    it('renders platform indicator for Facebook', () => {
+      render(<Header {...defaultProps} activePlatform="facebook" />);
 
-    await waitFor(() => {
-      expect(menuItems[0]).toHaveAttribute('tabIndex', '0');
+      expect(screen.getByText('Facebook Studio')).toBeInTheDocument();
+    });
+
+    it('renders platform indicator for TikTok', () => {
+      render(<Header {...defaultProps} activePlatform="tiktok" />);
+
+      expect(screen.getByText('TikTok Studio')).toBeInTheDocument();
+    });
+
+    it('renders platform indicator for X', () => {
+      render(<Header {...defaultProps} activePlatform="x" />);
+
+      expect(screen.getByText('X Studio')).toBeInTheDocument();
+    });
+
+    it('does not render platform indicator when activePlatform is not provided', () => {
+      render(<Header onRefresh={defaultProps.onRefresh} />);
+
+      expect(screen.queryByText(/Studio$/)).not.toBeInTheDocument();
     });
   });
 
-  it('navigates to last item with End key', async () => {
-    render(<Header {...mockProps} />);
+  describe('Refresh Button', () => {
+    it('renders refresh button when onRefresh is provided', () => {
+      render(<Header {...defaultProps} />);
 
-    const profileButtons = screen.getAllByLabelText('User profile menu');
-    const profileButton = profileButtons[1]; // Use desktop button
-
-    // Open menu via keyboard to set focusedIndex
-    fireEvent.keyDown(profileButton, { key: 'Enter', code: 'Enter' });
-
-    await waitFor(() => {
-      expect(screen.getByRole('menu')).toBeInTheDocument();
+      const refreshButton = screen.getByLabelText('Refresh');
+      expect(refreshButton).toBeInTheDocument();
     });
 
-    const menuItems = screen.getAllByRole('menuitem');
+    it('does not render refresh button when onRefresh is not provided', () => {
+      render(<Header onBackToDashboard={defaultProps.onBackToDashboard} />);
 
-    // Press End to go to last item
-    fireEvent.keyDown(menuItems[0], { key: 'End', code: 'End' });
+      expect(screen.queryByLabelText('Refresh')).not.toBeInTheDocument();
+    });
 
-    await waitFor(() => {
-      expect(menuItems[1]).toHaveAttribute('tabIndex', '0');
+    it('calls onRefresh when refresh button is clicked', () => {
+      const onRefresh = vi.fn();
+      render(<Header {...defaultProps} onRefresh={onRefresh} />);
+
+      const refreshButton = screen.getByLabelText('Refresh');
+      fireEvent.click(refreshButton);
+
+      expect(onRefresh).toHaveBeenCalledTimes(1);
+    });
+
+    it('shows loading state when isRefreshLoading is true', () => {
+      render(<Header {...defaultProps} isRefreshLoading={true} />);
+
+      const refreshButton = screen.getByLabelText('Refreshing...');
+      expect(refreshButton).toBeDisabled();
+    });
+
+    it('has proper touch target size (44x44px minimum)', () => {
+      render(<Header {...defaultProps} />);
+
+      const refreshButton = screen.getByLabelText('Refresh');
+      expect(refreshButton).toHaveClass('min-w-[44px]', 'min-h-[44px]');
     });
   });
 
-  it('has visible focus indicators on menu items', async () => {
-    render(<Header {...mockProps} />);
+  describe('Styling and Layout', () => {
+    it('has sticky positioning', () => {
+      const { container } = render(<Header />);
 
-    const profileButtons = screen.getAllByLabelText('User profile menu');
-    const profileButton = profileButtons[1]; // Use desktop button
-
-    // Open menu via keyboard to set focusedIndex to 0
-    fireEvent.keyDown(profileButton, { key: 'Enter', code: 'Enter' });
-
-    await waitFor(() => {
-      expect(screen.getByRole('menu')).toBeInTheDocument();
+      const header = container.querySelector('header');
+      expect(header).toHaveClass('sticky', 'top-0');
     });
 
-    const menuItems = screen.getAllByRole('menuitem');
+    it('has proper z-index for stacking', () => {
+      const { container } = render(<Header />);
 
-    // First item should have focus indicator (ring-2 ring-blue-500/50) when focusedIndex is 0
-    expect(menuItems[0]).toHaveClass('ring-2', 'ring-blue-500/50');
-  });
-});
+      const header = container.querySelector('header');
+      expect(header).toHaveClass('z-50');
+    });
 
-describe('Header - Voice Status Label', () => {
-  const mockProps = {
-    activeTab: Tab.STUDIO,
-    setActiveTab: vi.fn(),
-    onOpenSettings: vi.fn(),
-    onOpenAuth: vi.fn(),
-    onOpenInstructions: vi.fn(),
-    isVoiceActive: false,
-    voiceConnectionState: 'disconnected' as const,
-    onToggleVoice: vi.fn(),
-  };
+    it('has backdrop blur effect', () => {
+      const { container } = render(<Header />);
 
-  it('shows "Connecting..." label when state is connecting', () => {
-    render(<Header {...mockProps} voiceConnectionState="connecting" />);
-    expect(screen.getByText('Connecting...')).toBeInTheDocument();
+      const header = container.querySelector('header');
+      expect(header).toHaveClass('backdrop-blur-xl');
+    });
   });
 
-  it('shows "Connected" label when state is connected', () => {
-    render(<Header {...mockProps} voiceConnectionState="connected" />);
-    expect(screen.getByText('Connected')).toBeInTheDocument();
-  });
+  describe('Accessibility', () => {
+    it('uses semantic header element', () => {
+      const { container } = render(<Header />);
 
-  it('shows "Failed" label when state is error', () => {
-    render(<Header {...mockProps} voiceConnectionState="error" />);
-    expect(screen.getByText('Failed')).toBeInTheDocument();
-  });
+      const header = container.querySelector('header');
+      expect(header).toBeInTheDocument();
+    });
 
-  it('shows "Closing..." label when state is disconnecting', () => {
-    render(<Header {...mockProps} voiceConnectionState="disconnecting" />);
-    expect(screen.getByText('Closing...')).toBeInTheDocument();
-  });
+    it('provides accessible labels for buttons', () => {
+      render(<Header {...defaultProps} />);
 
-  it('does not show label when disconnected', () => {
-    render(<Header {...mockProps} voiceConnectionState="disconnected" />);
-    // The text might be in the DOM but hidden/empty depending on implementation.
-    // In Header.tsx: ternary returns '' string if not matched, OR opacity-0 class.
-    // The ternary: voiceConnectionState === 'connecting' ? 'Connecting...' ... : ''
-    // So if disconnected, it renders empty string.
+      expect(screen.getByLabelText('Back to dashboard')).toBeInTheDocument();
+      expect(screen.getByLabelText('Refresh')).toBeInTheDocument();
+    });
 
-    // We can check that none of the status texts are present
-    expect(screen.queryByText('Connecting...')).not.toBeInTheDocument();
-    expect(screen.queryByText('Connected')).not.toBeInTheDocument();
-    expect(screen.queryByText('Failed')).not.toBeInTheDocument();
-    expect(screen.queryByText('Closing...')).not.toBeInTheDocument();
+    it('uses type="button" for all buttons', () => {
+      render(<Header {...defaultProps} />);
+
+      const buttons = screen.getAllByRole('button');
+      buttons.forEach(button => {
+        expect(button).toHaveAttribute('type', 'button');
+      });
+    });
   });
 });

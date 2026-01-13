@@ -65,7 +65,7 @@ export function useCanvasGestures(options: CanvasGestureOptions): CanvasGestureR
   const {
     zoom,
     setZoom,
-    canvasRef,
+    canvasRef: _canvasRef,
     minZoom = 0.5,
     maxZoom = 3.0,
     enabled = true,
@@ -73,6 +73,7 @@ export function useCanvasGestures(options: CanvasGestureOptions): CanvasGestureR
     onPanChange,
     enableHaptics = true,
   } = options;
+  void _canvasRef; // Reserved for future canvas-relative zoom calculations
 
   // Track the zoom at gesture start for relative scaling
   const initialZoomRef = useRef<number>(zoom);
