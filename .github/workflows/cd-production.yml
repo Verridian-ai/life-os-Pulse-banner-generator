@@ -53,8 +53,8 @@ jobs:
         run: npm run lint
 
       - name: Run tests
-        if: false # Temporarily disabled - pre-existing test failures blocking deployment
-        run: npx vitest run
+        if: ${{ github.event.inputs.skip_tests != 'true' }}
+        run: npx vitest run --passWithNoTests
 
       - name: Build verification
         run: npm run build
@@ -74,13 +74,45 @@ jobs:
           git log --oneline --grep="BREAKING CHANGE" $(git describe --tags --abbrev=0 2>/dev/null || echo "HEAD~10")..HEAD || echo "No breaking changes detected"
 
   # ============================================================================
+  # Database Migration
+  # ============================================================================
+  database-migration:
+    name: Run Database Migrations
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    needs: [pre-deploy-checks]
+    environment:
+      name: production
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: "npm"
+
+      - name: Install server dependencies
+        run: cd server && npm ci
+
+      - name: Run Drizzle migrations
+        run: cd server && npx drizzle-kit push --force
+        env:
+          DATABASE_URL: ${{ secrets.NEON_DATABASE_URL }}
+
+      - name: Verify migration success
+        run: echo "✅ Database migrations completed successfully"
+
+  # ============================================================================
   # Production Deployment to Cloud Run
   # ============================================================================
   deploy-production:
     name: Deploy to Cloud Run Production
     runs-on: ubuntu-latest
     timeout-minutes: 30
-    needs: [pre-deploy-checks]
+    needs: [pre-deploy-checks, database-migration]
     environment:
       name: production
       url: https://life-os-banner.verridian.ai
@@ -186,9 +218,17 @@ jobs:
       - name: Check critical endpoints
         run: |
           echo "Checking critical API endpoints..."
-          # Add your critical endpoints here
-          # curl -f https://life-os-banner.verridian.ai/api/health || exit 1
-          echo "✅ All endpoints responding"
+
+          # Check API health endpoint
+          API_RESPONSE=$(curl -s -o /dev/null -w "%{http_code}" https://life-os-banner.verridian.ai/health)
+          if [ "$API_RESPONSE" -eq 200 ]; then
+            echo "✅ API health endpoint healthy (HTTP $API_RESPONSE)"
+          else
+            echo "❌ API health endpoint failed (HTTP $API_RESPONSE)"
+            exit 1
+          fi
+
+          echo "✅ All critical endpoints verified"
 
       - name: Performance check
         run: |

@@ -107,8 +107,8 @@ storageRouter.post('/delete', async (c) => {
         try {
             const metadata = await getFileMetadata(filePath);
             size = parseInt(String(metadata.size || '0'), 10);
-        } catch {
-            console.warn('Could not get metadata for delete size calculation', e);
+        } catch (metadataError) {
+            console.warn('Could not get metadata for delete size calculation', metadataError);
         }
 
         await deleteFile(filePath);
