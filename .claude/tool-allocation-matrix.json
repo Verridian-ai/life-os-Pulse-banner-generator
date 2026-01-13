@@ -1,8 +1,62 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "version": "1.0.0",
-  "description": "MCP Tool Allocation Matrix - Maps tools to skill agents for context isolation",
+  "version": "2.0.0",
+  "description": "MCP Tool Allocation Matrix - Maps tools to skill agents with mandatory delegation enforcement",
   "last_updated": "2026-01-13",
+
+  "mandatory_delegation": {
+    "enabled": true,
+    "description": "The orchestrator MUST delegate ALL tasks to specialized agents via the Task tool",
+    "orchestrator_allowed_actions": [
+      "Classify user request",
+      "Select appropriate agent",
+      "Invoke Task tool with subagent_type",
+      "Present results to user",
+      "Use TodoWrite for planning",
+      "Use AskUserQuestion for clarification"
+    ],
+    "orchestrator_forbidden_actions": [
+      "Execute Read/Write/Edit tools directly",
+      "Execute Grep/Glob tools directly",
+      "Execute Bash commands directly",
+      "Handle any task without delegation"
+    ]
+  },
+
+  "subagent_type_mapping": {
+    "description": "Maps skill names to Task tool subagent_type values",
+    "mappings": {
+      "research-agent": "Research Agent",
+      "quick-tasks-agent": "Quick Tasks Agent",
+      "coding-agent": "Coding Agent",
+      "refactoring-agent": "Refactoring Agent",
+      "debugging-agent": "Debugging Agent",
+      "decision-agent": "Decision Agent",
+      "codebase-organization-agent": "Codebase Organization Agent",
+      "skill-creator-agent": "Skill Creator Agent",
+      "chrome-ui-browser-agent": "Chrome UI Browser Agent",
+      "cognee-memory-agent": "Cognee Memory Agent",
+      "database-agent": "Neon Manager",
+      "neon-manager": "Neon Manager",
+      "workos-config-agent": "WorkOS Config Agent",
+      "cloud-run-manager": "Cloud Run Manager",
+      "gcloud-services": "Google Cloud Services",
+      "depth-ui-engineer": "Depth UI Engineer",
+      "code-standards-auditor": "Code Standards Auditor",
+      "ux-heatmap-analyst": "UX Heatmap Analyst",
+      "security-auditor-agent": "Security Auditor Agent",
+      "security-agent": "Security Auditor Agent",
+      "architecture-analyzer-agent": "Architecture Analyzer Agent",
+      "architecture-agent": "Architecture Analyzer Agent",
+    "test-generator-agent": "Test Generator Agent",
+      "test-agent": "Test Generator Agent",
+      "performance-profiler-agent": "Performance Profiler Agent",
+      "performance-agent": "Performance Profiler Agent",
+      "deep-research-agent": "general-purpose",
+      "web-search-agent": "general-purpose",
+      "openrouter-deep-research-agent": "general-purpose"
+    }
+  },
 
   "tool_categories": {
     "code_search": {
@@ -30,7 +84,7 @@
       "isolation_required": true
     },
     "security": {
-      "tools": ["Semgrep", "OSVScanner"],
+      "tools": ["Semgrep", "OSVScanner", "Bash(audit)"],
       "assigned_skills": ["security-agent"],
       "context_impact": "high",
       "isolation_required": true
@@ -163,6 +217,42 @@
       },
       "rationale": "Full code modification with memory storage, but no destructive operations"
     },
+    "refactoring-agent": {
+      "allowed_tools": [
+        "Read",
+        "Edit",
+        "Write",
+        "Bash(test)",
+        "Bash(git)",
+        "Bash(install)",
+        "TypeScript",
+        "ESLint",
+        "Grep",
+        "Glob",
+        "Serena",
+        "Cognee"
+      ],
+      "forbidden_tools": ["Bash(rm)", "Bash(deploy)"],
+      "context_budget": 60000,
+      "mcp_servers": ["typescript", "eslint", "serena", "cognee"],
+      "cognee_permissions": {
+        "search": true,
+        "add": true,
+        "cognify": true,
+        "dataset": "agent_refactoring"
+      },
+      "ralph_loop": {
+        "enabled": true,
+        "auto_activate_threshold": 10,
+        "max_iterations": 50,
+        "commit_per_iteration": true
+      },
+      "airlock_validation": {
+        "enabled": true,
+        "required_gates": ["TypeScript", "ESLint", "Tests", "Build"]
+      },
+      "rationale": "AST-based refactoring with full code modification, memory for pattern storage, automatic validation, and rollback capability"
+    },
     "debugging-agent": {
       "allowed_tools": [
         "Read",
@@ -267,12 +357,15 @@
       "allowed_tools": [
         "Read",
         "Grep",
+        "Glob",
+        "Bash(audit)",
         "Semgrep",
         "OSVScanner",
         "Cognee"
       ],
-      "forbidden_tools": ["Edit", "Write", "Bash"],
-      "context_budget": 20000,
+      "forbidden_tools": ["Edit", "Write", "Bash(build)", "Bash(deploy)", "Bash(rm)"],
+      "context_budget": 40000,
+      "read_only": true,
       "mcp_servers": ["semgrep", "osv-scanner", "cognee"],
       "cognee_permissions": {
         "search": true,
@@ -280,7 +373,14 @@
         "cognify": true,
         "dataset": "agent_security"
       },
-      "rationale": "Security scanning with memory for vulnerability tracking"
+      "bash_commands_allowed": [
+        "npm audit",
+        "npm audit --json",
+        "grep -r",
+        "find . -name",
+        "git grep"
+      ],
+      "rationale": "READ-ONLY security scanning with memory for vulnerability tracking. Bash limited to read-only audit tools."
     },
     "release-agent": {
       "allowed_tools": [
@@ -392,7 +492,7 @@
       },
       "rationale": "System memory agent with full Cognee access for all datasets"
     },
-    "workos-manager": {
+    "workos-config-agent": {
       "allowed_tools": [
         "Read",
         "Edit",
@@ -400,6 +500,10 @@
         "Bash",
         "WebFetch",
         "Cognee",
+        "workos_search",
+        "workos_docs",
+        "workos_examples",
+        "workos_changelogs",
         "workos_list_users",
         "workos_create_user",
         "workos_update_user",
@@ -419,8 +523,8 @@
         "workos_revoke_session"
       ],
       "forbidden_tools": [],
-      "context_budget": 25000,
-      "mcp_servers": ["workos_manager", "cognee"],
+      "context_budget": 35000,
+      "mcp_servers": ["workos", "cognee"],
       "access_level": "FULL_CONTROL",
       "cognee_permissions": {
         "search": true,
@@ -428,7 +532,7 @@
         "cognify": false,
         "dataset": "nanobanna_global"
       },
-      "rationale": "Full administrative control over WorkOS with global memory access"
+      "rationale": "Unified WorkOS config with MCP docs lookup + full API control"
     },
     "neon-manager": {
       "allowed_tools": [
@@ -604,15 +708,197 @@
         "dataset": "agent_ux_analysis"
       },
       "rationale": "UX analysis with memory for gaze pattern research"
+    },
+    "architecture-analyzer-agent": {
+      "allowed_tools": [
+        "Read",
+        "Grep",
+        "Glob",
+        "Serena",
+        "Cognee"
+      ],
+      "forbidden_tools": ["Edit", "Write", "Bash"],
+      "context_budget": 50000,
+      "read_only": true,
+      "mcp_servers": ["serena", "cognee"],
+      "cognee_permissions": {
+        "search": true,
+        "add": true,
+        "cognify": true,
+        "dataset": "agent_architecture"
+      },
+      "rationale": "READ-ONLY architecture analysis with memory for metrics, dependency graphs, and technical debt tracking. Generates Mermaid diagrams and JSON reports."
+    },
+    "test-generator-agent": {
+      "allowed_tools": [
+        "Read",
+        "Write",
+        "Edit",
+        "Bash(test)",
+        "Bash(coverage)",
+        "Grep",
+        "Glob",
+        "TypeScript",
+        "Vitest",
+        "Playwright",
+        "Cognee"
+      ],
+      "forbidden_tools": ["Bash(deploy)", "Bash(rm)", "NeonManager", "Supabase"],
+      "context_budget": 45000,
+      "mcp_servers": ["typescript", "vitest", "playwright", "cognee"],
+      "cognee_permissions": {
+        "search": true,
+        "add": true,
+        "cognify": true,
+        "dataset": "agent_test_generator"
+      },
+      "bash_commands_allowed": [
+        "npm test",
+        "npm run test",
+        "npm run test:coverage",
+        "npx vitest",
+        "npx vitest run",
+        "npx vitest --coverage",
+        "npx playwright test"
+      ],
+      "rationale": "Test generation with file write permissions for test files. Can run tests and check coverage. Memory for test patterns and edge case tracking."
+    },
+    "performance-profiler-agent": {
+      "allowed_tools": [
+        "Read",
+        "Grep",
+        "Glob",
+        "Bash(analyze)",
+        "Bash(build)",
+        "ChromeDevTools",
+        "Lighthouse",
+        "Cognee"
+      ],
+      "forbidden_tools": ["Edit", "Write", "Bash(deploy)", "Bash(rm)", "NeonManager", "Supabase"],
+      "context_budget": 50000,
+      "read_only": true,
+      "mcp_servers": ["chrome-devtools", "lighthouse", "cognee"],
+      "cognee_permissions": {
+        "search": true,
+        "add": true,
+        "cognify": true,
+        "dataset": "agent_performance"
+      },
+      "bash_commands_allowed": [
+        "npm run build",
+        "npx vite build --analyze",
+        "npx webpack-bundle-analyzer",
+        "du -sh",
+        "ls -lh",
+        "node --prof",
+        "node --cpu-prof",
+        "npx lighthouse"
+      ],
+      "rationale": "READ-ONLY performance analysis with memory for baseline metrics. Can run builds and analyzers but cannot modify code."
+    },
+    "deep-research-agent": {
+      "allowed_tools": [
+        "Read",
+        "Grep",
+        "Glob",
+        "WebSearch",
+        "WebFetch",
+        "Context7",
+        "Serena",
+        "Cognee"
+      ],
+      "forbidden_tools": ["Edit", "Write", "Bash"],
+      "context_budget": 100000,
+      "mcp_servers": ["context7", "perplexity", "serena", "cognee"],
+      "cognee_permissions": {
+        "search": true,
+        "add": true,
+        "cognify": true,
+        "dataset": "agent_research"
+      },
+      "extended_thinking": true,
+      "parallel_subagents": {
+        "enabled": true,
+        "max_concurrent": 5,
+        "effort_scaling": {
+          "simple": { "subagents": 1, "tool_calls": 10 },
+          "comparison": { "subagents": 4, "tool_calls": 15 },
+          "complex": { "subagents": 10, "tool_calls": 20 }
+        }
+      },
+      "rationale": "Multi-agent deep research with parallel execution and comprehensive synthesis"
+    },
+    "web-search-agent": {
+      "allowed_tools": [
+        "Read",
+        "WebSearch",
+        "WebFetch",
+        "Context7"
+      ],
+      "forbidden_tools": ["Edit", "Write", "Bash", "Grep", "Glob"],
+      "context_budget": 30000,
+      "mcp_servers": ["context7", "perplexity"],
+      "cognee_permissions": {
+        "search": true,
+        "add": false,
+        "cognify": false,
+        "dataset": "nanobanna_global"
+      },
+      "tool_selection_priority": [
+        "context7 for documentation/library queries",
+        "perplexity_reason for complex analysis",
+        "WebSearch for current events/general facts",
+        "WebFetch for specific page content"
+      ],
+      "rationale": "Fast, focused internet search and documentation lookup"
+    },
+    "openrouter-deep-research-agent": {
+      "allowed_tools": [
+        "Read",
+        "Grep",
+        "Glob",
+        "Bash",
+        "WebFetch",
+        "Cognee",
+        "Serena"
+      ],
+      "forbidden_tools": ["Edit", "Write", "Bash(build)", "Bash(deploy)"],
+      "context_budget": 50000,
+      "mcp_servers": ["cognee", "serena"],
+      "external_api": {
+        "provider": "openrouter",
+        "endpoint": "https://openrouter.ai/api/v1/chat/completions",
+        "model": "perplexity/sonar-deep-research",
+        "auth_env_var": "OPENROUTER_API_KEY"
+      },
+      "cognee_permissions": {
+        "search": true,
+        "add": true,
+        "cognify": true,
+        "dataset": "agent_research"
+      },
+      "cost_tracking": {
+        "internal_cost_per_1m": 24.0,
+        "external_cost_per_1k_input": 5.0,
+        "external_cost_per_1k_output": 5.0,
+        "estimated_external_cost_per_query": 0.25
+      },
+      "rationale": "Deep research using Perplexity Sonar Deep Research model via OpenRouter for citation-heavy, expert-level investigations"
     }
   },
 
   "routing_rules": {
-    "default_behavior": "delegate_to_skill",
-    "orchestrator_overrides": [
+    "default_behavior": "ALWAYS_delegate_to_skill",
+    "mandatory_delegation": true,
+    "no_direct_execution": true,
+    "orchestrator_allowed_tools": [
       "TodoWrite",
       "AskUserQuestion",
-      "Skill"
+      "Task"
+    ],
+    "orchestrator_forbidden_tools": [
+      "Read", "Write", "Edit", "Grep", "Glob", "Bash",
+      "NeonManager", "Supabase", "ChromeDevTools"
     ],
     "bypass_isolation": [
       "Context7",
@@ -623,7 +909,8 @@
       "Bash(rm)",
       "Bash(deploy)",
       "Supabase(migrate)"
-    ]
+    ],
+    "default_agent_for_unknown_tasks": "Research Agent"
   },
 
   "context_budgets": {

@@ -49,6 +49,245 @@ This agent activates when user requests include:
 
 ---
 
+## NEW Capabilities (Phase 4 Enhancements)
+
+### 1. Cross-Reference Multiple Documentation Sources
+
+**Automatic Multi-Source Search**:
+
+When researching libraries or APIs, automatically search:
+1. **Context7**: Official library documentation
+2. **Cognee Memory**: Past research and implementation notes
+3. **Codebase**: Existing usage patterns in project
+4. **README files**: Project-specific documentation
+
+**Example**:
+```
+User: "How do we handle image uploads?"
+
+[Cross-Reference Search]:
+1. Context7: @uppy/core documentation
+   ✓ Found: File upload patterns, drag-and-drop API
+
+2. Cognee Memory: agent_research dataset
+   ✓ Found: Previous research on image compression (2026-01-05)
+   ✓ Found: Performance benchmarks for Uppy vs native input
+
+3. Codebase: Existing implementations
+   ✓ Found: src/features/profile/hooks/useFileUpload.ts
+   ✓ Found: src/features/profile/components/AvatarUpload.tsx
+
+4. README: Project docs
+   ✓ Found: docs/IMAGE_UPLOAD_GUIDELINES.md
+
+[Synthesized Answer]:
+Current implementation uses @uppy/core with custom useFileUpload hook.
+Existing pattern supports: drag-and-drop, progress tracking, 5MB limit.
+Reuse pattern from profile feature (see: src/features/profile/hooks/useFileUpload.ts)
+```
+
+---
+
+### 2. Implementation Recommendations with Code Examples
+
+**Beyond Search - Provide Actionable Guidance**:
+
+Instead of just finding information, generate implementation recommendations:
+
+**Example**:
+```
+User: "Find authentication implementation"
+
+[Standard Output]:
+Found in: src/context/AuthContext.tsx, src/services/auth.ts
+
+[NEW Enhanced Output]:
+Found in: src/context/AuthContext.tsx, src/services/auth.ts
+
+IMPLEMENTATION PATTERN:
+┌─────────────────────────────────────────────┐
+│ AuthContext (State Management)              │
+│   ↓ provides                                │
+│ useAuth() hook                              │
+│   ↓ calls                                   │
+│ authService (Supabase integration)          │
+│   ↓ returns                                 │
+│ User object + JWT token                     │
+└─────────────────────────────────────────────┘
+
+RECOMMENDED USAGE:
+```typescript
+import { useAuth } from '@/context/AuthContext';
+
+function ProtectedPage() {
+  const { user, signOut } = useAuth();
+
+  if (!user) {
+    return <Redirect to="/login" />;
+  }
+
+  return <Dashboard user={user} />;
+}
+```
+
+RELATED PATTERNS:
+- Protected route wrapper: src/components/ProtectedRoute.tsx
+- Auth state persistence: LocalStorage (key: 'auth.token')
+- Token refresh: Automatic via Supabase client
+```
+
+---
+
+### 3. Research History Tracking for Recurring Questions
+
+**Cognee-Powered Learning System**:
+
+Track all research queries and results. If the same question is asked again:
+1. Return cached result instantly (0 cost)
+2. Check if information is still current
+3. Update with any new findings
+
+**Example**:
+```
+User: "How do we handle errors in API calls?"
+
+[Cognee Check]:
+✓ This question was researched on 2026-01-10 (3 days ago)
+✓ Cached result still valid (no code changes in related files)
+
+[Instant Answer from Memory]:
+Error handling pattern: src/utils/errorHandler.ts
+Uses try-catch with toast notifications
+Retry logic: 3 attempts with exponential backoff
+Logging: Errors sent to Langfuse for observability
+
+[Cost: $0.00 | Time: 0.2s]
+```
+
+**Update Detection**:
+If related files changed since last research, automatically re-research and update cache.
+
+---
+
+### 4. Automatic Context7 + Serena Hybrid Search
+
+**Intelligent Tool Selection**:
+
+Automatically choose the best search strategy:
+
+| Query Type | Primary Tool | Secondary Tool | Example |
+|------------|-------------|----------------|---------|
+| Library API | Context7 | Cognee | "React Query mutations" |
+| Internal code | Serena | Grep | "useAuth implementation" |
+| Patterns | Cognee | Grep | "Error handling patterns" |
+| Mixed | Context7 + Serena | Cognee | "How to integrate Stripe?" |
+
+**Example**:
+```
+User: "How to use React Query for mutations?"
+
+[Hybrid Search Strategy]:
+1. Context7: @tanstack/react-query documentation
+   → Found: useMutation API reference
+
+2. Serena: Search codebase for useMutation examples
+   → Found: 8 usages in project
+
+3. Cognee: Past research on React Query
+   → Found: Best practices from 2025-12-20
+
+[Combined Result]:
+Official API (Context7):
+```typescript
+const mutation = useMutation({
+  mutationFn: (data) => api.post('/users', data),
+  onSuccess: () => queryClient.invalidateQueries(['users'])
+});
+```
+
+Project Pattern (Serena):
+```typescript
+// Most common pattern in this codebase:
+const { mutate, isLoading } = useMutation({
+  mutationFn: createUser,
+  onSuccess: () => {
+    toast.success('User created');
+    queryClient.invalidateQueries(['users']);
+  },
+  onError: (error) => handleApiError(error)
+});
+```
+
+Recommendation: Follow project pattern (includes toast + error handling)
+```
+
+---
+
+### 5. Output Format Options
+
+**Structured Summaries**:
+```markdown
+## Research Summary: Authentication System
+
+### Overview
+Supabase-based authentication with JWT tokens
+
+### Key Components
+1. AuthContext (src/context/AuthContext.tsx)
+   - Purpose: Global auth state
+   - Exports: useAuth hook, AuthProvider
+2. Auth Service (src/services/auth.ts)
+   - Purpose: Supabase integration
+   - Methods: signIn, signUp, signOut, resetPassword
+
+### Usage Pattern
+[Code example]
+
+### Related Files
+- Protected routes: src/components/ProtectedRoute.tsx
+- Auth modal: src/components/auth/AuthModal.tsx
+```
+
+**Comparison Tables**:
+```markdown
+## Comparison: Image Upload Libraries
+
+| Feature | Uppy | react-dropzone | native <input> |
+|---------|------|----------------|----------------|
+| Drag-drop | ✅ Built-in | ✅ Built-in | ❌ Manual |
+| Progress | ✅ Built-in | ❌ Manual | ❌ Manual |
+| Bundle size | 120KB | 25KB | 0KB |
+| Current usage | ✅ Profile page | ❌ Not used | ✅ Forms |
+| Recommendation | ✅ Use for complex | ⚠️ Consider for simple | ❌ Avoid |
+
+**Verdict**: Use Uppy (already in bundle, consistent with profile feature)
+```
+
+**Decision Matrices**:
+```markdown
+## Decision: Migrate to Zustand vs Keep React Context?
+
+### Evaluation Criteria (Weighted)
+
+| Criterion | Weight | Context Score | Zustand Score |
+|-----------|--------|---------------|---------------|
+| Learning curve | 20% | 9/10 | 7/10 |
+| Bundle size | 15% | 10/10 | 8/10 |
+| DevTools | 15% | 6/10 | 9/10 |
+| Migration effort | 25% | 10/10 | 4/10 |
+| Team familiarity | 25% | 9/10 | 5/10 |
+
+### Weighted Score
+- React Context: **8.75/10**
+- Zustand: **6.35/10**
+
+### Recommendation: STAY with React Context
+**Reason**: Migration cost too high (25% weight), team already proficient
+**Alternative**: Consider Zustand for NEW state (not migration)
+```
+
+---
+
 ## Model Configuration
 
 ```json
@@ -121,9 +360,21 @@ Most frequent usage: GenerativeSidebar.tsx (7 calls)
 - ✅ Read (file reading)
 - ✅ Serena (semantic code navigation)
 - ✅ Context7 (documentation lookup)
+- ✅ WebSearch (internet research)
+- ✅ WebFetch (fetch specific web content)
+- ✅ Cognee (memory storage and retrieval)
 - ❌ Write (read-only agent)
 - ❌ Edit (read-only agent)
 - ❌ Bash (read-only agent)
+
+**Cognee Integration**:
+- Dataset: `agent_research`
+- Permissions: `search: true, add: true, cognify: true`
+- Usage:
+  - Store research findings for future reference
+  - Detect recurring questions (cache answers)
+  - Track research history
+  - Build knowledge graph of codebase patterns
 
 ---
 

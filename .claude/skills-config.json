@@ -1,147 +1,419 @@
 {
-  "version": "1.0.0",
+  "version": "2.0.0",
   "last_updated": "2026-01-13",
+  "description": "Skills configuration with Task tool subagent_type mappings",
   "orchestrator": {
     "enabled": true,
     "auto_delegate": true,
+    "mandatory_delegation": true,
+    "direct_execution_forbidden": true,
     "ask_approval_for_opus": true,
-    "cost_threshold_for_approval": 1.0
+    "cost_threshold_for_approval": 1.0,
+    "ralph_loop": {
+      "enabled": true,
+      "default_max_iterations": 50,
+      "auto_delegate_subtasks": true,
+      "persist_progress": true,
+      "airlock_validation": {
+        "enabled": true,
+        "gates": [
+          {
+            "name": "TypeScript",
+            "command": "npx tsc --noEmit",
+            "required": true
+          },
+          {
+            "name": "ESLint",
+            "command": "npx eslint .",
+            "required": true
+          },
+          {
+            "name": "Tests",
+            "command": "npm test",
+            "required": false
+          },
+          {
+            "name": "Build",
+            "command": "npm run build",
+            "required": true
+          }
+        ],
+        "on_failure": "retry_in_agent_context",
+        "max_retries": 3
+      },
+      "state_file": ".claude/ralph-loop.local.md",
+      "commit_after_iteration": true,
+      "conventional_commits": true,
+      "cost_tracking": {
+        "enabled": true,
+        "warn_at_cost_usd": 25.0,
+        "stop_at_cost_usd": 100.0
+      }
+    }
   },
   "agent_skills": {
-    "research-agent": {
+    "Research Agent": {
       "enabled": true,
+      "subagent_type": "Research Agent",
       "model": "haiku",
       "cost_per_1m_tokens": 0.80,
       "token_budget": 100000,
       "cost_threshold": 0.05,
-      "auto_activate_on": ["how does", "where is", "find all", "search for"]
+      "auto_activate_on": [
+        "how does", "where is", "find all", "search for", "what files",
+        "list", "check", "show me", "explain", "understand", "explore",
+        "look for", "locate", "which files", "what is", "describe"
+      ]
     },
-    "quick-tasks-agent": {
+    "Quick Tasks Agent": {
       "enabled": true,
+      "subagent_type": "Quick Tasks Agent",
       "model": "haiku",
       "cost_per_1m_tokens": 0.80,
       "token_budget": 10000,
       "cost_threshold": 0.01,
-      "auto_activate_on": ["fix type", "sort imports", "format", "add comment"]
+      "auto_activate_on": [
+        "fix type", "sort imports", "format", "add comment", "rename",
+        "typo", "simple fix", "quick fix", "small change", "minor update",
+        "lint", "prettier", "eslint"
+      ]
     },
-    "coding-agent": {
+    "Coding Agent": {
       "enabled": true,
+      "subagent_type": "Coding Agent",
       "model": "sonnet",
       "cost_per_1m_tokens": 24.0,
       "token_budget": 50000,
       "cost_threshold": 1.20,
-      "auto_activate_on": ["implement", "add", "create", "refactor", "build"]
+      "auto_activate_on": [
+        "implement", "add feature", "create", "build",
+        "modify", "change", "update", "write code", "new component",
+        "add functionality", "develop", "code"
+      ]
     },
-    "debugging-agent": {
+    "Refactoring Agent": {
       "enabled": true,
+      "subagent_type": "Refactoring Agent",
+      "model": "sonnet",
+      "cost_per_1m_tokens": 24.0,
+      "token_budget": 60000,
+      "cost_threshold": 1.44,
+      "auto_activate_on": [
+        "refactor", "modernize", "migrate pattern", "convert to",
+        "upgrade syntax", "apply codemod", "transform code",
+        "rename across", "extract component", "extract function",
+        "inline function", "strict mode", "eliminate dead code",
+        "update imports", "class to hooks", "callback to async"
+      ]
+    },
+    "Debugging Agent": {
+      "enabled": true,
+      "subagent_type": "Debugging Agent",
       "model": "sonnet",
       "cost_per_1m_tokens": 24.0,
       "token_budget": 30000,
       "cost_threshold": 0.72,
-      "auto_activate_on": ["debug", "error", "bug", "not working", "failing"]
+      "auto_activate_on": [
+        "debug", "error", "bug", "not working", "failing", "broken",
+        "crash", "exception", "issue", "problem", "investigate", "diagnose",
+        "root cause", "performance issue", "memory leak"
+      ]
     },
-    "decision-agent": {
+    "Decision Agent": {
       "enabled": true,
+      "subagent_type": "Decision Agent",
       "model": "opus",
       "cost_per_1m_tokens": 120.0,
       "token_budget": 20000,
       "cost_threshold": 2.40,
       "require_approval": true,
-      "auto_activate_on": ["should we", "migrate to", "architecture", "vs", "compare"]
+      "auto_activate_on": [
+        "should we", "migrate to", "architecture", "vs", "compare",
+        "which is better", "recommend", "trade-off", "decision", "choose between",
+        "evaluate options", "pros and cons"
+      ]
     },
-    "codebase-organization-agent": {
+    "Codebase Organization Agent": {
       "enabled": true,
+      "subagent_type": "Codebase Organization Agent",
       "model": "haiku",
       "cost_per_1m_tokens": 0.80,
       "token_budget": 15000,
       "cost_threshold": 0.012,
-      "auto_activate_on": ["organize imports", "clean up", "fix structure", "dead code"]
+      "auto_activate_on": [
+        "organize imports", "clean up", "fix structure", "dead code",
+        "unused imports", "sort imports", "file structure", "cleanup"
+      ]
     },
-    "skill-creator-agent": {
+    "Skill Creator Agent": {
       "enabled": true,
+      "subagent_type": "Skill Creator Agent",
       "model": "opus",
       "cost_per_1m_tokens": 120.0,
       "token_budget": 30000,
       "cost_threshold": 3.60,
       "require_approval": true,
-      "auto_activate_on": ["create skill", "new capability", "gap detected"]
+      "auto_activate_on": [
+        "create skill", "new capability", "gap detected", "missing skill",
+        "add agent", "new agent"
+      ]
     },
-    "chrome-ui-browser-agent": {
+    "Chrome UI Browser Agent": {
       "enabled": true,
+      "subagent_type": "Chrome UI Browser Agent",
       "model": "haiku",
       "cost_per_1m_tokens": 0.80,
       "token_budget": 25000,
       "cost_threshold": 0.020,
-      "auto_activate_on": ["check ui", "verify design", "test page", "screenshot", "browse to", "visual check", "performance test", "accessibility check"]
+      "auto_activate_on": [
+        "check ui", "verify design", "test page", "screenshot", "browse to",
+        "visual check", "performance test", "accessibility check", "take screenshot",
+        "visual verification", "ui test"
+      ]
     },
-    "cognee-memory-agent": {
+    "Cognee Memory Agent": {
       "enabled": true,
+      "subagent_type": "Cognee Memory Agent",
       "model": "haiku",
       "cost_per_1m_tokens": 0.80,
       "token_budget": 20000,
       "cost_threshold": 0.016,
-      "auto_activate_on": ["search memory", "load context", "store learning", "what do we know", "find similar"],
+      "auto_activate_on": [
+        "search memory", "load context", "store learning", "what do we know",
+        "find similar", "remember", "recall", "knowledge graph"
+      ],
       "pre_task_activation": true
     },
-    "workos-manager": {
+    "WorkOS Config Agent": {
       "enabled": true,
-      "model": "sonnet",
-      "cost_per_1m_tokens": 24.0,
-      "token_budget": 25000,
-      "cost_threshold": 0.60,
-      "access_level": "FULL_CONTROL",
-      "auto_activate_on": ["workos", "sso", "oauth", "scim", "directory sync", "authentication config", "user management workos", "organization workos", "email template"]
-    },
-    "neon-manager": {
-      "enabled": true,
-      "model": "sonnet",
-      "cost_per_1m_tokens": 24.0,
-      "token_budget": 30000,
-      "cost_threshold": 0.72,
-      "access_level": "FULL_CONTROL",
-      "auto_activate_on": ["neon", "database", "postgresql", "postgres", "sql query", "migration", "schema", "create table", "branch database"]
-    },
-    "cloud-run-manager": {
-      "enabled": true,
-      "model": "sonnet",
-      "cost_per_1m_tokens": 24.0,
-      "token_budget": 30000,
-      "cost_threshold": 0.72,
-      "access_level": "FULL_CONTROL",
-      "auto_activate_on": ["cloud run", "deploy to gcp", "gcp deployment", "cloudrun", "revision", "traffic split", "rollback deployment"]
-    },
-    "gcloud-services": {
-      "enabled": true,
+      "subagent_type": "WorkOS Config Agent",
       "model": "sonnet",
       "cost_per_1m_tokens": 24.0,
       "token_budget": 35000,
       "cost_threshold": 0.84,
       "access_level": "FULL_CONTROL",
-      "auto_activate_on": ["gcloud", "google cloud", "gcp", "iam", "cloud storage", "pubsub", "bigquery", "firestore", "cloud function", "vertex ai", "secret manager", "cloud scheduler", "service account"]
+      "auto_activate_on": [
+        "workos", "configure workos", "sso setup", "oauth setup",
+        "scim", "directory sync", "workos users", "workos org",
+        "email template workos", "single sign-on", "magic link setup",
+        "sso", "oauth", "authentication config", "user management workos"
+      ],
+      "mcp_tools": [
+        "workos_search", "workos_docs", "workos_examples", "workos_changelogs"
+      ]
     },
-    "depth-ui-engineer": {
+    "Neon Manager": {
       "enabled": true,
+      "subagent_type": "Neon Manager",
+      "model": "sonnet",
+      "cost_per_1m_tokens": 24.0,
+      "token_budget": 30000,
+      "cost_threshold": 0.72,
+      "access_level": "FULL_CONTROL",
+      "auto_activate_on": [
+        "neon", "database", "postgresql", "postgres", "sql query",
+        "migration", "schema", "create table", "branch database", "db"
+      ]
+    },
+    "Cloud Run Manager": {
+      "enabled": true,
+      "subagent_type": "Cloud Run Manager",
+      "model": "sonnet",
+      "cost_per_1m_tokens": 24.0,
+      "token_budget": 30000,
+      "cost_threshold": 0.72,
+      "access_level": "FULL_CONTROL",
+      "auto_activate_on": [
+        "cloud run", "deploy to gcp", "gcp deployment", "cloudrun",
+        "revision", "traffic split", "rollback deployment", "deploy service"
+      ]
+    },
+    "Google Cloud Services": {
+      "enabled": true,
+      "subagent_type": "Google Cloud Services",
+      "model": "sonnet",
+      "cost_per_1m_tokens": 24.0,
+      "token_budget": 35000,
+      "cost_threshold": 0.84,
+      "access_level": "FULL_CONTROL",
+      "auto_activate_on": [
+        "gcloud", "google cloud", "gcp", "iam", "cloud storage",
+        "pubsub", "bigquery", "firestore", "cloud function", "vertex ai",
+        "secret manager", "cloud scheduler", "service account"
+      ]
+    },
+    "Depth UI Engineer": {
+      "enabled": true,
+      "subagent_type": "Depth UI Engineer",
       "model": "sonnet",
       "cost_per_1m_tokens": 24.0,
       "token_budget": 40000,
       "cost_threshold": 0.96,
-      "auto_activate_on": ["glass effect", "neumorphic", "depth ui", "premium motion", "gold accent", "glassmorphism", "luxury ui", "life os design", "anti-slop", "banned color"]
+      "auto_activate_on": [
+        "glass effect", "neumorphic", "depth ui", "premium motion",
+        "gold accent", "glassmorphism", "luxury ui", "life os design",
+        "anti-slop", "banned color", "blur effect", "shadow", "premium ui"
+      ]
     },
-    "code-standards-auditor": {
+    "Code Standards Auditor": {
       "enabled": true,
+      "subagent_type": "Code Standards Auditor",
       "model": "haiku",
       "cost_per_1m_tokens": 0.80,
       "token_budget": 25000,
       "cost_threshold": 0.020,
-      "auto_activate_on": ["audit code", "check standards", "review compliance", "anti-slop violations", "import order", "code review", "standards check"]
+      "auto_activate_on": [
+        "audit code", "check standards", "review compliance", "anti-slop violations",
+        "import order", "code review", "standards check", "quality audit"
+      ]
     },
-    "ux-heatmap-analyst": {
+    "UX Heatmap Analyst": {
       "enabled": true,
+      "subagent_type": "UX Heatmap Analyst",
       "model": "haiku",
       "cost_per_1m_tokens": 0.80,
       "token_budget": 20000,
       "cost_threshold": 0.016,
-      "auto_activate_on": ["analyze layout", "visual hierarchy", "engagement flow", "gaze pattern", "heatmap", "scroll depth", "conversion optimization", "ux analysis"]
+      "auto_activate_on": [
+        "analyze layout", "visual hierarchy", "engagement flow", "gaze pattern",
+        "heatmap", "scroll depth", "conversion optimization", "ux analysis"
+      ]
+    },
+    "Security Auditor Agent": {
+      "enabled": true,
+      "subagent_type": "Security Auditor Agent",
+      "model": "sonnet",
+      "cost_per_1m_tokens": 24.0,
+      "token_budget": 40000,
+      "cost_threshold": 0.96,
+      "read_only": true,
+      "auto_activate_on": [
+        "security audit", "vulnerability scan", "OWASP check", "secrets scan",
+        "dependency vulnerabilities", "RLS audit", "injection risks",
+        "auth security review", "API security", "penetration test",
+        "check for security issues", "find vulnerabilities", "security review",
+        "scan for secrets", "check for XSS", "SQL injection", "CSRF check"
+      ]
+    },
+    "Architecture Analyzer Agent": {
+      "enabled": true,
+      "subagent_type": "Architecture Analyzer Agent",
+      "model": "sonnet",
+      "cost_per_1m_tokens": 24.0,
+      "token_budget": 50000,
+      "cost_threshold": 1.20,
+      "read_only": true,
+      "auto_activate_on": [
+        "analyze architecture", "dependency graph", "coupling analysis",
+        "circular dependencies", "module boundaries", "layering violations",
+        "architecture health", "technical debt", "hotspot analysis",
+        "complexity metrics", "code quality metrics", "dependency tree",
+        "import graph", "afferent coupling", "efferent coupling",
+        "instability index", "abstractness", "cyclomatic complexity",
+        "cognitive complexity", "architecture score", "zone of pain"
+      ]
+    },
+    "Test Generator Agent": {
+      "enabled": true,
+      "subagent_type": "Test Generator Agent",
+      "model": "sonnet",
+      "cost_per_1m_tokens": 24.0,
+      "token_budget": 45000,
+      "cost_threshold": 1.08,
+      "auto_activate_on": [
+        "generate tests", "add test coverage", "write tests for", "missing tests",
+        "increase coverage", "unit tests", "integration tests", "e2e tests",
+        "test this component", "add test cases", "create tests", "test coverage",
+        "write unit test", "write integration test", "test the", "add tests"
+      ]
+    },
+    "Performance Profiler Agent": {
+      "enabled": true,
+      "subagent_type": "Performance Profiler Agent",
+      "model": "sonnet",
+      "cost_per_1m_tokens": 24.0,
+      "token_budget": 50000,
+      "cost_threshold": 1.20,
+      "read_only": true,
+      "auto_activate_on": [
+        "performance", "slow", "bundle size", "optimize", "memory leak",
+        "lighthouse", "core web vitals", "LCP", "FCP", "CLS", "TTI",
+        "webpack bundle", "chunk size", "tree shaking", "code splitting",
+        "runtime performance", "cpu profile", "flamegraph", "hot path",
+        "performance audit", "speed up", "improve performance", "bottleneck"
+      ]
+    },
+    "Deep Research Agent": {
+      "enabled": true,
+      "subagent_type": "general-purpose",
+      "model": "sonnet",
+      "cost_per_1m_tokens": 24.0,
+      "token_budget": 100000,
+      "cost_threshold": 2.40,
+      "extended_thinking": true,
+      "parallel_subagents": true,
+      "auto_activate_on": [
+        "research thoroughly", "investigate deeply", "deep research",
+        "comprehensive analysis", "compare in detail", "evaluate options",
+        "technology evaluation", "best practices research", "survey",
+        "multi-source research", "literature review", "fact verification"
+      ],
+      "tools": [
+        "WebSearch", "WebFetch", "Context7", "Grep", "Glob", "Read",
+        "Perplexity", "Serena", "Cognee"
+      ],
+      "output_format": "comprehensive_report_with_citations"
+    },
+    "Web Search Agent": {
+      "enabled": true,
+      "subagent_type": "general-purpose",
+      "model": "haiku",
+      "cost_per_1m_tokens": 0.80,
+      "token_budget": 30000,
+      "cost_threshold": 0.024,
+      "auto_activate_on": [
+        "search online", "look up", "find online", "web search",
+        "latest version", "current news", "documentation for",
+        "how to fix error", "search the web", "google", "lookup",
+        "what's new in", "release notes", "changelog"
+      ],
+      "tools": [
+        "WebSearch", "WebFetch", "Context7", "Perplexity"
+      ],
+      "output_format": "search_results_with_sources"
+    },
+    "OpenRouter Deep Research Agent": {
+      "enabled": true,
+      "subagent_type": "general-purpose",
+      "model": "sonnet",
+      "cost_per_1m_tokens": 24.0,
+      "token_budget": 50000,
+      "cost_threshold": 1.20,
+      "external_api": {
+        "provider": "openrouter",
+        "model": "perplexity/sonar-deep-research",
+        "cost_per_1k_tokens_input": 5.0,
+        "cost_per_1k_tokens_output": 5.0,
+        "avg_cost_per_query": 0.25,
+        "requires_api_key": "OPENROUTER_API_KEY"
+      },
+      "auto_activate_on": [
+        "openrouter research", "perplexity research", "deep research",
+        "research thoroughly", "investigate", "comprehensive analysis",
+        "research with citations", "fact-check", "verify claims",
+        "compare in detail", "evaluate options", "best practices for",
+        "state of the art", "latest information on", "current status of"
+      ],
+      "tools": [
+        "Read", "Grep", "Glob", "Bash", "WebFetch", "Cognee", "Serena"
+      ],
+      "output_format": "comprehensive_report_with_citations",
+      "features": {
+        "automatic_citations": true,
+        "real_time_information": true,
+        "expert_level_synthesis": true,
+        "multi_source_verification": true
+      }
     }
   },
   "infrastructure_skills": {
@@ -154,10 +426,11 @@
       "enabled": true,
       "description": "Semantic code intelligence"
     },
-    "workos_manager": {
+    "workos-config-agent": {
       "enabled": true,
       "access_level": "FULL_CONTROL",
-      "description": "Full control over WorkOS - OAuth, SSO, SCIM, users, organizations, domains, email templates"
+      "mcp_server": "workos",
+      "description": "Unified WorkOS config agent with MCP docs lookup + API control for OAuth, SSO, SCIM, users, domains, email templates"
     },
     "cloud_run_manager": {
       "enabled": true,

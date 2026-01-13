@@ -141,6 +141,169 @@ export function calculateCredits(usage: number): number {
 
 ---
 
+### 6. Vertical Slice Migration Assistant (NEW)
+
+**Purpose**: Automated migration of legacy code to vertical slice architecture
+
+**Capabilities**:
+- Detect misplaced files in legacy folders (`src/components/`, `src/hooks/`, `src/utils/`)
+- Analyze dependencies and suggest target feature folder
+- Generate migration plan with impact analysis
+- Execute migrations with automatic import updates across codebase
+
+**Workflow**:
+```typescript
+// 1. Detection
+Found misplaced files:
+  - src/components/CreditDisplay.tsx (references: 5 files)
+  - src/hooks/useCredits.ts (references: 3 files)
+
+// 2. Analysis
+Suggested migration:
+  Target: src/features/billing/
+  Files to create:
+    - components/CreditDisplay.tsx
+    - hooks/useCredits.ts
+    - index.ts (barrel export)
+  Import updates needed: 5 files
+
+// 3. Execution
+✓ Created feature structure
+✓ Moved files
+✓ Updated imports in 5 files
+✓ Validated build passes
+```
+
+---
+
+### 7. Automated Barrel File Generation (NEW)
+
+**Purpose**: Auto-generate `index.ts` barrel exports for all features
+
+**Rules**:
+- Create barrel file if missing from feature folder
+- Export all public components, hooks, types
+- Exclude test files and internal utilities
+- Use named exports only (no default exports)
+
+**Example**:
+```typescript
+// Generated: src/features/canvas-editor/index.ts
+export { CanvasEditor } from './components/CanvasEditor';
+export { LayerPanel } from './components/LayerPanel';
+export { useCanvasState } from './hooks/useCanvasState';
+export type { CanvasLayer, CanvasConfig } from './types';
+```
+
+---
+
+### 8. Feature Flag Cleanup (NEW)
+
+**Purpose**: Detect and remove expired feature flags
+
+**Detection**:
+- Scan for feature flag usage patterns (`if (flags.newFeature)`)
+- Check expiration dates in comments or config
+- Identify flags enabled in all environments (always true)
+
+**Actions**:
+```typescript
+// BEFORE
+if (featureFlags.newCheckout) {
+  return <NewCheckout />;
+} else {
+  return <OldCheckout />;
+}
+
+// AFTER (if flag expired and enabled)
+return <NewCheckout />;
+
+// Cleanup report:
+✓ Removed expired flag: newCheckout (enabled since 2025-12-01)
+✓ Deleted dead code path: OldCheckout component
+```
+
+---
+
+### 9. Stale Branch Detection (NEW)
+
+**Purpose**: Identify and report stale git branches
+
+**Detection Criteria**:
+- No commits in 30+ days
+- Already merged to main
+- Not protected (main, develop, staging)
+- No open PRs
+
+**Report Format**:
+```bash
+Stale branches detected:
+  1. feature/old-experiment (merged, 45 days old)
+  2. fix/temp-workaround (merged, 60 days old)
+  3. task/T001-abandoned (unmerged, 90 days old)
+
+Recommendation: Delete branches 1-2 (safe, already merged)
+Warning: Branch 3 has unmerged commits - review before deletion
+```
+
+---
+
+### 10. License Header Enforcement (NEW)
+
+**Purpose**: Ensure all source files have consistent license headers
+
+**Configuration**:
+```typescript
+// .claude/skills/codebase-organization-agent/license-header.txt
+/**
+ * Copyright (c) 2026 Nanobanna Pro
+ * Licensed under MIT
+ */
+```
+
+**Enforcement**:
+- Scan all `.ts`, `.tsx`, `.js`, `.jsx` files
+- Add missing headers
+- Update outdated copyright years
+- Skip third-party/vendor files
+
+---
+
+### 11. TODO/FIXME Tracking (NEW)
+
+**Purpose**: Aggregate and report on code TODOs and FIXMEs
+
+**Scan Patterns**:
+```typescript
+// TODO: Refactor this to use new API
+// FIXME: Memory leak when unmounting
+// HACK: Temporary workaround for Safari bug
+// XXX: This breaks in production
+```
+
+**Report Output**:
+```markdown
+## TODO/FIXME Report (2026-01-13)
+
+### Critical (FIXME/XXX): 3
+1. src/services/llm.ts:45 - FIXME: Memory leak when unmounting
+2. src/components/Canvas.tsx:123 - XXX: This breaks in production
+3. server/src/routes/auth.ts:67 - FIXME: Race condition possible
+
+### Medium (TODO): 12
+1. src/features/billing/hooks/useCredits.ts:23 - TODO: Add error retry logic
+...
+
+### Low (HACK): 2
+1. src/utils/browser.ts:12 - HACK: Safari-specific workaround
+...
+
+Total markers: 17
+Oldest: 90 days (src/services/llm.ts:45)
+```
+
+---
+
 ## Tools Available
 
 | Tool | Purpose | Usage |
@@ -151,8 +314,14 @@ export function calculateCredits(usage: number): number {
 | **Edit** | Fix violations | Reorder imports, rename files |
 | **Serena** | Semantic code analysis | Find unused functions, dependency graphs |
 | **ESLint MCP** | Linting enforcement | Validate naming conventions, code style |
+| **Cognee** | Pattern and violation tracking | Store organizational patterns, recall previous fixes |
 
 **Forbidden Tools**: `Write`, `Bash` (organization only, no new files or command execution)
+
+**Cognee Integration**:
+- Dataset: `nanobanna_global` (read-only)
+- Permissions: `search: true, add: false, cognify: false`
+- Usage: Recall common violation patterns and successful fix strategies
 
 ---
 
@@ -207,6 +376,33 @@ export function calculateCredits(usage: number): number {
 # User-triggered via command
 claude-skill --skill codebase-organization-agent --mode on-demand --target src/features/canvas-editor/
 ```
+
+---
+
+### Mode 4: PR Creation (NEW - Weekly Incremental)
+
+```bash
+# Runs weekly to create organization PR
+# Performs incremental improvements without breaking changes
+0 2 * * 1 claude-skill --skill codebase-organization-agent --mode pr-incremental
+```
+
+**PR Creation Workflow**:
+1. Create worktree: `org/weekly-cleanup-{date}`
+2. Run incremental organization (safe changes only):
+   - Import organization
+   - Barrel file generation
+   - Documentation additions
+   - License header updates
+3. Run tests to validate no breakage
+4. Create PR with detailed summary
+5. Tag reviewer
+
+**Safety Guarantees**:
+- No file moves (only organizational changes)
+- No dead code removal (requires manual review)
+- Tests must pass before PR creation
+- Automatic rollback if validation fails
 
 ---
 

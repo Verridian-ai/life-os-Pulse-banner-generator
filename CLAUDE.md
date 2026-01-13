@@ -6,7 +6,76 @@
 
 **Last Updated**: 2026-01-13
 **Architecture**: Advanced Skills System with MCP Tool Isolation
-**Version**: 2.0.0
+**Version**: 2.1.0
+
+---
+
+## ⚠️ MANDATORY: AUTOMATIC SKILL DELEGATION
+
+**THIS SECTION OVERRIDES ALL OTHER INSTRUCTIONS**
+
+The orchestrator (main Claude session) MUST automatically delegate ALL user requests to specialized agents using the **Task tool**. NO EXCEPTIONS.
+
+### Required Behavior
+
+1. **ALWAYS use the Task tool** to delegate tasks with the correct `subagent_type`
+2. **NEVER execute tools directly** (Read, Write, Edit, Grep, Glob, Bash are FORBIDDEN for orchestrator)
+3. **ALWAYS classify** the user request and select the appropriate agent
+4. **ALWAYS present** the agent's results to the user after delegation
+
+### Quick Reference: Task Tool Usage
+
+```
+User: "Find all authentication files"
+→ Task(subagent_type: "Research Agent", prompt: "Find all authentication files")
+
+User: "Fix the TypeScript errors"
+→ Task(subagent_type: "Quick Tasks Agent", prompt: "Fix the TypeScript errors")
+
+User: "Add a new feature"
+→ Task(subagent_type: "Coding Agent", prompt: "Add a new feature...")
+
+User: "Debug this error"
+→ Task(subagent_type: "Debugging Agent", prompt: "Debug this error...")
+
+User: "Should we migrate to X?"
+→ Task(subagent_type: "Decision Agent", prompt: "Should we migrate...") [Requires approval]
+```
+
+### Routing Table (Use These Exact subagent_type Values)
+
+| User Request Pattern | subagent_type | Model |
+|---------------------|---------------|-------|
+| "find", "search", "where", "how does", "list" | `Research Agent` | haiku |
+| "fix type", "sort imports", "format", "rename" | `Quick Tasks Agent` | haiku |
+| "implement", "add", "create", "build", "modify" | `Coding Agent` | sonnet |
+| "refactor", "modernize", "migrate pattern" | `Refactoring Agent` | sonnet |
+| "error", "bug", "not working", "debug" | `Debugging Agent` | sonnet |
+| "should we", "compare", "vs", "architecture" | `Decision Agent` | opus |
+| "database", "sql", "migration", "schema" | `Neon Manager` | sonnet |
+| "glass", "neumorphic", "premium ui" | `Depth UI Engineer` | sonnet |
+| "audit", "standards", "compliance" | `Code Standards Auditor` | haiku |
+| "security audit", "vulnerability scan", "secrets scan" | `Security Auditor Agent` | sonnet |
+| "architecture", "dependency graph", "coupling" | `Architecture Analyzer Agent` | sonnet |
+| "performance", "slow", "bundle size" | `Performance Profiler Agent` | sonnet |
+| "generate tests", "coverage", "write tests" | `Test Generator Agent` | sonnet |
+| "organize", "cleanup", "dead code" | `Codebase Organization Agent` | haiku |
+| **"research thoroughly", "deep research", "comprehensive analysis"** | `general-purpose` (Deep Research) | sonnet |
+| **"search online", "look up", "latest version", "documentation for"** | `general-purpose` (Web Search) | haiku |
+| **"openrouter research", "perplexity research", "research with citations"** | `general-purpose` (OpenRouter Deep Research) | sonnet + API |
+| **"/ralph-loop TASK", "autonomous iteration", "long-running task"** | Ralph Loop (autonomous) | varies by subtask |
+
+### Internet Research Agents
+
+| Agent | Purpose | Model | Tools | Cost/Query |
+|-------|---------|-------|-------|------------|
+| **Web Search Agent** | Quick online lookups, docs, current info | haiku | WebSearch, WebFetch, Context7 | $0.01 |
+| **Deep Research Agent** | Comprehensive multi-source investigation | sonnet | WebSearch, WebFetch, Context7, Grep, Cognee | $0.90-$2.40 |
+| **OpenRouter Deep Research Agent** | Citation-heavy research via Perplexity Sonar Deep Research | sonnet + external API | Bash, Read, Grep, Glob, WebFetch, Cognee | $0.25 |
+
+**NEW**: OpenRouter Deep Research Agent uses Perplexity's specialized research model for automatic citations, expert-level synthesis, and real-time information.
+
+**DEFAULT**: If no pattern matches, delegate to `Research Agent` to understand the request.
 
 ---
 
@@ -79,6 +148,7 @@ Full details: `.claude/rules/shared_contract.md`
 | **Research Agent** | Haiku | $0.80 | Code exploration, docs | 20,000 | Grep, Glob, Read, Serena, Context7 |
 | **Quick Tasks Agent** | Haiku | $0.80 | Type fixes, imports, formatting | 10,000 | Read, Edit, ESLint, TypeScript |
 | **Coding Agent** | Sonnet | $24 | Feature implementation | 50,000 | Read, Edit, Write, TypeScript |
+| **Refactoring Agent** | Sonnet | $24 | AST-based refactoring | 60,000 | Read, Edit, Write, Bash(test), AST |
 | **Chrome UI Browser** | Haiku | $0.80 | **Visual verification (HIGH FREQ)** | 25,000 | ChromeDevTools, Read, Grep |
 | **Debugging Agent** | Sonnet | $24 | Error investigation | 30,000 | Read, Bash(debug), Grep |
 | **Decision Agent** | Opus | $120 | Architecture decisions | 20,000 | Read, Grep, Serena, WebSearch |
@@ -86,7 +156,10 @@ Full details: `.claude/rules/shared_contract.md`
 | **Skill Creator Agent** | Opus | $120 | Auto-generate missing skills | 30,000 | Read, Write, Grep, Glob |
 | **Database Agent** | Sonnet | $24 | PostgreSQL operations | 25,000 | NeonManager, Supabase, Postgres |
 | **QA Agent** | Sonnet | $24 | Testing automation | 40,000 | Bash(test), Vitest, Playwright |
-| **Security Agent** | Sonnet | $24 | Security scanning | 20,000 | Semgrep, OSVScanner |
+| **Security Auditor Agent** | Sonnet | $24 | Security scanning (READ-ONLY) | 40,000 | Read, Grep, Semgrep, OSVScanner |
+| **Architecture Analyzer Agent** | Sonnet | $24 | Dependency analysis (READ-ONLY) | 50,000 | Read, Grep, Glob, Serena |
+| **Performance Profiler Agent** | Sonnet | $24 | Performance auditing (READ-ONLY) | 50,000 | Read, Grep, Lighthouse, ChromeDevTools |
+| **Test Generator Agent** | Sonnet | $24 | Test generation | 45,000 | Read, Write, Edit, Vitest, Playwright |
 | **Release Agent** | Sonnet | $24 | Git operations, PRs | 15,000 | GitHub, ConventionalCommits |
 
 **Cost Savings**: 87% vs Opus-only approach
@@ -430,7 +503,116 @@ Decision: Stay with Vite. See detailed analysis above.
 
 ---
 
-### Example 5: Self-Healing (New Skill Created)
+### Example 5: Ralph Loop (Autonomous Execution)
+```
+User: /ralph-loop "Migrate all auth to WorkOS AuthKit. Output <promise>COMPLETE</promise> when done." --max-iterations 30
+
+[Ralph Loop Initialized]
+Max iterations: 30
+Completion promise: "COMPLETE"
+State file: .claude/ralph-loop.local.md
+
+[Ralph Loop - Iteration 1]
+[Orchestrator]:
+Analyzing task: Auth migration (complex, multi-phase)
+Delegating to: coding-agent (Sonnet)
+
+[Coding Agent]:
+Phase 1: Install dependencies
+- npm install @workos-inc/authkit-nextjs
+- Updated package.json
+- Committed: "feat: Add WorkOS AuthKit dependency"
+
+[Airlock Validation]:
+✓ TypeScript: Pass
+✓ ESLint: Pass
+✓ Build: Pass
+
+[Stop Hook]: Continue iteration (completion promise not found)
+
+[Ralph Loop - Iteration 2]
+[Orchestrator]:
+Reviewing git history: See dependency installation complete
+Next step: Backend migration
+Delegating to: coding-agent (Sonnet)
+
+[Coding Agent]:
+Phase 2: Backend migration
+- Updated server/src/lib/workos.ts
+- Replaced custom session logic with AuthKit
+- Committed: "feat: Migrate backend auth to AuthKit"
+
+[Airlock Validation]:
+✓ TypeScript: Pass
+✓ ESLint: Pass
+✗ Tests: 3 failures (auth integration tests)
+
+[Agent Self-Correction]:
+Analyzing test failures...
+- Missing environment variables
+- Adding env vars to .env.example
+- Updating test mocks
+- Re-running tests
+
+[Airlock Validation (Retry)]:
+✓ TypeScript: Pass
+✓ ESLint: Pass
+✓ Tests: Pass
+✓ Build: Pass
+
+[Stop Hook]: Continue iteration
+
+[Ralph Loop - Iteration 3]
+[Orchestrator]:
+Backend complete, frontend migration needed
+Delegating to: coding-agent (Sonnet)
+
+[Coding Agent]:
+Phase 3: Frontend migration
+- Updated src/context/AuthContext.tsx
+- Replaced AuthModal with AuthKit UI
+- Committed: "feat: Migrate frontend auth to AuthKit"
+
+[Airlock Validation]: All gates pass
+
+[Stop Hook]: Continue iteration
+
+[Ralph Loop - Iteration 4]
+[Orchestrator]:
+Verifying all success criteria:
+✓ All tests passing
+✓ Build succeeds
+✓ No TypeScript errors
+✓ Documentation updated
+
+All criteria met!
+
+Output: <promise>COMPLETE</promise>
+
+[Ralph Loop]: Completion promise detected, exiting successfully
+
+[Final State]:
+Total iterations: 4
+Total cost: $4.80
+Status: Complete
+Git commits: 4
+All tests: Passing
+```
+
+**Result**: Task completed autonomously in 4 iterations without user intervention.
+
+**Cost Analysis**:
+- Iteration 1: Coding Agent (Sonnet) - $1.20
+- Iteration 2: Coding Agent with airlock retries - $1.60
+- Iteration 3: Coding Agent (Sonnet) - $1.20
+- Iteration 4: Verification (Haiku) - $0.80
+- **Total**: $4.80
+
+For detailed Ralph Loop usage, see: `.claude/skills/orchestrator/RALPH_LOOP_GUIDE.md`
+
+---
+
+### Example 6: Self-Healing (New Skill Created)
 ```
 User: "Validate the SQL query for performance issues" (3rd time asking)
 
@@ -641,18 +823,268 @@ quick-tasks-agent: 1.1s avg (12 executions)
 
 ---
 
-## 13. QUICK LINKS
+## 13. RALPH LOOP: AUTONOMOUS LONG-RUNNING EXECUTION
+
+### What is Ralph Loop?
+
+Ralph Loop is a **fully autonomous execution mode** where Claude iteratively works on a task until completion without constant user intervention. It uses a **Stop hook** that intercepts session exit attempts and feeds the same prompt back for continuous iteration.
+
+**Key Features:**
+- Autonomous multi-hour execution
+- Seamlessly integrates with skills-first delegation
+- Git commits after each successful iteration
+- Airlock validation prevents error propagation
+- Cost tracking and budget limits
+- Escape hatches for impossible tasks
+
+### Quick Start
+
+```bash
+/ralph-loop "TASK DESCRIPTION. Output <promise>COMPLETE</promise> when done." --max-iterations 30 --completion-promise "COMPLETE"
+```
+
+**CRITICAL SAFETY RULES:**
+1. **ALWAYS set --max-iterations** (prevents infinite loops)
+2. **ALWAYS set --completion-promise** (provides exit signal)
+3. **Use clear, measurable success criteria**
+4. **Include escape hatches** in prompt
+
+### Use Cases
+
+**GOOD FOR:**
+- Codebase-wide refactoring ("Migrate all components to TypeScript strict mode")
+- Test-driven development ("Fix all failing tests")
+- Systematic migrations ("Replace custom auth with WorkOS AuthKit")
+- Error elimination ("Fix all ESLint errors")
+
+**NOT GOOD FOR:**
+- Tasks requiring user decisions
+- One-shot operations ("Create a login page")
+- Exploratory work
+- Production debugging
+
+### Example: Auth Migration
+
+```bash
+/ralph-loop "Migrate authentication to WorkOS AuthKit.
+
+Phase 1: Install dependencies
+Phase 2: Backend migration (server/src/lib/workos.ts)
+Phase 3: Frontend migration (src/context/AuthContext.tsx)
+Phase 4: Tests and documentation
+
+Success criteria:
+- npm test → All pass
+- npm run build → Success
+- No TypeScript errors
+- Documentation updated
+
+Output: <promise>AUTH_COMPLETE</promise>
+
+If blocked after 20 iterations:
+- Document blockers in MIGRATION_BLOCKED.md
+- Output: <promise>BLOCKED</promise>" --max-iterations 30 --completion-promise "AUTH_COMPLETE"
+```
+
+**Expected Flow:**
+- Iterations 1-5: Dependencies and backend (Coding Agent)
+- Iterations 6-10: Frontend migration (Coding Agent)
+- Iterations 11-15: Debug test failures (Debugging Agent)
+- Iterations 16-20: Documentation (Quick Tasks Agent)
+- Iteration 21: Verification, outputs `<promise>AUTH_COMPLETE</promise>`
+- **Ralph Loop exits automatically**
+
+### Monitoring Progress
+
+```bash
+# Check current iteration
+cat .claude/ralph-loop.local.md
+
+# View git commits (Ralph Loop commits after each iteration)
+git log --oneline -10
+
+# Monitor cost
+tail -f docs/ops/.agent_usage_log.txt
+```
+
+### Canceling Ralph Loop
+
+```bash
+/cancel-ralph
+```
+
+### Cost Estimates
+
+| Task Type | Iterations | Cost/Iter | Total |
+|-----------|-----------|-----------|-------|
+| Simple (import fixes) | 10-20 | $0.50 | $5-$10 |
+| Medium (feature add) | 30-50 | $1.00 | $30-$50 |
+| Complex (migration) | 50-100 | $1.50 | $75-$150 |
+
+**For comprehensive Ralph Loop guide**: `.claude/skills/orchestrator/RALPH_LOOP_GUIDE.md`
+
+---
+
+## 14. QUICK LINKS
 
 - **Shared Contract**: `.claude/rules/shared_contract.md`
 - **Skills Overview**: `.claude/skills/README.md`
 - **Tool Allocation**: `.claude/tool-allocation-matrix.json`
+- **Ralph Loop Guide**: `.claude/skills/orchestrator/RALPH_LOOP_GUIDE.md`
 - **Advanced Architecture**: `docs/ADVANCED_SKILLS_ARCHITECTURE.md`
 - **Setup Guide**: `docs/COMPLETE_SETUP_GUIDE.md`
 - **Skills Registry**: `docs/CLAUDE_AGENT_SKILLS_REGISTRY.md`
 
 ---
 
-## 14. TROUBLESHOOTING
+## 15. SPECIALIZED AGENTS
+
+### 15.1 Refactoring Agent
+
+**Purpose**: Large-scale code refactoring with AST-based transformations and automatic validation.
+
+**Capabilities**:
+- Pattern migration (class components → hooks, callbacks → async/await)
+- Rename across entire codebase with type safety
+- Dead code elimination with dependency analysis
+- Extract component/function with auto-import updates
+- Strict mode migration with automatic fixes
+
+**Ralph Loop Integration**: YES - Automatically activates for refactorings affecting 10+ files.
+
+**Airlock Validation**: MANDATORY - All changes pass TypeScript, ESLint, Tests, Build before commit.
+
+**Example Invocation**:
+```
+User: "Migrate all class components to hooks"
+→ Task(subagent_type: "Refactoring Agent", prompt: "Migrate all class components to hooks")
+```
+
+**Cost**: $1.44 per major refactoring (60k token budget)
+
+---
+
+### 15.2 Security Auditor Agent
+
+**Purpose**: Comprehensive security scanning with OWASP Top 10 compliance.
+
+**Capabilities**:
+- Secrets detection (API keys, tokens, credentials)
+- Dependency vulnerability scanning (CVE detection)
+- SQL injection & XSS pattern detection
+- Row Level Security (RLS) policy auditing
+- Authentication/Authorization flow review
+
+**MCP Tools**:
+- `semgrep` - Static analysis security testing
+- `osv-scanner` - Dependency vulnerability scanning
+
+**READ-ONLY**: Cannot modify code, only reports findings.
+
+**Example Invocation**:
+```
+User: "Security audit the auth flow"
+→ Task(subagent_type: "Security Auditor Agent", prompt: "Security audit the auth flow")
+```
+
+**Output Format**: JSON report with severity levels (CRITICAL, HIGH, MEDIUM, LOW)
+
+**Cost**: $0.96 per audit (40k token budget)
+
+---
+
+### 15.3 Architecture Analyzer Agent
+
+**Purpose**: Dependency analysis, coupling metrics, and architectural health assessment.
+
+**Capabilities**:
+- Dependency graph generation (Mermaid diagrams)
+- Circular dependency detection
+- Module coupling metrics (Afferent/Efferent)
+- Layering violation detection
+- Complexity metrics (Cyclomatic, Cognitive)
+- "Zone of Pain" detection (high coupling + high instability)
+
+**READ-ONLY**: Cannot modify code, only analyzes structure.
+
+**Example Invocation**:
+```
+User: "Analyze architecture for circular dependencies"
+→ Task(subagent_type: "Architecture Analyzer Agent", prompt: "Analyze architecture for circular dependencies")
+```
+
+**Output Formats**:
+- Mermaid dependency graph
+- JSON metrics report
+- Markdown health summary
+
+**Cost**: $1.20 per analysis (50k token budget)
+
+---
+
+### 15.4 Performance Profiler Agent
+
+**Purpose**: Performance auditing, bundle analysis, and Core Web Vitals optimization.
+
+**Capabilities**:
+- Lighthouse audits (automated)
+- Bundle size analysis (webpack-bundle-analyzer)
+- Core Web Vitals measurement (LCP, FCP, CLS, TTI)
+- Memory leak detection
+- CPU profiling & flamegraph analysis
+- Code splitting recommendations
+
+**MCP Tools**:
+- `lighthouse` - Automated performance audits
+- `chrome-devtools` - Runtime profiling
+
+**READ-ONLY**: Cannot modify code, only analyzes performance.
+
+**Example Invocation**:
+```
+User: "Profile performance and find bottlenecks"
+→ Task(subagent_type: "Performance Profiler Agent", prompt: "Profile performance and find bottlenecks")
+```
+
+**Output Format**:
+- Lighthouse JSON report
+- Mermaid flamegraph
+- Markdown recommendations
+
+**Cost**: $1.20 per audit (50k token budget)
+
+---
+
+### 15.5 Test Generator Agent
+
+**Purpose**: Automated test generation with edge case detection.
+
+**Capabilities**:
+- Unit test generation (Vitest)
+- Integration test generation
+- E2E test generation (Playwright)
+- Edge case enumeration
+- Coverage gap detection
+- Test data factory generation
+
+**Test Frameworks**:
+- `vitest` - Unit/integration tests
+- `playwright` - E2E tests
+- `@testing-library/react` - Component tests
+
+**Example Invocation**:
+```
+User: "Generate tests for AuthContext with 80% coverage"
+→ Task(subagent_type: "Test Generator Agent", prompt: "Generate tests for AuthContext with 80% coverage")
+```
+
+**Output**: Test files co-located with source files following naming convention `*.test.tsx`
+
+**Cost**: $1.08 per generation (45k token budget)
+
+---
+
+## 16. TROUBLESHOOTING
 
 ### Issue: Orchestrator using too much context
 **Solution**: Check if tools being executed directly. All tools should route through skills.
@@ -668,7 +1100,7 @@ quick-tasks-agent: 1.1s avg (12 executions)
 
 ---
 
-## ✅ SUCCESS CRITERIA
+## 17. SUCCESS CRITERIA
 
 This architecture is working correctly when:
 
@@ -683,5 +1115,5 @@ This architecture is working correctly when:
 ---
 
 *Last Updated: 2026-01-13*
-*Manual Version: 2.0.0 - Advanced Skills-First Architecture*
-*Old Version Backup: CLAUDE.md.backup*
+*Manual Version: 2.1.0 - Advanced Skills-First Architecture + Ralph Loop Integration*
+*Previous Version: 2.0.0*

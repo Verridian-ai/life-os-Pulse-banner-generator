@@ -6,19 +6,48 @@
 
 ---
 
+## 0. CRITICAL: MANDATORY SKILL DELEGATION
+
+**THIS RULE TAKES PRECEDENCE OVER ALL OTHER RULES**
+
+The orchestrator (main Claude session) MUST use the **Task tool** to delegate ALL tasks to specialized agents. The orchestrator is FORBIDDEN from:
+
+- Executing Read, Write, Edit, Grep, Glob, or Bash tools directly
+- Handling any task without delegation
+- Making exceptions for "simple" or "quick" tasks
+
+**REQUIRED WORKFLOW:**
+1. User makes request
+2. Orchestrator classifies request → selects `subagent_type`
+3. Orchestrator invokes `Task` tool with appropriate `subagent_type`
+4. Agent executes task in isolation
+5. Orchestrator presents results to user
+
+**VALID subagent_type VALUES:**
+- `Research Agent` - for exploration, search, understanding
+- `Quick Tasks Agent` - for type fixes, imports, formatting
+- `Coding Agent` - for implementation, features
+- `Debugging Agent` - for bug investigation
+- `Decision Agent` - for architecture decisions (requires approval)
+- `Neon Manager` - for database operations
+- `Depth UI Engineer` - for premium UI
+- `Code Standards Auditor` - for audits
+
+---
+
 ## 1. HARD CONTRACT (INVIOLABLE CONSTRAINTS)
 
 ### 1.1 Orchestrator Restrictions
-- The PRIMARY ORCHESTRATOR **DOES NOT** write production code
-- Orchestrator role: plan, delegate, review, merge (on approval only)
-- All implementation happens via delegated subagents in worktrees
+- The PRIMARY ORCHESTRATOR **DOES NOT** execute tools directly
+- The PRIMARY ORCHESTRATOR **MUST** use the Task tool for ALL operations
+- Orchestrator role: classify, delegate via Task tool, present results
+- All implementation happens via delegated agents
 
-### 1.2 Worktree-Based Workflow
-- Implementation happens **ONLY** in git worktrees under `.worktrees/`
-- Every task uses **TWO** subagents:
-  - **Lead Programmer**: Claude Sonnet (implementation)
-  - **Reviewer**: Claude Opus (review + signoff)
-- Research-only tasks may use Claude Haiku
+### 1.2 Task Tool Delegation
+- ALL tasks MUST be delegated using the `Task` tool with `subagent_type`
+- The orchestrator has access ONLY to: `TodoWrite`, `AskUserQuestion`, `Task`
+- Agents execute in isolated context with their allocated tools
+- Results are returned to orchestrator for presentation
 
 ### 1.3 Merge Requirements
 No commits are merged/pushed without:
@@ -350,6 +379,175 @@ git merge task/T001-impl --no-ff
 
 ---
 
+## 11. MOBILE-FIRST UI STANDARDS
+
+### 11.1 Mobile-First Methodology (MANDATORY)
+
+All UI development MUST follow mobile-first principles:
+
+1. **Start at 320px** - Design and code for minimum mobile viewport first
+2. **Progressive Enhancement** - Add complexity via `min-width` media queries
+3. **Touch-First** - Design for touch before mouse/keyboard
+
+```css
+/* CORRECT: Mobile-first */
+.component {
+  padding: 1rem;
+}
+@media (min-width: 768px) {
+  .component { padding: 2rem; }
+}
+
+/* WRONG: Desktop-first (FORBIDDEN) */
+.component {
+  padding: 2rem;
+}
+@media (max-width: 767px) {
+  .component { padding: 1rem; }
+}
+```
+
+### 11.2 Touch Target Requirements (WCAG 2.5.5)
+
+| Element Type | Minimum | Recommended | Spacing |
+|-------------|---------|-------------|---------|
+| All interactive | 44×44px | 48×48px | 8px |
+| Primary CTA | 48×48px | 60×60px | 8px |
+| Form inputs | 48px height | 56px height | 12px |
+
+```tsx
+// CORRECT
+<button className="min-w-[44px] min-h-[44px] p-3">Click</button>
+
+// WRONG - Touch target too small
+<button className="p-1">X</button> // 24x24px - FORBIDDEN
+```
+
+### 11.3 Thumb Zone Placement
+
+Primary actions MUST be placed in the "Easy Zone" (bottom 33% of screen):
+
+```
+FORBIDDEN: Primary CTA in top corners
+REQUIRED: Primary CTA in bottom center/right
+
+✗ <Header><PrimaryButton /></Header>
+✓ <Footer><PrimaryButton /></Footer>
+✓ <FAB position="bottom-right" />
+```
+
+### 11.4 Mobile Blur Budget (ENFORCED)
+
+| Device | Max Blur | Max Elements |
+|--------|----------|--------------|
+| Mobile | 20px | 2 |
+| Tablet | 32px | 3 |
+| Desktop | 40px | 5 |
+
+```css
+/* Mobile blur violation - WILL FAIL REVIEW */
+.glass-card {
+  backdrop-filter: blur(30px); /* FORBIDDEN: > 20px */
+}
+
+/* Correct progressive blur */
+.glass-card {
+  backdrop-filter: blur(12px); /* Mobile default */
+}
+@media (min-width: 768px) {
+  .glass-card { backdrop-filter: blur(24px); }
+}
+@media (min-width: 1024px) {
+  .glass-card { backdrop-filter: blur(40px); }
+}
+```
+
+### 11.5 Animation Performance Rules
+
+**GPU-Safe Properties (Animate freely):**
+- `transform` (translate, rotate, scale)
+- `opacity`
+
+**Use with Caution:**
+- `filter`
+
+**NEVER Animate (Performance killer):**
+- `width`, `height`, `top`, `left`
+- `margin`, `padding`
+- `box-shadow` (use `filter: drop-shadow()` instead)
+- `backdrop-filter`
+
+### 11.6 Reduced Motion Support (MANDATORY)
+
+Every animated component MUST include reduced motion fallback:
+
+```css
+/* MANDATORY in every animation */
+@media (prefers-reduced-motion: reduce) {
+  .animated-element {
+    animation: none !important;
+    transition: none !important;
+  }
+}
+```
+
+### 11.7 Core Web Vitals Targets
+
+All pages MUST meet these thresholds:
+
+| Metric | Target | Maximum |
+|--------|--------|---------|
+| LCP | < 2.5s | 4.0s |
+| INP | < 200ms | 500ms |
+| CLS | < 0.1 | 0.25 |
+| TTFB | < 600ms | 1800ms |
+
+### 11.8 Container Queries (Preferred)
+
+Prefer container queries over media queries for component-level responsiveness:
+
+```css
+/* PREFERRED: Container query */
+.card-container { container-type: inline-size; }
+
+@container (min-width: 400px) {
+  .card { flex-direction: row; }
+}
+
+/* ACCEPTABLE: Media query for page layout */
+@media (min-width: 768px) {
+  .page-grid { grid-template-columns: 1fr 1fr; }
+}
+```
+
+### 11.9 Fluid Typography (REQUIRED)
+
+All text sizes MUST use fluid typography with `clamp()`:
+
+```css
+/* CORRECT */
+h1 { font-size: clamp(1.5rem, 1.35rem + 0.75vw, 2rem); }
+
+/* WRONG - Fixed sizes */
+h1 { font-size: 32px; }
+@media (max-width: 768px) { h1 { font-size: 24px; } }
+```
+
+### 11.10 Mobile Testing Checklist (Pre-Merge)
+
+Before any UI PR is merged:
+
+- [ ] Tested on 320px viewport (minimum mobile)
+- [ ] Tested on 375px viewport (standard mobile)
+- [ ] Tested on 768px viewport (tablet)
+- [ ] Touch targets >= 44×44px verified
+- [ ] Reduced motion preference tested
+- [ ] High contrast mode tested
+- [ ] Lighthouse mobile score >= 90
+- [ ] No horizontal scroll on any viewport
+
+---
+
 ## References
 
 [^1]: Meta React File Structure - https://legacy.reactjs.org/docs/faq-structure.html
@@ -362,5 +560,5 @@ git merge task/T001-impl --no-ff
 
 ---
 
-*Last Updated: 2025-12-20*
-*Contract Version: 1.0.0*
+*Last Updated: 2026-01-13*
+*Contract Version: 1.1.0*

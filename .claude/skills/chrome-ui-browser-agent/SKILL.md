@@ -18,6 +18,9 @@ Visual UI verification and issue detection using Chrome DevTools MCP integration
 - Performance profiling
 - Accessibility auditing
 - Real-time debugging of visual bugs
+- Mobile-first testing (see Section 7)
+- Touch target validation
+- Thumb zone analysis
 
 ---
 
@@ -36,6 +39,11 @@ User requests containing:
 - "performance test"
 - "accessibility check"
 - "web vitals"
+- "mobile test"
+- "touch targets"
+- "thumb zone"
+- "responsive test"
+- "mobile viewport"
 
 ### Manual Activation
 
@@ -106,6 +114,8 @@ chrome.auditPerformance({
 - Test at 375px (mobile), 768px (tablet), 1920px (desktop)
 - Verify safe zones on canvas editor
 - Check text readability at all sizes
+- **See Section 7.1** for comprehensive mobile viewport matrix (8 viewports)
+- **See Section 7.4** for mobile-specific blur budget validation (max 20px)
 
 ---
 
@@ -154,6 +164,9 @@ chrome.auditAccessibility({
 - Screen reader compatibility
 - Focus indicators
 - ARIA labels
+- **Touch targets** (WCAG 2.5.5) - See Section 7.2
+- **Reduced motion** compliance - See Section 7.6
+- **Mobile accessibility checklist** - See Section 7.8
 
 ---
 
@@ -311,6 +324,9 @@ File: `.claude/skills/chrome-ui-browser-agent/config.json`
 | Accessibility issues detected | >90% | TBD | 🟡 |
 | Response time (full check) | <30s | TBD | 🟡 |
 | False positives | <5% | TBD | 🟡 |
+| Mobile viewport coverage | 100% (8 viewports) | TBD | 🟡 |
+| Touch target compliance | 100% | TBD | 🟡 |
+| Mobile blur budget compliance | 100% | TBD | 🟡 |
 
 ---
 
@@ -433,6 +449,16 @@ Recommendation: Verify sidebar width change is intentional.
   components/
     canvas-editor-2026-01-13.png
     generative-sidebar-2026-01-13.png
+  mobile/                            # Mobile-first testing (Section 7.7)
+    baseline/
+      mobile-sm-portrait-default.png
+      mobile-md-portrait-default.png
+      tablet-portrait-default.png
+    current/
+      mobile-sm-portrait-default.png
+      mobile-md-landscape-scrolled.png
+    diff/
+      mobile-md-portrait-diff.png
 ```
 
 ---
@@ -466,6 +492,637 @@ chrome-devtools css-audit --url [URL] --property [backdrop-filter]
 
 ---
 
+## 7. MOBILE-FIRST TESTING PROTOCOLS
+
+Mobile testing is critical for modern applications. This section defines comprehensive protocols for validating UI behavior across mobile devices.
+
+---
+
+### 7.1 Mobile Viewport Testing Matrix
+
+```javascript
+const MOBILE_VIEWPORTS = {
+  // Critical mobile breakpoints
+  'mobile-xs': { width: 320, height: 568 },   // iPhone SE/5
+  'mobile-sm': { width: 375, height: 667 },   // iPhone 8
+  'mobile-md': { width: 390, height: 844 },   // iPhone 12/13/14
+  'mobile-lg': { width: 428, height: 926 },   // iPhone 12 Pro Max
+  'android-sm': { width: 360, height: 640 },  // Common Android
+  'android-md': { width: 412, height: 915 },  // Pixel 6
+  'tablet-portrait': { width: 768, height: 1024 }, // iPad
+  'tablet-landscape': { width: 1024, height: 768 },
+};
+
+// Usage in screenshot workflow
+async function captureAllMobileViewports(page, url) {
+  const screenshots = [];
+  for (const [name, viewport] of Object.entries(MOBILE_VIEWPORTS)) {
+    await page.setViewport({ ...viewport, deviceScaleFactor: 2 });
+    const screenshot = await page.screenshot({ fullPage: true });
+    screenshots.push({ name, viewport, screenshot });
+  }
+  return screenshots;
+}
+```
+
+**Required Coverage**: All mobile viewports MUST be tested for any UI change affecting responsive layout.
+
+---
+
+### 7.2 Touch Target Validation
+
+```javascript
+// WCAG 2.5.5 Target Size validation
+function validateTouchTargets(element) {
+  const rect = element.getBoundingClientRect();
+  const MIN_SIZE = 44; // pixels - WCAG minimum
+  const RECOMMENDED_SIZE = 48; // pixels - Material Design recommendation
+
+  return {
+    width: rect.width,
+    height: rect.height,
+    meetsMinimum: rect.width >= MIN_SIZE && rect.height >= MIN_SIZE,
+    meetsRecommended: rect.width >= RECOMMENDED_SIZE && rect.height >= RECOMMENDED_SIZE,
+    spacing: getSpacingFromNeighbors(element), // Must be >= 8px
+  };
+}
+
+// Full page touch target audit
+async function auditTouchTargets(page) {
+  return page.evaluate(() => {
+    const interactiveSelectors = 'button, a, input, select, textarea, [role="button"], [role="link"], [tabindex]';
+    const elements = [...document.querySelectorAll(interactiveSelectors)];
+
+    return elements.map(el => {
+      const rect = el.getBoundingClientRect();
+      const style = getComputedStyle(el);
+
+      // Skip hidden elements
+      if (style.display === 'none' || style.visibility === 'hidden') return null;
+
+      return {
+        selector: getUniqueSelector(el),
+        text: el.textContent?.trim().slice(0, 50),
+        width: rect.width,
+        height: rect.height,
+        meetsMinimum: rect.width >= 44 && rect.height >= 44,
+        meetsRecommended: rect.width >= 48 && rect.height >= 48,
+        violation: rect.width < 44 || rect.height < 44,
+      };
+    }).filter(Boolean);
+  });
+}
+```
+
+**Enforcement**: Any interactive element failing touch target validation MUST be flagged as a critical issue.
+
+---
+
+### 7.3 Mobile Performance Profiling
+
+```javascript
+const MOBILE_PERFORMANCE_THRESHOLDS = {
+  LCP: { good: 2500, poor: 4000 },      // Largest Contentful Paint (ms)
+  INP: { good: 200, poor: 500 },         // Interaction to Next Paint (ms)
+  CLS: { good: 0.1, poor: 0.25 },        // Cumulative Layout Shift (score)
+  TTFB: { good: 600, poor: 1800 },       // Time to First Byte (ms)
+  FCP: { good: 1800, poor: 3000 },       // First Contentful Paint (ms)
+  TBT: { good: 200, poor: 600 },         // Total Blocking Time (ms)
+};
+
+// Simulate slow network conditions
+const NETWORK_CONDITIONS = {
+  '3G-slow': { downloadKbps: 500, uploadKbps: 500, latencyMs: 400 },
+  '3G-fast': { downloadKbps: 1500, uploadKbps: 750, latencyMs: 150 },
+  '4G': { downloadKbps: 4000, uploadKbps: 3000, latencyMs: 50 },
+};
+
+// Mobile performance test with network throttling
+async function testMobilePerformance(page, url, networkProfile = '3G-fast') {
+  const client = await page.target().createCDPSession();
+
+  // Apply network throttling
+  const network = NETWORK_CONDITIONS[networkProfile];
+  await client.send('Network.emulateNetworkConditions', {
+    offline: false,
+    downloadThroughput: (network.downloadKbps * 1024) / 8,
+    uploadThroughput: (network.uploadKbps * 1024) / 8,
+    latency: network.latencyMs,
+  });
+
+  // Simulate mobile CPU (4x slowdown)
+  await client.send('Emulation.setCPUThrottlingRate', { rate: 4 });
+
+  // Collect performance metrics
+  await page.goto(url, { waitUntil: 'networkidle0' });
+  const metrics = await page.evaluate(() => {
+    const paint = performance.getEntriesByType('paint');
+    const navigation = performance.getEntriesByType('navigation')[0];
+
+    return {
+      FCP: paint.find(e => e.name === 'first-contentful-paint')?.startTime,
+      LCP: window.largestContentfulPaint,
+      TTFB: navigation?.responseStart - navigation?.requestStart,
+      TBT: window.totalBlockingTime,
+      CLS: window.cumulativeLayoutShift,
+    };
+  });
+
+  // Evaluate against thresholds
+  const results = {};
+  for (const [metric, value] of Object.entries(metrics)) {
+    const threshold = MOBILE_PERFORMANCE_THRESHOLDS[metric];
+    results[metric] = {
+      value,
+      status: value <= threshold.good ? 'good' : value <= threshold.poor ? 'needs-improvement' : 'poor',
+      threshold,
+    };
+  }
+
+  return results;
+}
+```
+
+**Required Testing**: All pages MUST pass mobile performance thresholds under 3G-fast network conditions.
+
+---
+
+### 7.4 Blur Budget Validation (Mobile)
+
+```javascript
+function validateMobileBlurBudget(page) {
+  const MAX_BLUR_MOBILE = 20; // px - mobile maximum
+  const MAX_BLUR_ELEMENTS = 2; // Maximum blur elements on screen
+
+  return page.evaluate((maxBlur, maxElements) => {
+    const getSelector = (el) => {
+      if (el.id) return `#${el.id}`;
+      if (el.className) return `.${el.className.split(' ')[0]}`;
+      return el.tagName.toLowerCase();
+    };
+
+    const blurredElements = [...document.querySelectorAll('*')].filter(el => {
+      const style = getComputedStyle(el);
+      const backdrop = style.backdropFilter || style.webkitBackdropFilter;
+      return backdrop && backdrop.includes('blur');
+    }).map(el => {
+      const style = getComputedStyle(el);
+      const backdrop = style.backdropFilter || style.webkitBackdropFilter;
+      const blurMatch = backdrop.match(/blur\((\d+(?:\.\d+)?)px\)/);
+      const blur = blurMatch ? parseFloat(blurMatch[1]) : 0;
+
+      return {
+        selector: getSelector(el),
+        blurRadius: blur,
+        visible: el.offsetParent !== null,
+      };
+    }).filter(e => e.visible);
+
+    const violations = blurredElements.filter(e => e.blurRadius > maxBlur);
+
+    return {
+      passed: blurredElements.length <= maxElements && violations.length === 0,
+      totalBlurElements: blurredElements.length,
+      maxAllowed: maxElements,
+      violations: violations,
+      elements: blurredElements,
+      recommendation: violations.length > 0
+        ? `Reduce blur radius to max ${maxBlur}px for mobile performance`
+        : blurredElements.length > maxElements
+          ? `Reduce number of blur elements from ${blurredElements.length} to ${maxElements}`
+          : null,
+    };
+  }, MAX_BLUR_MOBILE, MAX_BLUR_ELEMENTS);
+}
+```
+
+**Enforcement**: Mobile blur violations MUST be fixed before deployment. Max blur: 20px, max elements: 2.
+
+---
+
+### 7.5 Thumb Zone Analysis
+
+```javascript
+function analyzeThumbZones(page, viewport) {
+  const EASY_ZONE_BOTTOM = 0.33; // Bottom 33% - Easy reach
+  const STRETCH_ZONE = 0.47;     // Middle 47% - Comfortable stretch
+  const HARD_ZONE_TOP = 0.20;    // Top 20% - Hard to reach
+
+  return page.evaluate((vp, zones) => {
+    const getSelector = (el) => {
+      if (el.id) return `#${el.id}`;
+      return el.className ? `.${el.className.split(' ')[0]}` : el.tagName.toLowerCase();
+    };
+
+    const interactiveElements = [
+      ...document.querySelectorAll('button, a, [role="button"], input[type="submit"], .cta')
+    ];
+
+    const viewportHeight = vp.height;
+
+    return interactiveElements.map(btn => {
+      const rect = btn.getBoundingClientRect();
+      const centerY = rect.top + rect.height / 2;
+      const normalizedY = centerY / viewportHeight;
+
+      let zone = 'stretch';
+      let reachability = 'comfortable';
+
+      if (normalizedY > (1 - zones.EASY_ZONE_BOTTOM)) {
+        zone = 'easy';
+        reachability = 'optimal';
+      } else if (normalizedY < zones.HARD_ZONE_TOP) {
+        zone = 'hard';
+        reachability = 'difficult';
+      }
+
+      const isPrimaryCTA = btn.classList.contains('primary') ||
+                           btn.classList.contains('cta') ||
+                           btn.type === 'submit' ||
+                           btn.getAttribute('role') === 'button';
+
+      return {
+        selector: getSelector(btn),
+        text: btn.textContent?.trim().slice(0, 30),
+        zone,
+        reachability,
+        isPrimaryCTA,
+        warning: zone === 'hard' && isPrimaryCTA,
+        recommendation: zone === 'hard' && isPrimaryCTA
+          ? 'Move primary CTA to bottom 33% of screen for better thumb reach'
+          : null,
+        position: {
+          top: rect.top,
+          centerY: centerY,
+          normalizedY: normalizedY.toFixed(2),
+        },
+      };
+    });
+  }, viewport, { EASY_ZONE_BOTTOM, HARD_ZONE_TOP });
+}
+
+// Visual thumb zone map
+const THUMB_ZONE_MAP = `
+  ┌─────────────────────┐
+  │   HARD ZONE (20%)   │  ← Avoid primary CTAs
+  │   ⚠️ Difficult       │
+  ├─────────────────────┤
+  │                     │
+  │  STRETCH ZONE (47%) │  ← Secondary actions OK
+  │  👍 Comfortable     │
+  │                     │
+  ├─────────────────────┤
+  │                     │
+  │   EASY ZONE (33%)   │  ← Primary CTAs HERE
+  │   ✅ Optimal        │
+  └─────────────────────┘
+`;
+```
+
+**Best Practice**: Primary CTAs SHOULD be in the "easy zone" (bottom 33%) for optimal one-handed use.
+
+---
+
+### 7.6 Reduced Motion Compliance
+
+```javascript
+async function testReducedMotion(page) {
+  // Enable reduced motion preference
+  await page.emulateMediaFeatures([
+    { name: 'prefers-reduced-motion', value: 'reduce' },
+  ]);
+
+  // Wait for styles to apply
+  await page.waitForTimeout(100);
+
+  // Check for animated elements that should be disabled
+  const violations = await page.evaluate(() => {
+    const getSelector = (el) => {
+      if (el.id) return `#${el.id}`;
+      return el.className ? `.${el.className.split(' ')[0]}` : el.tagName.toLowerCase();
+    };
+
+    return [...document.querySelectorAll('*')].map(el => {
+      const style = getComputedStyle(el);
+      const animationName = style.animationName;
+      const animationDuration = parseFloat(style.animationDuration);
+      const transitionDuration = parseFloat(style.transitionDuration);
+
+      const hasAnimation = animationName !== 'none' && animationDuration > 0;
+      const hasTransition = transitionDuration > 0.01; // Allow micro-transitions
+
+      if (!hasAnimation && !hasTransition) return null;
+
+      return {
+        selector: getSelector(el),
+        animation: hasAnimation ? `${animationName} (${animationDuration}s)` : null,
+        transition: hasTransition ? `${transitionDuration}s` : null,
+        issue: 'Animation/transition active despite prefers-reduced-motion: reduce',
+      };
+    }).filter(Boolean);
+  });
+
+  return {
+    passed: violations.length === 0,
+    violations,
+    count: violations.length,
+    recommendation: violations.length > 0
+      ? 'Add @media (prefers-reduced-motion: reduce) { animation: none; transition: none; } fallbacks'
+      : null,
+    exampleFix: `
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}`,
+  };
+}
+```
+
+**Enforcement**: ALL animations MUST respect `prefers-reduced-motion: reduce`. This is a WCAG 2.1 AA requirement.
+
+---
+
+### 7.7 Mobile Screenshot Comparison Workflow
+
+```javascript
+const MOBILE_SCREENSHOT_WORKFLOW = {
+  // Capture at multiple viewports
+  viewports: ['mobile-sm', 'mobile-md', 'tablet-portrait'],
+
+  // Check orientations
+  orientations: ['portrait', 'landscape'],
+
+  // Test states
+  states: [
+    'default',           // Initial load
+    'scrolled',          // After scroll (sticky headers)
+    'touch-hover',       // Simulated touch state
+    'keyboard-open',     // With virtual keyboard
+    'dark-mode',         // Dark theme if applicable
+  ],
+
+  // Device simulation
+  deviceEmulation: {
+    mobile: true,
+    touch: true,
+    deviceScaleFactor: 2, // Retina
+  },
+
+  // Output paths
+  outputPaths: {
+    baseline: '.claude/screenshots/mobile/baseline/',
+    current: '.claude/screenshots/mobile/current/',
+    diff: '.claude/screenshots/mobile/diff/',
+  },
+};
+
+// Execute mobile screenshot workflow
+async function executeMobileScreenshotWorkflow(page, url, options = MOBILE_SCREENSHOT_WORKFLOW) {
+  const results = [];
+
+  for (const viewport of options.viewports) {
+    const vp = MOBILE_VIEWPORTS[viewport];
+
+    for (const orientation of options.orientations) {
+      const adjustedVp = orientation === 'landscape'
+        ? { width: vp.height, height: vp.width }
+        : vp;
+
+      await page.setViewport({
+        ...adjustedVp,
+        deviceScaleFactor: options.deviceEmulation.deviceScaleFactor,
+        isMobile: options.deviceEmulation.mobile,
+        hasTouch: options.deviceEmulation.touch,
+      });
+
+      for (const state of options.states) {
+        await applyState(page, state);
+
+        const filename = `${viewport}-${orientation}-${state}.png`;
+        const screenshot = await page.screenshot({
+          fullPage: state !== 'keyboard-open',
+          path: `${options.outputPaths.current}${filename}`,
+        });
+
+        results.push({
+          viewport,
+          orientation,
+          state,
+          filename,
+          dimensions: adjustedVp,
+        });
+      }
+    }
+  }
+
+  return results;
+}
+
+async function applyState(page, state) {
+  switch (state) {
+    case 'scrolled':
+      await page.evaluate(() => window.scrollTo(0, 500));
+      break;
+    case 'touch-hover':
+      await page.hover('button:first-of-type');
+      break;
+    case 'keyboard-open':
+      await page.focus('input:first-of-type');
+      break;
+    case 'dark-mode':
+      await page.emulateMediaFeatures([{ name: 'prefers-color-scheme', value: 'dark' }]);
+      break;
+  }
+  await page.waitForTimeout(100);
+}
+```
+
+---
+
+### 7.8 Mobile Accessibility Checklist
+
+```javascript
+const MOBILE_A11Y_CHECKLIST = [
+  {
+    id: 'touch-targets',
+    test: 'All interactive elements >= 44x44px',
+    wcag: 'WCAG 2.5.5 Target Size (Level AAA)',
+    critical: true,
+  },
+  {
+    id: 'spacing',
+    test: 'Touch targets have >= 8px spacing',
+    wcag: 'WCAG 2.5.5 Target Size',
+    critical: true,
+  },
+  {
+    id: 'color-contrast',
+    test: 'Text contrast >= 4.5:1 (7:1 recommended for outdoor viewing)',
+    wcag: 'WCAG 1.4.3 Contrast (Minimum)',
+    critical: true,
+  },
+  {
+    id: 'focus-visible',
+    test: 'Focus indicators visible on all interactive elements',
+    wcag: 'WCAG 2.4.7 Focus Visible',
+    critical: true,
+  },
+  {
+    id: 'reduced-motion',
+    test: 'Animations respect prefers-reduced-motion',
+    wcag: 'WCAG 2.3.3 Animation from Interactions',
+    critical: true,
+  },
+  {
+    id: 'screen-reader',
+    test: 'All content accessible via VoiceOver/TalkBack',
+    wcag: 'WCAG 4.1.2 Name, Role, Value',
+    critical: true,
+  },
+  {
+    id: 'zoom-support',
+    test: 'Page supports 200% zoom without horizontal scroll',
+    wcag: 'WCAG 1.4.10 Reflow',
+    critical: true,
+  },
+  {
+    id: 'one-handed',
+    test: 'Primary actions reachable with one hand (bottom 33%)',
+    wcag: 'Best Practice',
+    critical: false,
+  },
+  {
+    id: 'text-resize',
+    test: 'Text remains readable at 200% browser zoom',
+    wcag: 'WCAG 1.4.4 Resize Text',
+    critical: true,
+  },
+  {
+    id: 'orientation',
+    test: 'Content adapts to both portrait and landscape',
+    wcag: 'WCAG 1.3.4 Orientation',
+    critical: false,
+  },
+];
+
+// Run full mobile accessibility audit
+async function runMobileA11yAudit(page) {
+  const results = [];
+
+  for (const check of MOBILE_A11Y_CHECKLIST) {
+    const result = await runCheck(page, check.id);
+    results.push({
+      ...check,
+      passed: result.passed,
+      details: result.details,
+      violations: result.violations,
+    });
+  }
+
+  const criticalFailures = results.filter(r => r.critical && !r.passed);
+  const warnings = results.filter(r => !r.critical && !r.passed);
+
+  return {
+    passed: criticalFailures.length === 0,
+    criticalFailures,
+    warnings,
+    results,
+    summary: {
+      total: results.length,
+      passed: results.filter(r => r.passed).length,
+      criticalFailed: criticalFailures.length,
+      warnings: warnings.length,
+    },
+  };
+}
+```
+
+---
+
+### 7.9 Mobile Testing Example Invocations
+
+**Example 1: Full Mobile Audit**
+
+```
+User: "Run mobile testing on the landing page"
+
+[Chrome UI Browser Agent]:
+📱 Starting mobile-first test suite...
+
+Viewport Coverage:
+✓ mobile-xs (320x568) - iPhone SE
+✓ mobile-sm (375x667) - iPhone 8
+✓ mobile-md (390x844) - iPhone 14
+✓ android-md (412x915) - Pixel 6
+✓ tablet-portrait (768x1024) - iPad
+
+Touch Target Validation:
+✓ 23/24 elements pass minimum (44px)
+⚠️ 1 violation: .social-link (32x32px) - Needs 44x44px minimum
+
+Thumb Zone Analysis:
+✓ Primary CTA "Get Started" in easy zone (78% from top)
+⚠️ Navigation menu in hard zone (12% from top)
+
+Blur Budget (Mobile):
+✓ 2 blur elements found (max: 2)
+✓ Max blur: 16px (limit: 20px)
+
+Performance (3G-fast):
+✓ LCP: 2.1s (good < 2.5s)
+✓ FCP: 1.4s (good < 1.8s)
+⚠️ CLS: 0.12 (needs improvement, target < 0.1)
+
+Reduced Motion Compliance:
+✓ All animations disabled with prefers-reduced-motion
+
+Mobile Accessibility:
+8/10 checks passed
+2 warnings (non-critical)
+
+[Tokens: 18,400 | Cost: $0.015]
+```
+
+**Example 2: Touch Target Audit**
+
+```
+User: "Check touch targets on studio page"
+
+[Chrome UI Browser Agent]:
+📱 Auditing touch targets at mobile-md viewport (390x844)...
+
+Results: 45 interactive elements analyzed
+
+✓ Passed (38 elements):
+  - All buttons: 48x48px ✓
+  - Form inputs: 44x56px ✓
+  - Navigation links: 44x44px ✓
+
+⚠️ Violations (7 elements):
+  1. .toolbar-icon (32x32px) → Needs 44x44px
+  2. .color-swatch (24x24px) → Needs 44x44px
+  3. .zoom-control (36x36px) → Needs 44x44px
+  4-7. .layer-toggle (28x28px) → Needs 44x44px
+
+Spacing Analysis:
+✓ 89% of elements have >= 8px spacing
+⚠️ Toolbar icons have 4px spacing (needs 8px)
+
+Recommendation:
+Increase toolbar icon size to 44x44px with 8px spacing.
+Consider using a bottom sheet for mobile toolbar.
+
+[Tokens: 9,200 | Cost: $0.007]
+```
+
+---
+
 ## Notes
 
 - **Fastest Agent**: Haiku for speed (UI checks need to be quick)
@@ -474,6 +1131,7 @@ chrome-devtools css-audit --url [URL] --property [backdrop-filter]
 - **Visual Authority**: Only agent authorized to browse and screenshot
 - **Cost-Effective**: ~$0.008 per full page check
 - **Screenshot Storage**: Max 100 screenshots, auto-cleanup after 7 days
+- **Mobile-First**: All new UI features MUST pass mobile testing before desktop
 
 ---
 
@@ -495,4 +1153,5 @@ User: "Check the studio page"
 ---
 
 *Chrome UI Browser Agent - Visual Authority*
-*Version: 1.0.0 - 2026-01-13*
+*Version: 2.0.0 - 2026-01-13*
+*Added: Section 7 - Mobile-First Testing Protocols*
