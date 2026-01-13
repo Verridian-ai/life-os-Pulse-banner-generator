@@ -1,6 +1,20 @@
 import { config } from 'dotenv';
 config();
 
+/**
+ * Represents daily aggregated metrics matching the dailyStats schema
+ */
+export type DailyMetric = {
+    date: string;
+    totalRequests: number;
+    totalLlmCalls: number;
+    totalTokens: number;
+    totalCostUsd: string;
+    uniqueUsers: number;
+    avgLatencyMs: number | null;
+    errorCount: number;
+};
+
 const LANGFUSE_PUBLIC_KEY = process.env.LANGFUSE_PUBLIC_KEY;
 const LANGFUSE_SECRET_KEY = process.env.LANGFUSE_SECRET_KEY;
 const LANGFUSE_HOST = process.env.LANGFUSE_HOST || 'https://cloud.langfuse.com';
@@ -43,12 +57,124 @@ export class LangfuseService {
         }
     }
 
-    static async getDailyMetrics(days: number = 7): Promise<any> {
-        if (!LANGFUSE_PUBLIC_KEY || !LANGFUSE_SECRET_KEY) return { daily: [] };
+    /**
+     * Fetches daily aggregated metrics from Langfuse.
+     * Uses the /api/public/metrics/daily endpoint for pre-aggregated data,
+     * with fallback to manual trace aggregation if needed.
+     *
+     * @param days Number of days of history to fetch (default: 7)
+     * @returns Daily metrics matching the dailyStats schema structure
+     */
+    static async getDailyMetrics(days: number = 7): Promise<{ daily: DailyMetric[] }> {
+        if (!LANGFUSE_PUBLIC_KEY || !LANGFUSE_SECRET_KEY) {
+            console.warn('[Langfuse] Missing credentials, returning empty daily metrics');
+            return { daily: [] };
+        }
 
-        // Langfuse Public API might not have a direct "daily metrics" endpoint easy to consume
-        // We might just return mock or aggregate traces if critical.
-        // For now, let's focus on Traces.
-        return { daily: [] };
+        try {
+            // Try the dedicated daily metrics endpoint first
+            const dailyResponse = await fetch(
+                `${LANGFUSE_HOST}/api/public/metrics/daily?limit=${days}`,
+                {
+                    headers: {
+                        'Authorization': getAuthHeader(),
+                        'Content-Type': 'application/json'
+                    }
+                }
+            );
+
+            if (dailyResponse.ok) {
+                const dailyData = await dailyResponse.json();
+                return {
+                    daily: this.transformDailyMetrics(dailyData.data || dailyData)
+                };
+            }
+
+            // Fallback: Use metrics API with custom query
+            console.log('[Langfuse] Daily endpoint unavailable, using metrics API fallback');
+            return await this.aggregateMetricsFromAPI(days);
+
+        } catch (error) {
+            console.error('[Langfuse] Get daily metrics failed:', error);
+            // Return empty array instead of throwing to avoid breaking the dashboard
+            return { daily: [] };
+        }
+    }
+
+    /**
+     * Transforms Langfuse daily metrics response to match our dailyStats schema
+     */
+    private static transformDailyMetrics(data: any[]): DailyMetric[] {
+        if (!Array.isArray(data)) return [];
+
+        return data.map(item => ({
+            date: item.date || item.timestamp,
+            totalRequests: item.countTraces || item.traceCount || 0,
+            totalLlmCalls: item.countObservations || item.observationCount || 0,
+            totalTokens: (item.usage?.totalTokens) || item.totalTokens || 0,
+            totalCostUsd: item.totalCost || item.cost || '0',
+            uniqueUsers: item.uniqueUsers || item.userCount || 0,
+            avgLatencyMs: item.avgLatency || item.latencyMs || null,
+            errorCount: item.errorCount || item.errors || 0
+        }));
+    }
+
+    /**
+     * Fallback method: Aggregates metrics using the general metrics API
+     */
+    private static async aggregateMetricsFromAPI(days: number): Promise<{ daily: DailyMetric[] }> {
+        const toDate = new Date();
+        const fromDate = new Date();
+        fromDate.setDate(fromDate.getDate() - days);
+
+        const query = {
+            view: 'traces',
+            metrics: [
+                { measure: 'count', aggregation: 'count' },
+                { measure: 'totalTokens', aggregation: 'sum' },
+                { measure: 'latency', aggregation: 'avg' }
+            ],
+            dimensions: [{ field: 'timestamp', granularity: 'day' }],
+            fromTimestamp: fromDate.toISOString(),
+            toTimestamp: toDate.toISOString(),
+            orderBy: [{ field: 'timestamp', direction: 'desc' }]
+        };
+
+        const response = await fetch(
+            `${LANGFUSE_HOST}/api/public/metrics?query=${encodeURIComponent(JSON.stringify(query))}`,
+            {
+                headers: {
+                    'Authorization': getAuthHeader(),
+                    'Content-Type': 'application/json'
+                }
+            }
+        );
+
+        if (!response.ok) {
+            const text = await response.text();
+            console.error('[Langfuse] Metrics API error:', response.status, text);
+            return { daily: [] };
+        }
+
+        const result = await response.json();
+        return {
+            daily: this.transformAggregatedMetrics(result.data || [])
+        };
+    }
+
+    /**
+     * Transforms aggregated metrics API response to dailyStats format
+     */
+    private static transformAggregatedMetrics(data: any[]): DailyMetric[] {
+        return data.map(item => ({
+            date: item.timestamp || item.date,
+            totalRequests: item.count_count || item.count || 0,
+            totalLlmCalls: 0, // Not available from traces view
+            totalTokens: item.totalTokens_sum || 0,
+            totalCostUsd: '0', // Would need cost calculation
+            uniqueUsers: 0, // Would need separate query
+            avgLatencyMs: Math.round(item.latency_avg || 0),
+            errorCount: 0 // Would need separate query with error filter
+        }));
     }
 }
