@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { getUserAPIKeys, saveUserAPIKeys } from '../../services/apiKeyStorage';
 import { testOpenRouterKey, testReplicateKey } from '../../services/apiKeyValidator';
 import { useFocusTrap } from '../../hooks/useFocusTrap';
+import { useAuth } from '../../context/AuthContext';
 
 // Common OpenRouter Models (Text) - Updated with Latest Models (Dec 2025)
 // Moved outside component to avoid useEffect dependency issues
@@ -83,6 +84,9 @@ interface SettingsModalProps {
 }
 
 export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose }) => {
+  // Auth Context for Timeout
+  const { updateTimeoutSettings, timeoutDuration } = useAuth();
+
   // API Keys
   const [openRouterKey, setOpenRouterKey] = useState('');
   const [openaiKey, setOpenaiKey] = useState('');
@@ -94,6 +98,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
   const [magicEditModel, setMagicEditModel] = useState('gemini-3-pro-image-preview');
   const [upscaleModel, setUpscaleModel] = useState('');
   const [customChatModel, setCustomChatModel] = useState('');
+  const [sessionTimeout, setSessionTimeout] = useState<number>(30);
 
   // Validation states
   const [openRouterStatus, setOpenRouterStatus] = useState<
@@ -142,6 +147,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
         setImageGenModel(imageGenValue);
         setMagicEditModel(magicEditValue);
         setUpscaleModel(upscaleValue);
+        setSessionTimeout(timeoutDuration);
 
         // Reset validation status
         setOpenRouterStatus('untested');
@@ -156,7 +162,10 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
     };
 
     loadSettings();
-  }, [isOpen]);
+    if (isOpen) {
+      setSessionTimeout(timeoutDuration);
+    }
+  }, [isOpen, timeoutDuration]);
 
   const handleTestOpenRouter = async () => {
     setOpenRouterStatus('testing');
@@ -247,6 +256,9 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
 
       const finalChatModel = chatModel === 'custom' ? customChatModel : chatModel;
 
+      // Update timeout settings (fire and forget, it handles its own toast/error but we catch generic errors here)
+      updateTimeoutSettings(sessionTimeout).catch(console.error);
+
       // Save to database via backend API
       const result = await saveUserAPIKeys({
         openrouter_api_key: openRouterKey,
@@ -284,26 +296,26 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
   if (!isOpen) return null;
 
   return (
-    <div 
+    <div
       className='fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4'
       role="dialog"
       aria-modal="true"
       aria-labelledby="settings-modal-title"
     >
-      <div 
+      <div
         ref={modalRef}
         className='bg-zinc-900 border border-white/10 rounded-3xl p-6 w-full max-w-md max-h-[90vh] overflow-y-auto shadow-2xl relative'
       >
         <button
           type='button'
           onClick={onClose}
-          className='absolute top-4 right-4 text-zinc-500 hover:text-white transition'
+          className='absolute top-4 right-4 min-w-[44px] min-h-[44px] flex items-center justify-center text-zinc-500 hover:text-white hover:bg-white/10 rounded-full transition focus-ring'
           aria-label="Close settings"
         >
           <span className='material-icons'>close</span>
         </button>
 
-        <h2 
+        <h2
           id="settings-modal-title"
           className='text-xl font-black text-white uppercase tracking-wider mb-6 flex items-center gap-2'
         >
@@ -329,14 +341,14 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
                 setOpenRouterStatus('untested');
               }}
               placeholder='sk-or-...'
-              className='w-full bg-zinc-950 border border-white/10 rounded-xl px-4 py-3 text-white text-xs font-medium focus:outline-none focus:border-purple-500/50 transition placeholder-zinc-700'
+              className='w-full bg-zinc-950 border border-white/10 rounded-xl px-4 py-3 text-white text-xs font-medium focus-ring transition placeholder-zinc-700'
             />
             <div className='flex items-center justify-between mt-2'>
               <button
                 type='button'
                 onClick={handleTestOpenRouter}
                 disabled={!openRouterKey || openRouterStatus === 'testing'}
-                className='text-xs px-3 py-1 bg-purple-600 hover:bg-purple-700 rounded transition disabled:opacity-50 disabled:cursor-not-allowed'
+                className='text-xs px-3 py-1 bg-purple-600 hover:bg-purple-700 rounded transition disabled:opacity-50 disabled:cursor-not-allowed focus-ring'
               >
                 {openRouterStatus === 'testing' ? 'Testing...' : 'Test Connection'}
               </button>
@@ -347,7 +359,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
                 href='https://openrouter.ai/keys'
                 target='_blank'
                 rel='noopener noreferrer'
-                className='text-purple-400 hover:text-purple-300 underline inline-flex items-center gap-1'
+                className='text-purple-400 hover:text-purple-300 underline inline-flex items-center gap-1 focus-ring rounded-sm'
               >
                 Get your OpenRouter API key
                 <span className='material-icons text-[10px]'>open_in_new</span>
@@ -363,26 +375,29 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
             >
               Chat/Assistant Model
             </label>
-            <select
-              id='chat-model-select'
-              value={chatModel}
-              onChange={(e) => setChatModel(e.target.value)}
-              className='w-full bg-zinc-950 border border-white/10 rounded-xl px-4 py-3 text-white text-xs font-medium focus:outline-none focus:border-purple-500/50 transition appearance-none'
-            >
-              {COMMON_MODELS.map((m) => (
-                <option key={m.id} value={m.id}>
-                  {m.name}
-                </option>
-              ))}
-              <option value='custom'>+ Custom Model ID</option>
-            </select>
+            <div className='relative'>
+              <select
+                id='chat-model-select'
+                value={chatModel}
+                onChange={(e) => setChatModel(e.target.value)}
+                className='w-full bg-zinc-950 border border-white/10 rounded-xl px-4 py-3 pr-10 text-white text-xs font-medium focus-ring transition appearance-none cursor-pointer'
+              >
+                {COMMON_MODELS.map((m) => (
+                  <option key={m.id} value={m.id}>
+                    {m.name}
+                  </option>
+                ))}
+                <option value='custom'>+ Custom Model ID</option>
+              </select>
+              <span className='absolute right-4 top-1/2 -translate-y-1/2 text-zinc-500 pointer-events-none material-icons text-sm'>expand_more</span>
+            </div>
             {chatModel === 'custom' && (
               <input
                 type='text'
                 value={customChatModel}
                 onChange={(e) => setCustomChatModel(e.target.value)}
                 placeholder='e.g., openai/gpt-4'
-                className='w-full px-4 py-2 mt-2 bg-zinc-800 border border-purple-500/30 rounded-xl text-white text-xs font-medium focus:outline-none focus:border-purple-500 transition placeholder-zinc-500'
+                className='w-full px-4 py-2 mt-2 bg-zinc-800 border border-purple-500/30 rounded-xl text-white text-xs font-medium focus-ring transition placeholder-zinc-500'
               />
             )}
           </div>
@@ -395,18 +410,21 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
             >
               Image Generation Model
             </label>
-            <select
-              id='image-gen-model-select'
-              value={imageGenModel}
-              onChange={(e) => setImageGenModel(e.target.value)}
-              className='w-full bg-zinc-950 border border-white/10 rounded-xl px-4 py-3 text-white text-xs font-medium focus:outline-none focus:border-purple-500/50 transition appearance-none'
-            >
-              {IMAGE_MODELS.map((m) => (
-                <option key={m.id} value={m.id}>
-                  {m.name}
-                </option>
-              ))}
-            </select>
+            <div className='relative'>
+              <select
+                id='image-gen-model-select'
+                value={imageGenModel}
+                onChange={(e) => setImageGenModel(e.target.value)}
+                className='w-full bg-zinc-950 border border-white/10 rounded-xl px-4 py-3 pr-10 text-white text-xs font-medium focus-ring transition appearance-none cursor-pointer'
+              >
+                {IMAGE_MODELS.map((m) => (
+                  <option key={m.id} value={m.id}>
+                    {m.name}
+                  </option>
+                ))}
+              </select>
+              <span className='absolute right-4 top-1/2 -translate-y-1/2 text-zinc-500 pointer-events-none material-icons text-sm'>expand_more</span>
+            </div>
             <p className='text-[9px] text-zinc-600 mt-2'>
               Nano Banana Pro requires preview access. Falls back to Nano Banana if unavailable.
             </p>
@@ -420,18 +438,50 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
             >
               Magic Edit Model
             </label>
-            <select
-              id='magic-edit-model-select'
-              value={magicEditModel}
-              onChange={(e) => setMagicEditModel(e.target.value)}
-              className='w-full bg-zinc-950 border border-white/10 rounded-xl px-4 py-3 text-white text-xs font-medium focus:outline-none focus:border-purple-500/50 transition appearance-none'
+            <div className='relative'>
+              <select
+                id='magic-edit-model-select'
+                value={magicEditModel}
+                onChange={(e) => setMagicEditModel(e.target.value)}
+                className='w-full bg-zinc-950 border border-white/10 rounded-xl px-4 py-3 pr-10 text-white text-xs font-medium focus-ring transition appearance-none cursor-pointer'
+              >
+                {MAGIC_EDIT_MODELS.map((m) => (
+                  <option key={m.id} value={m.id}>
+                    {m.name}
+                  </option>
+                ))}
+              </select>
+              <span className='absolute right-4 top-1/2 -translate-y-1/2 text-zinc-500 pointer-events-none material-icons text-sm'>expand_more</span>
+            </div>
+          </div>
+
+          {/* Session Timeout */}
+          <div>
+            <label
+              htmlFor='session-timeout-select'
+              className='block text-[10px] font-bold text-zinc-500 uppercase tracking-widest mb-2'
             >
-              {MAGIC_EDIT_MODELS.map((m) => (
-                <option key={m.id} value={m.id}>
-                  {m.name}
-                </option>
-              ))}
-            </select>
+              Session Idle Timeout
+            </label>
+            <div className='relative'>
+              <select
+                id='session-timeout-select'
+                value={sessionTimeout}
+                onChange={(e) => setSessionTimeout(Number(e.target.value))}
+                className='w-full bg-zinc-950 border border-white/10 rounded-xl px-4 py-3 pr-10 text-white text-xs font-medium focus-ring transition appearance-none cursor-pointer'
+              >
+                <option value={15}>15 Minutes</option>
+                <option value={30}>30 Minutes (Default)</option>
+                <option value={60}>1 Hour</option>
+                <option value={120}>2 Hours</option>
+                <option value={0.5}>Test Mode (30s)</option>
+                <option value={0}>Disabled</option>
+              </select>
+              <span className='absolute right-4 top-1/2 -translate-y-1/2 text-zinc-500 pointer-events-none material-icons text-sm'>expand_more</span>
+            </div>
+            <p className='text-[9px] text-zinc-600 mt-2'>
+              Automatically logout after inactivity to protect your account.
+            </p>
           </div>
 
           {/* Divider */}
@@ -455,7 +505,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
                 setOpenaiStatus('untested');
               }}
               placeholder='sk-...'
-              className='w-full bg-zinc-950 border border-white/10 rounded-xl px-4 py-3 text-white text-xs font-medium focus:outline-none focus:border-purple-500/50 transition placeholder-zinc-700'
+              className='w-full bg-zinc-950 border border-white/10 rounded-xl px-4 py-3 text-white text-xs font-medium focus-ring transition placeholder-zinc-700'
             />
             {openaiKey && (
               <div className='flex items-center justify-between mt-2'>
@@ -463,7 +513,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
                   type='button'
                   onClick={handleTestOpenAI}
                   disabled={openaiStatus === 'testing'}
-                  className='text-xs px-3 py-1 bg-purple-600 hover:bg-purple-700 rounded transition disabled:opacity-50 disabled:cursor-not-allowed'
+                  className='text-xs px-3 py-1 bg-purple-600 hover:bg-purple-700 rounded transition disabled:opacity-50 disabled:cursor-not-allowed focus-ring'
                 >
                   {openaiStatus === 'testing' ? 'Testing...' : 'Test Connection'}
                 </button>
@@ -475,7 +525,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
                 href='https://platform.openai.com/api-keys'
                 target='_blank'
                 rel='noopener noreferrer'
-                className='text-purple-400 hover:text-purple-300 underline inline-flex items-center gap-1'
+                className='text-purple-400 hover:text-purple-300 underline inline-flex items-center gap-1 focus-ring rounded-sm'
               >
                 Get your OpenAI API key
                 <span className='material-icons text-[10px]'>open_in_new</span>
@@ -501,7 +551,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
                 setReplicateStatus('untested');
               }}
               placeholder='r8_...'
-              className='w-full bg-zinc-950 border border-white/10 rounded-xl px-4 py-3 text-white text-xs font-medium focus:outline-none focus:border-purple-500/50 transition placeholder-zinc-700'
+              className='w-full bg-zinc-950 border border-white/10 rounded-xl px-4 py-3 text-white text-xs font-medium focus-ring transition placeholder-zinc-700'
             />
             {replicateKey && (
               <div className='flex items-center justify-between mt-2'>
@@ -509,7 +559,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
                   type='button'
                   onClick={handleTestReplicate}
                   disabled={replicateStatus === 'testing'}
-                  className='text-xs px-3 py-1 bg-purple-600 hover:bg-purple-700 rounded transition disabled:opacity-50 disabled:cursor-not-allowed'
+                  className='text-xs px-3 py-1 bg-purple-600 hover:bg-purple-700 rounded transition disabled:opacity-50 disabled:cursor-not-allowed focus-ring'
                 >
                   {replicateStatus === 'testing' ? 'Testing...' : 'Test Connection'}
                 </button>
@@ -521,7 +571,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
                 href='https://replicate.com/account/api-tokens'
                 target='_blank'
                 rel='noopener noreferrer'
-                className='text-purple-400 hover:text-purple-300 underline inline-flex items-center gap-1'
+                className='text-purple-400 hover:text-purple-300 underline inline-flex items-center gap-1 focus-ring rounded-sm'
               >
                 Get your Replicate API token
                 <span className='material-icons text-[10px]'>open_in_new</span>
@@ -537,18 +587,21 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
                 >
                   Upscale Model (Replicate)
                 </label>
-                <select
-                  id='upscale-model-select'
-                  value={upscaleModel}
-                  onChange={(e) => setUpscaleModel(e.target.value)}
-                  className='w-full bg-zinc-950 border border-white/10 rounded-xl px-4 py-3 text-white text-xs font-medium focus:outline-none focus:border-purple-500/50 transition appearance-none'
-                >
-                  {UPSCALE_MODELS.map((m) => (
-                    <option key={m.id} value={m.id}>
-                      {m.name}
-                    </option>
-                  ))}
-                </select>
+                <div className='relative'>
+                  <select
+                    id='upscale-model-select'
+                    value={upscaleModel}
+                    onChange={(e) => setUpscaleModel(e.target.value)}
+                    className='w-full bg-zinc-950 border border-white/10 rounded-xl px-4 py-3 pr-10 text-white text-xs font-medium focus-ring transition appearance-none cursor-pointer'
+                  >
+                    {UPSCALE_MODELS.map((m) => (
+                      <option key={m.id} value={m.id}>
+                        {m.name}
+                      </option>
+                    ))}
+                  </select>
+                  <span className='absolute right-4 top-1/2 -translate-y-1/2 text-zinc-500 pointer-events-none material-icons text-sm'>expand_more</span>
+                </div>
                 <p className='text-[9px] text-zinc-600 mt-2'>
                   Real-ESRGAN for general upscaling, SwinIR for restoration, CodeFormer for faces
                 </p>
