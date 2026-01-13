@@ -1,8 +1,8 @@
 import { Hono, Context } from 'hono';
 import { lucia } from '../lib/auth';
 import { db } from '../db';
-import { profiles, userPreferences, userApiKeys } from '../db/schema';
-import { eq } from 'drizzle-orm';
+import { profiles, userPreferences, userApiKeys, userCreditAccounts, creditTransactions, creditTiers } from '../db/schema';
+import { eq, desc } from 'drizzle-orm';
 
 export const userRouter = new Hono();
 
@@ -162,4 +162,99 @@ userRouter.post('/api-keys', async (c) => {
     return c.json({ success: true });
 });
 
+// ============================================================================
+// CREDIT SYSTEM
+// ============================================================================
+
+// Get User Credits
+userRouter.get('/credits', async (c) => {
+    const user = await getUser(c);
+    if (!user) return c.json({ error: 'Unauthorized' }, 401);
+
+    // Fetch credit account
+    let creditAccount = await db.select()
+        .from(userCreditAccounts)
+        .where(eq(userCreditAccounts.userId, user.id))
+        .limit(1);
+
+    // Create credit account if missing (lazy init with free tier defaults)
+    if (!creditAccount[0]) {
+        const [newAccount] = await db.insert(userCreditAccounts).values({
+            userId: user.id,
+            tierId: 'free',
+            creditBalance: 100,
+            lifetimeCreditsGranted: 100,
+            lifetimeCreditsUsed: 0,
+        }).returning();
+        creditAccount = [newAccount];
+    }
+
+    // Fetch tier info
+    const tier = creditAccount[0].tierId
+        ? await db.select().from(creditTiers).where(eq(creditTiers.id, creditAccount[0].tierId)).limit(1)
+        : null;
+
+    // Fetch recent transactions (last 10)
+    const transactions = await db.select()
+        .from(creditTransactions)
+        .where(eq(creditTransactions.userId, user.id))
+        .orderBy(desc(creditTransactions.createdAt))
+        .limit(10);
+
+    return c.json({
+        credits: {
+            balance: creditAccount[0].creditBalance,
+            lifetimeUsed: creditAccount[0].lifetimeCreditsUsed,
+            lifetimeGranted: creditAccount[0].lifetimeCreditsGranted,
+            lastRefillAt: creditAccount[0].lastRefillAt,
+            nextRefillAt: creditAccount[0].nextRefillAt,
+        },
+        tier: tier?.[0] ? {
+            id: tier[0].id,
+            name: tier[0].name,
+            displayName: tier[0].displayName,
+            monthlyCredits: tier[0].monthlyCredits,
+            priceUsd: tier[0].priceUsd,
+            features: tier[0].features,
+        } : null,
+        recentTransactions: transactions.map(t => ({
+            id: t.id,
+            amount: t.amount,
+            type: t.type,
+            description: t.description,
+            balanceAfter: t.balanceAfter,
+            createdAt: t.createdAt,
+        })),
+    });
+});
+
+// Get Credit History (paginated)
+userRouter.get('/credits/history', async (c) => {
+    const user = await getUser(c);
+    if (!user) return c.json({ error: 'Unauthorized' }, 401);
+
+    const limit = Math.min(parseInt(c.req.query('limit') || '20'), 100);
+    const offset = parseInt(c.req.query('offset') || '0');
+
+    const transactions = await db.select()
+        .from(creditTransactions)
+        .where(eq(creditTransactions.userId, user.id))
+        .orderBy(desc(creditTransactions.createdAt))
+        .limit(limit)
+        .offset(offset);
+
+    return c.json({
+        transactions: transactions.map(t => ({
+            id: t.id,
+            amount: t.amount,
+            type: t.type,
+            description: t.description,
+            modelUsed: t.modelUsed,
+            operationType: t.operationType,
+            balanceAfter: t.balanceAfter,
+            createdAt: t.createdAt,
+        })),
+        pagination: { limit, offset },
+    });
+});
 

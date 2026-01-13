@@ -7,6 +7,7 @@ import { userApiKeys } from '../db/schema';
 import { eq } from 'drizzle-orm';
 import { PROMPT_ENHANCER_MODEL, type PromptEnhanceContext, generateSystemPrompt } from '../prompts/promptEnhancer';
 import { aiRateLimit } from '../lib/rateLimit';
+import { checkCredits, deductCredits, type OperationType } from '../services/creditService';
 
 type Variables = {
     user: { id: string } | null;
@@ -23,6 +24,43 @@ aiRouter.use('*', aiRateLimit);
 const getUserApiKeys = async (userId: string) => {
     const keys = await db.select().from(userApiKeys).where(eq(userApiKeys.userId, userId)).limit(1);
     return keys[0] || null;
+};
+
+// Helper to check and deduct credits for an operation
+// Returns { allowed: true } if credits deducted successfully
+// Returns { allowed: false, error: string, balance: number } if insufficient credits
+const handleCredits = async (
+    userId: string,
+    operation: OperationType,
+    modelUsed?: string
+): Promise<{ allowed: boolean; error?: string; balance?: number }> => {
+    // Check if user has enough credits
+    const check = await checkCredits(userId, operation);
+    if (!check.hasCredits) {
+        return {
+            allowed: false,
+            error: `Insufficient credits. Required: ${check.requiredCredits}, Available: ${check.currentBalance}`,
+            balance: check.currentBalance,
+        };
+    }
+
+    // Deduct credits
+    const result = await deductCredits({
+        userId,
+        operation,
+        modelUsed,
+        description: `${operation} via AI API`,
+    });
+
+    if (!result.success) {
+        return {
+            allowed: false,
+            error: result.error || 'Failed to deduct credits',
+            balance: result.newBalance,
+        };
+    }
+
+    return { allowed: true, balance: result.newBalance };
 };
 
 // Helper for Datadog LLM Observability
@@ -320,6 +358,14 @@ aiRouter.post('/chat', authMiddleware, async (c) => {
     const userKeys = user ? await getUserApiKeys(user.id) : null;
     const apiKey = userKeys?.openrouterApiKey || process.env.OPENROUTER_API_KEY || '';
 
+    // Credit check and deduction
+    if (user?.id) {
+        const creditResult = await handleCredits(user.id, 'chat_message', model);
+        if (!creditResult.allowed) {
+            return c.json({ error: creditResult.error, creditBalance: creditResult.balance }, 402);
+        }
+    }
+
     try {
         // If tools are provided, use full response format for tool support
         if (tools && tools.length > 0) {
@@ -360,6 +406,14 @@ aiRouter.post('/image/edit', authMiddleware, async (c) => {
         const userKeys = user ? await getUserApiKeys(user.id) : null;
         const replicateKey = userKeys?.replicateApiKey || process.env.REPLICATE_API_KEY || '';
         const openRouterKey = userKeys?.openrouterApiKey || process.env.OPENROUTER_API_KEY || '';
+
+        // Credit check and deduction for magic edit
+        if (user?.id) {
+            const creditResult = await handleCredits(user.id, 'image_magic_edit', model);
+            if (!creditResult.allowed) {
+                return c.json({ error: creditResult.error, creditBalance: creditResult.balance }, 402);
+            }
+        }
 
         // Helper to ensure data URI
         const ensureDataUri = (img: string) =>
@@ -500,7 +554,7 @@ aiRouter.post('/image/edit', authMiddleware, async (c) => {
 // All image generation requests are routed to Replicate.
 aiRouter.post('/image/generate', authMiddleware, async (c) => {
     // eslint-disable-next-line prefer-const
-    let { prompt, model, provider, aspect_ratio, width, height } = await c.req.json();
+    let { prompt, model, provider, aspect_ratio, width, height, hd } = await c.req.json();
 
     // Validate Validation
     try {
@@ -513,6 +567,15 @@ aiRouter.post('/image/generate', authMiddleware, async (c) => {
     const user = c.get('user') as { id: string } | undefined;
     const userKeys = user ? await getUserApiKeys(user.id) : null;
     const replicateKey = userKeys?.replicateApiKey || process.env.REPLICATE_API_KEY || '';
+
+    // Credit check and deduction - HD costs more
+    if (user?.id) {
+        const operation: OperationType = hd ? 'image_generate_hd' : 'image_generate';
+        const creditResult = await handleCredits(user.id, operation, model);
+        if (!creditResult.allowed) {
+            return c.json({ error: creditResult.error, creditBalance: creditResult.balance }, 402);
+        }
+    }
 
     try {
         // OpenRouter does NOT have an image generation endpoint
@@ -600,6 +663,14 @@ aiRouter.post('/image/remove-bg', authMiddleware, async (c) => {
     const userKeys = user ? await getUserApiKeys(user.id) : null;
     const replicateKey = userKeys?.replicateApiKey || process.env.REPLICATE_API_KEY || '';
 
+    // Credit check and deduction
+    if (user?.id) {
+        const creditResult = await handleCredits(user.id, 'image_remove_bg', model);
+        if (!creditResult.allowed) {
+            return c.json({ error: creditResult.error, creditBalance: creditResult.balance }, 402);
+        }
+    }
+
     // Default to pinned version if no model provided
     const modelToUse = model || 'cjwbw/rembg';
 
@@ -628,6 +699,14 @@ aiRouter.post('/image/upscale', authMiddleware, async (c) => {
     const user = c.get('user') as { id: string } | undefined;
     const userKeys = user ? await getUserApiKeys(user.id) : null;
     const replicateKey = userKeys?.replicateApiKey || process.env.REPLICATE_API_KEY || '';
+
+    // Credit check and deduction
+    if (user?.id) {
+        const creditResult = await handleCredits(user.id, 'image_upscale', model);
+        if (!creditResult.allowed) {
+            return c.json({ error: creditResult.error, creditBalance: creditResult.balance }, 402);
+        }
+    }
 
     // Default to Real-ESRGAN if no model provided
     const modelToUse = model || 'nightmareai/real-esrgan';
@@ -697,6 +776,14 @@ aiRouter.post('/image/restore', authMiddleware, async (c) => {
     const userKeys = user ? await getUserApiKeys(user.id) : null;
     const replicateKey = userKeys?.replicateApiKey || process.env.REPLICATE_API_KEY || '';
 
+    // Credit check and deduction
+    if (user?.id) {
+        const creditResult = await handleCredits(user.id, 'image_restore', 'codeformer');
+        if (!creditResult.allowed) {
+            return c.json({ error: creditResult.error, creditBalance: creditResult.balance }, 402);
+        }
+    }
+
     const model = 'sczhou/codeformer';
     try {
         const output = await traceLLMCall(
@@ -731,6 +818,14 @@ aiRouter.post('/prompt/enhance', authMiddleware, async (c) => {
 
     if (!apiKey) {
         return c.json({ error: 'OpenRouter API key not configured' }, 401);
+    }
+
+    // Credit check and deduction
+    if (user?.id) {
+        const creditResult = await handleCredits(user.id, 'prompt_enhance', PROMPT_ENHANCER_MODEL);
+        if (!creditResult.allowed) {
+            return c.json({ error: creditResult.error, creditBalance: creditResult.balance }, 402);
+        }
     }
 
     try {

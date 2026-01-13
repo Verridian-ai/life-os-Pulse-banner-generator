@@ -4,6 +4,33 @@ import { testOpenRouterKey, testReplicateKey } from '../../services/apiKeyValida
 import { useFocusTrap } from '../../hooks/useFocusTrap';
 import { useAuth } from '../../context/AuthContext';
 
+// Credit types
+interface UserCredits {
+  balance: number;
+  lifetimeUsed: number;
+  lifetimeGranted: number;
+  lastRefillAt: string | null;
+  nextRefillAt: string | null;
+}
+
+interface CreditTier {
+  id: string;
+  name: string;
+  displayName: string;
+  monthlyCredits: number;
+  priceUsd: string;
+  features: Record<string, unknown>;
+}
+
+interface CreditTransaction {
+  id: string;
+  amount: number;
+  type: string;
+  description: string;
+  balanceAfter: number;
+  createdAt: string;
+}
+
 // Common OpenRouter Models (Text) - Updated with Latest Models (Dec 2025)
 // Moved outside component to avoid useEffect dependency issues
 const COMMON_MODELS = [
@@ -87,6 +114,15 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
   // Auth Context for Timeout
   const { updateTimeoutSettings, timeoutDuration } = useAuth();
 
+  // Settings tab
+  const [activeTab, setActiveTab] = useState<'credits' | 'api-keys'>('credits');
+
+  // Credits state
+  const [credits, setCredits] = useState<UserCredits | null>(null);
+  const [tier, setTier] = useState<CreditTier | null>(null);
+  const [recentTransactions, setRecentTransactions] = useState<CreditTransaction[]>([]);
+  const [isLoadingCredits, setIsLoadingCredits] = useState(false);
+
   // API Keys
   const [openRouterKey, setOpenRouterKey] = useState('');
   const [openaiKey, setOpenaiKey] = useState('');
@@ -116,6 +152,34 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
 
   // Use Focus Trap
   const modalRef = useFocusTrap(isOpen, onClose);
+
+  // Load credits when modal opens
+  useEffect(() => {
+    if (!isOpen) return;
+
+    const fetchCredits = async () => {
+      setIsLoadingCredits(true);
+      try {
+        const response = await fetch('/api/user/credits', {
+          credentials: 'include',
+        });
+        if (response.ok) {
+          const data = await response.json();
+          setCredits(data.credits);
+          setTier(data.tier);
+          setRecentTransactions(data.recentTransactions || []);
+        } else {
+          console.error('[Settings] Failed to fetch credits:', response.status);
+        }
+      } catch (error) {
+        console.error('[Settings] Credits fetch error:', error);
+      } finally {
+        setIsLoadingCredits(false);
+      }
+    };
+
+    fetchCredits();
+  }, [isOpen]);
 
   // Load settings on mount
   useEffect(() => {
@@ -317,12 +381,185 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
 
         <h2
           id="settings-modal-title"
-          className='text-xl font-black text-white uppercase tracking-wider mb-6 flex items-center gap-2'
+          className='text-xl font-black text-white uppercase tracking-wider mb-4 flex items-center gap-2'
         >
           <span className='material-icons text-purple-500'>settings</span>
-          AI Settings
+          Settings
         </h2>
 
+        {/* Tab Navigation */}
+        <div className='flex gap-2 mb-6'>
+          <button
+            type='button'
+            onClick={() => setActiveTab('credits')}
+            className={`flex-1 py-2 px-4 rounded-xl text-xs font-bold uppercase tracking-wider transition ${
+              activeTab === 'credits'
+                ? 'bg-purple-600 text-white'
+                : 'bg-zinc-800 text-zinc-400 hover:bg-zinc-700'
+            }`}
+          >
+            <span className='material-icons text-sm mr-1 align-middle'>payments</span>
+            Credits
+          </button>
+          <button
+            type='button'
+            onClick={() => setActiveTab('api-keys')}
+            className={`flex-1 py-2 px-4 rounded-xl text-xs font-bold uppercase tracking-wider transition ${
+              activeTab === 'api-keys'
+                ? 'bg-purple-600 text-white'
+                : 'bg-zinc-800 text-zinc-400 hover:bg-zinc-700'
+            }`}
+          >
+            <span className='material-icons text-sm mr-1 align-middle'>key</span>
+            API Keys
+          </button>
+        </div>
+
+        {/* Credits Tab */}
+        {activeTab === 'credits' && (
+          <div className='space-y-6'>
+            {isLoadingCredits ? (
+              <div className='flex items-center justify-center py-8'>
+                <span className='material-icons animate-spin text-purple-500'>sync</span>
+                <span className='ml-2 text-zinc-400 text-sm'>Loading credits...</span>
+              </div>
+            ) : credits ? (
+              <>
+                {/* Balance Card */}
+                <div className='bg-gradient-to-br from-purple-600/20 to-pink-600/20 border border-purple-500/30 rounded-2xl p-6'>
+                  <div className='flex items-center justify-between mb-4'>
+                    <span className='text-[10px] font-bold text-zinc-400 uppercase tracking-widest'>
+                      Credit Balance
+                    </span>
+                    {tier && (
+                      <span className='px-2 py-1 bg-purple-600/30 border border-purple-500/50 rounded-full text-[9px] font-bold text-purple-300 uppercase'>
+                        {tier.displayName || tier.name}
+                      </span>
+                    )}
+                  </div>
+                  <div className='flex items-baseline gap-2'>
+                    <span className='text-4xl font-black text-white'>{credits.balance}</span>
+                    <span className='text-zinc-400 text-sm'>credits</span>
+                  </div>
+
+                  {/* Usage Bar */}
+                  <div className='mt-4'>
+                    <div className='flex justify-between text-[9px] text-zinc-500 mb-1'>
+                      <span>Used: {credits.lifetimeUsed}</span>
+                      <span>Total granted: {credits.lifetimeGranted}</span>
+                    </div>
+                    <div className='h-2 bg-zinc-800 rounded-full overflow-hidden'>
+                      <div
+                        className='h-full bg-gradient-to-r from-purple-500 to-pink-500 transition-all duration-300'
+                        style={{
+                          width: `${Math.min(100, (credits.lifetimeUsed / Math.max(1, credits.lifetimeGranted)) * 100)}%`,
+                        }}
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                {/* Credit Costs Info */}
+                <div className='bg-zinc-800/50 border border-white/5 rounded-xl p-4'>
+                  <h3 className='text-[10px] font-bold text-zinc-400 uppercase tracking-widest mb-3'>
+                    Credit Costs
+                  </h3>
+                  <div className='grid grid-cols-2 gap-2 text-[10px]'>
+                    <div className='flex justify-between'>
+                      <span className='text-zinc-500'>Image Generate</span>
+                      <span className='text-white font-bold'>10</span>
+                    </div>
+                    <div className='flex justify-between'>
+                      <span className='text-zinc-500'>HD Generate</span>
+                      <span className='text-white font-bold'>20</span>
+                    </div>
+                    <div className='flex justify-between'>
+                      <span className='text-zinc-500'>Magic Edit</span>
+                      <span className='text-white font-bold'>15</span>
+                    </div>
+                    <div className='flex justify-between'>
+                      <span className='text-zinc-500'>Upscale</span>
+                      <span className='text-white font-bold'>5</span>
+                    </div>
+                    <div className='flex justify-between'>
+                      <span className='text-zinc-500'>Remove BG</span>
+                      <span className='text-white font-bold'>3</span>
+                    </div>
+                    <div className='flex justify-between'>
+                      <span className='text-zinc-500'>Chat Message</span>
+                      <span className='text-white font-bold'>1</span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Recent Transactions */}
+                {recentTransactions.length > 0 && (
+                  <div>
+                    <h3 className='text-[10px] font-bold text-zinc-400 uppercase tracking-widest mb-3'>
+                      Recent Activity
+                    </h3>
+                    <div className='space-y-2 max-h-40 overflow-y-auto'>
+                      {recentTransactions.slice(0, 5).map((tx) => (
+                        <div
+                          key={tx.id}
+                          className='flex items-center justify-between py-2 border-b border-white/5 last:border-0'
+                        >
+                          <div className='flex items-center gap-2'>
+                            <span
+                              className={`material-icons text-sm ${
+                                tx.amount > 0 ? 'text-green-500' : 'text-red-400'
+                              }`}
+                            >
+                              {tx.amount > 0 ? 'add_circle' : 'remove_circle'}
+                            </span>
+                            <span className='text-[10px] text-zinc-400 truncate max-w-[150px]'>
+                              {tx.description}
+                            </span>
+                          </div>
+                          <span
+                            className={`text-xs font-bold ${
+                              tx.amount > 0 ? 'text-green-400' : 'text-red-400'
+                            }`}
+                          >
+                            {tx.amount > 0 ? '+' : ''}{tx.amount}
+                          </span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* Tier Info */}
+                {tier && (
+                  <div className='bg-zinc-800/30 border border-white/5 rounded-xl p-4'>
+                    <div className='flex items-center justify-between'>
+                      <div>
+                        <p className='text-[10px] text-zinc-500 uppercase tracking-widest'>Current Plan</p>
+                        <p className='text-white font-bold'>{tier.displayName || tier.name}</p>
+                        <p className='text-[10px] text-zinc-500'>
+                          {tier.monthlyCredits} credits/month
+                        </p>
+                      </div>
+                      {tier.priceUsd && Number(tier.priceUsd) > 0 && (
+                        <div className='text-right'>
+                          <p className='text-lg font-bold text-white'>${tier.priceUsd}</p>
+                          <p className='text-[9px] text-zinc-500'>/month</p>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                )}
+              </>
+            ) : (
+              <div className='text-center py-8 text-zinc-500 text-sm'>
+                Unable to load credits. Please try again.
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* API Keys Tab */}
+        {activeTab === 'api-keys' && (
         <div className='space-y-6'>
           {/* OpenRouter Section */}
           <div>
@@ -641,6 +878,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
             )}
           </button>
         </div>
+        )}
       </div>
     </div>
   );
