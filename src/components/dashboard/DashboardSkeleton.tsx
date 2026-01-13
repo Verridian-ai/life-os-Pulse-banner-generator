@@ -14,8 +14,8 @@ const DashboardContentSkeleton: React.FC = () => (
         {/* Welcome Header Skeleton */}
         <div className="relative">
             <div className="space-y-2">
-                <Skeleton variant="shimmer" height={40} width="60%" className="max-w-md" />
-                <Skeleton variant="shimmer" height={24} width="40%" className="max-w-xs" />
+                <Skeleton height={40} width="60%" className="max-w-md" />
+                <Skeleton height={24} width="40%" className="max-w-xs" />
             </div>
         </div>
 
@@ -23,12 +23,12 @@ const DashboardContentSkeleton: React.FC = () => (
         <section>
             <div className="flex items-center gap-3 mb-5">
                 <div className="w-1 h-6 bg-yellow-400/20 rounded-full" />
-                <Skeleton variant="shimmer" width={180} height={24} />
+                <Skeleton width={180} height={24} />
             </div>
             <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4 md:gap-5">
                 {/* 6 Platform Cards */}
                 {[...Array(6)].map((_, i) => (
-                    <Skeleton key={i} variant="shimmer" className="aspect-[4/5] rounded-2xl w-full" />
+                    <Skeleton key={i} className="aspect-[4/5] rounded-2xl w-full" />
                 ))}
             </div>
         </section>
@@ -38,10 +38,10 @@ const DashboardContentSkeleton: React.FC = () => (
             <div className="flex items-center justify-between mb-5">
                 <div className="flex items-center gap-3">
                     <div className="w-1 h-6 bg-yellow-400/20 rounded-full" />
-                    <Skeleton variant="shimmer" width={150} height={24} />
+                    <Skeleton width={150} height={24} />
                 </div>
                 {/* View All button placeholder */}
-                <Skeleton variant="shimmer" width={80} height={32} className="rounded-lg" />
+                <Skeleton width={80} height={32} className="rounded-lg" />
             </div>
 
             {/* Recent Designs Grid */}
@@ -49,11 +49,11 @@ const DashboardContentSkeleton: React.FC = () => (
                 {[...Array(4)].map((_, i) => (
                     <div key={i} className="space-y-3">
                         {/* Image thumbnail */}
-                        <Skeleton variant="shimmer" className="aspect-video w-full rounded-xl" />
+                        <Skeleton className="aspect-video w-full rounded-xl" />
                         {/* Meta info */}
                         <div className="space-y-2">
-                            <Skeleton variant="shimmer" height={16} width="80%" />
-                            <Skeleton variant="shimmer" height={14} width="40%" />
+                            <Skeleton height={16} width="80%" />
+                            <Skeleton height={14} width="40%" />
                         </div>
                     </div>
                 ))}
@@ -68,14 +68,14 @@ const DashboardContentSkeleton: React.FC = () => (
 const SidebarSkeleton: React.FC = () => (
     <aside className="hidden lg:flex flex-col w-64 h-[calc(100vh-64px)] fixed left-0 top-16 bg-stone-950/50 border-r border-white/5 p-4">
         {/* Create New Button Skeleton */}
-        <Skeleton variant="shimmer" height={48} className="w-full rounded-xl mb-6" />
+        <Skeleton height={48} className="w-full rounded-xl mb-6" />
 
         {/* Navigation Items */}
         <nav className="space-y-1 flex-1">
             {[...Array(9)].map((_, i) => (
                 <div key={i} className="flex items-center gap-3 px-3 py-2.5">
-                    <Skeleton variant="shimmer" width={20} height={20} className="rounded" />
-                    <Skeleton variant="shimmer" height={16} width={i === 0 ? '60%' : `${40 + Math.random() * 30}%`} />
+                    <Skeleton width={20} height={20} className="rounded" />
+                    <Skeleton height={16} width={i === 0 ? '60%' : `${40 + Math.random() * 30}%`} />
                 </div>
             ))}
         </nav>
@@ -97,23 +97,23 @@ const HeaderSkeleton: React.FC = () => (
         {/* Left: Logo */}
         <div className="flex items-center gap-3">
             <div className="lg:hidden">
-                <Skeleton variant="shimmer" width={40} height={40} className="rounded-xl" />
+                <Skeleton width={40} height={40} className="rounded-xl" />
             </div>
             <div className="flex items-center gap-2">
-                <Skeleton variant="shimmer" width={32} height={32} className="rounded-lg" />
-                <Skeleton variant="shimmer" width={80} height={20} className="hidden sm:block" />
+                <Skeleton width={32} height={32} className="rounded-lg" />
+                <Skeleton width={80} height={20} className="hidden sm:block" />
             </div>
         </div>
 
         {/* Center: Search Bar */}
         <div className="hidden md:flex flex-1 max-w-md mx-8">
-            <Skeleton variant="shimmer" height={40} className="w-full rounded-xl" />
+            <Skeleton height={40} className="w-full rounded-xl" />
         </div>
 
         {/* Right: Voice + User Menu */}
         <div className="flex items-center gap-3">
-            <Skeleton variant="shimmer" width={44} height={44} className="rounded-full" />
-            <Skeleton variant="shimmer" width={44} height={44} className="rounded-full" />
+            <Skeleton width={44} height={44} className="rounded-full" />
+            <Skeleton width={44} height={44} className="rounded-full" />
         </div>
     </header>
 );
@@ -126,8 +126,8 @@ const BottomNavSkeleton: React.FC = () => (
         <div className="flex items-center justify-around h-full px-2">
             {[...Array(5)].map((_, i) => (
                 <div key={i} className="flex flex-col items-center gap-1 p-2">
-                    <Skeleton variant="shimmer" width={24} height={24} className="rounded" />
-                    <Skeleton variant="shimmer" width={32} height={10} />
+                    <Skeleton width={24} height={24} className="rounded" />
+                    <Skeleton width={32} height={10} />
                 </div>
             ))}
         </div>
