@@ -24,7 +24,7 @@ interface OnboardingPageProps {
 }
 
 export function OnboardingPage({ pathSegment }: OnboardingPageProps): React.ReactElement {
-    const { user, isLoading: authLoading, isAuthenticated } = useAuth();
+    const { user, isLoading: authLoading, isAuthenticated, markOnboardingComplete } = useAuth();
     const [step, setStep] = useState<OnboardingStep>('loading');
     const [selectedTier, setSelectedTier] = useState<TierType>('free');
     const [credits, setCredits] = useState(100);
@@ -107,13 +107,15 @@ export function OnboardingPage({ pathSegment }: OnboardingPageProps): React.Reac
         setStep('welcome');
     };
 
-    const handleGetStarted = () => {
-        // Navigate to studio
+    const handleGetStarted = async () => {
+        // Mark onboarding as complete and navigate to studio
+        await markOnboardingComplete();
         window.location.href = '/studio';
     };
 
-    const handleSkipTour = () => {
-        // Skip tour and go directly to studio
+    const handleSkipTour = async () => {
+        // Mark onboarding as complete and go directly to studio
+        await markOnboardingComplete();
         window.location.href = '/studio';
     };
 

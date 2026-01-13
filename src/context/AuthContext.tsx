@@ -38,6 +38,7 @@ interface AuthContextType {
   session: AppSession | null;
   isLoading: boolean;
   isAuthenticated: boolean;
+  hasCompletedOnboarding: boolean;
 
   // WorkOS status
   workosStatus: WorkosStatus;
@@ -61,6 +62,7 @@ interface AuthContextType {
   sendMagicLink: (email: string, returnTo?: string) => Promise<{ success: boolean; error: Error | null }>;
   signOut: () => Promise<{ error: Error | null }>;
   refreshProfile: () => Promise<void>;
+  markOnboardingComplete: () => Promise<void>;
 
   // Timeout settings
   updateTimeoutSettings: (minutes: number) => Promise<void>;
@@ -87,6 +89,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
   const [session, setSession] = useState<AppSession | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [hasCompletedOnboarding, setHasCompletedOnboarding] = useState(false);
 
   // WorkOS state
   const [workosStatus, setWorkosStatus] = useState<WorkosStatus>({
@@ -111,13 +114,26 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       if (error) {
         console.error('Failed to load user profile:', error);
         setUser(null);
+        setHasCompletedOnboarding(false);
         return;
       }
       setUser(profile as User | null);
+
+      // Check if onboarding is complete (user has selected a plan or has any subscription)
+      // For now, check localStorage for onboarding completion flag
+      const onboardingComplete = localStorage.getItem('onboarding_complete') === 'true';
+      setHasCompletedOnboarding(onboardingComplete);
     } catch (error) {
       console.error('Failed to load user profile:', error);
       setUser(null);
+      setHasCompletedOnboarding(false);
     }
+  };
+
+  // Mark onboarding as complete
+  const markOnboardingComplete = async () => {
+    localStorage.setItem('onboarding_complete', 'true');
+    setHasCompletedOnboarding(true);
   };
 
   // Fetch timeout preferences
@@ -399,6 +415,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     session,
     isLoading,
     isAuthenticated: !!authUser,
+    hasCompletedOnboarding,
     workosStatus,
     isSSOUser,
     signUp,
@@ -410,6 +427,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     sendMagicLink,
     signOut,
     refreshProfile,
+    markOnboardingComplete,
     updateTimeoutSettings,
     timeoutDuration,
   };

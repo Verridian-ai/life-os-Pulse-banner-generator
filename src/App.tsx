@@ -860,26 +860,16 @@ function App() {
   const isAdminPath = path.startsWith('/admin');
   const isDesignPath = path.startsWith('/design');
   const isOnboardingPath = path.startsWith('/onboarding');
-  const isLandingPath = path === '/welcome' || path === '/landing';
+  const isAuthPath = path === '/login' || path === '/signup';
+  const isRootPath = path === '/' || path === '';
+  const isDashboardPath = path === '/dashboard';
 
-  // Render marketing landing page
-  if (isLandingPath) {
+  // Render auth pages (login/signup)
+  if (isAuthPath) {
     return (
       <>
         <ToastContainer />
-        <Suspense fallback={
-          <div className="min-h-screen bg-zinc-950 flex items-center justify-center">
-            <div className="text-center">
-              <div className="w-16 h-16 border-4 border-purple-500 border-t-transparent rounded-full animate-spin mx-auto mb-4" />
-              <p className="text-zinc-400">Loading...</p>
-            </div>
-          </div>
-        }>
-          <LandingPage
-            onGetStarted={() => { window.location.href = '/onboarding'; }}
-            onSignIn={() => { window.location.href = '/'; }}
-          />
-        </Suspense>
+        <AuthPage mode={path === '/signup' ? 'signup' : 'login'} />
       </>
     );
   }
@@ -928,6 +918,17 @@ function App() {
     );
   }
 
+  // Root path or dashboard - use MainAppRouter to decide landing vs dashboard
+  if (isRootPath || isDashboardPath) {
+    return (
+      <>
+        <ToastContainer />
+        <MainAppRouter />
+      </>
+    );
+  }
+
+  // Default: Show main app
   return (
     <>
       <ToastContainer />
@@ -941,6 +942,129 @@ function App() {
         </AIProvider>
       </ScreenReaderAnnouncerProvider>
     </>
+  );
+}
+
+/**
+ * Main App Router - Decides between landing page and dashboard based on auth state
+ */
+function MainAppRouter(): React.ReactElement {
+  const { isAuthenticated, isLoading, hasCompletedOnboarding } = useAuth();
+
+  // Show loading while checking auth
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-zinc-950 flex items-center justify-center">
+        <div className="text-center">
+          <div className="w-16 h-16 border-4 border-purple-500 border-t-transparent rounded-full animate-spin mx-auto mb-4" />
+          <p className="text-zinc-400">Loading...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Not authenticated - show landing page
+  if (!isAuthenticated) {
+    return (
+      <Suspense fallback={
+        <div className="min-h-screen bg-zinc-950 flex items-center justify-center">
+          <div className="text-center">
+            <div className="w-16 h-16 border-4 border-purple-500 border-t-transparent rounded-full animate-spin mx-auto mb-4" />
+            <p className="text-zinc-400">Loading...</p>
+          </div>
+        </div>
+      }>
+        <LandingPage
+          onGetStarted={() => { window.location.href = '/signup'; }}
+          onSignIn={() => { window.location.href = '/login'; }}
+        />
+      </Suspense>
+    );
+  }
+
+  // Authenticated but hasn't completed onboarding - redirect to onboarding
+  if (!hasCompletedOnboarding) {
+    window.location.href = '/onboarding';
+    return (
+      <div className="min-h-screen bg-zinc-950 flex items-center justify-center">
+        <div className="text-center">
+          <div className="w-16 h-16 border-4 border-purple-500 border-t-transparent rounded-full animate-spin mx-auto mb-4" />
+          <p className="text-zinc-400">Redirecting to setup...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Authenticated and completed onboarding - show main app
+  return (
+    <ScreenReaderAnnouncerProvider>
+      <AIProvider>
+        <CanvasProvider>
+          <VoiceAgentWrapper>
+            <AppContent />
+          </VoiceAgentWrapper>
+        </CanvasProvider>
+      </AIProvider>
+    </ScreenReaderAnnouncerProvider>
+  );
+}
+
+/**
+ * Auth Page - Handles login and signup flows
+ */
+function AuthPage({ mode }: { mode: 'login' | 'signup' }): React.ReactElement {
+  const { isAuthenticated, isLoading } = useAuth();
+  const [showAuthModal, setShowAuthModal] = useState(true);
+
+  // If already authenticated, redirect to dashboard
+  useEffect(() => {
+    if (!isLoading && isAuthenticated) {
+      window.location.href = '/';
+    }
+  }, [isAuthenticated, isLoading]);
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-zinc-950 flex items-center justify-center">
+        <div className="text-center">
+          <div className="w-16 h-16 border-4 border-purple-500 border-t-transparent rounded-full animate-spin mx-auto mb-4" />
+          <p className="text-zinc-400">Loading...</p>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="min-h-screen bg-zinc-950 flex items-center justify-center">
+      {/* Background */}
+      <div className="fixed inset-0 bg-gradient-to-br from-purple-900/20 via-zinc-950 to-pink-900/20 pointer-events-none" />
+
+      {/* Logo and brand */}
+      <div className="absolute top-8 left-8 flex items-center gap-3">
+        <a href="/" className="flex items-center gap-2">
+          <div className="w-10 h-10 bg-gradient-to-br from-purple-500 to-pink-500 rounded-xl flex items-center justify-center">
+            <span className="text-white font-black text-lg">N</span>
+          </div>
+          <span className="text-xl font-black text-white">Nanobanna</span>
+        </a>
+      </div>
+
+      {/* Auth Modal */}
+      <Suspense fallback={null}>
+        <AuthModal
+          isOpen={showAuthModal}
+          onClose={() => {
+            // Redirect back to landing if closed
+            window.location.href = '/';
+          }}
+          onSuccess={() => {
+            // Redirect to onboarding after successful auth
+            window.location.href = '/onboarding';
+          }}
+          defaultMode={mode}
+        />
+      </Suspense>
+    </div>
   );
 }
 

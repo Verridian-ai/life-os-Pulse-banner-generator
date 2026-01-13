@@ -64,3 +64,28 @@ PowerShell-Source/
 ui-inspection/
 test-screenshots/
 screenshots/
+
+# Large asset files not needed for build
+public/assets/templates/*.mp4
+public/assets/templates/*.zip
+public/assets/templates/*.pdf
+public/assets/templates/*.psd
+public/assets/templates/*.ai
+public/assets/templates/*.eps
+public/assets/templates/logo_packs/
+public/assets/templates/GitHub-Logos/
+public/assets/templates/company_logos/
+
+# Python cache
+__pycache__/
+*.pyc
+*.pyo
+cognee_agents/__pycache__/
+cognee_agents/**/__pycache__/
+
+# Temporary files
+*.tmp
+*.temp
+
+# Auto-claude deprecated files
+.auto-claude/

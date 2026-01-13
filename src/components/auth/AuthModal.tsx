@@ -48,9 +48,17 @@ interface AuthModalProps {
   onSuccess: () => void;
   /** If true, redirect new signups to onboarding page */
   redirectNewUsersToOnboarding?: boolean;
+  /** Default mode to show (login or signup) */
+  defaultMode?: 'login' | 'signup';
 }
 
-export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onSuccess, redirectNewUsersToOnboarding = true }) => {
+export const AuthModal: React.FC<AuthModalProps> = ({
+  isOpen,
+  onClose,
+  onSuccess,
+  redirectNewUsersToOnboarding = true,
+  defaultMode = 'login'
+}) => {
   const {
     signIn: contextSignIn,
     signInWithGoogle,
@@ -59,7 +67,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onSuccess
     sendMagicLink,
     workosStatus,
   } = useAuth();
-  const [mode, setMode] = useState<'signin' | 'signup' | 'reset' | 'magic'>('signin');
+  const [mode, setMode] = useState<'signin' | 'signup' | 'reset' | 'magic'>(defaultMode === 'signup' ? 'signup' : 'signin');
   const [oauthLoading, setOauthLoading] = useState<string | null>(null);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
