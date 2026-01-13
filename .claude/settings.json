@@ -9,8 +9,7 @@
             "type": "command",
             "command": "bash scripts/claude-hooks/deny_root_code_writes.sh"
           }
-        ],
-        "description": "Block production code writes in root worktree"
+        ]
       }
     ],
     "PostToolUse": [
@@ -21,8 +20,7 @@
             "type": "command",
             "command": "bash scripts/claude-hooks/log_tool_usage.sh"
           }
-        ],
-        "description": "Log all modifications"
+        ]
       }
     ]
   },
@@ -39,5 +37,8 @@
       "src/**"
     ],
     "worktreeRoot": ".worktrees"
+  },
+  "enabledPlugins": {
+    "ralph-loop@claude-plugins-official": true
   }
 }

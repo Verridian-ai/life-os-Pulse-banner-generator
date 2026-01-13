@@ -59,6 +59,10 @@ export function AdminGuard({ children, fallback }: AdminGuardProps): React.React
                     <h2 className="text-xl font-bold text-white mb-2">Access Denied</h2>
                     <p className="text-zinc-400 text-sm mb-4">
                         You don't have permission to access the admin dashboard.
+                        <br />
+                        <span className="text-xs text-zinc-500 mt-2 block">
+                            (Ensure you are logged in with an admin account. Try logging out and back in.)
+                        </span>
                     </p>
                     <a
                         href="/"
@@ -68,7 +72,7 @@ export function AdminGuard({ children, fallback }: AdminGuardProps): React.React
                         Return Home
                     </a>
                 </div>
-            </div>
+            </div >
         );
     }
 

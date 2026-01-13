@@ -167,6 +167,26 @@ export const getPublicDesigns = async (limit: number = 20): Promise<Design[]> =>
 };
 
 /**
+ * Search user designs by title and optional tags via backend API
+ * Performs case-insensitive search on title and filters by tags if provided
+ */
+export const searchDesigns = async (query: string, tags?: string[]): Promise<Design[]> => {
+  try {
+    const params = new URLSearchParams();
+    params.append('search', query);
+    if (tags && tags.length > 0) {
+      params.append('tags', tags.join(','));
+    }
+
+    const response = await api.get<{ designs: Design[] }>(`/api/designs?${params.toString()}`);
+    return response?.designs || [];
+  } catch (error) {
+    console.error('[Database] Error searching designs:', error);
+    return [];
+  }
+};
+
+/**
  * Increment view count via backend API
  */
 export const incrementViewCount = async (designId: string): Promise<void> => {

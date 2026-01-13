@@ -1,4 +1,4 @@
-import { useState, useCallback, useEffect } from 'react';
+import { useState, useCallback } from 'react';
 import { promptHistoryStorage } from '../services/storageManager';
 
 export interface PromptRecord {
@@ -16,13 +16,9 @@ export interface PromptRecord {
 const STORAGE_KEY = 'history';
 
 export const usePromptHistory = () => {
-    const [history, setHistory] = useState<PromptRecord[]>([]);
-
-    // Load history on mount
-    useEffect(() => {
-        const loaded = promptHistoryStorage.get<PromptRecord[]>(STORAGE_KEY) || [];
-        setHistory(loaded);
-    }, []);
+    const [history, setHistory] = useState<PromptRecord[]>(() => {
+        return promptHistoryStorage.get<PromptRecord[]>(STORAGE_KEY) || [];
+    });
 
     // Save whenever history changes
     const saveHistory = useCallback((newHistory: PromptRecord[]) => {

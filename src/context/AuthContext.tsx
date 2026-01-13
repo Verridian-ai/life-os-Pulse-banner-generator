@@ -1,6 +1,6 @@
 // Auth Context - Global authentication state management
 
-import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import React, { createContext, useContext, useState, useEffect, useRef, useCallback, ReactNode } from 'react';
 import type { AppUser, AppSession } from '../services/auth';
 import {
   signUp as authSignUp,
@@ -12,7 +12,11 @@ import {
   getCurrentUser,
   getCurrentUserProfile,
 } from '../services/auth';
+import { getUserPreferences, updateUserPreferences } from '../services/database';
 import type { User } from '../types/database';
+import type { UserPreferences as ApiUserPreferences } from '../types/api';
+import { IdleTimeoutWarning } from '../components/auth/IdleTimeoutWarning';
+import { useToast } from '../hooks/useToast';
 
 interface AuthContextType {
   // Auth user (from session)
@@ -38,6 +42,10 @@ interface AuthContextType {
   signInWithGitHub: () => Promise<{ error: Error | null }>;
   signOut: () => Promise<{ error: Error | null }>;
   refreshProfile: () => Promise<void>;
+  
+  // Timeout settings
+  updateTimeoutSettings: (minutes: number) => Promise<void>;
+  timeoutDuration: number; // in minutes
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -61,6 +69,14 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [session, setSession] = useState<AppSession | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
+  // Timeout state
+  const [timeoutDuration, setTimeoutDuration] = useState<number>(30); // Default 30 min
+  const [showTimeoutWarning, setShowTimeoutWarning] = useState(false);
+  const toast = useToast();
+
+  const idleTimerRef = useRef<NodeJS.Timeout | null>(null);
+  const warningTimerRef = useRef<NodeJS.Timeout | null>(null);
+
   // Load user profile from database
   const loadUserProfile = async (_userId: string) => {
     try {
@@ -76,6 +92,109 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       setUser(null);
     }
   };
+
+  // Fetch timeout preferences
+  useEffect(() => {
+    const loadPreferences = async () => {
+      if (!authUser) return;
+      try {
+        const prefs = await getUserPreferences();
+        if (prefs && prefs.preferences) {
+          const apiPrefs = prefs.preferences as unknown as ApiUserPreferences;
+          if (apiPrefs.session_timeout !== undefined) {
+            setTimeoutDuration(apiPrefs.session_timeout);
+          }
+        }
+      } catch (e) {
+        console.error('Failed to load preferences', e);
+      }
+    };
+    loadPreferences();
+  }, [authUser]);
+
+  // Sign out (internal helper)
+  const performSignOut = useCallback(async (reason?: string) => {
+    // Clear timers
+    if (idleTimerRef.current) clearTimeout(idleTimerRef.current);
+    if (warningTimerRef.current) clearTimeout(warningTimerRef.current);
+
+    const { error } = await authSignOut();
+    if (!error) {
+      setAuthUser(null);
+      setUser(null);
+      setSession(null);
+      setShowTimeoutWarning(false);
+      if (reason) {
+        toast.info(reason);
+      }
+    }
+    return { error };
+  }, [toast]);
+
+  // Reset timers
+  const resetTimers = useCallback(() => {
+    if (!authUser || timeoutDuration <= 0) {
+        if (idleTimerRef.current) clearTimeout(idleTimerRef.current);
+        if (warningTimerRef.current) clearTimeout(warningTimerRef.current);
+        return;
+    }
+
+    if (idleTimerRef.current) clearTimeout(idleTimerRef.current);
+    if (warningTimerRef.current) clearTimeout(warningTimerRef.current);
+
+    const durationMs = timeoutDuration * 60 * 1000;
+    const warningTimeMs = Math.max(0, durationMs - (2 * 60 * 1000)); // 2 mins before
+
+    // Only set warning timer if duration is sufficient (> 2 mins)
+    if (durationMs > 2 * 60 * 1000) {
+      warningTimerRef.current = setTimeout(() => {
+        setShowTimeoutWarning(true);
+      }, warningTimeMs);
+    }
+
+    idleTimerRef.current = setTimeout(() => {
+      performSignOut('You were logged out due to inactivity');
+    }, durationMs);
+  }, [authUser, timeoutDuration, performSignOut]);
+
+  // Activity listeners
+  useEffect(() => {
+    if (!authUser || timeoutDuration <= 0) return;
+
+    let throttleTimeout: NodeJS.Timeout | null = null;
+
+    const handleActivity = () => {
+      // If modal is open, ignore activity (user must click button)
+      if (showTimeoutWarning) return;
+
+      if (!throttleTimeout) {
+        throttleTimeout = setTimeout(() => {
+          resetTimers();
+          throttleTimeout = null;
+        }, 1000); // Throttle 1s
+      }
+    };
+
+    window.addEventListener('mousemove', handleActivity);
+    window.addEventListener('keydown', handleActivity);
+    window.addEventListener('click', handleActivity);
+    window.addEventListener('scroll', handleActivity);
+    window.addEventListener('touchstart', handleActivity);
+
+    // Initial reset
+    resetTimers();
+
+    return () => {
+      window.removeEventListener('mousemove', handleActivity);
+      window.removeEventListener('keydown', handleActivity);
+      window.removeEventListener('click', handleActivity);
+      window.removeEventListener('scroll', handleActivity);
+      window.removeEventListener('touchstart', handleActivity);
+      if (throttleTimeout) clearTimeout(throttleTimeout);
+      if (idleTimerRef.current) clearTimeout(idleTimerRef.current);
+      if (warningTimerRef.current) clearTimeout(warningTimerRef.current);
+    };
+  }, [authUser, timeoutDuration, resetTimers, showTimeoutWarning]);
 
   // Initialize auth state
   useEffect(() => {
@@ -131,6 +250,28 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     }
   };
 
+  // Update timeout settings
+  const updateTimeoutSettings = async (minutes: number) => {
+    setTimeoutDuration(minutes);
+    try {
+        // Optimistic update
+        const currentPrefs = await getUserPreferences();
+        const existingApiPrefs = (currentPrefs?.preferences || {}) as unknown as ApiUserPreferences;
+        
+        await updateUserPreferences({
+            preferences: {
+                ...existingApiPrefs,
+                session_timeout: minutes
+            }
+        });
+        
+        toast.success(`Session timeout set to ${minutes === 0 ? 'Disabled' : minutes + ' minutes'}`);
+    } catch (e) {
+        console.error('Failed to save timeout settings', e);
+        toast.error('Failed to save timeout settings');
+    }
+  };
+
   // Sign up
   const signUp = async (
     email: string,
@@ -182,15 +323,9 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     return authSignInWithGitHub();
   };
 
-  // Sign out
+  // Sign out (Public)
   const signOut = async (): Promise<{ error: Error | null }> => {
-    const { error } = await authSignOut();
-    if (!error) {
-      setAuthUser(null);
-      setUser(null);
-      setSession(null);
-    }
-    return { error };
+    return performSignOut();
   };
 
   const value: AuthContextType = {
@@ -205,7 +340,20 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     signInWithGitHub,
     signOut,
     refreshProfile,
+    updateTimeoutSettings,
+    timeoutDuration,
   };
 
-  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
+  return (
+    <AuthContext.Provider value={value}>
+        {children}
+        <IdleTimeoutWarning 
+            isOpen={showTimeoutWarning} 
+            onStayLoggedIn={() => {
+                setShowTimeoutWarning(false);
+                resetTimers();
+            }}
+        />
+    </AuthContext.Provider>
+  );
 };

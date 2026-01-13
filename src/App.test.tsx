@@ -19,14 +19,17 @@ Object.defineProperty(window, 'matchMedia', {
 });
 
 import { AuthProvider } from './context/AuthContext';
+import { ToastProvider } from './context/ToastContext';
 
 describe('App', () => {
   it('renders without crashing', () => {
     // Basic smoke test
     render(
-      <AuthProvider>
-        <App />
-      </AuthProvider>
+      <ToastProvider>
+        <AuthProvider>
+          <App />
+        </AuthProvider>
+      </ToastProvider>
     );
     // Check for a known element, e.g., the sidebar title or something generic
     // Since App is complex and requires context which it provides itself, this should work.

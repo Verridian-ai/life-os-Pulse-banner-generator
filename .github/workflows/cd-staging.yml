@@ -1,4 +1,4 @@
-name: Deploy to Staging
+name: Deploy to Staging (Cloud Run)
 
 on:
   push:
@@ -10,18 +10,20 @@ concurrency:
   cancel-in-progress: false
 
 env:
-  NODE_VERSION: '18'
-  VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
-  VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+  NODE_VERSION: "20"
+  GCP_PROJECT_ID: plated-mantis-477406-i6-477406
+  GCP_REGION: us-central1
+  CLOUD_RUN_SERVICE: life-os-banner-staging
+  IMAGE_NAME: gcr.io/plated-mantis-477406-i6-477406/life-os-banner
 
 jobs:
   deploy-staging:
-    name: Deploy to Staging Environment
+    name: Deploy to Cloud Run Staging
     runs-on: ubuntu-latest
     timeout-minutes: 20
     environment:
       name: staging
-      url: ${{ steps.deploy.outputs.preview-url }}
+      url: ${{ steps.deploy.outputs.staging-url }}
 
     steps:
       - name: Checkout code
@@ -31,7 +33,7 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: ${{ env.NODE_VERSION }}
-          cache: 'npm'
+          cache: "npm"
 
       - name: Install dependencies
         run: npm ci
@@ -39,35 +41,56 @@ jobs:
       - name: Run tests
         run: npx vitest run
 
-      - name: Build application
-        run: npm run build
-        env:
-          VITE_SUPABASE_URL: ${{ secrets.STAGING_SUPABASE_URL }}
-          VITE_SUPABASE_ANON_KEY: ${{ secrets.STAGING_SUPABASE_ANON_KEY }}
-          VITE_ENVIRONMENT: staging
+      - name: Authenticate to Google Cloud
+        uses: google-github-actions/auth@v2
+        with:
+          credentials_json: ${{ secrets.GCP_SA_KEY }}
 
-      - name: Install Vercel CLI
-        run: npm install --global vercel@latest
+      - name: Set up Cloud SDK
+        uses: google-github-actions/setup-gcloud@v2
+        with:
+          project_id: ${{ env.GCP_PROJECT_ID }}
 
-      - name: Pull Vercel Environment Information
-        run: vercel pull --yes --environment=preview --token=${{ secrets.VERCEL_TOKEN }}
+      - name: Configure Docker for GCR
+        run: gcloud auth configure-docker --quiet
 
-      - name: Build Project Artifacts
-        run: vercel build --token=${{ secrets.VERCEL_TOKEN }}
+      - name: Build Docker image
+        run: |
+          docker build \
+            --build-arg NODE_ENV=staging \
+            -t ${{ env.IMAGE_NAME }}:staging-${{ github.sha }} \
+            .
 
-      - name: Deploy to Vercel
+      - name: Push Docker image to GCR
+        run: docker push ${{ env.IMAGE_NAME }}:staging-${{ github.sha }}
+
+      - name: Deploy to Cloud Run Staging
         id: deploy
         run: |
-          DEPLOYMENT_URL=$(vercel deploy --prebuilt --token=${{ secrets.VERCEL_TOKEN }} 2>&1 | grep -oP 'https://[^ ]+' | head -1)
-          echo "preview-url=$DEPLOYMENT_URL" >> $GITHUB_OUTPUT
-          echo "Deployed to: $DEPLOYMENT_URL"
+          gcloud run deploy ${{ env.CLOUD_RUN_SERVICE }} \
+            --image=${{ env.IMAGE_NAME }}:staging-${{ github.sha }} \
+            --region=${{ env.GCP_REGION }} \
+            --platform=managed \
+            --allow-unauthenticated \
+            --port=8080 \
+            --memory=512Mi \
+            --cpu=1 \
+            --min-instances=0 \
+            --max-instances=5 \
+            --set-env-vars="NODE_ENV=staging"
+
+          SERVICE_URL=$(gcloud run services describe ${{ env.CLOUD_RUN_SERVICE }} \
+            --region=${{ env.GCP_REGION }} \
+            --format='value(status.url)')
+          echo "staging-url=$SERVICE_URL" >> $GITHUB_OUTPUT
+          echo "✅ Deployed to: $SERVICE_URL"
 
       - name: Run smoke tests
         run: |
           echo "Running smoke tests on staging deployment..."
-          curl -f ${{ steps.deploy.outputs.preview-url }} || exit 0
+          curl -f ${{ steps.deploy.outputs.staging-url }} || exit 0
         env:
-          TEST_URL: ${{ steps.deploy.outputs.preview-url }}
+          TEST_URL: ${{ steps.deploy.outputs.staging-url }}
 
       - name: Comment deployment URL on commit
         uses: actions/github-script@v7
@@ -77,7 +100,7 @@ jobs:
               owner: context.repo.owner,
               repo: context.repo.repo,
               commit_sha: context.sha,
-              body: `🚀 **Staging Deployment Successful!**\n\n📱 Preview URL: ${{ steps.deploy.outputs.preview-url }}\n\n✅ All checks passed`
+              body: `🚀 **Staging Deployment Successful!**\n\n📱 Staging URL: ${{ steps.deploy.outputs.staging-url }}\n\n✅ All checks passed`
             })
 
       - name: Notify deployment failure

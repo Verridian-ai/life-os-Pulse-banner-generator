@@ -1,8 +1,20 @@
 import type { RequestBody } from '@/types/api';
 
-const API_URL = import.meta.env.PROD
-    ? '' // Relative path for unified deployment
-    : `http://${window.location.hostname}:3000`;
+// Smart API URL selection: local or production based on configuration
+// Default to local (localhost:3030) if not specified
+const getApiUrl = () => {
+    const mode = import.meta.env.VITE_API_MODE || 'local';
+
+    if (mode === 'production') {
+        return import.meta.env.VITE_PROD_API_URL || 'https://life-os-banner.verridian.ai';
+    }
+
+    // Local mode - use localhost:8888
+    return import.meta.env.VITE_LOCAL_API_URL || 'http://localhost:8888';
+};
+
+const API_URL = getApiUrl();
+console.log(`[API] Using backend: ${API_URL}`);
 
 type RequestMethod = 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE';
 

@@ -1,0 +1,85 @@
+{
+  "user": {
+    "name": "Sarah Chen",
+    "avatarUrl": "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=100&h=100&fit=crop",
+    "subscriptionTier": "pro"
+  },
+  "stats": {
+    "creditsUsed": 45,
+    "creditsTotal": 100,
+    "designsThisMonth": 23,
+    "activeProjects": 4
+  },
+  "quickActions": [
+    {
+      "id": "new-design",
+      "label": "New Design",
+      "icon": "Plus",
+      "href": "/design-studio",
+      "description": "Create a new design from scratch"
+    },
+    {
+      "id": "templates",
+      "label": "Templates",
+      "icon": "Layout",
+      "href": "/templates",
+      "description": "Browse design templates"
+    },
+    {
+      "id": "ai-chat",
+      "label": "AI Chat",
+      "icon": "MessageSquare",
+      "href": "/design-studio?mode=chat",
+      "description": "Chat with AI to create designs"
+    },
+    {
+      "id": "brand-kit",
+      "label": "Brand Kit",
+      "icon": "Palette",
+      "href": "/brand-kit",
+      "description": "Manage your brand assets"
+    }
+  ],
+  "recentDesigns": [
+    {
+      "id": "design-1",
+      "title": "Q1 Product Launch Banner",
+      "thumbnailUrl": "https://images.unsplash.com/photo-1557804506-669a67965ba0?w=300&h=300&fit=crop",
+      "platform": "linkedin",
+      "updatedAt": "2025-01-10T14:30:00Z",
+      "status": "completed"
+    },
+    {
+      "id": "design-2",
+      "title": "Team Announcement Post",
+      "thumbnailUrl": "https://images.unsplash.com/photo-1522071820081-009f0129c71c?w=300&h=300&fit=crop",
+      "platform": "instagram",
+      "updatedAt": "2025-01-10T12:15:00Z",
+      "status": "completed"
+    },
+    {
+      "id": "design-3",
+      "title": "Webinar Promo",
+      "thumbnailUrl": "https://images.unsplash.com/photo-1531482615713-2afd69097998?w=300&h=300&fit=crop",
+      "platform": "linkedin",
+      "updatedAt": "2025-01-09T18:45:00Z",
+      "status": "draft"
+    },
+    {
+      "id": "design-4",
+      "title": "Company Culture Story",
+      "thumbnailUrl": "https://images.unsplash.com/photo-1552664730-d307ca884978?w=300&h=300&fit=crop",
+      "platform": "instagram",
+      "updatedAt": "2025-01-09T10:00:00Z",
+      "status": "completed"
+    },
+    {
+      "id": "design-5",
+      "title": "New Feature Announcement",
+      "thumbnailUrl": "https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=300&h=300&fit=crop",
+      "platform": "x",
+      "updatedAt": "2025-01-08T16:20:00Z",
+      "status": "completed"
+    }
+  ]
+}

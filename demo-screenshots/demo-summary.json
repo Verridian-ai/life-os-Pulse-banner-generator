@@ -1,0 +1,51 @@
+{
+  "timestamp": "2026-01-12T09:39:33.745Z",
+  "application": "Signal App",
+  "url": "http://localhost:5173",
+  "backend": "http://localhost:8888",
+  "authentication": {
+    "status": "Blocked by CSP",
+    "credentials": {
+      "email": "support@verridian.ai",
+      "password": "TestPass123"
+    },
+    "issue": "localhost:8888 not in connect-src CSP directive"
+  },
+  "platformCards": [
+    "LinkedIn",
+    "YouTube",
+    "Instagram",
+    "Facebook",
+    "TikTok",
+    "X"
+  ],
+  "navigationItems": [
+    "Dashboard",
+    "Design Studio",
+    "Quick Generate",
+    "Templates",
+    "Gallery",
+    "Projects",
+    "Brand Kit",
+    "AI Chat",
+    "LinkedIn",
+    "Instagram",
+    "YouTube",
+    "TikTok",
+    "X / Twitter",
+    "Facebook",
+    "Settings"
+  ],
+  "screenshots": [
+    "01-landing-page.png",
+    "02-sign-in-modal.png",
+    "03-credentials-filled.png",
+    "04-dashboard-main.png",
+    "05-dashboard-full.png",
+    "06-final-dashboard.png",
+    "07-final-full-page.png"
+  ],
+  "screenshotCount": 7,
+  "consoleErrors": 4,
+  "cspErrors": 2
+}

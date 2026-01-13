@@ -14,6 +14,7 @@ export { UserDetail } from './components/users/UserDetail';
 export { AdminDashboard } from './pages/AdminDashboard';
 export { AdminUsers } from './pages/AdminUsers';
 export { AdminAgents } from './pages/AdminAgents';
+export { AdminModels } from './pages/AdminModels';
 export { AdminObservability } from './pages/AdminObservability';
 export { AdminFinance } from './pages/AdminFinance';
 

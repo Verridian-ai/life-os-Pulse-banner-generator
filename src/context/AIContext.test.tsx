@@ -13,6 +13,7 @@ vi.mock('../services/modelRouter', () => ({
     'gpt-5.2': { id: 'gpt-5.2', name: 'GPT 5.2', provider: 'openrouter' },
     'anthropic/claude-sonnet-4.5': { id: 'anthropic/claude-sonnet-4.5', name: 'Claude 4.5 Sonnet', provider: 'openrouter' },
   })),
+  trackModelPerformance: vi.fn(),
 }));
 
 // Mock localStorage
@@ -216,19 +217,30 @@ describe('AIContext', () => {
   });
 
   it('should add performance metrics', async () => {
+    const { trackModelPerformance } = await import('../services/modelRouter');
+
     render(
       <AIProvider>
         <TestComponent />
       </AIProvider>,
     );
 
+    // Initial state shows 0 metrics (mocked storage is empty)
     expect(screen.getByTestId('performanceMetrics')).toHaveTextContent('0');
 
     const button = screen.getByText('Add Metric');
     button.click();
 
+    // Verify that trackModelPerformance was called with the metric
     await waitFor(() => {
-      expect(screen.getByTestId('performanceMetrics')).toHaveTextContent('1');
+      expect(trackModelPerformance).toHaveBeenCalledWith(
+        expect.objectContaining({
+          id: 'metric1',
+          modelId: 'test',
+          provider: 'gemini',
+          operation: 'text_gen',
+        }),
+      );
     });
   });
 

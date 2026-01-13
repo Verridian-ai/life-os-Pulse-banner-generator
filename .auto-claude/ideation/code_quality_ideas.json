@@ -3,119 +3,105 @@
     {
       "id": "cq-001",
       "type": "code_quality",
-      "title": "Split llm.ts into domain-specific service modules",
-      "description": "The file src/services/llm.ts has grown to 790 lines and handles multiple unrelated concerns: chat completions (design, agent, search, thinking), image generation, prompt enhancement, image editing/analysis, and agent workflow orchestration. This violates single responsibility and makes the file difficult to navigate.",
-      "rationale": "Large files with mixed responsibilities increase cognitive load, make testing harder, cause merge conflicts, and reduce code discoverability. Splitting into focused modules enables better separation of concerns, easier testing, and clearer API boundaries.",
-      "category": "large_files",
-      "severity": "major",
-      "affectedFiles": ["src/services/llm.ts"],
-      "currentState": "Single 790-line file handling: chat completions (5 functions), image generation (1 complex function with fallback chain), image operations (7 functions: edit, analyze, remove bg, upscale, outpaint, restore, analyze canvas), prompt enhancement, and agent workflow functions",
-      "proposedChange": "Split into focused service modules:\n- src/services/ai/chat.ts - Chat completion functions (generateDesignChatResponse, generateAgentResponse, etc.)\n- src/services/ai/imageGeneration.ts - Image generation with fallback chain\n- src/services/ai/imageOperations.ts - Image editing, analysis, upscale, restore, remove bg\n- src/services/ai/promptEnhancement.ts - Prompt enhancement logic\n- src/services/ai/agentWorkflows.ts - Agent-based workflow orchestration (generateWithAgents)\n- src/services/ai/index.ts - Barrel export for backward compatibility",
-      "codeExample": "// Current (all in llm.ts):\nexport const generateDesignChatResponse = async (...) => {...}\nexport const generateImage = async (...) => {...}\nexport const enhancePrompt = async (...) => {...}\nexport const editImage = async (...) => {...}\n\n// Proposed structure:\n// src/services/ai/chat.ts\nexport const generateDesignChatResponse = async (...) => {...}\nexport const generateAgentResponse = async (...) => {...}\n\n// src/services/ai/index.ts\nexport * from './chat';\nexport * from './imageGeneration';\nexport * from './imageOperations';",
-      "bestPractice": "Single Responsibility Principle - each module should have one reason to change. AI chat, image generation, and image processing are distinct domains that evolve independently.",
-      "metrics": {
-        "lineCount": 790,
-        "complexity": null,
-        "duplicateLines": null,
-        "testCoverage": null
-      },
-      "estimatedEffort": "medium",
-      "breakingChange": false,
-      "prerequisites": ["Ensure comprehensive test coverage for llm.ts before refactoring", "Update all import statements via search-replace"]
-    },
-    {
-      "id": "cq-002",
-      "type": "code_quality",
-      "title": "Refactor actionExecutor.ts giant switch statement using command pattern",
-      "description": "The ActionExecutor class in src/services/actionExecutor.ts contains a 90-line switch statement in executeToolCall() that handles 17 different tool types. This violates open/closed principle - adding new tools requires modifying the switch statement, increasing risk of bugs.",
-      "rationale": "Giant switch statements are a code smell indicating missing polymorphism. The command pattern allows adding new tools without modifying existing code, improves testability of individual tools, and makes the codebase more maintainable.",
-      "category": "code_smells",
-      "severity": "major",
-      "affectedFiles": ["src/services/actionExecutor.ts"],
-      "currentState": "797-line file with a massive switch statement handling: generate_background, magic_edit, remove_background, upscale_image, restore_image, enhance_face, suggest_prompts, write_enhanced_prompt, add_text_element, update_element, delete_element, list_elements, navigate_to_tab, undo_action, redo_action, analyze_image, analyze_banner",
-      "proposedChange": "Refactor using command pattern:\n1. Create a ToolHandler interface: { name: string; execute: (args) => Promise<ActionResult> }\n2. Create individual handler classes or functions for each tool\n3. Use a registry Map<string, ToolHandler> instead of switch\n4. Move tool handlers to src/services/actionExecutor/handlers/*.ts",
-      "codeExample": "// Current switch statement:\nswitch (toolCall.name) {\n  case 'generate_background':\n    return await this.generateBackground(...);\n  case 'magic_edit':\n    return await this.magicEdit(...);\n  // 15 more cases...\n}\n\n// Proposed command pattern:\ninterface ToolHandler {\n  execute(args: Record<string, unknown>, ctx: ExecutorContext): Promise<ActionResult>;\n}\n\nconst handlers: Map<string, ToolHandler> = new Map([\n  ['generate_background', new GenerateBackgroundHandler()],\n  ['magic_edit', new MagicEditHandler()],\n  // etc.\n]);\n\nasync executeToolCall(toolCall: ToolCall): Promise<ActionResult> {\n  const handler = this.handlers.get(toolCall.name);\n  if (!handler) return { success: false, error: `Unknown tool: ${toolCall.name}` };\n  return handler.execute(toolCall.args, this.context);\n}",
-      "bestPractice": "Open/Closed Principle & Command Pattern - Classes should be open for extension but closed for modification. New tools can be added without changing existing code.",
-      "metrics": {
-        "lineCount": 797,
-        "complexity": null,
-        "duplicateLines": null,
-        "testCoverage": null
-      },
-      "estimatedEffort": "medium",
-      "breakingChange": false,
-      "prerequisites": ["Ensure actionExecutor.test.ts covers all 17 tool types before refactoring"]
-    },
-    {
-      "id": "cq-003",
-      "type": "code_quality",
-      "title": "Extract ChatInterface.tsx into smaller focused components",
-      "description": "ChatInterface.tsx at 791 lines combines too many responsibilities: chat UI rendering, message state management, conversation persistence, tool execution handling, file attachment processing, and API key validation. The component has 15+ useState hooks indicating excessive state coupling.",
-      "rationale": "Large React components are harder to test, maintain, and reuse. Extracting focused sub-components improves code organization, enables component-level testing, and makes the codebase easier to understand for new developers.",
-      "category": "large_files",
-      "severity": "major",
-      "affectedFiles": ["src/components/ChatInterface.tsx"],
-      "currentState": "791-line monolithic component with:\n- 15+ useState hooks (input, attachedImages, mode, loading, processingFiles, etc.)\n- Inline message rendering logic\n- File upload handling\n- Conversation persistence logic\n- Tool execution callbacks\n- Mode switching (design/search)",
-      "proposedChange": "Extract into focused components:\n- src/components/chat/ChatContainer.tsx - Main container with message list\n- src/components/chat/ChatInput.tsx - Input field with file upload\n- src/components/chat/ChatMessage.tsx - Individual message rendering\n- src/components/chat/ChatModeToggle.tsx - Design/Search mode switcher\n- src/components/chat/ConversationList.tsx - History sidebar\n- src/hooks/useChatPersistence.ts - Extract persistence logic as custom hook\n- src/hooks/useChatToolExecution.ts - Extract tool execution as custom hook",
-      "codeExample": "// Current ChatInterface.tsx (simplified):\nconst ChatInterface = ({ onGenerateFromPrompt }) => {\n  const [input, setInput] = useState('');\n  const [messages, setMessages] = useState([]);\n  // 13 more useState hooks...\n  \n  // 200+ lines of handlers and effects\n  \n  return (\n    <div>\n      {/* 300+ lines of JSX */}\n    </div>\n  );\n};\n\n// Proposed structure:\n// ChatContainer.tsx\nconst ChatContainer = () => {\n  const persistence = useChatPersistence();\n  const toolExecution = useChatToolExecution();\n  \n  return (\n    <ChatProvider value={{ persistence, toolExecution }}>\n      <ConversationList />\n      <MessageList />\n      <ChatInput />\n    </ChatProvider>\n  );\n};",
-      "bestPractice": "Single Responsibility Principle for React components. Extract custom hooks for complex state logic. Keep components under 200-300 lines for maintainability.",
-      "metrics": {
-        "lineCount": 791,
-        "complexity": null,
-        "duplicateLines": null,
-        "testCoverage": null
-      },
-      "estimatedEffort": "large",
-      "breakingChange": false,
-      "prerequisites": ["Add comprehensive tests for current ChatInterface behavior", "Document component API before splitting"]
-    },
-    {
-      "id": "cq-004",
-      "type": "code_quality",
-      "title": "Extract reusable urlToDataUri helper to shared utilities",
-      "description": "The urlToDataUri helper function in ImageToolsPanel.tsx (lines 21-55) handles URL-to-base64 conversion with CORS fallback logic. This utility is likely needed in multiple places for image processing but is currently embedded in a component file.",
-      "rationale": "Utility functions embedded in component files reduce discoverability and lead to duplication. Moving to a shared utility enables reuse, centralized testing, and consistent behavior across the codebase.",
+      "title": "Extract reusable PlatformStudio component to eliminate 6 duplicate studio files",
+      "description": "The 6 platform studio files (LinkedInStudio.tsx, YouTubeStudio.tsx, InstagramStudio.tsx, FacebookStudio.tsx, TikTokStudio.tsx, XStudio.tsx) are nearly identical. Each file is ~86 lines with the only difference being the platform config key. This is textbook code duplication that violates DRY principles and makes maintenance difficult - any change must be applied 6 times.",
+      "rationale": "Code duplication is one of the highest-impact code smells. These 516 lines (6 × 86) can be reduced to ~100 lines with a single generic PlatformStudio component. This eliminates the risk of inconsistency, reduces merge conflicts, and simplifies testing since only one component needs coverage.",
       "category": "duplication",
-      "severity": "minor",
+      "severity": "major",
       "affectedFiles": [
-        "src/components/features/ImageToolsPanel.tsx",
-        "src/utils/imageUtils.ts"
+        "src/components/studios/LinkedInStudio.tsx",
+        "src/components/studios/YouTubeStudio.tsx",
+        "src/components/studios/InstagramStudio.tsx",
+        "src/components/studios/FacebookStudio.tsx",
+        "src/components/studios/TikTokStudio.tsx",
+        "src/components/studios/XStudio.tsx"
       ],
-      "currentState": "35-line urlToDataUri function in ImageToolsPanel.tsx handles:\n- Data URI passthrough\n- External URL CORS fetch with blob conversion\n- Relative URL fetch with blob conversion\n- Error fallback returning original URL",
-      "proposedChange": "Move urlToDataUri to src/utils/imageUtils.ts (already exists) alongside related image utilities. Export it for use across components that process images:\n- ImageToolsPanel.tsx\n- Any future components needing image data URI conversion\n- Potential use in services/replicate.ts",
-      "codeExample": "// Current (embedded in ImageToolsPanel.tsx):\nconst urlToDataUri = async (url: string): Promise<string> => {\n  if (url.startsWith('data:')) return url;\n  // 30+ lines of fetch logic...\n};\n\n// Proposed (in src/utils/imageUtils.ts):\nexport async function urlToDataUri(url: string): Promise<string> {\n  if (url.startsWith('data:')) return url;\n  // Same logic, properly exported and tested\n}\n\n// In ImageToolsPanel.tsx:\nimport { urlToDataUri } from '@/utils/imageUtils';",
-      "bestPractice": "DRY (Don't Repeat Yourself) - Extract common logic into reusable utilities. Keep component files focused on rendering logic.",
+      "currentState": "6 nearly identical files, each defining the same interface (StudioProps), same component structure, same hooks usage, differing only in PLATFORM_CONFIGS key",
+      "proposedChange": "Create a single generic PlatformStudio component that accepts platform as a prop. Replace all 6 files with a simple re-export pattern or inline usage: <PlatformStudio platform='linkedin' {...props} />",
+      "codeExample": "// src/components/studios/PlatformStudio.tsx\ninterface PlatformStudioProps extends StudioProps {\n  platform: 'linkedin' | 'youtube' | 'instagram' | 'facebook' | 'tiktok' | 'x';\n}\n\nexport function PlatformStudio({ platform, ...props }: PlatformStudioProps) {\n  const config = PLATFORM_CONFIGS[platform];\n  const { refImages, bgImage, setBgImage } = useCanvas();\n  return (\n    <div className=\"flex-1 flex ...\">\n      <StudioCanvas platformConfig={config} />\n      <GenerativeSidebar {...props} bgImage={bgImage} onImageUpdate={setBgImage} />\n    </div>\n  );\n}\n\n// In App.tsx, replace conditional rendering with:\n<PlatformStudio platform={activePlatform} {...studioProps} />",
+      "bestPractice": "DRY (Don't Repeat Yourself) - When multiple pieces of code do the same thing, extract to a single source of truth",
       "metrics": {
-        "lineCount": 35,
+        "lineCount": 516,
         "complexity": null,
-        "duplicateLines": 35,
+        "duplicateLines": 480,
         "testCoverage": null
       },
       "estimatedEffort": "small",
       "breakingChange": false,
-      "prerequisites": ["Add unit tests for urlToDataUri covering all edge cases (data URI, CORS success, CORS failure, relative URL)"]
+      "prerequisites": null
     },
     {
-      "id": "cq-005",
+      "id": "cq-002",
       "type": "code_quality",
-      "title": "Add missing test coverage for critical service modules",
-      "description": "While 21 test files exist, several critical services lack dedicated tests or have minimal coverage. Key services like apiKeyStorage.ts, brandEngine.ts, chatPersistence.ts, liveClient.ts, and modelRouter.ts have no corresponding test files despite handling sensitive data and core business logic.",
-      "rationale": "Critical services handling authentication, API keys, and AI model routing need comprehensive test coverage to prevent regressions. Testing these services ensures reliability and makes refactoring safer.",
-      "category": "testing",
+      "title": "Split App.tsx (935 lines) into focused modules using feature-based organization",
+      "description": "App.tsx has grown to 935 lines and handles too many concerns: routing (AdminRouter), voice agent wrapper, keyboard shortcuts configuration, navigation state, generation state, refresh logic, onboarding, and modal management. This 'God component' pattern makes the file difficult to understand, test, and maintain.",
+      "rationale": "Large root components are a major source of bugs and developer frustration. They create high cognitive load during code reviews, make it difficult to isolate test scenarios, and increase the blast radius of changes. Breaking this into focused modules improves separation of concerns and enables parallel development.",
+      "category": "large_files",
       "severity": "major",
       "affectedFiles": [
-        "src/services/apiKeyStorage.ts",
-        "src/services/brandEngine.ts",
-        "src/services/chatPersistence.ts",
-        "src/services/liveClient.ts",
-        "src/services/modelRouter.ts",
-        "src/services/storage.ts",
-        "src/services/emailService.ts"
+        "src/App.tsx"
       ],
-      "currentState": "21 test files exist covering:\n- Core contexts (AIContext, AuthContext, CanvasContext)\n- Key services (replicate, openrouter, actionExecutor, auth, llm, database)\n- Key components (ChatInterface, ImageGallery, ImageToolsPanel, GenerativeSidebar)\n\nMissing tests for:\n- apiKeyStorage.ts - Handles sensitive API key storage/retrieval\n- brandEngine.ts - Brand consistency logic\n- chatPersistence.ts - Chat history database operations\n- liveClient.ts - Voice/realtime client\n- modelRouter.ts - AI model selection and fallback logic\n- storage.ts - General storage utilities",
-      "proposedChange": "Create test files for untested services with focus on:\n1. src/services/apiKeyStorage.test.ts - Test key storage, retrieval, migration, encryption\n2. src/services/modelRouter.test.ts - Test model selection, fallback chains, capability checks\n3. src/services/chatPersistence.test.ts - Test CRUD operations, message persistence\n4. src/services/brandEngine.test.ts - Test brand color extraction, consistency scoring",
-      "codeExample": "// Example: src/services/modelRouter.test.ts\nimport { describe, it, expect, vi } from 'vitest';\nimport { selectModel, getModelCapabilities } from './modelRouter';\n\ndescribe('modelRouter', () => {\n  it('should select Gemini for image generation when available', () => {\n    const model = selectModel('image_generation', { hasGeminiKey: true });\n    expect(model.provider).toBe('gemini');\n  });\n  \n  it('should fallback to Replicate when Gemini unavailable', () => {\n    const model = selectModel('image_generation', { hasGeminiKey: false, hasReplicateKey: true });\n    expect(model.provider).toBe('replicate');\n  });\n});",
-      "bestPractice": "Test-Driven Quality - Critical services handling security, persistence, and AI routing require comprehensive test coverage. Aim for 80%+ coverage on core business logic.",
+      "currentState": "Single 935-line file with AppContent (700+ lines), AdminRouter (70 lines), AdminLoadingFallback, VoiceAgentWrapper, and App function all in one file",
+      "proposedChange": "Split into: (1) src/routes/AdminRouter.tsx - admin routing logic, (2) src/routes/AppRouter.tsx - main app routing, (3) src/providers/VoiceAgentWrapper.tsx - voice context bridge, (4) src/hooks/useStudioState.ts - studio state management, (5) src/hooks/useAppShortcuts.ts - keyboard shortcuts configuration. App.tsx becomes ~100 lines of composition.",
+      "codeExample": "// src/App.tsx (after refactor - ~100 lines)\nimport { AdminRouter } from './routes/AdminRouter';\nimport { AppRouter } from './routes/AppRouter';\nimport { Providers } from './providers';\n\nfunction App() {\n  const path = window.location.pathname;\n  if (path.startsWith('/admin')) return <AdminRouter />;\n  if (path.startsWith('/design')) return <DesignSystemPage />;\n  return <Providers><AppContent /></Providers>;\n}\n\n// src/hooks/useStudioState.ts\nexport function useStudioState() {\n  const [appView, setAppView] = useState<AppView>('dashboard');\n  const [activePlatform, setActivePlatform] = useState<PlatformType>('linkedin');\n  // ... all studio state and handlers\n  return { appView, activePlatform, handlers };\n}",
+      "bestPractice": "Single Responsibility Principle - each module should have one reason to change",
+      "metrics": {
+        "lineCount": 935,
+        "complexity": null,
+        "duplicateLines": null,
+        "testCoverage": null
+      },
+      "estimatedEffort": "medium",
+      "breakingChange": false,
+      "prerequisites": ["Ensure test coverage for keyboard shortcuts and voice integration before refactoring"]
+    },
+    {
+      "id": "cq-003",
+      "type": "code_quality",
+      "title": "Split database schema.ts (578 lines) into domain-based modules",
+      "description": "The server's schema.ts file contains 36 database tables (578 lines) in a single file spanning multiple domains: authentication, profiles, teams, chat, images, admin, agents, billing, and observability. This makes it difficult to navigate, understand relationships, and maintain domain boundaries.",
+      "rationale": "Monolithic schema files violate separation of concerns and make it harder to reason about data models. Splitting by domain enables better encapsulation, clearer ownership, easier code review, and aligns with the planned feature co-location strategy mentioned in CLAUDE.md.",
+      "category": "large_files",
+      "severity": "minor",
+      "affectedFiles": [
+        "server/src/db/schema.ts"
+      ],
+      "currentState": "Single 578-line file with 36 tables covering 9+ domains with inline section comments as the only organization",
+      "proposedChange": "Split into domain modules: server/src/db/schema/auth.ts (users, sessions, tokens), server/src/db/schema/profiles.ts (profiles, preferences, apiKeys), server/src/db/schema/teams.ts (teams, members, brands), server/src/db/schema/chat.ts (conversations, messages, transcripts), server/src/db/schema/gallery.ts (images, designs), server/src/db/schema/admin.ts (adminUsers, audit, rateLimit), server/src/db/schema/agents.ts (configs, skills, mcp), server/src/db/schema/billing.ts (tiers, credits, transactions), server/src/db/schema/observability.ts (traces, metrics, logs). Create server/src/db/schema/index.ts barrel export.",
+      "codeExample": "// server/src/db/schema/auth.ts\nimport { pgTable, text, timestamp, integer } from 'drizzle-orm/pg-core';\n\nexport const users = pgTable('users', {\n  id: text('id').primaryKey(),\n  email: text('email').notNull().unique(),\n  // ...\n});\n\nexport const sessions = pgTable('sessions', { ... });\nexport const emailVerificationTokens = pgTable(...);\nexport const passwordResetTokens = pgTable(...);\n\n// server/src/db/schema/index.ts\nexport * from './auth';\nexport * from './profiles';\nexport * from './teams';\n// ...",
+      "bestPractice": "Domain-Driven Design - organize code around business domains, not technical layers",
+      "metrics": {
+        "lineCount": 578,
+        "complexity": null,
+        "duplicateLines": null,
+        "testCoverage": null
+      },
+      "estimatedEffort": "medium",
+      "breakingChange": false,
+      "prerequisites": ["Ensure all Drizzle queries use explicit imports to avoid circular dependencies"]
+    },
+    {
+      "id": "cq-004",
+      "type": "code_quality",
+      "title": "Reduce eslint-disable directives (40 occurrences) through proper typing and refactoring",
+      "description": "There are 40 eslint-disable comments across 28 files, indicating systematic bypassing of linting rules. The most common disables are for @typescript-eslint/no-explicit-any and unused variables. This technical debt accumulates silently and undermines the value of having strict TypeScript configuration.",
+      "rationale": "ESLint rules exist to prevent bugs and maintain code quality. Disabling them should be exceptional, not routine. High eslint-disable counts indicate either: (1) rules that don't fit the project (should be adjusted in config), or (2) code that needs refactoring to meet standards. Addressing this reduces runtime errors and improves IDE support.",
+      "category": "linting",
+      "severity": "minor",
+      "affectedFiles": [
+        "src/context/AIContext.tsx",
+        "src/context/CanvasContext.tsx",
+        "src/context/VoiceAgentContext.tsx",
+        "src/components/features/ImageGallery.tsx",
+        "src/components/features/ImageToolsPanel.tsx",
+        "src/components/features/editor/ExportPanel.tsx",
+        "src/context/canvas/index.ts",
+        "src/utils/debounce.ts"
+      ],
+      "currentState": "40 eslint-disable comments across 28 files, with AIContext.tsx having 3, ImageGallery.tsx having 4, and ExportPanel.tsx having 4. Many are disabling 'no-explicit-any' and 'no-unused-vars'.",
+      "proposedChange": "Audit each eslint-disable: (1) For 'no-explicit-any' - add proper TypeScript generics or interface definitions, (2) For 'no-unused-vars' - remove unused code or use underscore prefix convention, (3) For legitimate exceptions - add inline explanation comment. Target: reduce from 40 to <10 necessary exceptions.",
+      "codeExample": "// BEFORE: src/utils/debounce.ts\n// eslint-disable-next-line @typescript-eslint/no-explicit-any\nfunction debounce(fn: (...args: any[]) => void, ms: number) { ... }\n\n// AFTER: Properly typed\nfunction debounce<T extends (...args: Parameters<T>) => ReturnType<T>>(\n  fn: T,\n  ms: number\n): (...args: Parameters<T>) => void {\n  let timeoutId: ReturnType<typeof setTimeout>;\n  return (...args: Parameters<T>) => {\n    clearTimeout(timeoutId);\n    timeoutId = setTimeout(() => fn(...args), ms);\n  };\n}",
+      "bestPractice": "TypeScript strictness - leverage the type system for safety; eslint-disable should be rare and documented",
       "metrics": {
         "lineCount": null,
         "complexity": null,
@@ -124,17 +110,63 @@
       },
       "estimatedEffort": "medium",
       "breakingChange": false,
-      "prerequisites": ["Set up test utilities for mocking Supabase client and API calls"]
+      "prerequisites": null
+    },
+    {
+      "id": "cq-005",
+      "type": "code_quality",
+      "title": "Extract SettingsModal sections (631 lines) into focused sub-components",
+      "description": "SettingsModal.tsx has grown to 631 lines handling multiple concerns: API key management for 3 providers (OpenRouter, OpenAI, Replicate), model selection dropdowns for 4 model types, connection testing UI, session timeout configuration, and save/validation logic. The component is difficult to test in isolation and changes to one section risk affecting others.",
+      "rationale": "Large modal components are particularly problematic because they often contain complex state management and validation logic that becomes intertwined. Breaking this into sub-components enables focused unit tests, reduces cognitive load, and enables reuse (e.g., APIKeyInput could be used in onboarding).",
+      "category": "large_files",
+      "severity": "minor",
+      "affectedFiles": [
+        "src/components/features/SettingsModal.tsx"
+      ],
+      "currentState": "Single 631-line component with inline ConnectionStatus component, 3 API key sections with similar structure, 4 model dropdown sections with similar structure, and mixed concerns",
+      "proposedChange": "Extract into focused components: (1) src/components/features/settings/APIKeySection.tsx - reusable API key input with test button and status, (2) src/components/features/settings/ModelSelector.tsx - dropdown with model list and description, (3) src/components/features/settings/ConnectionStatus.tsx - extracted and properly typed, (4) src/components/features/settings/useSettingsForm.ts - custom hook for form state and validation. SettingsModal becomes ~150 lines of composition.",
+      "codeExample": "// src/components/features/settings/APIKeySection.tsx\ninterface APIKeySectionProps {\n  label: string;\n  keyPrefix: string;\n  helpUrl: string;\n  value: string;\n  onChange: (value: string) => void;\n  onTest: () => Promise<void>;\n  status: ConnectionStatusType;\n  optional?: boolean;\n}\n\nexport function APIKeySection({ label, keyPrefix, ... }: APIKeySectionProps) {\n  return (\n    <div>\n      <label className=\"...\">{label}</label>\n      <input type=\"password\" placeholder={`${keyPrefix}...`} ... />\n      {value && (\n        <div className=\"flex ...\">\n          <button onClick={onTest}>Test Connection</button>\n          <ConnectionStatus status={status} />\n        </div>\n      )}\n    </div>\n  );\n}\n\n// In SettingsModal.tsx:\n<APIKeySection\n  label=\"OpenRouter API Key\"\n  keyPrefix=\"sk-or\"\n  helpUrl=\"https://openrouter.ai/keys\"\n  value={openRouterKey}\n  onChange={setOpenRouterKey}\n  onTest={handleTestOpenRouter}\n  status={openRouterStatus}\n/>",
+      "bestPractice": "Component composition - build complex UIs from simple, focused, reusable components",
+      "metrics": {
+        "lineCount": 631,
+        "complexity": null,
+        "duplicateLines": null,
+        "testCoverage": null
+      },
+      "estimatedEffort": "medium",
+      "breakingChange": false,
+      "prerequisites": null
     }
   ],
   "metadata": {
-    "filesAnalyzed": 95,
-    "largeFilesFound": 7,
-    "duplicateBlocksFound": 1,
+    "filesAnalyzed": 156,
+    "largeFilesFound": 12,
+    "duplicateBlocksFound": 6,
     "lintingConfigured": true,
     "testsPresent": true,
-    "testFilesCount": 21,
-    "typescriptStrict": true,
-    "generatedAt": "2026-01-06T21:45:00.000Z"
+    "eslintDisableCount": 40,
+    "anyTypeUsageCount": 5,
+    "generatedAt": "2026-01-13T10:46:16Z",
+    "summaryFindings": {
+      "criticalIssues": 0,
+      "majorIssues": 2,
+      "minorIssues": 3,
+      "suggestions": 0,
+      "topPriorities": [
+        "Extract reusable PlatformStudio to eliminate 6 duplicate files (cq-001)",
+        "Split App.tsx into focused modules (cq-002)",
+        "Split database schema into domain modules (cq-003)"
+      ]
+    },
+    "largestFiles": [
+      { "file": "src/App.tsx", "lines": 935 },
+      { "file": "src/components/features/GenerativeSidebar.tsx", "lines": 733 },
+      { "file": "src/components/features/SettingsModal.tsx", "lines": 631 },
+      { "file": "src/components/features/editor/TypographyPanel.tsx", "lines": 608 },
+      { "file": "server/src/db/schema.ts", "lines": 578 },
+      { "file": "src/components/features/editor/CanvasFormatSelector.tsx", "lines": 534 },
+      { "file": "src/components/studios/shared/PlatformFormatSelector.tsx", "lines": 511 },
+      { "file": "src/components/features/ToolChainBuilder.tsx", "lines": 507 }
+    ]
   }
 }

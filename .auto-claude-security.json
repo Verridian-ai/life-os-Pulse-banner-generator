@@ -147,13 +147,6 @@
     "gsutil",
     "ipython",
     "jupyter",
-    "k9s",
-    "kubeadm",
-    "kubectl",
-    "kubectx",
-    "kubens",
-    "kubeseal",
-    "kustomize",
     "ld",
     "make",
     "meson",
@@ -176,7 +169,6 @@
     "python3",
     "react-scripts",
     "strip",
-    "supabase",
     "ts-node",
     "tsc",
     "tsx",
@@ -211,12 +203,10 @@
     ],
     "databases": [],
     "infrastructure": [
-      "kubernetes",
       "docker"
     ],
     "cloud_providers": [
-      "gcp",
-      "supabase"
+      "gcp"
     ],
     "code_quality_tools": [],
     "version_managers": []
@@ -227,12 +217,16 @@
       "build",
       "preview",
       "lint",
+      "lint:fix",
       "format",
+      "format:check",
+      "typecheck",
       "test",
       "test:ui",
       "test:run",
       "test:coverage",
-      "test:watch"
+      "test:watch",
+      "prepare"
     ],
     "make_targets": [],
     "poetry_scripts": [],
@@ -240,6 +234,6 @@
     "shell_scripts": []
   },
   "project_dir": "C:\\Users\\Danie\\Desktop\\nanobanna-pro",
-  "created_at": "2026-01-08T03:06:32.184624",
-  "project_hash": "4535ea749e19afbdb275999dcff44b3f"
+  "created_at": "2026-01-13T03:25:20.815929",
+  "project_hash": "f2d5bbe0aa35191519c9f63d8eaaeb6d"
 }

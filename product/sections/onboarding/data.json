@@ -1,0 +1,54 @@
+{
+  "colorOptions": [
+    { "id": "orange", "name": "Orange", "hex": "#f97316", "isAntiSlop": true },
+    { "id": "blue", "name": "Blue", "hex": "#3b82f6", "isAntiSlop": true },
+    { "id": "emerald", "name": "Emerald", "hex": "#10b981", "isAntiSlop": true },
+    { "id": "rose", "name": "Rose", "hex": "#f43f5e", "isAntiSlop": true },
+    { "id": "amber", "name": "Amber", "hex": "#f59e0b", "isAntiSlop": true },
+    { "id": "slate", "name": "Slate", "hex": "#475569", "isAntiSlop": true },
+    { "id": "teal", "name": "Teal", "hex": "#14b8a6", "isAntiSlop": false },
+    { "id": "purple", "name": "Purple", "hex": "#a855f7", "isAntiSlop": false }
+  ],
+  "templateOptions": [
+    {
+      "id": "linkedin-banner",
+      "name": "LinkedIn Banner",
+      "platform": "linkedin",
+      "thumbnailUrl": "https://images.unsplash.com/photo-1557804506-669a67965ba0?w=400&h=100&fit=crop",
+      "suggestedPrompt": "A professional LinkedIn banner showcasing my expertise in [your field]"
+    },
+    {
+      "id": "instagram-post",
+      "name": "Instagram Post",
+      "platform": "instagram",
+      "thumbnailUrl": "https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=400&h=400&fit=crop",
+      "suggestedPrompt": "An eye-catching Instagram post announcing [your announcement]"
+    },
+    {
+      "id": "custom",
+      "name": "Custom Design",
+      "platform": "any",
+      "thumbnailUrl": "https://images.unsplash.com/photo-1557682250-33bd709cbe85?w=400&h=400&fit=crop",
+      "suggestedPrompt": "Describe your perfect design..."
+    }
+  ],
+  "welcomeContent": {
+    "title": "Welcome to Signal",
+    "subtitle": "Create stunning designs with AI in seconds, not hours.",
+    "features": [
+      "AI-powered design generation",
+      "Templates for every platform",
+      "Brand consistency tools",
+      "One-click export"
+    ]
+  },
+  "completionContent": {
+    "title": "You're all set!",
+    "subtitle": "Your first design is ready.",
+    "nextSteps": [
+      { "id": "templates", "label": "Explore Templates", "href": "/templates" },
+      { "id": "brand-kit", "label": "Set up your full Brand Kit", "href": "/brand-kit" },
+      { "id": "create", "label": "Create more designs", "href": "/design-studio" }
+    ]
+  }
+}

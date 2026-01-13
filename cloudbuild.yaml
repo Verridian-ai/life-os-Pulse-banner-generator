@@ -4,14 +4,21 @@ steps:
     args:
       - "build"
       - "-t"
-      - "gcr.io/$PROJECT_ID/nanobanna-pro:latest"
+      - "gcr.io/$PROJECT_ID/signal:$COMMIT_SHA"
+      - "-t"
+      - "gcr.io/$PROJECT_ID/signal:latest"
       - "."
 
   # Push the container image to Container Registry
   - name: "gcr.io/cloud-builders/docker"
     args:
       - "push"
-      - "gcr.io/$PROJECT_ID/nanobanna-pro:latest"
+      - "gcr.io/$PROJECT_ID/signal:$COMMIT_SHA"
+
+  - name: "gcr.io/cloud-builders/docker"
+    args:
+      - "push"
+      - "gcr.io/$PROJECT_ID/signal:latest"
 
   # Deploy container image to Cloud Run
   - name: "gcr.io/google.com/cloudsdktool/cloud-sdk"
@@ -19,35 +26,37 @@ steps:
     args:
       - "run"
       - "deploy"
-      - "nanobanna-pro"
+      - "signal"
       - "--image"
-      - "gcr.io/$PROJECT_ID/nanobanna-pro:latest"
+      - "gcr.io/$PROJECT_ID/signal:$COMMIT_SHA"
       - "--region"
       - "us-central1"
       - "--platform"
       - "managed"
       - "--allow-unauthenticated"
       - "--port"
-      - "8080"
+      - "3000"
       - "--memory"
-      - "512Mi"
+      - "1Gi"
       - "--cpu"
-      - "1"
+      - "2"
       - "--min-instances"
       - "0"
       - "--max-instances"
-      - "10"
-      - "--update-env-vars"
-      - "GCS_BUCKET_NAME=${_GCS_BUCKET_NAME},NODE_ENV=production,OPENROUTER_API_KEY=${_OPENROUTER_API_KEY},OPENAI_API_KEY=${_OPENAI_API_KEY},REPLICATE_API_KEY=${_REPLICATE_API_KEY}"
+      - "20"
+      - "--timeout"
+      - "300"
+      - "--set-env-vars"
+      - "NODE_ENV=production,GCS_BUCKET_NAME=${_GCS_BUCKET_NAME}"
+      - "--set-secrets"
+      - "DATABASE_URL=neon-database-url:latest,OPENROUTER_API_KEY=openrouter-api-key:latest,OPENAI_API_KEY=openai-api-key:latest,REPLICATE_API_KEY=replicate-api-key:latest,COGNEE_API_URL=cognee-api-url:latest,COGNEE_API_KEY=cognee-api-key:latest,DD_API_KEY=datadog-api-key:latest,LANGFUSE_PUBLIC_KEY=langfuse-public-key:latest,LANGFUSE_SECRET_KEY=langfuse-secret-key:latest"
 
 images:
-  - "gcr.io/$PROJECT_ID/nanobanna-pro:latest"
+  - "gcr.io/$PROJECT_ID/signal:$COMMIT_SHA"
+  - "gcr.io/$PROJECT_ID/signal:latest"
 
 substitutions:
-  _GCS_BUCKET_NAME: "life-os-user-files"
-  _OPENROUTER_API_KEY: ""
-  _OPENAI_API_KEY: ""
-  _REPLICATE_API_KEY: ""
+  _GCS_BUCKET_NAME: "signal-user-files"
 
 options:
   logging: CLOUD_LOGGING_ONLY

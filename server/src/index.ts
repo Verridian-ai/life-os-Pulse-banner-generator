@@ -26,6 +26,10 @@ import { imageRouter } from './routes/images';
 import { promptRouter } from './routes/prompts';
 import { replicateRouter } from './routes/replicate';
 import { adminRouter } from './routes/admin';
+import { designRouter } from './routes/designs';
+import { sharingRouter } from './routes/sharing';
+import { brandRouter } from './routes/brands';
+import { cogneeRouter } from './routes/cognee';
 import { lucia } from './lib/auth';
 
 config()
@@ -39,6 +43,9 @@ app.use('*', cors({
         'http://localhost:5174',
         'http://localhost:5175',
         'http://localhost:3000',
+        'http://localhost:3030',
+        'http://localhost:3033',
+        'http://localhost:8888',
         'https://life-os-banner.verridian.ai',
         'https://nanobanna-pro-237245874937.us-central1.run.app',
         'https://nanobanna.verridian.ai',
@@ -127,12 +134,17 @@ app.route('/api/ai', aiRouter);
 app.route('/api/images', imageRouter);
 app.route('/api/prompts', promptRouter);
 app.route('/api/replicate', replicateRouter);
+app.route('/api/designs', designRouter);
+app.route('/api/sharing', sharingRouter);
+app.route('/api/brands', brandRouter);
+app.route('/api/cognee', cogneeRouter);
 
 // Serve Static Frontend (FALLBACK)
 app.use('/*', serveStatic({ root: './public' }))
 app.get('*', serveStatic({ path: './public/index.html' }))
 
-const port = Number(process.env.PORT) || 3000
+// Use 8888 for local dev to avoid conflicts, production uses PORT env var (8080)
+const port = Number(process.env.PORT) || 8888
 console.log(`Server is running on port ${port}`)
 
 serve({

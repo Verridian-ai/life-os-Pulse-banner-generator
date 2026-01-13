@@ -14,13 +14,37 @@
  * Vibration patterns for different feedback types
  */
 export const HAPTIC_PATTERNS = {
+  // Connection state patterns
   /** Light vibration on successful connection (50ms) */
   CONNECTED: [50],
   /** Double vibration on error (50ms, pause 100ms, 50ms) */
   ERROR: [50, 100, 50],
   /** Single short vibration on disconnect (30ms) */
   DISCONNECTED: [30],
+
+  // Design interaction patterns (Phase 3: Haptic Feedback)
+  /** Very light tap feedback (10ms) */
+  TAP: [10],
+  /** Element selection feedback (15ms) */
+  SELECTION: [15],
+  /** Drag operation started (20ms) */
+  DRAG_START: [20],
+  /** Element dropped/released (25ms) */
+  DROP: [25],
+  /** Rotation snapped to angle (30ms) */
+  ROTATION_SNAP: [30],
+  /** Hit zoom/pan bounds (50ms, pause 50ms) */
+  BOUNDS_HIT: [50, 50],
+  /** Element deleted (20ms, pause 30ms, 20ms) */
+  DELETE: [20, 30, 20],
+  /** Undo or redo action (15ms) */
+  UNDO_REDO: [15],
+  /** Operation completed successfully (50ms, pause 50ms, 50ms) */
+  SUCCESS: [50, 50, 50],
 } as const;
+
+/** Type for haptic pattern names */
+export type HapticPatternName = keyof typeof HAPTIC_PATTERNS;
 
 /**
  * Check if the Vibration API is available in the current environment
@@ -80,7 +104,7 @@ export function prefersReducedMotion(): boolean {
  * Trigger haptic feedback with the given pattern
  * Automatically handles feature detection and reduced-motion preference
  *
- * @param pattern - Vibration pattern (array of durations in milliseconds)
+ * @param pattern - Vibration pattern (array of durations in milliseconds) or pattern name
  * @returns {boolean} True if vibration was triggered, false if not supported or disabled
  *
  * @example
@@ -88,10 +112,16 @@ export function prefersReducedMotion(): boolean {
  * triggerHaptic(HAPTIC_PATTERNS.CONNECTED);
  *
  * @example
+ * // Vibrate using pattern name
+ * triggerHaptic('TAP');
+ *
+ * @example
  * // Vibrate on error
  * triggerHaptic(HAPTIC_PATTERNS.ERROR);
  */
-export function triggerHaptic(pattern: readonly number[]): boolean {
+export function triggerHaptic(pattern: readonly number[] | HapticPatternName): boolean {
+  // Resolve pattern name to array if string provided
+  const resolvedPattern = typeof pattern === 'string' ? HAPTIC_PATTERNS[pattern] : pattern;
   // Don't vibrate if user prefers reduced motion
   if (prefersReducedMotion()) {
     return false;
@@ -103,7 +133,7 @@ export function triggerHaptic(pattern: readonly number[]): boolean {
   }
 
   try {
-    navigator.vibrate([...pattern]);
+    navigator.vibrate([...resolvedPattern]);
     return true;
   } catch (error) {
     // Silently fail if vibration throws an error

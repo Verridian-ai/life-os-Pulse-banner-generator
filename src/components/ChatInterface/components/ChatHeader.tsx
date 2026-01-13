@@ -25,6 +25,7 @@ export const ChatHeader: React.FC<ChatHeaderProps> = ({
       {/* Mode Toggle Buttons */}
       <div className='flex space-x-2 md:space-x-4'>
         <button
+          type="button"
           onClick={() => onModeChange('design')}
           className={`${BTN_BASE} ${mode === 'design' ? BTN_BLUE_ACTIVE : BTN_BLUE_INACTIVE}`}
         >
@@ -32,6 +33,7 @@ export const ChatHeader: React.FC<ChatHeaderProps> = ({
           Designer Logic
         </button>
         <button
+          type="button"
           onClick={() => onModeChange('search')}
           className={`${BTN_BASE} ${mode === 'search' ? BTN_BLUE_ACTIVE : BTN_BLUE_INACTIVE}`}
         >
@@ -45,6 +47,7 @@ export const ChatHeader: React.FC<ChatHeaderProps> = ({
         {/* New Chat Button - Only for authenticated users */}
         {isAuthenticated && (
           <button
+            type="button"
             onClick={onNewChat}
             className='h-10 w-10 md:h-12 md:w-12 rounded-full bg-zinc-800 border border-white/5 text-zinc-400 hover:text-white transition flex items-center justify-center hover:bg-zinc-700'
             title='New Conversation'
@@ -56,6 +59,7 @@ export const ChatHeader: React.FC<ChatHeaderProps> = ({
         {/* History Button - Only for authenticated users */}
         {isAuthenticated && (
           <button
+            type="button"
             onClick={onToggleHistory}
             className={`h-10 w-10 md:h-12 md:w-12 rounded-full border border-white/5 text-zinc-400 hover:text-white transition flex items-center justify-center ${showHistory ? 'bg-blue-600 text-white' : 'bg-zinc-800 hover:bg-zinc-700'}`}
             title='Chat History'
@@ -66,6 +70,7 @@ export const ChatHeader: React.FC<ChatHeaderProps> = ({
 
         {/* Settings Button - Always visible */}
         <button
+          type="button"
           onClick={onShowSettings}
           className='h-10 w-10 md:h-12 md:w-12 rounded-full bg-zinc-800 border border-white/5 text-zinc-400 hover:text-white transition flex items-center justify-center hover:bg-zinc-700'
           title='AI Settings'

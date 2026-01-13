@@ -1,0 +1,122 @@
+{
+  "popularActions": [
+    {
+      "id": "linkedin-banner",
+      "name": "LinkedIn Banner",
+      "description": "Professional profile background",
+      "icon": "Linkedin",
+      "platform": "linkedin",
+      "aspectRatio": "4:1",
+      "dimensions": { "width": 1584, "height": 396 },
+      "defaultStyle": "professional",
+      "usageCount": 4521
+    },
+    {
+      "id": "instagram-post",
+      "name": "Instagram Post",
+      "description": "Square feed post",
+      "icon": "Instagram",
+      "platform": "instagram",
+      "aspectRatio": "1:1",
+      "dimensions": { "width": 1080, "height": 1080 },
+      "defaultStyle": "creative",
+      "usageCount": 6234
+    },
+    {
+      "id": "instagram-story",
+      "name": "Story Template",
+      "description": "Vertical story/reel",
+      "icon": "Smartphone",
+      "platform": "instagram",
+      "aspectRatio": "9:16",
+      "dimensions": { "width": 1080, "height": 1920 },
+      "defaultStyle": "creative",
+      "usageCount": 5102
+    }
+  ],
+  "allActions": [
+    {
+      "id": "youtube-thumbnail",
+      "name": "YouTube Thumbnail",
+      "description": "Video thumbnail",
+      "icon": "Youtube",
+      "platform": "youtube",
+      "aspectRatio": "16:9",
+      "dimensions": { "width": 1280, "height": 720 },
+      "defaultStyle": "bold",
+      "usageCount": 3891
+    },
+    {
+      "id": "x-header",
+      "name": "Twitter/X Header",
+      "description": "Profile banner",
+      "icon": "Twitter",
+      "platform": "x",
+      "aspectRatio": "3:1",
+      "dimensions": { "width": 1500, "height": 500 },
+      "defaultStyle": "professional",
+      "usageCount": 2145
+    },
+    {
+      "id": "facebook-cover",
+      "name": "Facebook Cover",
+      "description": "Page cover photo",
+      "icon": "Facebook",
+      "platform": "facebook",
+      "aspectRatio": "2.63:1",
+      "dimensions": { "width": 820, "height": 312 },
+      "defaultStyle": "professional",
+      "usageCount": 1876
+    },
+    {
+      "id": "tiktok-cover",
+      "name": "TikTok Cover",
+      "description": "Video thumbnail",
+      "icon": "Music",
+      "platform": "tiktok",
+      "aspectRatio": "9:16",
+      "dimensions": { "width": 1080, "height": 1920 },
+      "defaultStyle": "creative",
+      "usageCount": 2934
+    },
+    {
+      "id": "email-header",
+      "name": "Email Header",
+      "description": "Newsletter banner",
+      "icon": "Mail",
+      "platform": "email",
+      "aspectRatio": "3:1",
+      "dimensions": { "width": 600, "height": 200 },
+      "defaultStyle": "minimal",
+      "usageCount": 1523
+    },
+    {
+      "id": "presentation-slide",
+      "name": "Presentation Slide",
+      "description": "Slide background",
+      "icon": "Presentation",
+      "platform": "presentation",
+      "aspectRatio": "16:9",
+      "dimensions": { "width": 1920, "height": 1080 },
+      "defaultStyle": "minimal",
+      "usageCount": 1287
+    }
+  ],
+  "styleOptions": [
+    { "id": "professional", "label": "Professional", "description": "Clean and corporate" },
+    { "id": "creative", "label": "Creative", "description": "Bold and expressive" },
+    { "id": "minimal", "label": "Minimal", "description": "Simple and elegant" }
+  ],
+  "moodOptions": [
+    { "id": "bold", "label": "Bold", "description": "Strong and impactful" },
+    { "id": "calm", "label": "Calm", "description": "Peaceful and serene" },
+    { "id": "energetic", "label": "Energetic", "description": "Dynamic and lively" },
+    { "id": "elegant", "label": "Elegant", "description": "Sophisticated and refined" }
+  ],
+  "defaultOptions": {
+    "style": "professional",
+    "mood": "bold",
+    "applyBrandColors": true,
+    "includeLogo": false
+  }
+}

@@ -8,61 +8,278 @@
 ## 1. Design Philosophy
 
 ### 1.1 Style Foundation
+
 - **Primary**: Neumorphism (Soft UI)
 - **Secondary**: Glassmorphism (Frosted glass)
 - **Approach**: Hybrid with accessibility fallbacks
 
 ### 1.2 Visual Baselines
+
 - **Primary Reference**: Pulse page
 - **Secondary Reference**: Landing page
 - **These are PROTECTED** - do not modify without approval
 
 ---
 
-## 2. Color Tokens
+## 2. Token Architecture (3-Tier Hierarchy)
 
-### 2.1 Primitive Tokens
+> Industry-standard token hierarchy: Primitives → Semantic/Alias → Component
+
+### 2.1 Tier 1: Primitive Tokens (Raw Values)
+
+Primitive tokens are the foundational raw values. Never use directly in components.
 
 ```css
 :root {
-  /* Base Colors */
-  --color-bg-base: hsl(220, 15%, 95%);
-  --color-bg-elevated: hsl(220, 15%, 98%);
-  --color-text-primary: hsl(220, 20%, 20%);
-  --color-text-secondary: hsl(220, 15%, 45%);
+  /* ═══════════════════════════════════════════════════════════════
+     TIER 1: PRIMITIVES (Raw values - DO NOT use directly)
+     ═══════════════════════════════════════════════════════════════ */
 
-  /* Brand Colors */
-  --color-brand-primary: hsl(220, 80%, 55%);
-  --color-brand-secondary: hsl(180, 60%, 45%);
+  /* Color Primitives - Violet Scale */
+  --primitive-violet-50: hsl(263, 70%, 96%);
+  --primitive-violet-100: hsl(263, 70%, 90%);
+  --primitive-violet-200: hsl(263, 70%, 80%);
+  --primitive-violet-300: hsl(263, 70%, 70%);
+  --primitive-violet-400: hsl(263, 70%, 60%);
+  --primitive-violet-500: hsl(263, 70%, 50%);   /* #8B5CF6 */
+  --primitive-violet-600: hsl(263, 70%, 45%);
+  --primitive-violet-700: hsl(263, 70%, 38%);
+  --primitive-violet-800: hsl(263, 70%, 28%);
+  --primitive-violet-900: hsl(263, 70%, 18%);
 
-  /* Shadow Colors (Neumorphism) */
-  --neu-shadow-dark: rgba(0, 0, 0, 0.15);
-  --neu-shadow-light: rgba(255, 255, 255, 0.7);
+  /* Color Primitives - Cyan Scale */
+  --primitive-cyan-50: hsl(187, 85%, 96%);
+  --primitive-cyan-100: hsl(187, 85%, 85%);
+  --primitive-cyan-200: hsl(187, 85%, 70%);
+  --primitive-cyan-300: hsl(187, 85%, 58%);
+  --primitive-cyan-400: hsl(187, 85%, 50%);
+  --primitive-cyan-500: hsl(187, 85%, 42%);     /* #06B6D4 */
+  --primitive-cyan-600: hsl(187, 85%, 35%);
+  --primitive-cyan-700: hsl(187, 85%, 28%);
 
-  /* Glass Colors (Glassmorphism) */
-  --glass-fill: rgba(255, 255, 255, 0.1);
-  --glass-border: rgba(255, 255, 255, 0.2);
+  /* Color Primitives - Zinc Scale (Dark Mode) */
+  --primitive-zinc-50: hsl(240, 5%, 96%);
+  --primitive-zinc-100: hsl(240, 5%, 90%);
+  --primitive-zinc-200: hsl(240, 5%, 80%);
+  --primitive-zinc-300: hsl(240, 5%, 65%);
+  --primitive-zinc-400: hsl(240, 5%, 50%);
+  --primitive-zinc-500: hsl(240, 5%, 35%);
+  --primitive-zinc-600: hsl(240, 5%, 25%);
+  --primitive-zinc-700: hsl(240, 4%, 16%);
+  --primitive-zinc-800: hsl(240, 6%, 10%);
+  --primitive-zinc-900: hsl(240, 10%, 4%);      /* #09090b */
+
+  /* Color Primitives - Feedback Colors */
+  --primitive-emerald-500: hsl(160, 84%, 39%);
+  --primitive-amber-500: hsl(38, 92%, 50%);
+  --primitive-red-500: hsl(0, 84%, 60%);
+
+  /* Color Primitives - Banana (Brand) */
+  --primitive-banana-500: hsl(44, 77%, 46%);    /* #D4A017 */
+
+  /* Spacing Primitives (4px base) */
+  --primitive-space-0: 0;
+  --primitive-space-1: 0.25rem;   /* 4px */
+  --primitive-space-2: 0.5rem;    /* 8px */
+  --primitive-space-3: 0.75rem;   /* 12px */
+  --primitive-space-4: 1rem;      /* 16px */
+  --primitive-space-5: 1.25rem;   /* 20px */
+  --primitive-space-6: 1.5rem;    /* 24px */
+  --primitive-space-8: 2rem;      /* 32px */
+  --primitive-space-10: 2.5rem;   /* 40px */
+  --primitive-space-12: 3rem;     /* 48px */
+  --primitive-space-16: 4rem;     /* 64px */
+  --primitive-space-20: 5rem;     /* 80px */
+  --primitive-space-24: 6rem;     /* 96px */
+
+  /* Sizing Primitives */
+  --primitive-size-4: 1rem;       /* 16px */
+  --primitive-size-6: 1.5rem;     /* 24px */
+  --primitive-size-8: 2rem;       /* 32px */
+  --primitive-size-10: 2.5rem;    /* 40px */
+  --primitive-size-11: 2.75rem;   /* 44px - WCAG touch target */
+  --primitive-size-12: 3rem;      /* 48px */
+  --primitive-size-14: 3.5rem;    /* 56px */
+  --primitive-size-16: 4rem;      /* 64px */
+
+  /* Radius Primitives */
+  --primitive-radius-sm: 0.5rem;   /* 8px */
+  --primitive-radius-md: 0.75rem;  /* 12px */
+  --primitive-radius-lg: 1rem;     /* 16px */
+  --primitive-radius-xl: 1.25rem;  /* 20px */
+  --primitive-radius-2xl: 1.5rem;  /* 24px */
+  --primitive-radius-3xl: 2rem;    /* 32px */
+  --primitive-radius-full: 9999px;
+
+  /* Opacity Primitives */
+  --primitive-opacity-5: 0.05;
+  --primitive-opacity-10: 0.10;
+  --primitive-opacity-20: 0.20;
+  --primitive-opacity-40: 0.40;
+  --primitive-opacity-60: 0.60;
+  --primitive-opacity-80: 0.80;
 }
 ```
 
-### 2.2 Dark Mode Tokens
+### 2.2 Tier 2: Semantic/Alias Tokens (Purpose-Based)
+
+Semantic tokens map primitives to their purpose. Use these in components.
 
 ```css
-@media (prefers-color-scheme: dark) {
-  :root {
-    --color-bg-base: hsl(220, 20%, 12%);
-    --color-bg-elevated: hsl(220, 20%, 16%);
-    --color-text-primary: hsl(220, 10%, 92%);
-    --color-text-secondary: hsl(220, 10%, 65%);
+:root {
+  /* ═══════════════════════════════════════════════════════════════
+     TIER 2: SEMANTIC/ALIAS (Purpose-based - Use in components)
+     ═══════════════════════════════════════════════════════════════ */
 
-    --neu-shadow-dark: rgba(0, 0, 0, 0.4);
-    --neu-shadow-light: rgba(255, 255, 255, 0.05);
+  /* Surface Colors */
+  --color-surface-base: var(--primitive-zinc-900);
+  --color-surface-elevated: var(--primitive-zinc-800);
+  --color-surface-overlay: rgba(24, 24, 27, 0.6);
 
-    --glass-fill: rgba(255, 255, 255, 0.05);
-    --glass-border: rgba(255, 255, 255, 0.1);
-  }
+  /* Text Colors */
+  --color-text-primary: var(--primitive-zinc-50);
+  --color-text-secondary: var(--primitive-zinc-400);
+  --color-text-muted: var(--primitive-zinc-500);
+  --color-text-inverse: var(--primitive-zinc-900);
+
+  /* Brand Colors */
+  --color-brand-primary: var(--primitive-violet-500);
+  --color-brand-secondary: var(--primitive-cyan-500);
+  --color-brand-accent: var(--primitive-banana-500);
+
+  /* Interactive Colors */
+  --color-interactive-default: var(--primitive-violet-500);
+  --color-interactive-hover: var(--primitive-violet-400);
+  --color-interactive-active: var(--primitive-violet-600);
+  --color-interactive-focus: var(--primitive-violet-400);
+
+  /* Feedback Colors */
+  --color-feedback-success: var(--primitive-emerald-500);
+  --color-feedback-warning: var(--primitive-amber-500);
+  --color-feedback-error: var(--primitive-red-500);
+  --color-feedback-info: var(--primitive-cyan-500);
+
+  /* Border Colors */
+  --color-border-default: rgba(255, 255, 255, 0.05);
+  --color-border-subtle: rgba(255, 255, 255, 0.02);
+  --color-border-emphasis: rgba(255, 255, 255, 0.10);
+
+  /* Shadow Colors (Neumorphism) */
+  --neu-shadow-dark: rgba(0, 0, 0, 0.4);
+  --neu-shadow-light: rgba(255, 255, 255, 0.05);
+
+  /* Glass Colors (Glassmorphism) */
+  --glass-fill: rgba(255, 255, 255, 0.05);
+  --glass-border: rgba(255, 255, 255, 0.10);
+  --glass-fill-hover: rgba(255, 255, 255, 0.08);
+
+  /* Semantic Spacing */
+  --spacing-component-xs: var(--primitive-space-1);
+  --spacing-component-sm: var(--primitive-space-2);
+  --spacing-component-md: var(--primitive-space-4);
+  --spacing-component-lg: var(--primitive-space-6);
+  --spacing-component-xl: var(--primitive-space-8);
+  --spacing-section: var(--primitive-space-12);
+  --spacing-page: var(--primitive-space-16);
+
+  /* Semantic Sizing */
+  --size-touch-target: var(--primitive-size-11);  /* 44px WCAG */
+  --size-icon-sm: var(--primitive-size-4);
+  --size-icon-md: var(--primitive-size-6);
+  --size-icon-lg: var(--primitive-size-8);
 }
 ```
+
+### 2.3 Tier 3: Component Tokens (Scoped)
+
+Component tokens are scoped to specific components. Override for theming.
+
+```css
+:root {
+  /* ═══════════════════════════════════════════════════════════════
+     TIER 3: COMPONENT (Scoped to component - For theming/overrides)
+     ═══════════════════════════════════════════════════════════════ */
+
+  /* Button Component */
+  --button-bg-primary: var(--color-brand-primary);
+  --button-bg-primary-hover: var(--color-interactive-hover);
+  --button-bg-secondary: var(--color-surface-elevated);
+  --button-bg-ghost: transparent;
+  --button-text-primary: var(--color-text-primary);
+  --button-text-secondary: var(--color-text-primary);
+  --button-padding-x: var(--spacing-component-lg);
+  --button-padding-y: var(--spacing-component-md);
+  --button-radius: var(--primitive-radius-md);
+  --button-size-sm: var(--primitive-size-8);     /* 32px */
+  --button-size-md: var(--primitive-size-10);    /* 40px */
+  --button-size-lg: var(--primitive-size-12);    /* 48px */
+
+  /* Input Component */
+  --input-bg: rgba(0, 0, 0, 0.4);
+  --input-bg-focus: rgba(0, 0, 0, 0.5);
+  --input-border: var(--color-border-emphasis);
+  --input-border-focus: var(--color-brand-primary);
+  --input-border-error: var(--color-feedback-error);
+  --input-border-success: var(--color-feedback-success);
+  --input-text: var(--color-text-primary);
+  --input-text-placeholder: var(--color-text-muted);
+  --input-padding-x: var(--spacing-component-md);
+  --input-padding-y: var(--spacing-component-sm);
+  --input-radius: var(--primitive-radius-md);
+
+  /* Card Component */
+  --card-bg-glass: var(--color-surface-overlay);
+  --card-bg-solid: var(--color-surface-elevated);
+  --card-border: var(--color-border-default);
+  --card-border-hover: var(--color-border-emphasis);
+  --card-padding: var(--spacing-component-lg);
+  --card-radius: var(--primitive-radius-2xl);
+  --card-radius-inner: var(--primitive-radius-lg);
+
+  /* Panel Component */
+  --panel-bg: var(--color-surface-overlay);
+  --panel-border: var(--color-border-default);
+  --panel-padding: var(--spacing-component-lg);
+  --panel-radius: var(--primitive-radius-lg);
+
+  /* Badge Component */
+  --badge-padding-x: var(--spacing-component-sm);
+  --badge-padding-y: var(--spacing-component-xs);
+  --badge-radius: var(--primitive-radius-full);
+  --badge-font-size: 10px;
+}
+```
+
+### 2.4 Dark/Light Mode Override
+
+```css
+@media (prefers-color-scheme: light) {
+  :root {
+    /* Override surface colors for light mode */
+    --color-surface-base: hsl(220, 15%, 95%);
+    --color-surface-elevated: hsl(220, 15%, 98%);
+    --color-surface-overlay: rgba(255, 255, 255, 0.8);
+
+    /* Override text colors */
+    --color-text-primary: hsl(220, 20%, 20%);
+    --color-text-secondary: hsl(220, 15%, 45%);
+    --color-text-muted: hsl(220, 10%, 55%);
+    --color-text-inverse: hsl(220, 15%, 98%);
+
+    /* Override neumorphism shadows */
+    --neu-shadow-dark: rgba(0, 0, 0, 0.15);
+    --neu-shadow-light: rgba(255, 255, 255, 0.7);
+
+    /* Override glass fills */
+    --glass-fill: rgba(255, 255, 255, 0.4);
+    --glass-border: rgba(0, 0, 0, 0.08);
+
+    /* Override border colors */
+    --color-border-default: rgba(0, 0, 0, 0.08);
+    --color-border-subtle: rgba(0, 0, 0, 0.04);
+    --color-border-emphasis: rgba(0, 0, 0, 0.12);
+  }
+}
 
 ---
 
@@ -421,14 +638,147 @@ module.exports = {
 
 ---
 
+## 10. Naming Conventions (BEM Standard)
+
+### 10.1 BEM Structure
+
+All component classes follow **Block__Element--Modifier** convention for predictability and maintainability.
+
+```text
+.block           → Independent component (e.g., .card, .button, .input)
+.block__element  → Child element of block (e.g., .card__header, .button__icon)
+.block--modifier → Variant of block (e.g., .card--glass, .button--primary)
+```
+
+### 10.2 Migration Reference
+
+| Legacy Class | BEM Class | Description |
+| --- | --- | --- |
+| `.glass-card` | `.card--glass` | Glass-style card variant |
+| `.glass-panel` | `.panel--glass` | Glass-style panel variant |
+| `.glass-frosted` | `.surface--frosted` | Frosted glass surface |
+| `.glass-heavy` | `.surface--glass-heavy` | Heavy blur glass surface |
+| `.neu-raised` | `.surface--raised` | Neumorphic raised surface |
+| `.neu-inset` | `.surface--inset` | Neumorphic inset surface |
+
+### 10.3 Component Class Pattern
+
+```css
+/* ═══════════════════════════════════════════════════════════════
+   BEM PATTERN: .block--variant .block__element
+   ═══════════════════════════════════════════════════════════════ */
+
+/* BLOCK: Card */
+.card {
+  padding: var(--card-padding);
+  border-radius: var(--card-radius);
+  border: 1px solid var(--card-border);
+}
+
+/* MODIFIER: Glass variant */
+.card--glass {
+  background: var(--card-bg-glass);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+
+/* MODIFIER: Solid variant */
+.card--solid {
+  background: var(--card-bg-solid);
+}
+
+/* MODIFIER: Outlined variant */
+.card--outlined {
+  background: transparent;
+  border: 2px solid var(--color-border-emphasis);
+}
+
+/* ELEMENT: Card header */
+.card__header {
+  padding-bottom: var(--spacing-component-md);
+  border-bottom: 1px solid var(--color-border-subtle);
+}
+
+/* ELEMENT: Card body */
+.card__body {
+  padding: var(--spacing-component-md) 0;
+}
+
+/* ELEMENT: Card footer */
+.card__footer {
+  padding-top: var(--spacing-component-md);
+  border-top: 1px solid var(--color-border-subtle);
+}
+```
+
+### 10.4 Button Classes
+
+```css
+/* BLOCK: Button */
+.button { /* Base styles */ }
+
+/* SIZE MODIFIERS */
+.button--sm { height: var(--button-size-sm); padding: 0 var(--spacing-component-md); }
+.button--md { height: var(--button-size-md); padding: 0 var(--spacing-component-lg); }
+.button--lg { height: var(--button-size-lg); padding: 0 var(--spacing-component-xl); }
+
+/* COLOR MODIFIERS */
+.button--primary { background: var(--button-bg-primary); }
+.button--secondary { background: var(--button-bg-secondary); }
+.button--ghost { background: var(--button-bg-ghost); }
+.button--danger { background: var(--color-feedback-error); }
+
+/* STATE MODIFIERS */
+.button--loading { /* Loading spinner state */ }
+.button--disabled, .button:disabled { opacity: 0.5; cursor: not-allowed; }
+```
+
+### 10.5 Input Classes
+
+```css
+/* BLOCK: Input */
+.input { /* Base styles */ }
+
+/* SIZE MODIFIERS */
+.input--sm { height: var(--button-size-sm); }
+.input--md { height: var(--button-size-md); }
+.input--lg { height: var(--button-size-lg); }
+
+/* STATE MODIFIERS */
+.input--error { border-color: var(--input-border-error); }
+.input--success { border-color: var(--input-border-success); }
+.input--disabled, .input:disabled { opacity: 0.5; cursor: not-allowed; }
+
+/* ELEMENT: Input with icon */
+.input-group { /* Container for input + icon */ }
+.input-group__icon { /* Icon element */ }
+.input-group__input { /* Input element */ }
+```
+
+### 10.6 Surface Classes
+
+```css
+/* BLOCK: Surface (base layer) */
+.surface { /* Base styles */ }
+
+/* MODIFIERS */
+.surface--frosted { backdrop-filter: blur(20px) saturate(180%); }
+.surface--glass-heavy { backdrop-filter: blur(40px) saturate(200%); }
+.surface--raised { /* Neumorphic convex shadow */ }
+.surface--inset { /* Neumorphic concave shadow */ }
+```
+
+---
+
 ## References
 
 - [Neumorphism.io](https://neumorphism.io/) - Shadow generator
 - [WCAG 2.1 Non-text Contrast](https://www.w3.org/WAI/WCAG21/Understanding/non-text-contrast.html)
 - [MDN forced-colors](https://developer.mozilla.org/en-US/docs/Web/CSS/@media/forced-colors)
+- [BEM Methodology](https://getbem.com/) - Block Element Modifier convention
 - Combined_Documentation.md - Production UI standards
 
 ---
 
-*Last Updated: 2025-12-20*
-*Version: 1.0.0*
+*Last Updated: 2026-01-08*
+*Version: 2.0.0*

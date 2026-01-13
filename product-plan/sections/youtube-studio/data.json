@@ -1,0 +1,117 @@
+{
+  "sampleContent": {
+    "id": "yt-001",
+    "userId": "user-001",
+    "thumbnailUrl": "/samples/youtube-thumb.png",
+    "title": "10 AI Tools That Will 10x Your Productivity in 2024",
+    "description": "In this video, I share the top 10 AI tools that have transformed my workflow...\n\n⏱️ TIMESTAMPS:\n0:00 - Introduction\n1:30 - Tool #1: ChatGPT\n3:45 - Tool #2: Midjourney\n...\n\n🔗 LINKS:\n- My AI Toolkit: https://...\n- Free Template: https://...\n\n#AI #Productivity #2024",
+    "tags": ["AI", "productivity", "tools", "2024", "workflow", "automation"],
+    "hashtags": ["AI", "Productivity", "2024"],
+    "ctrScore": {
+      "overall": 7.2,
+      "factors": [
+        {
+          "id": "thumbnail",
+          "name": "Thumbnail Appeal",
+          "score": 85,
+          "maxScore": 100,
+          "weight": 0.35,
+          "suggestion": "Consider adding your face with an expressive emotion"
+        },
+        {
+          "id": "title",
+          "name": "Title Curiosity",
+          "score": 90,
+          "maxScore": 100,
+          "weight": 0.30,
+          "suggestion": "Strong number and promise - keep it"
+        },
+        {
+          "id": "keywords",
+          "name": "Keyword Optimization",
+          "score": 75,
+          "maxScore": 100,
+          "weight": 0.20,
+          "suggestion": "Add 'best' or 'top' to front-load value"
+        },
+        {
+          "id": "trend",
+          "name": "Trend Alignment",
+          "score": 60,
+          "maxScore": 100,
+          "weight": 0.15,
+          "suggestion": "AI is evergreen but consider specific tool names"
+        }
+      ],
+      "suggestions": [
+        "Add a face with surprised expression for +15% CTR",
+        "Use brighter colors (yellow, red) for thumbnail pop",
+        "Consider 'You Won't Believe' or 'I Tested' angle"
+      ]
+    },
+    "status": "draft"
+  },
+  "thumbnailFormats": [
+    {
+      "id": "standard",
+      "name": "Standard Thumbnail",
+      "width": 1280,
+      "height": 720,
+      "aspectRatio": "16:9"
+    }
+  ],
+  "ctrFactors": [
+    {
+      "id": "thumbnail",
+      "name": "Thumbnail Appeal",
+      "weight": 0.35,
+      "description": "Visual impact and click-worthiness"
+    },
+    {
+      "id": "title",
+      "name": "Title Curiosity",
+      "weight": 0.30,
+      "description": "Curiosity gap and promise"
+    },
+    {
+      "id": "keywords",
+      "name": "Keyword Optimization",
+      "weight": 0.20,
+      "description": "Search visibility and relevance"
+    },
+    {
+      "id": "trend",
+      "name": "Trend Alignment",
+      "weight": 0.15,
+      "description": "Current topic relevance"
+    }
+  ],
+  "powerWords": [
+    "Ultimate", "Complete", "Best", "Top", "Secret",
+    "Proven", "Easy", "Fast", "Free", "New",
+    "Amazing", "Incredible", "Shocking", "Must-See", "Essential"
+  ],
+  "sampleKeywords": [
+    {
+      "keyword": "AI tools",
+      "searchVolume": 45000,
+      "competition": "high",
+      "relevance": 0.95,
+      "trending": true
+    },
+    {
+      "keyword": "productivity apps",
+      "searchVolume": 28000,
+      "competition": "medium",
+      "relevance": 0.85,
+      "trending": false
+    },
+    {
+      "keyword": "automation software",
+      "searchVolume": 12000,
+      "competition": "low",
+      "relevance": 0.75,
+      "trending": true
+    }
+  ]
+}

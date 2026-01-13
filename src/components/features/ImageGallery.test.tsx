@@ -1,5 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen, waitFor, fireEvent } from '@testing-library/react';
+import '@testing-library/jest-dom';
 import ImageGallery from './ImageGallery';
 import { CanvasContext } from '../../context/CanvasContext';
 import * as database from '../../services/database';
@@ -9,6 +10,36 @@ vi.mock('../../services/database', () => ({
   getUserImages: vi.fn(),
   toggleImageFavorite: vi.fn(),
   deleteImageRecord: vi.fn(),
+}));
+
+// Mock react-virtualized-auto-sizer to provide dimensions for react-window
+// Note: vi.mock is hoisted, so we must define the mock inline
+vi.mock('react-virtualized-auto-sizer', () => {
+  const MockAutoSizer = ({ children }: { children: (size: { width: number; height: number }) => React.ReactNode }) =>
+    children({ width: 800, height: 600 });
+  return {
+    default: MockAutoSizer,
+    AutoSizer: MockAutoSizer,
+  };
+});
+
+// Mock react-window to render items directly without virtualization
+vi.mock('react-window', () => ({
+  FixedSizeGrid: ({ children: ChildComponent, columnCount, rowCount, itemData }: {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    children: React.FC<any>;
+    columnCount: number;
+    rowCount: number;
+    itemData: unknown;
+  }) => {
+    const items: React.ReactElement[] = [];
+    for (let row = 0; row < rowCount; row++) {
+      for (let col = 0; col < columnCount; col++) {
+        items.push(<ChildComponent key={`${row}-${col}`} columnIndex={col} rowIndex={row} style={{}} data={itemData} />);
+      }
+    }
+    return <div data-testid="virtualized-grid">{items}</div>;
+  },
 }));
 
 const mockCanvasContext = {
@@ -41,7 +72,7 @@ describe('ImageGallery', () => {
 
   it('should render loading state initially', () => {
     vi.mocked(database.getUserImages).mockImplementation(
-      () => new Promise(() => {}), // Never resolves to keep loading
+      () => new Promise(() => { }), // Never resolves to keep loading
     );
 
     render(
@@ -50,7 +81,9 @@ describe('ImageGallery', () => {
       </CanvasContext.Provider>,
     );
 
-    expect(screen.getByText(/Loading images/i)).toBeInTheDocument();
+    // Loading state shows skeleton placeholders with aria-hidden
+    const skeletons = document.querySelectorAll('[aria-hidden="true"]');
+    expect(skeletons.length).toBeGreaterThan(0);
   });
 
   it('should display error message when loading fails', async () => {

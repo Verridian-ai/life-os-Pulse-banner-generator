@@ -172,3 +172,162 @@ export class CompareImagesCommand implements Command {
     }
   }
 }
+
+export class BatchAnalyzeCommand implements Command {
+  name = 'batch_analyze';
+
+  async execute(args: { image_urls: string[] }, _context: CommandContext): Promise<ActionResult> {
+    const { image_urls } = args;
+
+    if (!image_urls || image_urls.length === 0) {
+      return {
+        success: false,
+        error: 'No image URLs provided for batch analysis.',
+      };
+    }
+
+    console.log(`[BatchAnalyzeCommand] Analyzing ${image_urls.length} images`);
+
+    const results: Array<{
+      url: string;
+      analysis: {
+        magicEditSuggestions: string[];
+        generationIdeas: string[];
+      } | null;
+      error?: string;
+    }> = [];
+
+    const settledResults = await Promise.allSettled(
+      image_urls.map(async (url) => {
+        try {
+          const analysis = await analyzeImageForPrompts(url);
+          return {
+            url,
+            analysis: {
+              magicEditSuggestions: analysis.magicEdit || [],
+              generationIdeas: analysis.generation || [],
+            },
+          };
+        } catch (error) {
+          return {
+            url,
+            analysis: null,
+            error: error instanceof Error ? error.message : 'Analysis failed',
+          };
+        }
+      })
+    );
+
+    for (const result of settledResults) {
+      if (result.status === 'fulfilled') {
+        results.push(result.value);
+      }
+    }
+
+    const successCount = results.filter(r => r.analysis !== null).length;
+    const errorCount = results.filter(r => r.error).length;
+
+    console.log(`[BatchAnalyzeCommand] Complete: ${successCount} success, ${errorCount} errors`);
+
+    return {
+      success: successCount > 0,
+      result: JSON.stringify({
+        summary: {
+          total: image_urls.length,
+          success: successCount,
+          errors: errorCount,
+        },
+        results,
+      }, null, 2),
+      action: 'batch_analyze',
+    };
+  }
+}
+
+export class BatchCompareCommand implements Command {
+  name = 'batch_compare';
+
+  async execute(args: {
+    image_urls: string[];
+    reference_image: string;
+    criteria?: string;
+  }, _context: CommandContext): Promise<ActionResult> {
+    const { image_urls, reference_image, criteria } = args;
+
+    if (!image_urls || image_urls.length === 0) {
+      return {
+        success: false,
+        error: 'No image URLs provided for batch comparison.',
+      };
+    }
+
+    if (!reference_image) {
+      return {
+        success: false,
+        error: 'No reference image provided. Please provide a reference image URL to compare against.',
+      };
+    }
+
+    console.log(`[BatchCompareCommand] Comparing ${image_urls.length} images against reference`);
+
+    // Dynamic import to avoid circular dependency
+    const { compareImages } = await import('../imageAnalysisService');
+
+    const results: Array<{
+      url: string;
+      comparison: unknown | null;
+      error?: string;
+    }> = [];
+
+    const settledResults = await Promise.allSettled(
+      image_urls.map(async (url) => {
+        try {
+          const comparison = await compareImages(url, reference_image);
+          return {
+            url,
+            comparison,
+          };
+        } catch (error) {
+          return {
+            url,
+            comparison: null,
+            error: error instanceof Error ? error.message : 'Comparison failed',
+          };
+        }
+      })
+    );
+
+    for (const result of settledResults) {
+      if (result.status === 'fulfilled') {
+        results.push(result.value);
+      }
+    }
+
+    const successCount = results.filter(r => r.comparison !== null).length;
+    const errorCount = results.filter(r => r.error).length;
+
+    // Sort results by similarity if comparisons contain scores
+    const sortedResults = results.sort((a, b) => {
+      const scoreA = (a.comparison as { similarityScore?: number })?.similarityScore || 0;
+      const scoreB = (b.comparison as { similarityScore?: number })?.similarityScore || 0;
+      return scoreB - scoreA; // Highest similarity first
+    });
+
+    console.log(`[BatchCompareCommand] Complete: ${successCount} success, ${errorCount} errors`);
+
+    return {
+      success: successCount > 0,
+      result: JSON.stringify({
+        summary: {
+          total: image_urls.length,
+          success: successCount,
+          errors: errorCount,
+          referenceImage: reference_image,
+          criteria: criteria || 'default',
+        },
+        results: sortedResults,
+      }, null, 2),
+      action: 'batch_compare',
+    };
+  }
+}

@@ -1,0 +1,176 @@
+{
+  "platformConfigs": [
+    {
+      "id": "linkedin",
+      "name": "LinkedIn",
+      "formats": [
+        { "name": "Banner", "width": 1584, "height": 396, "aspectRatio": "4:1" },
+        { "name": "Profile Photo", "width": 400, "height": 400, "aspectRatio": "1:1" },
+        { "name": "Post Image", "width": 1200, "height": 627, "aspectRatio": "1.91:1" },
+        { "name": "Article Cover", "width": 1280, "height": 720, "aspectRatio": "16:9" }
+      ],
+      "defaultFormat": "Banner"
+    },
+    {
+      "id": "youtube",
+      "name": "YouTube",
+      "formats": [
+        { "name": "Thumbnail", "width": 1280, "height": 720, "aspectRatio": "16:9" },
+        { "name": "Channel Banner", "width": 2560, "height": 1440, "aspectRatio": "16:9" },
+        { "name": "Profile Photo", "width": 800, "height": 800, "aspectRatio": "1:1" }
+      ],
+      "defaultFormat": "Thumbnail"
+    },
+    {
+      "id": "instagram",
+      "name": "Instagram",
+      "formats": [
+        { "name": "Square Post", "width": 1080, "height": 1080, "aspectRatio": "1:1" },
+        { "name": "Portrait Post", "width": 1080, "height": 1350, "aspectRatio": "4:5" },
+        { "name": "Story/Reel", "width": 1080, "height": 1920, "aspectRatio": "9:16" },
+        { "name": "Landscape Post", "width": 1080, "height": 566, "aspectRatio": "1.91:1" }
+      ],
+      "defaultFormat": "Square Post"
+    },
+    {
+      "id": "facebook",
+      "name": "Facebook",
+      "formats": [
+        { "name": "Cover Photo", "width": 820, "height": 312, "aspectRatio": "2.63:1" },
+        { "name": "Profile Photo", "width": 170, "height": 170, "aspectRatio": "1:1" },
+        { "name": "Post Image", "width": 1200, "height": 630, "aspectRatio": "1.91:1" },
+        { "name": "Event Cover", "width": 1920, "height": 1005, "aspectRatio": "1.91:1" }
+      ],
+      "defaultFormat": "Post Image"
+    },
+    {
+      "id": "tiktok",
+      "name": "TikTok",
+      "formats": [
+        { "name": "Video Thumbnail", "width": 1080, "height": 1920, "aspectRatio": "9:16" },
+        { "name": "Profile Photo", "width": 200, "height": 200, "aspectRatio": "1:1" }
+      ],
+      "defaultFormat": "Video Thumbnail"
+    },
+    {
+      "id": "x",
+      "name": "X",
+      "formats": [
+        { "name": "Header", "width": 1500, "height": 500, "aspectRatio": "3:1" },
+        { "name": "Profile Photo", "width": 400, "height": 400, "aspectRatio": "1:1" },
+        { "name": "Post Image", "width": 1600, "height": 900, "aspectRatio": "16:9" }
+      ],
+      "defaultFormat": "Header"
+    }
+  ],
+  "sampleCanvasState": {
+    "id": "canvas-001",
+    "platform": "linkedin",
+    "format": { "name": "Banner", "width": 1584, "height": 396, "aspectRatio": "4:1" },
+    "zoom": 100,
+    "showSafeZones": true,
+    "layers": [
+      {
+        "id": "layer-001",
+        "type": "background",
+        "name": "Background",
+        "visible": true,
+        "locked": false,
+        "position": { "x": 0, "y": 0 },
+        "size": { "width": 1584, "height": 396 },
+        "data": {
+          "type": "gradient",
+          "value": "linear-gradient(135deg, #0ea5e9 0%, #14b8a6 100%)"
+        }
+      },
+      {
+        "id": "layer-002",
+        "type": "text",
+        "name": "Headline",
+        "visible": true,
+        "locked": false,
+        "position": { "x": 80, "y": 140 },
+        "size": { "width": 800, "height": 100 },
+        "data": {
+          "content": "Amplify Your Professional Signal",
+          "fontFamily": "Space Grotesk",
+          "fontSize": 48,
+          "fontWeight": 700,
+          "color": "#ffffff",
+          "textAlign": "left"
+        }
+      },
+      {
+        "id": "layer-003",
+        "type": "text",
+        "name": "Tagline",
+        "visible": true,
+        "locked": false,
+        "position": { "x": 80, "y": 240 },
+        "size": { "width": 600, "height": 40 },
+        "data": {
+          "content": "AI-powered content creation for professionals",
+          "fontFamily": "Inter",
+          "fontSize": 20,
+          "fontWeight": 400,
+          "color": "#ffffff",
+          "textAlign": "left"
+        }
+      }
+    ]
+  },
+  "sampleGenerationHistory": [
+    {
+      "id": "gen-001",
+      "imageUrl": "/generated/professional-banner-1.png",
+      "prompt": "Professional LinkedIn banner with abstract tech patterns in blue and teal gradient",
+      "createdAt": "2025-01-09T14:30:00Z"
+    },
+    {
+      "id": "gen-002",
+      "imageUrl": "/generated/professional-banner-2.png",
+      "prompt": "Minimalist corporate banner with geometric shapes",
+      "createdAt": "2025-01-09T14:15:00Z"
+    }
+  ],
+  "sampleReferenceImages": [
+    {
+      "id": "ref-001",
+      "url": "/references/brand-colors.png",
+      "name": "Brand Colors",
+      "addedAt": "2025-01-09T10:00:00Z"
+    },
+    {
+      "id": "ref-002",
+      "url": "/references/logo.png",
+      "name": "Company Logo",
+      "addedAt": "2025-01-08T16:00:00Z"
+    }
+  ],
+  "voiceCommands": [
+    {
+      "command": "Generate a professional banner",
+      "action": "GENERATE_IMAGE",
+      "params": { "style": "professional" }
+    },
+    {
+      "command": "Add my logo",
+      "action": "ADD_BRAND_ASSET",
+      "params": { "asset": "logo" }
+    },
+    {
+      "command": "Change the background to blue",
+      "action": "UPDATE_BACKGROUND",
+      "params": { "color": "blue" }
+    },
+    {
+      "command": "Make the text bigger",
+      "action": "RESIZE_TEXT",
+      "params": { "direction": "increase" }
+    },
+    {
+      "command": "Undo",
+      "action": "UNDO"
+    }
+  ]
+}

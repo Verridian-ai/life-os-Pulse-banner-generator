@@ -1,6 +1,6 @@
 // Brand Consistency Panel - Manage brand profiles and check consistency
 
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { useAI } from '../../context/AIContext';
 import { useToast } from '@/hooks/useToast';
 import {

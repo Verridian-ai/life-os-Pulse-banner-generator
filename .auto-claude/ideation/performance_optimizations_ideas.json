@@ -3,94 +3,138 @@
     {
       "id": "perf-001",
       "type": "performance_optimizations",
-      "title": "Memoize getModelMetadata() to prevent expensive object recreation",
-      "description": "The `getModelMetadata()` function in `modelRouter.ts` creates a new object containing 40+ model definitions on every single call. This function is called during model selection, cost estimation, and UI rendering, causing significant memory churn and CPU overhead.",
-      "rationale": "Each call creates ~2KB of new objects that immediately become garbage. With frequent calls during model selection/display, this creates GC pressure and unnecessary computation. The model data is static and never changes at runtime, making it a perfect candidate for memoization.",
-      "category": "runtime",
+      "title": "Add database indexes for frequently queried columns",
+      "description": "The database schema lacks indexes on columns that are heavily queried with filters and ordering. The images, chatMessages, designs, and chatConversations tables are queried with WHERE clauses on userId, generationType, isFavorite, and LIKE search on prompt, with ORDER BY on createdAt/lastMessageAt/updatedAt. Without indexes, these queries perform full table scans.",
+      "rationale": "Every image gallery load, chat history fetch, designs list, and conversation retrieval currently scans the entire table. With 10,000+ rows per table, queries can take 100-500ms. Adding composite indexes would reduce this to <10ms. This is the highest-impact database optimization available.",
+      "category": "database",
       "impact": "high",
-      "affectedAreas": ["src/services/modelRouter.ts", "src/context/AIContext.tsx", "src/components/features/ModelSelector.tsx"],
-      "currentMetric": "~40+ object allocations per getModelMetadata() call, potentially hundreds of calls during a session",
-      "expectedImprovement": "Reduce memory allocations by 99%, eliminate redundant computation, ~50-100ms faster initial model selection",
-      "implementation": "1. Move the model metadata object to module-level const declaration\n2. Export the constant directly instead of returning from function\n3. Alternative: Use a lazy singleton pattern if initialization timing matters\n4. Update all callsites to use the constant directly",
-      "tradeoffs": "None - this is pure optimization with no behavioral changes",
+      "affectedAreas": [
+        "server/src/db/schema.ts",
+        "server/src/routes/images.ts",
+        "server/src/routes/chat.ts",
+        "server/src/routes/designs.ts"
+      ],
+      "currentMetric": "Full table scan on every query (O(n) for n rows)",
+      "expectedImprovement": "10-50x faster queries with index lookups (O(log n))",
+      "implementation": "1. Add composite index on images(userId, createdAt DESC) for gallery listing\n2. Add index on images(userId, isFavorite) for favorites filter\n3. Add index on images(userId, generationType) for type filter\n4. Add GIN index on designs(tags) for array containment queries\n5. Add index on chatConversations(userId, lastMessageAt DESC) for conversation list\n6. Add index on chatMessages(conversationId, createdAt) for message retrieval\n7. Generate and run migration with Drizzle Kit",
+      "tradeoffs": "Slight increase in write latency (~1-2ms per INSERT) and storage overhead. Worth it for read-heavy workload pattern.",
       "estimatedEffort": "small"
     },
     {
       "id": "perf-002",
       "type": "performance_optimizations",
-      "title": "Virtualize ImageGallery grid for large collections",
-      "description": "The ImageGallery component renders ALL images in the user's collection at once. For users with 50+ generated images, this causes significant DOM bloat and slow initial render times as each image card creates multiple DOM nodes.",
-      "rationale": "Each image card contains 8+ DOM elements (image, overlays, buttons, badges). With 100 images, that's 800+ DOM nodes always mounted. Virtual scrolling only renders visible items plus a small buffer, typically reducing DOM nodes from 800 to ~40.",
+      "title": "Memoize useCanvas() combined hook to prevent cascade re-renders",
+      "description": "The useCanvas() combined hook in src/context/canvas/index.ts creates a new object literal on every call (lines 138-200), aggregating 5 sub-contexts without memoization. This defeats the purpose of the context split architecture and causes all consumers to re-render whenever ANY sub-context changes.",
+      "rationale": "The application correctly split CanvasContext into 5 focused contexts (CanvasStateContext, ElementsContext, LayerContext, HistoryContext, ImageContext). However, the combined useCanvas() hook returns a new object on every render, negating the optimization. Components using useCanvas() will re-render when elements change, even if they only need canvas state. This is visible in App.tsx where useCanvas() is called in VoiceAgentWrapper.",
       "category": "rendering",
       "impact": "high",
-      "affectedAreas": ["src/components/features/ImageGallery.tsx"],
-      "currentMetric": "Full DOM render of all gallery items, ~100ms+ render time for 50+ images",
-      "expectedImprovement": "Constant O(1) render time regardless of collection size, ~90% reduction in DOM nodes, smoother scrolling",
-      "implementation": "1. Install react-window or @tanstack/virtual\n2. Wrap the image grid with FixedSizeGrid or VirtualGrid\n3. Adjust item size calculations for responsive grid\n4. Implement proper keyboard navigation for accessibility\n5. Add scroll position restoration for navigation",
-      "tradeoffs": "Adds ~8KB dependency (react-window), slightly more complex grid layout logic, requires fixed item heights",
-      "estimatedEffort": "medium"
+      "affectedAreas": [
+        "src/context/canvas/index.ts",
+        "src/App.tsx (VoiceAgentWrapper)",
+        "src/components/studios/*.tsx",
+        "Any component using useCanvas()"
+      ],
+      "currentMetric": "New object created on every useCanvas() call, cascading re-renders through context tree",
+      "expectedImprovement": "~40-60% reduction in re-renders for canvas-dependent components, smoother canvas interactions",
+      "implementation": "1. Add useMemo wrapper around the return object in useCanvas():\n   ```typescript\n   return useMemo(() => ({\n     canvasRef: canvasState.canvasRef,\n     bgImage: canvasState.bgImage,\n     // ... all other properties\n   }), [canvasState, elements, layers, history, images]);\n   ```\n2. Alternative: Migrate components to use specific hooks (useElements, useCanvasState) instead of combined useCanvas()\n3. Add stable callback references via useCallback in sub-contexts that don't have them\n4. Consider zustand for more granular state subscriptions if React context proves insufficient",
+      "tradeoffs": "Complex dependency array for useMemo; migration to specific hooks is cleaner but more invasive",
+      "estimatedEffort": "small"
     },
     {
       "id": "perf-003",
       "type": "performance_optimizations",
-      "title": "Cache Image objects in BannerCanvas to prevent reloading",
-      "description": "BannerCanvas creates new Image() objects on every render for both background and element images. This triggers redundant image decoding even when the source URLs haven't changed, causing visual flicker and CPU overhead.",
-      "rationale": "The renderCanvas function creates `new Image()` instances for background and elements on every call. Even with browser caching, each new Image instance triggers decoding overhead. The canvas re-renders frequently during drag/resize operations, multiplying the impact.",
-      "category": "runtime",
-      "impact": "medium",
-      "affectedAreas": ["src/components/BannerCanvas.tsx"],
-      "currentMetric": "New Image() creation on every canvas render (~30-60 times during a drag operation)",
-      "expectedImprovement": "Eliminate redundant image loading/decoding, smoother drag/resize interactions, ~20% faster canvas updates",
-      "implementation": "1. Create a useRef-based image cache Map<string, HTMLImageElement>\n2. Check cache before creating new Image instances\n3. Preload images when URLs change using useEffect\n4. Use onload callbacks to trigger re-render only when image is ready\n5. Implement cache eviction for removed images",
-      "tradeoffs": "Slightly more memory usage for cached images, need to handle cache invalidation when images change",
+      "title": "Implement parallel AI provider fallback with smart timeouts",
+      "description": "The generateImage function in src/services/imageGenerationService.ts uses sequential try/catch fallbacks (Nano Banana Pro -> Flux Schnell -> Flux Dev). Each provider attempt must complete or timeout before the next begins, creating worst-case latencies of 15-30+ seconds when providers are slow or unavailable.",
+      "rationale": "Current sequential approach: if primary times out in 10s, fallback 1 times out in 10s, users wait 20s before fallback 2 even starts. Image generation is the core user flow, and these delays feel broken. Using Promise.any() with staggered starts could resolve with first success while maintaining cost control.",
+      "category": "network",
+      "impact": "high",
+      "affectedAreas": [
+        "src/services/imageGenerationService.ts",
+        "server/src/routes/ai.ts"
+      ],
+      "currentMetric": "Sequential fallback: 15-30s worst-case generation time during provider issues",
+      "expectedImprovement": "~60-70% reduction in worst-case generation time; <10s even during partial outages",
+      "implementation": "1. Implement tiered parallel strategy with AbortController:\n   ```typescript\n   const controller = new AbortController();\n   const tier1 = tryProvider('nano-banana-pro', controller.signal);\n   \n   const result = await Promise.any([\n     tier1,\n     tier1.catch(() => sleep(3000)).then(() => tryProvider('flux-schnell', controller.signal)),\n     tier1.catch(() => sleep(6000)).then(() => tryProvider('flux-dev', controller.signal))\n   ]);\n   \n   controller.abort(); // Cancel remaining requests\n   ```\n2. Track provider health metrics to dynamically adjust tier delays\n3. Consider cost implications (parallel requests may increase API spend)\n4. Add circuit breaker pattern for repeatedly failing providers",
+      "tradeoffs": "May increase API costs if multiple providers are called simultaneously; requires AbortController support in API client",
       "estimatedEffort": "medium"
     },
     {
       "id": "perf-004",
       "type": "performance_optimizations",
-      "title": "Memoize keyboard shortcut handlers in App.tsx",
-      "description": "The `getDefaultShortcuts()` function is called on every App render, creating new function objects for all shortcut handlers. These new references cause the useKeyboardShortcuts hook to re-register event listeners unnecessarily.",
-      "rationale": "App.tsx calls getDefaultShortcuts() with inline arrow functions on every render. This creates new function references that fail React's referential equality checks, potentially causing unnecessary effect re-runs and memory churn.",
-      "category": "rendering",
+      "title": "Move tag filtering from JavaScript to PostgreSQL with GIN index",
+      "description": "The GET /designs endpoint in server/src/routes/designs.ts (lines 37-44) fetches ALL user designs then filters by tags in JavaScript. This wastes database bandwidth and memory, especially as users accumulate designs.",
+      "rationale": "Post-query filtering loads unnecessary data from the database. The code fetches up to 50 designs, then filters in JS: `filteredDesigns = userDesigns.filter(d => d.tags?.some(...))`. PostgreSQL's array operations with GIN indexes are optimized for exactly this use case. Moving filter to SQL leverages query planning and reduces data transfer.",
+      "category": "database",
       "impact": "medium",
-      "affectedAreas": ["src/App.tsx", "src/hooks/useKeyboardShortcuts.ts"],
-      "currentMetric": "New shortcut handler objects created on every App render",
-      "expectedImprovement": "Stable function references, fewer effect re-runs, reduced memory allocation during interaction",
-      "implementation": "1. Wrap the getDefaultShortcuts call with useMemo\n2. Use useCallback for individual handlers passed to getDefaultShortcuts\n3. Add proper dependency arrays referencing only truly dynamic values\n4. Consider moving shortcut definitions outside component if possible",
-      "tradeoffs": "Slight increase in code complexity with additional memoization hooks",
+      "affectedAreas": [
+        "server/src/routes/designs.ts",
+        "server/src/db/schema.ts"
+      ],
+      "currentMetric": "All designs fetched to memory, then filtered; O(n*m) JS filtering",
+      "expectedImprovement": "~50-80% reduction in data transfer; database handles filtering with O(log n) index lookups",
+      "implementation": "1. Create migration to add GIN index:\n   ```sql\n   CREATE INDEX idx_designs_tags ON designs USING GIN (tags);\n   ```\n2. Update route to use SQL array containment:\n   ```typescript\n   if (tags) {\n     const tagList = tags.split(',').map(t => t.trim().toLowerCase());\n     conditions.push(sql`${designs.tags} @> ARRAY[${tagList}]::text[]`);\n   }\n   ```\n3. Apply same pattern to images route for tag filtering\n4. Remove post-query JS filtering code",
+      "tradeoffs": "PostgreSQL-specific syntax; requires migration deployment; need to ensure tag normalization (lowercase) at write time",
       "estimatedEffort": "small"
     },
     {
       "id": "perf-005",
       "type": "performance_optimizations",
-      "title": "Add request deduplication for concurrent API calls",
-      "description": "The LLM service doesn't deduplicate identical concurrent requests. When users rapidly click generate or the voice agent fires multiple similar requests, duplicate API calls are made, wasting credits and bandwidth.",
-      "rationale": "Without request deduplication, double-clicking 'Generate' or rapid voice commands can trigger multiple expensive AI API calls with identical parameters. This wastes user credits ($0.03-$0.24 per call) and creates race conditions in the UI.",
-      "category": "network",
+      "title": "Implement localStorage cleanup and batching for performance metrics",
+      "description": "The trackModelPerformance function in src/services/modelRouter.ts stores up to 1000 metric entries in localStorage (line 23). Each tracked metric triggers a full read-parse-push-write cycle. With heavy usage, this array can reach 200-400KB, causing synchronous localStorage operations to block the main thread.",
+      "rationale": "localStorage is synchronous and blocks the main thread. The performance_log array is read and rewritten on every AI operation. With objects containing timestamps, model IDs, latency, and success rates, 1000 entries creates significant payload. This creates UI jank during the exact moments users are waiting for AI results.",
+      "category": "memory",
       "impact": "medium",
-      "affectedAreas": ["src/services/llm.ts", "src/services/api.ts", "src/services/replicate.ts"],
-      "currentMetric": "No protection against duplicate concurrent requests",
-      "expectedImprovement": "Prevent duplicate API calls, save user credits, cleaner UI state management, ~50% reduction in accidental duplicate requests",
-      "implementation": "1. Create a request deduplication layer in api.ts\n2. Hash request parameters to create unique keys\n3. Return existing promise for in-flight identical requests\n4. Implement configurable TTL for request deduplication (e.g., 2 seconds)\n5. Add optional override for intentional duplicate requests",
-      "tradeoffs": "Slightly more complex request handling, need to handle edge cases for intentionally repeated requests",
-      "estimatedEffort": "medium"
+      "affectedAreas": [
+        "src/services/modelRouter.ts",
+        "src/services/storageManager.ts"
+      ],
+      "currentMetric": "Synchronous localStorage read/write (200-400KB) on every metric tracked",
+      "expectedImprovement": "~70% reduction in localStorage payload; eliminate storage-related UI jank",
+      "implementation": "1. Reduce retention from 1000 to 200 entries (sufficient for analytics)\n2. Add TTL-based cleanup: discard entries older than 24 hours\n3. Implement write batching with debounce:\n   ```typescript\n   const pendingMetrics: PerformanceMetric[] = [];\n   const flushMetrics = debounce(() => {\n     const logs = modelMetricsStorage.get('performance_log') || [];\n     const updated = [...logs, ...pendingMetrics].slice(-200);\n     modelMetricsStorage.set('performance_log', updated);\n     pendingMetrics.length = 0;\n   }, 5000);\n   \n   export const trackModelPerformance = (metric) => {\n     pendingMetrics.push({ ...metric, timestamp: Date.now() });\n     flushMetrics();\n   };\n   ```\n4. Add cleanup routine on app startup to prune stale entries\n5. Consider IndexedDB for async storage if detailed analytics needed",
+      "tradeoffs": "Metrics may be lost on hard close before flush; requires migration strategy for existing users",
+      "estimatedEffort": "small"
     }
   ],
   "metadata": {
-    "totalBundleSize": "Unknown - requires build analysis",
-    "largestDependencies": ["react-dom", "lucide-react", "@datadog/browser-rum", "tailwindcss"],
-    "filesAnalyzed": 35,
-    "potentialSavings": "~200-400ms TTI improvement, 90% reduction in unnecessary renders for large galleries",
-    "frameworkOptimizations": {
-      "reactMemoUsage": "213 occurrences across 46 files - good coverage",
-      "eventListenerCleanup": "Proper cleanup found in 6 key locations",
-      "lazyLoading": "7 components use React.lazy() - good code splitting"
-    },
-    "criticalPaths": [
-      "Model selection: getModelMetadata() called frequently",
-      "Canvas rendering: Image object recreation on each render",
-      "Gallery: No virtualization for large collections"
+    "filesAnalyzed": 45,
+    "databaseTables": 36,
+    "largestDependencies": [
+      "react-dom (React 19.2)",
+      "@datadog/browser-rum",
+      "@google-cloud/storage",
+      "lucide-react",
+      "drizzle-orm",
+      "dd-trace (server)"
     ],
-    "generatedAt": "2026-01-06T21:45:00Z"
+    "existingOptimizations": [
+      "Context split into focused sub-contexts (ElementsContext, ImageContext, HistoryContext, etc.)",
+      "Manual vendor chunks in Vite config (react-vendor, google-vendor, vendor)",
+      "react-window for image gallery virtualization",
+      "Redis-backed rate limiting with in-memory fallback",
+      "Image proxy with cache headers (1 year Cache-Control)",
+      "useMemo/useCallback in individual contexts and hooks",
+      "Debounce utility at src/utils/debounce.ts",
+      "React.memo on BannerCanvas component",
+      "Image cache in BannerCanvas via useRef Map",
+      "Lazy loading for heavy components (Admin, LinkedInStudio, etc.)",
+      "Model metadata caching in modelRouter.ts",
+      "AI response caching in imageGenerationService.ts",
+      "Audio buffer caching in OpenAI Realtime client"
+    ],
+    "potentialSavings": {
+      "databaseLatency": "10-50x faster queries with proper indexes",
+      "renderCycles": "40-60% reduction with context memoization",
+      "worstCaseLatency": "60-70% reduction in AI generation failures",
+      "dataTransfer": "50-80% reduction with SQL filtering",
+      "mainThreadBlocking": "Eliminate localStorage jank with batching"
+    },
+    "priority": [
+      "perf-001 (indexes) - highest impact, lowest effort, do first",
+      "perf-002 (context memoization) - quick fix with broad impact",
+      "perf-004 (SQL tag filtering) - database efficiency foundation",
+      "perf-005 (localStorage batching) - eliminates UI jank",
+      "perf-003 (parallel fallbacks) - critical for user experience during provider issues"
+    ],
+    "generatedAt": "2026-01-13T10:55:00Z"
   }
 }

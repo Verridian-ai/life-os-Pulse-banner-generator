@@ -1,25 +1,27 @@
-name: Deploy to Production
+name: Deploy to Production (Cloud Run)
 
 on:
   push:
     branches: [main]
     tags:
-      - 'v*'
+      - "v*"
   workflow_dispatch:
     inputs:
       skip_tests:
-        description: 'Skip test suite (emergency deployments only)'
+        description: "Skip test suite (emergency deployments only)"
         required: false
-        default: 'false'
+        default: "false"
 
 concurrency:
   group: production-deployment
   cancel-in-progress: false
 
 env:
-  NODE_VERSION: '18'
-  VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
-  VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+  NODE_VERSION: "20"
+  GCP_PROJECT_ID: plated-mantis-477406-i6-477406
+  GCP_REGION: us-central1
+  CLOUD_RUN_SERVICE: life-os-banner
+  IMAGE_NAME: gcr.io/plated-mantis-477406-i6-477406/life-os-banner
 
 jobs:
   # ============================================================================
@@ -42,7 +44,7 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: ${{ env.NODE_VERSION }}
-          cache: 'npm'
+          cache: "npm"
 
       - name: Install dependencies
         run: npm ci
@@ -57,8 +59,6 @@ jobs:
       - name: Build verification
         run: npm run build
         env:
-          VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL }}
-          VITE_SUPABASE_ANON_KEY: ${{ secrets.VITE_SUPABASE_ANON_KEY }}
           VITE_ENVIRONMENT: production
 
       - name: Get version
@@ -74,10 +74,10 @@ jobs:
           git log --oneline --grep="BREAKING CHANGE" $(git describe --tags --abbrev=0 2>/dev/null || echo "HEAD~10")..HEAD || echo "No breaking changes detected"
 
   # ============================================================================
-  # Production Deployment with Manual Approval
+  # Production Deployment to Cloud Run
   # ============================================================================
   deploy-production:
-    name: Deploy to Production
+    name: Deploy to Cloud Run Production
     runs-on: ubuntu-latest
     timeout-minutes: 30
     needs: [pre-deploy-checks]
@@ -89,39 +89,52 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
+      - name: Authenticate to Google Cloud
+        uses: google-github-actions/auth@v2
         with:
-          node-version: ${{ env.NODE_VERSION }}
-          cache: 'npm'
+          credentials_json: ${{ secrets.GCP_SA_KEY }}
 
-      - name: Install dependencies
-        run: npm ci
+      - name: Set up Cloud SDK
+        uses: google-github-actions/setup-gcloud@v2
+        with:
+          project_id: ${{ env.GCP_PROJECT_ID }}
 
-      - name: Build for production
-        run: npm run build
-        env:
-          VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL }}
-          VITE_SUPABASE_ANON_KEY: ${{ secrets.VITE_SUPABASE_ANON_KEY }}
-          VITE_ENVIRONMENT: production
-          VITE_ENABLE_ANALYTICS: true
+      - name: Configure Docker for GCR
+        run: gcloud auth configure-docker --quiet
 
-      - name: Install Vercel CLI
-        run: npm install --global vercel@latest
+      - name: Build Docker image
+        run: |
+          docker build \
+            --build-arg NODE_ENV=production \
+            -t ${{ env.IMAGE_NAME }}:${{ github.sha }} \
+            -t ${{ env.IMAGE_NAME }}:latest \
+            .
 
-      - name: Pull Vercel Environment Information
-        run: vercel pull --yes --environment=production --token=${{ secrets.VERCEL_TOKEN }}
+      - name: Push Docker image to GCR
+        run: |
+          docker push ${{ env.IMAGE_NAME }}:${{ github.sha }}
+          docker push ${{ env.IMAGE_NAME }}:latest
 
-      - name: Build Project Artifacts
-        run: vercel build --prod --token=${{ secrets.VERCEL_TOKEN }}
-
-      - name: Deploy to Vercel Production
+      - name: Deploy to Cloud Run
         id: deploy
         run: |
-          DEPLOYMENT_URL=$(vercel deploy --prebuilt --prod --token=${{ secrets.VERCEL_TOKEN }} 2>&1 | tee /dev/tty | grep -oP 'https://[^ ]+' | head -1)
-          echo "production-url=$DEPLOYMENT_URL" >> $GITHUB_OUTPUT
-          echo "deployment-id=$(vercel ls --token=${{ secrets.VERCEL_TOKEN }} | head -2 | tail -1 | awk '{print $1}')" >> $GITHUB_OUTPUT
-          echo "✅ Deployed to: $DEPLOYMENT_URL"
+          gcloud run deploy ${{ env.CLOUD_RUN_SERVICE }} \
+            --image=${{ env.IMAGE_NAME }}:${{ github.sha }} \
+            --region=${{ env.GCP_REGION }} \
+            --platform=managed \
+            --allow-unauthenticated \
+            --port=8080 \
+            --memory=512Mi \
+            --cpu=1 \
+            --min-instances=0 \
+            --max-instances=20 \
+            --set-env-vars="NODE_ENV=production"
+
+          SERVICE_URL=$(gcloud run services describe ${{ env.CLOUD_RUN_SERVICE }} \
+            --region=${{ env.GCP_REGION }} \
+            --format='value(status.url)')
+          echo "production-url=$SERVICE_URL" >> $GITHUB_OUTPUT
+          echo "✅ Deployed to: $SERVICE_URL"
 
       - name: Create deployment record
         uses: actions/github-script@v7
@@ -255,7 +268,7 @@ jobs:
               owner: context.repo.owner,
               repo: context.repo.repo,
               commit_sha: context.sha,
-              body: `⚠️ **Production Deployment Failed - Rollback Required**\n\n❌ Health checks failed\n\n**Action Required:**\n1. Investigate the deployment logs\n2. Run manual rollback if needed: \`vercel rollback\`\n3. Create an incident report\n\n_Failed at ${new Date().toISOString()}_`
+              body: `⚠️ **Production Deployment Failed - Rollback Required**\n\n❌ Health checks failed\n\n**Action Required:**\n1. Investigate the deployment logs\n2. Run manual rollback: \`gcloud run services update-traffic life-os-banner --to-revisions=PREVIOUS_REVISION=100 --region=us-central1\`\n3. Create an incident report\n\n_Failed at ${new Date().toISOString()}_`
             });
 
       - name: Create incident issue

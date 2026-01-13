@@ -1,0 +1,97 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "name": "Signal Motion Design Tokens",
+  "description": "Luxury lag physics and animation parameters for award-winning UI",
+
+  "lerp": {
+    "scroll": 0.1,
+    "cursor": 0.06,
+    "heavyCursor": 0.05,
+    "lightCursor": 0.08,
+    "drag": 0.12,
+    "magnetic": 0.15
+  },
+
+  "spring": {
+    "snappy": {
+      "tension": 300,
+      "friction": 20,
+      "mass": 1,
+      "description": "Quick, responsive interactions"
+    },
+    "smooth": {
+      "tension": 170,
+      "friction": 26,
+      "mass": 1,
+      "description": "Smooth, elegant transitions"
+    },
+    "heavy": {
+      "tension": 120,
+      "friction": 14,
+      "mass": 2,
+      "description": "Weighty, deliberate movements"
+    },
+    "bouncy": {
+      "tension": 400,
+      "friction": 10,
+      "mass": 0.8,
+      "description": "Playful micro-interactions"
+    },
+    "gentle": {
+      "tension": 100,
+      "friction": 30,
+      "mass": 1.5,
+      "description": "Subtle ambient animations"
+    }
+  },
+
+  "easing": {
+    "luxuryOut": "cubic-bezier(0.33, 1, 0.68, 1)",
+    "luxuryInOut": "cubic-bezier(0.65, 0, 0.35, 1)",
+    "magnetic": "cubic-bezier(0.25, 0.46, 0.45, 0.94)",
+    "elastic": "cubic-bezier(0.68, -0.55, 0.265, 1.55)",
+    "smooth": "cubic-bezier(0.4, 0, 0.2, 1)",
+    "sharp": "cubic-bezier(0.4, 0, 0.6, 1)"
+  },
+
+  "duration": {
+    "instant": "100ms",
+    "fast": "200ms",
+    "normal": "300ms",
+    "slow": "500ms",
+    "slower": "700ms",
+    "luxurySlow": "1000ms"
+  },
+
+  "stagger": {
+    "tight": 30,
+    "normal": 50,
+    "relaxed": 80,
+    "dramatic": 120
+  },
+
+  "delay": {
+    "micro": 50,
+    "short": 100,
+    "medium": 200,
+    "long": 400
+  },
+
+  "goodFriction": {
+    "description": "Intentional resistance that creates engagement",
+    "dragThreshold": 10,
+    "velocityMultiplier": 0.8,
+    "decayRate": 0.95,
+    "snapPoints": true
+  },
+
+  "visualWeight": {
+    "description": "Pinball Pattern gaze mechanics hierarchy",
+    "levels": {
+      "primary": { "scale": 1.0, "blur": 0, "brightness": 1.0 },
+      "secondary": { "scale": 0.95, "blur": 0, "brightness": 0.9 },
+      "tertiary": { "scale": 0.9, "blur": 1, "brightness": 0.8 },
+      "background": { "scale": 0.85, "blur": 2, "brightness": 0.7 }
+    }
+  }
+}

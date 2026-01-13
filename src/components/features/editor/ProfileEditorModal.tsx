@@ -297,9 +297,9 @@ export const ProfileEditorModal: React.FC<ProfileEditorModalProps> = ({
                     )}
 
                     <div className="absolute bottom-6 left-1/2 -translate-x-1/2 flex gap-4 bg-zinc-900/90 p-2 rounded-xl border border-white/10">
-                        <button onClick={() => setScale(s => Math.max(0.1, s - 0.1))} className="p-2 hover:bg-white/10 rounded-lg text-white material-icons">remove</button>
+                        <button type="button" onClick={() => setScale(s => Math.max(0.1, s - 0.1))} className="p-2 hover:bg-white/10 rounded-lg text-white material-icons">remove</button>
                         <span className="text-xs text-zinc-400 font-mono py-2">{Math.round(scale * 100)}%</span>
-                        <button onClick={() => setScale(s => Math.min(5, s + 0.1))} className="p-2 hover:bg-white/10 rounded-lg text-white material-icons">add</button>
+                        <button type="button" onClick={() => setScale(s => Math.min(5, s + 0.1))} className="p-2 hover:bg-white/10 rounded-lg text-white material-icons">add</button>
                     </div>
                 </div>
 
@@ -312,7 +312,7 @@ export const ProfileEditorModal: React.FC<ProfileEditorModalProps> = ({
                         >
                             Profile Perfector
                         </h2>
-                        <button onClick={onClose} className="text-zinc-500 hover:text-white material-icons">close</button>
+                        <button type="button" onClick={onClose} className="text-zinc-500 hover:text-white material-icons">close</button>
                     </div>
 
                     <div className="flex-1 p-6 space-y-8 overflow-y-auto">
@@ -323,6 +323,7 @@ export const ProfileEditorModal: React.FC<ProfileEditorModalProps> = ({
                                 1. Enhance
                             </div>
                             <button
+                                type="button"
                                 onClick={handleEnhance}
                                 disabled={isProcessing}
                                 className="w-full py-4 bg-gradient-to-r from-blue-600 to-blue-500 rounded-xl text-white font-bold text-sm uppercase tracking-wide hover:shadow-lg hover:brightness-110 transition flex items-center justify-center gap-2"
@@ -356,6 +357,7 @@ export const ProfileEditorModal: React.FC<ProfileEditorModalProps> = ({
                                 className="w-full bg-black/40 border border-white/10 rounded-xl p-3 text-xs text-white placeholder-zinc-600 mb-3 focus:outline-none focus:border-purple-500 h-24 resize-none"
                             />
                             <button
+                                type="button"
                                 onClick={handleMagicEdit}
                                 disabled={isProcessing || !editPrompt}
                                 className="w-full py-3 bg-zinc-800 hover:bg-zinc-700 rounded-xl text-white font-bold text-xs uppercase tracking-wide transition flex items-center justify-center gap-2 border border-white/5"
@@ -371,6 +373,7 @@ export const ProfileEditorModal: React.FC<ProfileEditorModalProps> = ({
                                 3. Export
                             </div>
                             <button
+                                type="button"
                                 onClick={handleDownload}
                                 className="w-full py-3 border border-zinc-600 hover:bg-zinc-800 rounded-xl text-zinc-300 font-bold text-xs uppercase tracking-wide transition flex items-center justify-center gap-2 mb-3"
                             >
@@ -378,6 +381,7 @@ export const ProfileEditorModal: React.FC<ProfileEditorModalProps> = ({
                                 Download PNG
                             </button>
                             <button
+                                type="button"
                                 onClick={handleSaveToProfile}
                                 className={`w-full py-4 ${BTN_PRIMARY} flex items-center justify-center gap-2 shadow-xl shadow-purple-900/20`}
                             >

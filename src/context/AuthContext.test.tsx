@@ -1,27 +1,27 @@
 import { describe, it, expect, vi } from 'vitest';
 import { render, screen, waitFor } from '@testing-library/react';
 import { AuthProvider, useAuth } from './AuthContext';
+import { ToastProvider } from './ToastContext';
 
-// Mock auth service
+// Mock auth service (Neon/Lucia API-based auth)
 vi.mock('../services/auth', () => ({
-  supabase: {
-    auth: {
-      getUser: vi.fn().mockResolvedValue({ data: { user: null }, error: null }),
-      onAuthStateChange: vi.fn(() => ({
-        data: { subscription: { unsubscribe: vi.fn() } },
-      })),
-    },
-  },
-  signUp: vi.fn(),
-  signIn: vi.fn(),
-  signInWithGoogle: vi.fn(),
-  signInWithGitHub: vi.fn(),
-  signOut: vi.fn(),
+  signUp: vi.fn().mockResolvedValue({ user: null, error: null }),
+  signIn: vi.fn().mockResolvedValue({ user: null, session: null, error: null }),
+  signInWithGoogle: vi.fn().mockResolvedValue({ data: null, error: null }),
+  signInWithGitHub: vi.fn().mockResolvedValue({ data: null, error: null }),
+  signOut: vi.fn().mockResolvedValue({ error: null }),
+  getSession: vi.fn().mockResolvedValue(null),
+  getCurrentUser: vi.fn().mockResolvedValue(null),
   onAuthStateChange: vi.fn(() => ({
     data: { subscription: { unsubscribe: vi.fn() } },
   })),
-  getCurrentSupabaseUser: vi.fn().mockResolvedValue(null),
-  getCurrentUserProfile: vi.fn().mockResolvedValue(null),
+  getCurrentUserProfile: vi.fn().mockResolvedValue({ data: null, error: null }),
+}));
+
+// Mock database service (for getUserPreferences)
+vi.mock('../services/database', () => ({
+  getUserPreferences: vi.fn().mockResolvedValue(null),
+  updateUserPreferences: vi.fn().mockResolvedValue(null),
 }));
 
 // Test component that uses auth context
@@ -36,12 +36,19 @@ const TestComponent = () => {
   );
 };
 
+// Wrapper that provides required context
+const TestWrapper = ({ children }: { children: React.ReactNode }) => (
+  <ToastProvider>
+    <AuthProvider>{children}</AuthProvider>
+  </ToastProvider>
+);
+
 describe('AuthContext', () => {
   it('should provide auth context', async () => {
     render(
-      <AuthProvider>
+      <TestWrapper>
         <TestComponent />
-      </AuthProvider>,
+      </TestWrapper>,
     );
 
     await waitFor(() => {
@@ -51,9 +58,9 @@ describe('AuthContext', () => {
 
   it('should show loading state initially', () => {
     render(
-      <AuthProvider>
+      <TestWrapper>
         <TestComponent />
-      </AuthProvider>,
+      </TestWrapper>,
     );
 
     expect(screen.getByTestId('loading')).toHaveTextContent('Loading');
@@ -61,9 +68,9 @@ describe('AuthContext', () => {
 
   it('should handle no user state', async () => {
     render(
-      <AuthProvider>
+      <TestWrapper>
         <TestComponent />
-      </AuthProvider>,
+      </TestWrapper>,
     );
 
     await waitFor(() => {

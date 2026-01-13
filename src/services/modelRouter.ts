@@ -359,7 +359,7 @@ export const compareModelPerformance = (
 
     // Defaults (Theoretical)
     let avgTime = metadata?.avgResponseTime || 2000;
-    let quality = metadata?.qualityScore || 80;
+    const quality = metadata?.qualityScore || 80;
     const cost = metadata?.costPerCall || 0.001;
     let successRate = 100;
 

@@ -26,12 +26,16 @@ type AgentDetail = {
     } | null;
 };
 
+// Platform filter type
+type PlatformFilter = 'all' | 'general' | 'linkedin' | 'youtube' | 'instagram' | 'facebook' | 'tiktok' | 'x';
+
 export function AdminAgents(): React.ReactElement {
     const [agents, setAgents] = useState<AgentConfig[]>([]);
     const [isLoading, setIsLoading] = useState(true);
     const [selectedAgent, setSelectedAgent] = useState<AgentDetail | null>(null);
     const [isDetailLoading, setIsDetailLoading] = useState(false);
     const [activeTab, setActiveTab] = useState<'config' | 'context'>('config');
+    const [platformFilter, setPlatformFilter] = useState<PlatformFilter>('all');
 
     const [editedPrompt, setEditedPrompt] = useState('');
     const [isSaving, setIsSaving] = useState(false);
@@ -141,6 +145,13 @@ export function AdminAgents(): React.ReactElement {
             'accessibility-expert': 'accessibility',
             'industry-specialist': 'business',
             'layout-composer': 'dashboard',
+            // Platform specialists
+            'linkedin-specialist': 'work',
+            'youtube-specialist': 'play_circle',
+            'instagram-specialist': 'camera_alt',
+            'facebook-specialist': 'group',
+            'tiktok-specialist': 'music_note',
+            'x-specialist': 'tag',
         };
         return icons[agentId] || 'smart_toy';
     };
@@ -154,9 +165,34 @@ export function AdminAgents(): React.ReactElement {
             'accessibility-expert': 'green',
             'industry-specialist': 'amber',
             'layout-composer': 'indigo',
+            // Platform specialists
+            'linkedin-specialist': 'blue',
+            'youtube-specialist': 'red',
+            'instagram-specialist': 'pink',
+            'facebook-specialist': 'blue',
+            'tiktok-specialist': 'cyan',
+            'x-specialist': 'zinc',
         };
         return colors[agentId] || 'zinc';
     };
+
+    // Get platform from agent ID
+    const getAgentPlatform = (agentId: string): PlatformFilter => {
+        if (agentId.endsWith('-specialist')) {
+            const platform = agentId.replace('-specialist', '') as PlatformFilter;
+            if (['linkedin', 'youtube', 'instagram', 'facebook', 'tiktok', 'x'].includes(platform)) {
+                return platform;
+            }
+        }
+        return 'general';
+    };
+
+    // Filter agents based on platform filter
+    const filteredAgents = agents.filter(agent => {
+        if (platformFilter === 'all') return true;
+        const agentPlatform = getAgentPlatform(agent.agentId);
+        return agentPlatform === platformFilter;
+    });
 
     return (
         <AdminGuard>
@@ -183,9 +219,28 @@ export function AdminAgents(): React.ReactElement {
                     <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                         {/* Agent List */}
                         <div className="lg:col-span-1 space-y-3">
-                            <h2 className="text-sm font-bold text-zinc-400 uppercase tracking-wider px-1">
-                                Available Agents ({agents.length})
-                            </h2>
+                            <div className="flex items-center justify-between px-1">
+                                <h2 className="text-sm font-bold text-zinc-400 uppercase tracking-wider">
+                                    Agents ({filteredAgents.length})
+                                </h2>
+                            </div>
+
+                            {/* Platform Filter */}
+                            <div className="flex flex-wrap gap-1.5 p-1 bg-black/30 rounded-xl">
+                                {(['all', 'general', 'linkedin', 'youtube', 'instagram', 'facebook', 'tiktok', 'x'] as PlatformFilter[]).map((filter) => (
+                                    <button
+                                        key={filter}
+                                        onClick={() => setPlatformFilter(filter)}
+                                        className={`px-2.5 py-1 text-[10px] font-semibold rounded-lg uppercase tracking-wide transition ${
+                                            platformFilter === filter
+                                                ? 'bg-purple-500/30 text-purple-300 border border-purple-500/50'
+                                                : 'text-zinc-500 hover:text-zinc-300 border border-transparent'
+                                        }`}
+                                    >
+                                        {filter === 'all' ? 'All' : filter === 'general' ? 'General' : filter}
+                                    </button>
+                                ))}
+                            </div>
 
                             {isLoading ? (
                                 <div className="space-y-2">
@@ -204,11 +259,18 @@ export function AdminAgents(): React.ReactElement {
                                     <span className="material-icons text-4xl text-zinc-600 mb-2">smart_toy</span>
                                     <p className="text-zinc-500">No agents configured</p>
                                 </div>
+                            ) : filteredAgents.length === 0 ? (
+                                <div className="bg-zinc-900/50 border border-white/5 rounded-xl p-6 text-center">
+                                    <span className="material-icons text-4xl text-zinc-600 mb-2">filter_alt_off</span>
+                                    <p className="text-zinc-500">No agents match filter</p>
+                                </div>
                             ) : (
                                 <div className="space-y-2">
-                                    {agents.map((agent) => {
+                                    {filteredAgents.map((agent) => {
                                         const color = getAgentColor(agent.agentId);
                                         const isSelected = selectedAgent?.agent.id === agent.id;
+                                        const platform = getAgentPlatform(agent.agentId);
+                                        const isPlatformAgent = platform !== 'general';
 
                                         return (
                                             <button
@@ -226,9 +288,16 @@ export function AdminAgents(): React.ReactElement {
                                                         </span>
                                                     </div>
                                                     <div className="flex-1 min-w-0">
-                                                        <p className="text-white font-medium truncate">
-                                                            {agent.name}
-                                                        </p>
+                                                        <div className="flex items-center gap-2">
+                                                            <p className="text-white font-medium truncate">
+                                                                {agent.name}
+                                                            </p>
+                                                            {isPlatformAgent && (
+                                                                <span className={`text-[9px] bg-${color}-500/20 text-${color}-400 px-1.5 py-0.5 rounded uppercase font-semibold`}>
+                                                                    {platform}
+                                                                </span>
+                                                            )}
+                                                        </div>
                                                         <p className="text-zinc-500 text-xs truncate">
                                                             {agent.model || 'No model'} &bull; v{agent.version}
                                                         </p>

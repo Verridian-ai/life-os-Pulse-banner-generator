@@ -1,0 +1,106 @@
+{
+  "sampleConversations": [
+    {
+      "id": "conv-001",
+      "userId": "user-001",
+      "title": "LinkedIn Banner Ideas",
+      "mode": "design",
+      "messages": [
+        {
+          "id": "msg-001",
+          "conversationId": "conv-001",
+          "role": "user",
+          "content": "I need a LinkedIn banner for my tech startup. We're in the AI space.",
+          "attachments": [],
+          "timestamp": "2024-01-09T10:00:00Z"
+        },
+        {
+          "id": "msg-002",
+          "conversationId": "conv-001",
+          "role": "assistant",
+          "content": "Great! I'd love to help you create a compelling LinkedIn banner for your AI startup. To design something that truly represents your brand, could you tell me:\n\n1. **Company name** - What should be featured prominently?\n2. **Color preferences** - Do you have brand colors, or would you like suggestions?\n3. **Vibe** - Should it feel futuristic, professional, friendly, or innovative?\n4. **Key message** - Any tagline or value proposition to include?\n\nAlso, feel free to share any reference images or existing brand assets!",
+          "attachments": [],
+          "timestamp": "2024-01-09T10:00:05Z",
+          "metadata": {
+            "model": "gemini-3-pro",
+            "tokens": 120
+          }
+        },
+        {
+          "id": "msg-003",
+          "conversationId": "conv-001",
+          "role": "user",
+          "content": "The company is called NeuralFlow. Colors are electric blue and white. Should feel futuristic but approachable. Tagline: 'AI that understands you'",
+          "attachments": [],
+          "timestamp": "2024-01-09T10:01:00Z"
+        },
+        {
+          "id": "msg-004",
+          "conversationId": "conv-001",
+          "role": "assistant",
+          "content": "Perfect! Here's what I'm envisioning for NeuralFlow:\n\n**Design Concept:**\n- Abstract neural network visualization with flowing, connected nodes\n- Gradient from electric blue to white, left to right\n- 'NeuralFlow' in a clean, modern sans-serif on the left\n- Tagline 'AI that understands you' in lighter weight below\n- Subtle glow effects to enhance the futuristic feel\n\nWould you like me to generate this design now? I can create 3 variations for you to compare.",
+          "attachments": [],
+          "timestamp": "2024-01-09T10:01:10Z",
+          "metadata": {
+            "model": "gemini-3-pro",
+            "tokens": 95
+          }
+        }
+      ],
+      "createdAt": "2024-01-09T10:00:00Z",
+      "updatedAt": "2024-01-09T10:01:10Z",
+      "archived": false
+    },
+    {
+      "id": "conv-002",
+      "userId": "user-001",
+      "title": "Instagram Carousel Research",
+      "mode": "search",
+      "messages": [
+        {
+          "id": "msg-005",
+          "conversationId": "conv-002",
+          "role": "user",
+          "content": "What are the best practices for Instagram carousel posts in 2024?",
+          "attachments": [],
+          "timestamp": "2024-01-08T14:30:00Z"
+        },
+        {
+          "id": "msg-006",
+          "conversationId": "conv-002",
+          "role": "assistant",
+          "content": "Here are the top Instagram carousel best practices for 2024:\n\n**Format & Technical:**\n- Use 1080x1080px (square) or 1080x1350px (portrait) for maximum visibility\n- Include 3-10 slides (7-8 is the sweet spot for engagement)\n- First slide should be a strong hook - you have 1 second to capture attention\n\n**Content Strategy:**\n- Tell a story across slides\n- Use a consistent visual style throughout\n- End with a clear CTA on the last slide\n- Include a 'swipe' indicator on the first slide\n\n**Engagement Tips:**\n- Educational content performs 2x better than promotional\n- Ask questions to encourage comments\n- Use the caption to add context and keywords\n\nWould you like me to show you some examples or help you plan a carousel?",
+          "attachments": [],
+          "timestamp": "2024-01-08T14:30:08Z",
+          "metadata": {
+            "model": "gemini-3-pro",
+            "tokens": 180
+          }
+        }
+      ],
+      "createdAt": "2024-01-08T14:30:00Z",
+      "updatedAt": "2024-01-08T14:30:08Z",
+      "archived": false
+    }
+  ],
+  "conversationModes": [
+    {
+      "id": "design",
+      "label": "Design",
+      "description": "Create and edit visual content",
+      "icon": "palette"
+    },
+    {
+      "id": "search",
+      "label": "Search",
+      "description": "Research and find information",
+      "icon": "search"
+    },
+    {
+      "id": "voice",
+      "label": "Voice",
+      "description": "Hands-free voice interaction",
+      "icon": "mic"
+    }
+  ]
+}

@@ -1,0 +1,169 @@
+{
+  "steps": [
+    {
+      "id": "welcome",
+      "title": "Welcome",
+      "description": "Introduction to Signal",
+      "isSkippable": false
+    },
+    {
+      "id": "profile",
+      "title": "Profile",
+      "description": "Set up your profile",
+      "isSkippable": true
+    },
+    {
+      "id": "platforms",
+      "title": "Platforms",
+      "description": "Select your platforms",
+      "isSkippable": false
+    },
+    {
+      "id": "api-keys",
+      "title": "AI Providers",
+      "description": "Connect your AI services",
+      "isSkippable": true
+    },
+    {
+      "id": "first-design",
+      "title": "First Design",
+      "description": "Create your first design",
+      "isSkippable": true
+    }
+  ],
+  "welcomeContent": {
+    "logoUrl": "/assets/signal-logo.svg",
+    "heading": "Welcome to Signal",
+    "tagline": "Amplify your professional signal through AI",
+    "features": [
+      {
+        "icon": "Sparkles",
+        "title": "AI-Powered Creation",
+        "description": "Generate stunning visuals with a simple prompt"
+      },
+      {
+        "icon": "Mic",
+        "title": "Voice Control",
+        "description": "Design hands-free with natural voice commands"
+      },
+      {
+        "icon": "Palette",
+        "title": "Brand Consistency",
+        "description": "Keep your brand colors and fonts across all designs"
+      }
+    ],
+    "ctaText": "Get Started"
+  },
+  "platforms": [
+    {
+      "id": "linkedin",
+      "name": "LinkedIn",
+      "description": "Professional networking",
+      "icon": "Linkedin",
+      "color": "#0077b5"
+    },
+    {
+      "id": "youtube",
+      "name": "YouTube",
+      "description": "Video & thumbnails",
+      "icon": "Youtube",
+      "color": "#ef4444"
+    },
+    {
+      "id": "instagram",
+      "name": "Instagram",
+      "description": "Social feed & stories",
+      "icon": "Instagram",
+      "color": "#ec4899"
+    },
+    {
+      "id": "facebook",
+      "name": "Facebook",
+      "description": "Community & pages",
+      "icon": "Facebook",
+      "color": "#3b82f6"
+    },
+    {
+      "id": "tiktok",
+      "name": "TikTok",
+      "description": "Short-form video",
+      "icon": "Music2",
+      "color": "#00f2ea"
+    },
+    {
+      "id": "x",
+      "name": "X",
+      "description": "Threads & posts",
+      "icon": "Twitter",
+      "color": "#ffffff"
+    }
+  ],
+  "apiProviders": [
+    {
+      "provider": "gemini",
+      "name": "Google Gemini",
+      "description": "Recommended for text and image understanding",
+      "helpUrl": "https://makersuite.google.com/app/apikey",
+      "isRequired": false,
+      "isRecommended": true
+    },
+    {
+      "provider": "openrouter",
+      "name": "OpenRouter",
+      "description": "Access multiple AI models through one API",
+      "helpUrl": "https://openrouter.ai/keys",
+      "isRequired": false,
+      "isRecommended": false
+    },
+    {
+      "provider": "replicate",
+      "name": "Replicate",
+      "description": "Best for AI image generation",
+      "helpUrl": "https://replicate.com/account/api-tokens",
+      "isRequired": false,
+      "isRecommended": true
+    }
+  ],
+  "quickStartTemplates": [
+    {
+      "id": "template-001",
+      "title": "Professional LinkedIn Banner",
+      "thumbnailUrl": "/templates/linkedin-professional.png",
+      "platform": "linkedin"
+    },
+    {
+      "id": "template-002",
+      "title": "YouTube Thumbnail",
+      "thumbnailUrl": "/templates/youtube-thumbnail.png",
+      "platform": "youtube"
+    },
+    {
+      "id": "template-003",
+      "title": "Instagram Post",
+      "thumbnailUrl": "/templates/instagram-post.png",
+      "platform": "instagram"
+    }
+  ],
+  "sampleOnboardingState": {
+    "currentStep": "welcome",
+    "completedSteps": [],
+    "skippedSteps": [],
+    "isComplete": false
+  },
+  "sampleCompletedOnboarding": {
+    "profile": {
+      "firstName": "Alex",
+      "lastName": "Designer",
+      "username": "alexdesigns",
+      "avatarUrl": "/avatars/alex.png"
+    },
+    "platforms": {
+      "selectedPlatforms": ["linkedin", "youtube", "instagram"]
+    },
+    "apiKeys": {
+      "gemini": "configured",
+      "replicate": "configured"
+    },
+    "completedAt": "2025-01-09T15:00:00Z"
+  }
+}

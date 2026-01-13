@@ -1,0 +1,105 @@
+{
+  "user": {
+    "name": "Sarah Chen",
+    "email": "sarah@example.com",
+    "avatarUrl": "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=100&h=100&fit=crop"
+  },
+  "preferences": {
+    "theme": "dark",
+    "motionLevel": "full",
+    "luxuryLagAmount": 80,
+    "enableGoodFriction": true,
+    "emailPreferences": {
+      "productUpdates": true,
+      "marketing": false,
+      "designTips": true
+    }
+  },
+  "integrations": [
+    {
+      "id": "google-drive",
+      "name": "Google Drive",
+      "icon": "HardDrive",
+      "description": "Save designs directly to Google Drive",
+      "isConnected": true,
+      "connectedAt": "2024-12-15T10:00:00Z"
+    },
+    {
+      "id": "dropbox",
+      "name": "Dropbox",
+      "icon": "Box",
+      "description": "Export designs to Dropbox",
+      "isConnected": false
+    },
+    {
+      "id": "figma",
+      "name": "Figma",
+      "icon": "Figma",
+      "description": "Import from and export to Figma",
+      "isConnected": true,
+      "connectedAt": "2025-01-02T14:30:00Z"
+    },
+    {
+      "id": "slack",
+      "name": "Slack",
+      "icon": "Slack",
+      "description": "Share designs directly to Slack channels",
+      "isConnected": false
+    }
+  ],
+  "subscription": {
+    "tier": "pro",
+    "status": "active",
+    "creditsRemaining": 55,
+    "creditsTotal": 100,
+    "currentPeriodEnd": "2025-02-10T00:00:00Z",
+    "pricePerMonth": 12
+  },
+  "billingHistory": [
+    {
+      "id": "inv-1",
+      "date": "2025-01-10T00:00:00Z",
+      "description": "Pro Plan - Monthly",
+      "amount": 12.00,
+      "status": "paid",
+      "invoiceUrl": "/invoices/inv-1.pdf"
+    },
+    {
+      "id": "inv-2",
+      "date": "2024-12-10T00:00:00Z",
+      "description": "Pro Plan - Monthly",
+      "amount": 12.00,
+      "status": "paid",
+      "invoiceUrl": "/invoices/inv-2.pdf"
+    },
+    {
+      "id": "inv-3",
+      "date": "2024-11-10T00:00:00Z",
+      "description": "Pro Plan - Monthly",
+      "amount": 12.00,
+      "status": "paid",
+      "invoiceUrl": "/invoices/inv-3.pdf"
+    }
+  ],
+  "planFeatures": {
+    "free": [
+      "10 generations per month",
+      "Basic templates",
+      "Standard export"
+    ],
+    "pro": [
+      "100 generations per month",
+      "All templates",
+      "Brand kit",
+      "Priority support",
+      "High-res export"
+    ],
+    "team": [
+      "Unlimited generations",
+      "All Pro features",
+      "Team collaboration",
+      "Admin controls",
+      "API access"
+    ]
+  }
+}

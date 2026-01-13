@@ -1,0 +1,152 @@
+{
+  "templates": [
+    {
+      "id": "tech-minimal",
+      "title": "Tech Minimalist",
+      "industry": "Technology",
+      "description": "Clean, modern tech vibe with a focus on core value proposition. Perfect for software developers and tech startups.",
+      "backgroundUrl": "/assets/templates/tech-minimal-bg.png",
+      "thumbnailUrl": "/assets/templates/tech-minimal-thumb.png",
+      "prompt": "Minimalist technology background, abstract circuit patterns, deep blue and teal neon glow, dark sleek cybernetic aesthetic, high tech, futuristic, 8k resolution",
+      "elements": [
+        {
+          "type": "text",
+          "content": "Engineering the Future",
+          "x": 800,
+          "y": 150,
+          "fontSize": 56,
+          "fontWeight": "900",
+          "color": "#ffffff",
+          "textAlign": "center"
+        },
+        {
+          "type": "text",
+          "content": "Full Stack Developer | AI Enthusiast",
+          "x": 800,
+          "y": 220,
+          "fontSize": 24,
+          "fontWeight": "500",
+          "color": "#3b82f6",
+          "textAlign": "center"
+        }
+      ]
+    },
+    {
+      "id": "finance-trust",
+      "title": "Corporate Trust",
+      "industry": "Finance",
+      "description": "Professional and stable look for financial experts. Conveys trust, reliability, and expertise.",
+      "backgroundUrl": "/assets/templates/finance-trust-bg.png",
+      "thumbnailUrl": "/assets/templates/finance-trust-thumb.png",
+      "prompt": "Modern architectural glass building facade, corporate skyscraper, financial district abstract, blue sky reflection, professional, trustworthy, clean lines, high quality photorealism",
+      "elements": [
+        {
+          "type": "text",
+          "content": "Strategic Financial Advisory",
+          "x": 1000,
+          "y": 140,
+          "fontSize": 48,
+          "fontWeight": "800",
+          "color": "#1e293b",
+          "textAlign": "left"
+        },
+        {
+          "type": "text",
+          "content": "Helping you navigate market complexity",
+          "x": 1000,
+          "y": 200,
+          "fontSize": 20,
+          "fontWeight": "400",
+          "color": "#475569",
+          "textAlign": "left"
+        }
+      ]
+    },
+    {
+      "id": "creative-portfolio",
+      "title": "Creative Portfolio",
+      "industry": "Creative",
+      "description": "Vibrant and artistic template for designers, artists, and creative professionals showcasing their work.",
+      "backgroundUrl": "/assets/templates/creative-portfolio-bg.png",
+      "thumbnailUrl": "/assets/templates/creative-portfolio-thumb.png",
+      "prompt": "Abstract liquid gradient background, vibrant pink and purple colors, fluid motion, artistic, creative studio vibe, modern graphic design style, 4k wallpaper",
+      "elements": [
+        {
+          "type": "text",
+          "content": "CREATIVE DIRECTOR",
+          "x": 1200,
+          "y": 130,
+          "fontSize": 64,
+          "fontWeight": "900",
+          "color": "#f472b6",
+          "textAlign": "right"
+        },
+        {
+          "type": "text",
+          "content": "Design \u2022 Strategy \u2022 Brand",
+          "x": 1200,
+          "y": 210,
+          "fontSize": 24,
+          "fontWeight": "600",
+          "color": "#ffffff",
+          "textAlign": "right"
+        }
+      ]
+    },
+    {
+      "id": "healthcare-modern",
+      "title": "Modern Healthcare",
+      "industry": "Healthcare",
+      "description": "Clean and calming aesthetic for medical professionals. Conveys care, innovation, and trust.",
+      "backgroundUrl": "/assets/templates/healthcare-modern-bg.png",
+      "thumbnailUrl": "/assets/templates/healthcare-modern-thumb.png",
+      "prompt": "Soft focus medical background, clean sterile environment, hint of dna helix or medical icons, light teal and white color palette, health and wellness, professional care, minimalist",
+      "elements": [
+        {
+          "type": "text",
+          "content": "Innovation in Patient Care",
+          "x": 900,
+          "y": 150,
+          "fontSize": 48,
+          "fontWeight": "700",
+          "color": "#0d9488",
+          "textAlign": "center"
+        }
+      ]
+    },
+    {
+      "id": "marketing-impact",
+      "title": "Growth Marketing",
+      "industry": "Marketing",
+      "description": "Data-driven and high-impact style for marketing professionals and growth hackers.",
+      "backgroundUrl": "/assets/templates/marketing-impact-bg.png",
+      "thumbnailUrl": "/assets/templates/marketing-impact-thumb.png",
+      "prompt": "Business analytics dashboard abstract, data visualization streams, upward trending graphs overlay, professional marketing context, blue and red accents, high tech consulting",
+      "elements": [
+        {
+          "type": "text",
+          "content": "Scaling Brands with Data",
+          "x": 800,
+          "y": 180,
+          "fontSize": 50,
+          "fontWeight": "900",
+          "color": "#ffffff",
+          "textAlign": "center"
+        }
+      ]
+    }
+  ],
+  "industries": [
+    "Technology",
+    "Finance",
+    "Healthcare",
+    "Marketing",
+    "Education",
+    "Real Estate",
+    "Creative",
+    "E-commerce",
+    "Legal",
+    "Fitness",
+    "Hospitality"
+  ]
+}

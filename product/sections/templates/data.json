@@ -1,0 +1,102 @@
+{
+  "categories": [
+    { "id": "business", "name": "Business", "icon": "Briefcase", "count": 45 },
+    { "id": "creative", "name": "Creative", "icon": "Palette", "count": 38 },
+    { "id": "minimal", "name": "Minimal", "icon": "Square", "count": 27 },
+    { "id": "bold", "name": "Bold", "icon": "Zap", "count": 33 },
+    { "id": "elegant", "name": "Elegant", "icon": "Crown", "count": 21 }
+  ],
+  "platforms": [
+    { "id": "linkedin", "name": "LinkedIn", "icon": "Linkedin" },
+    { "id": "instagram", "name": "Instagram", "icon": "Instagram" },
+    { "id": "tiktok", "name": "TikTok", "icon": "Music" },
+    { "id": "youtube", "name": "YouTube", "icon": "Youtube" },
+    { "id": "x", "name": "X", "icon": "Twitter" }
+  ],
+  "templates": [
+    {
+      "id": "template-1",
+      "name": "Corporate Announcement",
+      "description": "Professional banner for company announcements and updates",
+      "thumbnailUrl": "https://images.unsplash.com/photo-1557804506-669a67965ba0?w=400&h=400&fit=crop",
+      "previewUrl": "https://images.unsplash.com/photo-1557804506-669a67965ba0?w=1200&h=1200&fit=crop",
+      "platform": "linkedin",
+      "category": "business",
+      "aspectRatio": "1:1",
+      "isPremium": false,
+      "usageCount": 1247,
+      "isFavorite": false,
+      "tags": ["corporate", "announcement", "professional"]
+    },
+    {
+      "id": "template-2",
+      "name": "Product Launch",
+      "description": "Eye-catching design for new product announcements",
+      "thumbnailUrl": "https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=400&h=400&fit=crop",
+      "previewUrl": "https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=1200&h=1200&fit=crop",
+      "platform": "linkedin",
+      "category": "bold",
+      "aspectRatio": "1:1",
+      "isPremium": true,
+      "usageCount": 892,
+      "isFavorite": true,
+      "tags": ["product", "launch", "bold"]
+    },
+    {
+      "id": "template-3",
+      "name": "Minimalist Quote",
+      "description": "Clean typography-focused design for quotes and thoughts",
+      "thumbnailUrl": "https://images.unsplash.com/photo-1488190211105-8b0e65b80b4e?w=400&h=400&fit=crop",
+      "previewUrl": "https://images.unsplash.com/photo-1488190211105-8b0e65b80b4e?w=1200&h=1200&fit=crop",
+      "platform": "instagram",
+      "category": "minimal",
+      "aspectRatio": "1:1",
+      "isPremium": false,
+      "usageCount": 2103,
+      "isFavorite": false,
+      "tags": ["quote", "minimal", "typography"]
+    },
+    {
+      "id": "template-4",
+      "name": "Story Gradient",
+      "description": "Vibrant gradient background for Instagram stories",
+      "thumbnailUrl": "https://images.unsplash.com/photo-1557682250-33bd709cbe85?w=400&h=711&fit=crop",
+      "previewUrl": "https://images.unsplash.com/photo-1557682250-33bd709cbe85?w=1080&h=1920&fit=crop",
+      "platform": "instagram",
+      "category": "creative",
+      "aspectRatio": "9:16",
+      "isPremium": true,
+      "usageCount": 1567,
+      "isFavorite": false,
+      "tags": ["story", "gradient", "vibrant"]
+    },
+    {
+      "id": "template-5",
+      "name": "YouTube Thumbnail - Tutorial",
+      "description": "High-impact thumbnail for tutorial videos",
+      "thumbnailUrl": "https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w=400&h=225&fit=crop",
+      "previewUrl": "https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w=1280&h=720&fit=crop",
+      "platform": "youtube",
+      "category": "bold",
+      "aspectRatio": "16:9",
+      "isPremium": false,
+      "usageCount": 3421,
+      "isFavorite": true,
+      "tags": ["thumbnail", "tutorial", "youtube"]
+    },
+    {
+      "id": "template-6",
+      "name": "Elegant Event",
+      "description": "Sophisticated design for events and webinars",
+      "thumbnailUrl": "https://images.unsplash.com/photo-1492684223066-81342ee5ff30?w=400&h=400&fit=crop",
+      "previewUrl": "https://images.unsplash.com/photo-1492684223066-81342ee5ff30?w=1200&h=1200&fit=crop",
+      "platform": "linkedin",
+      "category": "elegant",
+      "aspectRatio": "1:1",
+      "isPremium": true,
+      "usageCount": 756,
+      "isFavorite": false,
+      "tags": ["event", "webinar", "elegant"]
+    }
+  ]
+}

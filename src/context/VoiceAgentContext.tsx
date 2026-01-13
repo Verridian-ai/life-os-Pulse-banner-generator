@@ -27,6 +27,8 @@ import React, { createContext, useContext, useState, useCallback, useRef, useEff
 import { OpenAIRealtimeClient, ToolCall, TranscriptEntry } from '@/services/openaiRealtimeClient';
 import { ActionExecutor, ActionResult, OnUpdateCallback, CanvasCallbacks } from '@/services/actionExecutor';
 import { getVoiceAPIKey } from '@/services/apiKeyStorage';
+import { routeCommand, RouteResult } from '@/services/agentRouter';
+import type { PlatformType } from '@/components/studios/config/platformConfig';
 
 import { ConnectionState, ConnectionQuality } from '@/types';
 
@@ -77,6 +79,10 @@ interface VoiceAgentContextType {
   /** Timestamp (Date.now()) of last user/AI activity, null if not connected */
   lastActivityTime: number | null;
 
+  // Agent routing
+  /** Current active agent handling commands */
+  currentAgent: RouteResult | null;
+
   // Methods
   /** Connect to OpenAI Realtime voice service */
   connect: () => Promise<void>;
@@ -94,6 +100,8 @@ interface VoiceAgentContextType {
   registerPromptSetter: (setter: (prompt: string) => void) => void;
   /** Register tab and studio mode navigation callbacks */
   registerTabSetter: (setActiveTab: (tab: Tab) => void, setStudioMode?: (mode: StudioMode) => void) => void;
+  /** Register current platform for platform-aware agent routing */
+  registerPlatform: (platform: PlatformType) => void;
 }
 import { Tab, StudioMode } from '@/constants';
 
@@ -113,9 +121,11 @@ interface VoiceAgentProviderProps {
   setGenPrompt?: (prompt: string) => void;
   /** Optional canvas manipulation callbacks for voice control (add text, upscale, etc.) */
   canvasCallbacks?: CanvasCallbacks;
+  /** Current active platform for platform-aware agent routing */
+  activePlatform?: PlatformType;
 }
 
-export function VoiceAgentProvider({ children, onUpdate, setGenPrompt, canvasCallbacks }: VoiceAgentProviderProps) {
+export function VoiceAgentProvider({ children, onUpdate, setGenPrompt, canvasCallbacks, activePlatform }: VoiceAgentProviderProps) {
   // Configuration
   const MAX_RETRIES = 3;
 
@@ -136,6 +146,7 @@ export function VoiceAgentProvider({ children, onUpdate, setGenPrompt, canvasCal
   const [retryCount, setRetryCount] = useState(0);
   const [connectionStartTime, setConnectionStartTime] = useState<number | null>(null);
   const [lastActivityTime, setLastActivityTime] = useState<number | null>(null);
+  const [currentAgent, setCurrentAgent] = useState<RouteResult | null>(null);
 
   // References
   const liveClientRef = useRef<OpenAIRealtimeClient | null>(null);
@@ -143,6 +154,12 @@ export function VoiceAgentProvider({ children, onUpdate, setGenPrompt, canvasCal
   const promptSetterRef = useRef<((prompt: string) => void) | null>(setGenPrompt || null);
   const connectingRef = useRef(false); // Prevents double connection race condition
   const retryTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const currentAgentRef = useRef<RouteResult | null>(null);
+  const activePlatformRef = useRef<PlatformType | undefined>(activePlatform);
+
+  // Keep refs in sync with state/props
+  currentAgentRef.current = currentAgent;
+  activePlatformRef.current = activePlatform;
 
   /**
    * Calculate exponential backoff delay for retry attempts
@@ -176,6 +193,15 @@ export function VoiceAgentProvider({ children, onUpdate, setGenPrompt, canvasCal
         setStudioMode,
       });
     }
+  }, []);
+
+  /**
+   * Register current platform for platform-aware agent routing
+   * This allows AppContent to update the active platform for voice commands
+   */
+  const registerPlatform = useCallback((platform: PlatformType) => {
+    console.log('[VoiceAgentContext] Platform registered:', platform);
+    activePlatformRef.current = platform;
   }, []);
 
   /**
@@ -293,6 +319,17 @@ export function VoiceAgentProvider({ children, onUpdate, setGenPrompt, canvasCal
         // Tool calls are first previewed to the user before being applied
         async (toolCall: ToolCall) => {
           console.log('[VoiceAgentContext] Tool call received:', toolCall);
+
+          // Route command to appropriate specialized agent
+          // Platform-specific agents take priority when a platform context is provided
+          const routeResult = routeCommand(toolCall.name, {
+            previousAgentId: currentAgentRef.current?.agentId,
+            platform: activePlatformRef.current,
+          });
+          setCurrentAgent(routeResult);
+          console.log('[VoiceAgentContext] Routed to agent:', routeResult.agent.name,
+            'Platform:', activePlatformRef.current || 'none',
+            'Confidence:', routeResult.confidence);
 
           // Execute in preview mode (non-destructive, shows what will happen)
           setExecutingAction(true);
@@ -743,6 +780,7 @@ export function VoiceAgentProvider({ children, onUpdate, setGenPrompt, canvasCal
     maxRetries: MAX_RETRIES,
     connectionStartTime,
     lastActivityTime,
+    currentAgent,
     connect,
     disconnect,
     retry,
@@ -751,6 +789,7 @@ export function VoiceAgentProvider({ children, onUpdate, setGenPrompt, canvasCal
     clearTranscript,
     registerPromptSetter,
     registerTabSetter,
+    registerPlatform,
   };
 
   return <VoiceAgentContext.Provider value={value}>{children}</VoiceAgentContext.Provider>;

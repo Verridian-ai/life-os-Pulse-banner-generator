@@ -1,0 +1,269 @@
+{
+  "dashboardStats": {
+    "activeUsers": {
+      "current": 1247,
+      "previous": 1189,
+      "change": 4.9,
+      "trend": "up"
+    },
+    "generationsToday": {
+      "current": 8432,
+      "previous": 7891,
+      "change": 6.9,
+      "trend": "up"
+    },
+    "revenue": {
+      "current": 24500,
+      "previous": 23100,
+      "change": 6.1,
+      "trend": "up"
+    },
+    "errorRate": {
+      "current": 0.3,
+      "previous": 0.5,
+      "change": -40,
+      "trend": "down"
+    },
+    "avgLatency": {
+      "current": 2.4,
+      "previous": 2.8,
+      "change": -14.3,
+      "trend": "down"
+    },
+    "activeAgents": {
+      "current": 6,
+      "previous": 6,
+      "change": 0,
+      "trend": "neutral"
+    }
+  },
+  "sampleUsers": [
+    {
+      "id": "user-001",
+      "email": "sarah.chen@neuralflow.ai",
+      "name": "Sarah Chen",
+      "avatar": "/avatars/sarah.jpg",
+      "plan": "pro",
+      "status": "active",
+      "role": "user",
+      "generationCount": 342,
+      "lastActiveAt": "2024-01-09T14:30:00Z",
+      "createdAt": "2023-10-15T09:00:00Z",
+      "subscription": {
+        "plan": "pro",
+        "status": "active",
+        "mrr": 19,
+        "startedAt": "2023-10-15T09:00:00Z",
+        "currentPeriodEnd": "2024-02-15T09:00:00Z"
+      }
+    },
+    {
+      "id": "user-002",
+      "email": "marcus.johnson@gmail.com",
+      "name": "Marcus Johnson",
+      "plan": "free",
+      "status": "active",
+      "role": "user",
+      "generationCount": 47,
+      "lastActiveAt": "2024-01-08T11:20:00Z",
+      "createdAt": "2024-01-02T16:45:00Z"
+    },
+    {
+      "id": "user-003",
+      "email": "admin@signal.app",
+      "name": "System Admin",
+      "plan": "enterprise",
+      "status": "active",
+      "role": "super_admin",
+      "generationCount": 12,
+      "lastActiveAt": "2024-01-09T15:00:00Z",
+      "createdAt": "2023-06-01T00:00:00Z"
+    }
+  ],
+  "agents": [
+    {
+      "id": "agent-voice",
+      "name": "Voice Agent",
+      "type": "voice",
+      "enabled": true,
+      "model": "gpt-4o-realtime",
+      "version": "1.2.0",
+      "status": "healthy",
+      "config": {
+        "maxConcurrent": 100,
+        "timeout": 30000,
+        "retryAttempts": 3,
+        "costPerCall": 0.06
+      }
+    },
+    {
+      "id": "agent-gemini",
+      "name": "Gemini Image Generator",
+      "type": "generation",
+      "enabled": true,
+      "model": "gemini-3-pro-image",
+      "version": "3.0.0",
+      "status": "healthy",
+      "config": {
+        "maxConcurrent": 50,
+        "timeout": 60000,
+        "retryAttempts": 2,
+        "costPerCall": 0.04
+      }
+    },
+    {
+      "id": "agent-upscale",
+      "name": "Image Upscaler",
+      "type": "upscaling",
+      "enabled": true,
+      "model": "real-esrgan",
+      "version": "2.0.0",
+      "status": "healthy",
+      "config": {
+        "maxConcurrent": 20,
+        "timeout": 120000,
+        "retryAttempts": 1,
+        "costPerCall": 0.02
+      }
+    },
+    {
+      "id": "agent-bgremoval",
+      "name": "Background Remover",
+      "type": "background_removal",
+      "enabled": true,
+      "model": "rembg-v2",
+      "version": "2.1.0",
+      "status": "healthy",
+      "config": {
+        "maxConcurrent": 30,
+        "timeout": 45000,
+        "retryAttempts": 2,
+        "costPerCall": 0.01
+      }
+    },
+    {
+      "id": "agent-analysis",
+      "name": "Image Analyzer",
+      "type": "analysis",
+      "enabled": true,
+      "model": "gemini-3-pro-vision",
+      "version": "3.0.0",
+      "status": "healthy",
+      "config": {
+        "maxConcurrent": 40,
+        "timeout": 30000,
+        "retryAttempts": 2,
+        "costPerCall": 0.02
+      }
+    },
+    {
+      "id": "agent-editing",
+      "name": "Multi-turn Editor",
+      "type": "editing",
+      "enabled": true,
+      "model": "gemini-3-pro-image",
+      "version": "3.0.0",
+      "status": "healthy",
+      "config": {
+        "maxConcurrent": 25,
+        "timeout": 90000,
+        "retryAttempts": 2,
+        "costPerCall": 0.05
+      }
+    }
+  ],
+  "agentMetrics": [
+    {
+      "agentId": "agent-voice",
+      "period": "2024-01-09",
+      "calls": 1247,
+      "successRate": 97.2,
+      "avgLatency": 1.8,
+      "p95Latency": 3.2,
+      "p99Latency": 5.1,
+      "totalCost": 74.82,
+      "errorBreakdown": {
+        "timeout": 12,
+        "rate_limit": 8,
+        "internal": 15
+      }
+    },
+    {
+      "agentId": "agent-gemini",
+      "period": "2024-01-09",
+      "calls": 5832,
+      "successRate": 99.1,
+      "avgLatency": 4.2,
+      "p95Latency": 8.5,
+      "p99Latency": 12.3,
+      "totalCost": 233.28,
+      "errorBreakdown": {
+        "content_policy": 32,
+        "rate_limit": 15,
+        "internal": 5
+      }
+    }
+  ],
+  "financeData": {
+    "period": "2024-01",
+    "revenue": {
+      "total": 24500,
+      "mrr": 24500,
+      "arr": 294000,
+      "growth": 12.5,
+      "byPlan": {
+        "free": 0,
+        "pro": 18050,
+        "team": 5450,
+        "enterprise": 1000
+      }
+    },
+    "costs": {
+      "total": 8200,
+      "openai": 3500,
+      "replicate": 1200,
+      "google": 2100,
+      "infrastructure": 1000,
+      "other": 400
+    },
+    "profit": 16300,
+    "usersByPlan": {
+      "free": 892,
+      "pro": 312,
+      "team": 35,
+      "enterprise": 8
+    }
+  },
+  "adminNavigation": [
+    {
+      "id": "overview",
+      "label": "Overview",
+      "icon": "layout-dashboard",
+      "path": "/admin"
+    },
+    {
+      "id": "users",
+      "label": "Users",
+      "icon": "users",
+      "path": "/admin/users"
+    },
+    {
+      "id": "agents",
+      "label": "Agents",
+      "icon": "bot",
+      "path": "/admin/agents"
+    },
+    {
+      "id": "observability",
+      "label": "Observability",
+      "icon": "activity",
+      "path": "/admin/observability"
+    },
+    {
+      "id": "finance",
+      "label": "Finance",
+      "icon": "dollar-sign",
+      "path": "/admin/finance"
+    }
+  ]
+}

@@ -5,7 +5,8 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![React](https://img.shields.io/badge/React-19-blue.svg)](https://reactjs.org/)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.0-blue.svg)](https://www.typescriptlang.org/)
-[![Supabase](https://img.shields.io/badge/Supabase-Powered-green.svg)](https://supabase.com/)
+[![Neon](https://img.shields.io/badge/Neon-PostgreSQL-green.svg)](https://neon.tech/)
+[![Cloud Run](https://img.shields.io/badge/Google_Cloud-Run-blue.svg)](https://cloud.google.com/run)
 
 ---
 
@@ -110,12 +111,13 @@ The app uses Supabase PostgreSQL for storing user profiles and application data.
 
 #### One-Time Setup
 
-1. Go to your Supabase dashboard: https://supabase.com/dashboard
+1. Go to your Supabase dashboard: <https://supabase.com/dashboard>
 2. Select your project → SQL Editor
 3. Run the schema from `database/schema.sql`
 4. Verify tables created (see `database/README.md`)
 
 Once this is done, all users can sign up and use the app with full functionality:
+
 - User profiles stored per user
 - API keys stored encrypted per user
 - Designs and generation history saved per user
@@ -228,7 +230,7 @@ npm run preview
 
 ### For Pilot Users (Careersy Community)
 
-- 📧 Email: support@careersy.com
+- 📧 Email: <support@careersy.com>
 - 💬 Discord: [Join our community](https://discord.gg/careersy)
 - 📖 Wiki: [Complete documentation](./WIKI.md)
 

@@ -37,7 +37,44 @@ import {
   AnalyzeImageCommand,
   AnalyzeBannerCommand,
   CompareImagesCommand,
+  BatchAnalyzeCommand,
+  BatchCompareCommand,
 } from './commands/analysisCommands';
+// Gallery commands
+import {
+  SaveDesignCommand,
+  LoadDesignCommand,
+  DeleteDesignCommand,
+  ExportDesignCommand,
+  ListDesignsCommand,
+  SearchDesignsCommand,
+} from './commands/galleryCommands';
+// Template commands
+import {
+  ApplyTemplateCommand,
+  ListTemplatesCommand,
+  SearchTemplatesCommand,
+} from './commands/templateCommands';
+// Brand commands
+import {
+  ExtractBrandCommand,
+  CheckBrandConsistencyCommand,
+  ApplyBrandProfileCommand,
+  ListBrandProfilesCommand,
+} from './commands/brandCommands';
+// Profile picture commands
+import {
+  SetProfilePictureCommand,
+  RemoveProfilePictureCommand,
+  TransformProfileCommand,
+} from './commands/profileCommands';
+// Canvas state commands
+import {
+  ToggleSafeZonesCommand,
+  ResetCanvasCommand,
+  SetZoomCommand,
+  CenterCanvasCommand,
+} from './commands/canvasStateCommands';
 import { ToolSchemas } from './validationSchemas';
 
 export interface ToolCall {
@@ -70,6 +107,15 @@ export interface CanvasCallbacks {
   setStudioMode?: (mode: StudioMode) => void;
   bringToFront?: (id: string) => void;
   sendToBack?: (id: string) => void;
+  // Profile picture callbacks
+  setProfilePic?: (url: string | null) => void;
+  setProfileTransform?: (transform: { x: number; y: number; scale: number }) => void;
+  getProfileTransform?: () => { x: number; y: number; scale: number };
+  // Canvas state callbacks
+  toggleSafeZones?: (show?: boolean) => boolean;
+  setZoom?: (level: number) => void;
+  getZoom?: () => number;
+  centerView?: () => void;
 }
 
 /**
@@ -100,26 +146,21 @@ export class ActionExecutor {
   }
 
   private registerDefaultCommands() {
+    // Image generation & processing commands (8)
     this.registerCommand(new GenerateBackgroundCommand());
     this.registerCommand(new MagicEditCommand());
     this.registerCommand(new RemoveBackgroundCommand());
     this.registerCommand(new UpscaleImageCommand());
     this.registerCommand(new RestoreImageCommand());
     this.registerCommand(new EnhanceFaceCommand());
+    this.registerCommand(new BatchUpscaleCommand());
+    this.registerCommand(new BatchRemoveBackgroundCommand());
+
+    // Canvas element commands (12)
     this.registerCommand(new AddTextElementCommand());
     this.registerCommand(new UpdateElementCommand());
     this.registerCommand(new DeleteElementCommand());
     this.registerCommand(new ListElementsCommand());
-    this.registerCommand(new NavigateToTabCommand());
-    this.registerCommand(new UndoActionCommand());
-    this.registerCommand(new RedoActionCommand());
-    this.registerCommand(new SuggestPromptsCommand());
-    this.registerCommand(new WriteEnhancedPromptCommand());
-    this.registerCommand(new AnalyzeImageCommand());
-    this.registerCommand(new AnalyzeBannerCommand());
-    this.registerCommand(new CompareImagesCommand());
-    this.registerCommand(new BatchUpscaleCommand());
-    this.registerCommand(new BatchRemoveBackgroundCommand());
     this.registerCommand(new BringToFrontCommand());
     this.registerCommand(new SendToBackCommand());
     this.registerCommand(new DuplicateElementCommand());
@@ -128,6 +169,52 @@ export class ActionExecutor {
     this.registerCommand(new BatchDeleteElementsCommand());
     this.registerCommand(new BatchUpdateElementsCommand());
     this.registerCommand(new BatchMoveElementsCommand());
+
+    // UI navigation commands (3)
+    this.registerCommand(new NavigateToTabCommand());
+    this.registerCommand(new UndoActionCommand());
+    this.registerCommand(new RedoActionCommand());
+
+    // Analysis commands (7)
+    this.registerCommand(new SuggestPromptsCommand());
+    this.registerCommand(new WriteEnhancedPromptCommand());
+    this.registerCommand(new AnalyzeImageCommand());
+    this.registerCommand(new AnalyzeBannerCommand());
+    this.registerCommand(new CompareImagesCommand());
+    this.registerCommand(new BatchAnalyzeCommand());
+    this.registerCommand(new BatchCompareCommand());
+
+    // Gallery commands (6)
+    this.registerCommand(new SaveDesignCommand());
+    this.registerCommand(new LoadDesignCommand());
+    this.registerCommand(new DeleteDesignCommand());
+    this.registerCommand(new ExportDesignCommand());
+    this.registerCommand(new ListDesignsCommand());
+    this.registerCommand(new SearchDesignsCommand());
+
+    // Template commands (3)
+    this.registerCommand(new ApplyTemplateCommand());
+    this.registerCommand(new ListTemplatesCommand());
+    this.registerCommand(new SearchTemplatesCommand());
+
+    // Brand commands (4)
+    this.registerCommand(new ExtractBrandCommand());
+    this.registerCommand(new CheckBrandConsistencyCommand());
+    this.registerCommand(new ApplyBrandProfileCommand());
+    this.registerCommand(new ListBrandProfilesCommand());
+
+    // Profile picture commands (3)
+    this.registerCommand(new SetProfilePictureCommand());
+    this.registerCommand(new RemoveProfilePictureCommand());
+    this.registerCommand(new TransformProfileCommand());
+
+    // Canvas state commands (4)
+    this.registerCommand(new ToggleSafeZonesCommand());
+    this.registerCommand(new ResetCanvasCommand());
+    this.registerCommand(new SetZoomCommand());
+    this.registerCommand(new CenterCanvasCommand());
+
+    // Total: 50 commands
   }
 
   public registerCommand(command: Command) {

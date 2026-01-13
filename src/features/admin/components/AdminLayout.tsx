@@ -18,6 +18,7 @@ const navItems: NavItem[] = [
     { id: 'dashboard', label: 'Dashboard', icon: 'dashboard', href: '/admin' },
     { id: 'users', label: 'Users', icon: 'people', href: '/admin/users', permission: 'user_management' },
     { id: 'agents', label: 'Agents', icon: 'smart_toy', href: '/admin/agents', permission: 'agent_configuration' },
+    { id: 'models', label: 'AI Models', icon: 'model_training', href: '/admin/models', permission: 'observability_config' },
     { id: 'observability', label: 'Observability', icon: 'insights', href: '/admin/observability', permission: 'observability_config' },
     { id: 'finance', label: 'Finance', icon: 'payments', href: '/admin/finance', permission: 'financial_access' },
     { id: 'audit', label: 'Audit Logs', icon: 'history', href: '/admin/audit', permission: 'audit_log_access' },

@@ -152,21 +152,20 @@ describe('API Key Storage Service', () => {
   describe('getVoiceAPIKey', () => {
     it('should return actual voice API key', async () => {
       const mockResponse = {
-        voiceKey: 'sk-actual-openai-key-12345',
+        token: 'ephemeral-token-12345',
       };
 
       vi.mocked(api.get).mockResolvedValue(mockResponse);
 
       const result = await getVoiceAPIKey();
 
-      expect(api.get).toHaveBeenCalledWith('/api/user/voice-key');
-      expect(result).toEqual({ voiceKey: 'sk-actual-openai-key-12345' });
+      expect(api.get).toHaveBeenCalledWith('/api/ai/voice/token');
+      expect(result).toEqual({ voiceKey: 'ephemeral-token-12345' });
     });
 
     it('should return error when voice key not found', async () => {
       const mockResponse = {
         error: 'Voice key not configured',
-        requiresKey: true,
       };
 
       vi.mocked(api.get).mockResolvedValue(mockResponse);
@@ -175,7 +174,6 @@ describe('API Key Storage Service', () => {
 
       expect(result).toEqual({
         error: 'Voice key not configured',
-        requiresKey: true,
       });
     });
 

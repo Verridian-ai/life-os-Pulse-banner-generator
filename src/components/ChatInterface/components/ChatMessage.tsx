@@ -64,6 +64,7 @@ export const ChatMessage: React.FC<ChatMessageProps> = ({ message, onGenerateFro
                   "{prompt}"
                 </div>
                 <button
+                  type="button"
                   onClick={() => onGenerateFromPrompt(prompt)}
                   className={`${BTN_BASE} ${BTN_NEU_WHITE} h-8 px-4 text-[10px] w-full md:w-auto`}
                 >

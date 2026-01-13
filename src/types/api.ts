@@ -37,6 +37,7 @@ export interface UserPreferences {
   language?: string;
   notifications?: Record<string, boolean>;
   chat_settings?: ChatSettings;
+  session_timeout?: number; // Minutes (0 or undefined = disabled)
 }
 
 /**

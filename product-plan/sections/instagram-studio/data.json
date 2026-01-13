@@ -1,0 +1,175 @@
+{
+  "sampleContent": {
+    "id": "ig-001",
+    "userId": "user-001",
+    "contentType": "carousel",
+    "mediaUrls": ["/samples/ig-slide-1.png", "/samples/ig-slide-2.png"],
+    "caption": "Stop scrolling — this changed everything for me 👇\n\nI spent 6 months testing every productivity system out there.\n\nHere's what actually works:\n\n1️⃣ Time blocking (not to-do lists)\n2️⃣ 2-minute rule for quick tasks\n3️⃣ Weekly reviews, not daily\n\nSave this for later and try it tomorrow.\n\nWhat's your biggest productivity struggle? 💬",
+    "hashtags": ["productivity", "timemanagement", "worksmarter", "lifehacks", "growthmindset"],
+    "mentions": [],
+    "engagementScore": {
+      "overall": 4.2,
+      "reach": 15000,
+      "likes": 450,
+      "comments": 85,
+      "saves": 120,
+      "shares": 35,
+      "factors": [
+        {
+          "id": "visual",
+          "name": "Visual Appeal",
+          "score": 85,
+          "maxScore": 100,
+          "weight": 0.25,
+          "suggestion": "Strong carousel design"
+        },
+        {
+          "id": "caption",
+          "name": "Caption Quality",
+          "score": 90,
+          "maxScore": 100,
+          "weight": 0.25,
+          "suggestion": "Great hook and CTA"
+        },
+        {
+          "id": "hashtags",
+          "name": "Hashtag Reach",
+          "score": 70,
+          "maxScore": 100,
+          "weight": 0.20,
+          "suggestion": "Add 2-3 more niche hashtags"
+        },
+        {
+          "id": "timing",
+          "name": "Post Timing",
+          "score": 80,
+          "maxScore": 100,
+          "weight": 0.15
+        },
+        {
+          "id": "type",
+          "name": "Content Type Bonus",
+          "score": 95,
+          "maxScore": 100,
+          "weight": 0.15,
+          "suggestion": "Carousels get 1.4x more reach"
+        }
+      ],
+      "bestTimeToPost": "2024-01-10T09:00:00Z",
+      "suggestions": [
+        "Add 2-3 more niche hashtags for better reach",
+        "Consider adding location tag for local discovery",
+        "Carousel is great choice - highest save rate"
+      ]
+    },
+    "status": "draft"
+  },
+  "formats": [
+    {
+      "id": "square",
+      "name": "Square Post",
+      "width": 1080,
+      "height": 1080,
+      "aspectRatio": "1:1",
+      "contentType": "post"
+    },
+    {
+      "id": "portrait",
+      "name": "Portrait Post",
+      "width": 1080,
+      "height": 1350,
+      "aspectRatio": "4:5",
+      "contentType": "post"
+    },
+    {
+      "id": "landscape",
+      "name": "Landscape",
+      "width": 1080,
+      "height": 566,
+      "aspectRatio": "1.91:1",
+      "contentType": "post"
+    },
+    {
+      "id": "story",
+      "name": "Story/Reel",
+      "width": 1080,
+      "height": 1920,
+      "aspectRatio": "9:16",
+      "contentType": "story"
+    }
+  ],
+  "hashtagCategories": [
+    {
+      "id": "niche",
+      "name": "Niche",
+      "description": "Specific to your topic (10K-100K posts)",
+      "recommended": 5
+    },
+    {
+      "id": "medium",
+      "name": "Medium",
+      "description": "Moderately popular (100K-500K posts)",
+      "recommended": 10
+    },
+    {
+      "id": "broad",
+      "name": "Broad",
+      "description": "Highly popular (500K+ posts)",
+      "recommended": 5
+    },
+    {
+      "id": "trending",
+      "name": "Trending",
+      "description": "Currently trending topics",
+      "recommended": 2
+    }
+  ],
+  "sampleHashtagSets": [
+    {
+      "id": "set-001",
+      "name": "Productivity Niche",
+      "hashtags": ["productivityhacks", "timeblocking", "deepwork", "focusmode", "gtd"],
+      "category": "niche",
+      "avgReach": 25000
+    },
+    {
+      "id": "set-002",
+      "name": "Business Growth",
+      "hashtags": ["entrepreneur", "smallbusiness", "businesstips", "startup", "hustle"],
+      "category": "broad",
+      "avgReach": 150000
+    }
+  ],
+  "engagementFactors": [
+    {
+      "id": "visual",
+      "name": "Visual Appeal",
+      "weight": 0.25,
+      "description": "Image quality and composition"
+    },
+    {
+      "id": "caption",
+      "name": "Caption Quality",
+      "weight": 0.25,
+      "description": "Hook, value, and CTA"
+    },
+    {
+      "id": "hashtags",
+      "name": "Hashtag Reach",
+      "weight": 0.20,
+      "description": "Hashtag strategy effectiveness"
+    },
+    {
+      "id": "timing",
+      "name": "Post Timing",
+      "weight": 0.15,
+      "description": "Audience activity alignment"
+    },
+    {
+      "id": "type",
+      "name": "Content Type Bonus",
+      "weight": 0.15,
+      "description": "Algorithm preference for format"
+    }
+  ]
+}

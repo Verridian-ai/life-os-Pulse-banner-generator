@@ -30,6 +30,7 @@ export const ConversationHistory: React.FC<ConversationHistoryProps> = ({
       <div className='p-3 border-b border-white/10 flex items-center justify-between'>
         <span className='text-sm font-bold text-zinc-300 uppercase tracking-wider'>Chat History</span>
         <button
+          type="button"
           onClick={onClose}
           className='text-zinc-500 hover:text-white'
         >
@@ -74,6 +75,7 @@ export const ConversationHistory: React.FC<ConversationHistoryProps> = ({
 
               {/* Delete Button - Hidden until hover */}
               <button
+                type="button"
                 onClick={(e) => {
                   e.stopPropagation();
                   if (confirm('Delete this conversation?')) {

@@ -304,6 +304,7 @@ export const ImageToolsPanel: React.FC = () => {
           <>
             <div className="grid grid-cols-2 gap-3">
               <button
+                type="button"
                 onClick={prepareInpainting}
                 disabled={!bgImage || isProcessing}
                 className={`flex flex-col items-center justify-center p-4 rounded-xl border border-white/5 bg-white/5 hover:bg-white/10 hover:border-blue-500/50 transition-all group/btn ${!bgImage ? 'opacity-50 cursor-not-allowed' : ''}`}
@@ -313,6 +314,7 @@ export const ImageToolsPanel: React.FC = () => {
               </button>
 
               <button
+                type="button"
                 onClick={() => setShowMagicInput(!showMagicInput)}
                 disabled={!bgImage || isProcessing}
                 className={`flex flex-col items-center justify-center p-4 rounded-xl border border-white/5 bg-white/5 hover:bg-white/10 hover:border-purple-500/50 transition-all group/btn ${!bgImage ? 'opacity-50 cursor-not-allowed' : ''}`}
@@ -322,6 +324,7 @@ export const ImageToolsPanel: React.FC = () => {
               </button>
 
               <button
+                type="button"
                 onClick={handleUpscale}
                 disabled={!bgImage || isProcessing}
                 className={`flex flex-col items-center justify-center p-4 rounded-xl border border-white/5 bg-white/5 hover:bg-white/10 hover:border-green-500/50 transition-all group/btn ${!bgImage ? 'opacity-50 cursor-not-allowed' : ''}`}
@@ -340,6 +343,7 @@ export const ImageToolsPanel: React.FC = () => {
           <>
             <div className="grid grid-cols-2 gap-3">
               <button
+                type="button"
                 onClick={handleFaceEnhance}
                 disabled={isProcessing}
                 className="flex flex-col items-center justify-center p-4 rounded-xl border border-white/5 bg-white/5 hover:bg-white/10 hover:border-pink-500/50 transition-all group/btn"
@@ -349,6 +353,7 @@ export const ImageToolsPanel: React.FC = () => {
               </button>
 
               <button
+                type="button"
                 onClick={handleRemoveBg}
                 disabled={isProcessing}
                 className="flex flex-col items-center justify-center p-4 rounded-xl border border-white/5 bg-white/5 hover:bg-white/10 hover:border-orange-500/50 transition-all group/btn"
@@ -358,6 +363,7 @@ export const ImageToolsPanel: React.FC = () => {
               </button>
 
               <button
+                type="button"
                 onClick={() => setShowMagicInput(!showMagicInput)}
                 disabled={isProcessing}
                 className="flex flex-col items-center justify-center p-4 rounded-xl border border-white/5 bg-white/5 hover:bg-white/10 hover:border-purple-500/50 transition-all group/btn"
@@ -367,6 +373,7 @@ export const ImageToolsPanel: React.FC = () => {
               </button>
 
               <button
+                type="button"
                 onClick={handleUpscale}
                 disabled={isProcessing}
                 className="flex flex-col items-center justify-center p-4 rounded-xl border border-white/5 bg-white/5 hover:bg-white/10 hover:border-green-500/50 transition-all group/btn"
@@ -400,6 +407,7 @@ export const ImageToolsPanel: React.FC = () => {
             </div>
             <div className="flex gap-2">
               <button
+                type="button"
                 onClick={handleMagicEdit}
                 disabled={!magicPrompt}
                 className="flex-1 bg-purple-600 hover:bg-purple-500 text-white rounded-lg py-1.5 text-[10px] font-bold uppercase"
@@ -407,6 +415,7 @@ export const ImageToolsPanel: React.FC = () => {
                 Apply
               </button>
               <button
+                type="button"
                 onClick={() => setShowMagicInput(false)}
                 className="px-3 bg-zinc-700 hover:bg-zinc-600 text-white rounded-lg py-1.5 text-[10px] font-bold uppercase"
               >
@@ -441,7 +450,7 @@ export const ImageToolsPanel: React.FC = () => {
                   className="w-24 accent-purple-500"
                 />
               </div>
-              <button onClick={() => setShowInpaintModal(false)} className="text-zinc-400 hover:text-white">
+              <button type="button" onClick={() => setShowInpaintModal(false)} className="text-zinc-400 hover:text-white">
                 <span className="material-icons">close</span>
               </button>
             </div>
@@ -474,6 +483,7 @@ export const ImageToolsPanel: React.FC = () => {
               showLabel={false}
             />
             <button
+              type="button"
               onClick={submitInpainting}
               disabled={!inpaintPrompt}
               className="bg-purple-600 hover:bg-purple-500 text-white font-bold px-6 py-2 rounded-lg text-xs uppercase"

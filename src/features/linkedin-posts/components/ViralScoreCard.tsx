@@ -29,7 +29,7 @@ export const ViralScoreCard: React.FC<ViralScoreCardProps> = ({ content }) => {
 
     const getScoreColor = (value: number) => {
         if (value >= 80) return 'from-green-500 to-emerald-500 shadow-[0_0_15px_rgba(34,197,94,0.3)]';
-        if (value >= 60) return 'from-amber-500 to-orange-500 shadow-[0_0_15px_rgba(245,158,11,0.2)]';
+        if (value >= 60) return 'from-yellow-500 to-orange-500 shadow-[0_0_15px_rgba(234,179,8,0.2)]';
         return 'from-orange-500 to-red-500 shadow-[0_0_15px_rgba(239,68,68,0.2)]';
     };
 

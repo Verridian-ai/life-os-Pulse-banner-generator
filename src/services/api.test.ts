@@ -58,11 +58,12 @@ describe('API Service', () => {
 
     it('should throw ApiError on failure', async () => {
         const errorMessage = 'Bad Request';
-        mockFetch.mockResolvedValue({
+        // The api.ts reads text() first, then tries JSON.parse()
+        mockFetch.mockResolvedValueOnce({
             ok: false,
             status: 400,
             statusText: 'Bad Request',
-            json: async () => ({ error: errorMessage }),
+            text: async () => JSON.stringify({ error: errorMessage }),
         });
 
         await expect(api.get('/error')).rejects.toThrow(ApiError);
@@ -70,10 +71,12 @@ describe('API Service', () => {
 
     it('should handle non-JSON error response', async () => {
         const errorText = 'Server Error';
+        // The api.ts reads text() first, then tries JSON.parse()
+        // So we mock text() to return non-JSON text
         mockFetch.mockResolvedValueOnce({
             ok: false,
             status: 500,
-            json: async () => { throw new Error('Not JSON'); },
+            statusText: 'Internal Server Error',
             text: async () => errorText,
         });
 

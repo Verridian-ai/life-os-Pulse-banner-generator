@@ -7,6 +7,8 @@ import {
 } from '../../../constants';
 import { useCanvasState } from '../../../context/canvas/CanvasStateContext';
 import { BTN_NEU_SOLID } from '../../../styles';
+import { optimizeLayoutForFormat, type LayoutOptimizationResult } from '../../../utils/layoutScalingUtils';
+import type { BannerElement } from '../../../types';
 
 // Platform logo paths
 const PLATFORM_LOGOS: Record<string, string> = {
@@ -15,6 +17,7 @@ const PLATFORM_LOGOS: Record<string, string> = {
   x: '/assets/platforms/x.svg',
   instagram: '/assets/platforms/instagram.svg',
   youtube: '/assets/platforms/youtube.svg',
+  tiktok: '/assets/platforms/tiktok.svg',
 };
 
 // Platform color mapping with enhanced glass effects
@@ -66,10 +69,21 @@ const PLATFORM_COLORS: Record<string, {
     glow: 'shadow-red-500/20',
     iconBg: 'bg-red-500/20',
   },
+  tiktok: {
+    bg: 'from-cyan-500/15 to-pink-600/10',
+    border: 'border-cyan-500/20 hover:border-cyan-400/40',
+    text: 'text-cyan-400',
+    active: 'from-cyan-500 to-pink-500',
+    glow: 'shadow-cyan-500/20',
+    iconBg: 'bg-cyan-500/20',
+  },
 };
 
 interface CanvasFormatSelectorProps {
   onFormatChange?: (format: CanvasFormat) => void;
+  elements?: BannerElement[];
+  setElements?: (elements: BannerElement[]) => void;
+  onOptimize?: (result: LayoutOptimizationResult) => void;
 }
 
 // Get all format IDs in order for keyboard navigation
@@ -77,7 +91,12 @@ const getAllFormatIds = (): CanvasFormatId[] => {
   return Object.values(FORMAT_CATEGORIES).flatMap(cat => cat.formats);
 };
 
-export function CanvasFormatSelector({ onFormatChange }: CanvasFormatSelectorProps) {
+export function CanvasFormatSelector({
+  onFormatChange,
+  elements,
+  setElements,
+  onOptimize,
+}: CanvasFormatSelectorProps) {
   const { canvasFormatId, setCanvasFormatId, canvasFormat } = useCanvasState();
   const [isOpen, setIsOpen] = useState(false);
   const [showConfirmDialog, setShowConfirmDialog] = useState<CanvasFormatId | null>(null);
@@ -112,13 +131,6 @@ export function CanvasFormatSelector({ onFormatChange }: CanvasFormatSelectorPro
     }
   }, [focusedIndex, isOpen, allFormatIds]);
 
-  // Reset focus when menu closes
-  useEffect(() => {
-    if (!isOpen) {
-      setFocusedIndex(-1);
-    }
-  }, [isOpen]);
-
   // Close on outside click
   useEffect(() => {
     if (!isOpen) return;
@@ -137,6 +149,14 @@ export function CanvasFormatSelector({ onFormatChange }: CanvasFormatSelectorPro
     document.addEventListener('mousedown', handleClickOutside);
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, [isOpen, handleClose]);
+
+  const handleFormatSelect = useCallback((formatId: CanvasFormatId) => {
+    if (formatId === canvasFormatId) {
+      handleClose();
+      return;
+    }
+    setShowConfirmDialog(formatId);
+  }, [canvasFormatId, handleClose]);
 
   // Keyboard navigation
   const handleKeyDown = useCallback((e: React.KeyboardEvent) => {
@@ -180,20 +200,22 @@ export function CanvasFormatSelector({ onFormatChange }: CanvasFormatSelectorPro
         }
         break;
     }
-  }, [isOpen, focusedIndex, allFormatIds, handleOpen, handleClose]);
-
-  const handleFormatSelect = (formatId: CanvasFormatId) => {
-    if (formatId === canvasFormatId) {
-      handleClose();
-      return;
-    }
-    setShowConfirmDialog(formatId);
-  };
+  }, [isOpen, focusedIndex, allFormatIds, handleOpen, handleClose, handleFormatSelect]);
 
   const confirmFormatChange = () => {
     if (showConfirmDialog) {
+      const oldFormat = canvasFormat;
+      const newFormat = CANVAS_FORMATS[showConfirmDialog];
+
+      // Optimize layout: scale elements and fix safe zone violations
+      if (elements && elements.length > 0 && setElements) {
+        const result = optimizeLayoutForFormat(elements, oldFormat, newFormat);
+        setElements(result.optimizedElements);
+        onOptimize?.(result);
+      }
+
       setCanvasFormatId(showConfirmDialog);
-      onFormatChange?.(CANVAS_FORMATS[showConfirmDialog]);
+      onFormatChange?.(newFormat);
       setShowConfirmDialog(null);
       handleClose();
     }
@@ -218,6 +240,7 @@ export function CanvasFormatSelector({ onFormatChange }: CanvasFormatSelectorPro
       {/* Current Format Button */}
       <button
         ref={buttonRef}
+        type="button"
         onClick={() => isOpen ? handleClose() : handleOpen()}
         onKeyDown={handleKeyDown}
         aria-haspopup="listbox"
@@ -338,8 +361,9 @@ export function CanvasFormatSelector({ onFormatChange }: CanvasFormatSelectorPro
                           <button
                             key={formatId}
                             ref={setItemRef(formatId)}
+                            type="button"
                             role="option"
-                            aria-selected={isActive}
+                            aria-selected={isActive ? 'true' : 'false'}
                             tabIndex={isFocused ? 0 : -1}
                             onClick={() => handleFormatSelect(formatId)}
                             onKeyDown={handleKeyDown}
@@ -421,8 +445,8 @@ export function CanvasFormatSelector({ onFormatChange }: CanvasFormatSelectorPro
           <div className="bg-zinc-900/95 backdrop-blur-xl border border-white/10 rounded-3xl shadow-2xl p-5 sm:p-6 max-w-md w-full animate-in zoom-in-95 slide-in-from-bottom-4 duration-200">
             {/* Header with icon */}
             <div className="flex items-start gap-4 mb-4">
-              <div className="w-12 h-12 rounded-2xl bg-amber-500/20 flex items-center justify-center shrink-0">
-                <span className="material-icons text-amber-400 text-2xl">swap_horiz</span>
+              <div className="w-12 h-12 rounded-2xl bg-yellow-500/20 flex items-center justify-center shrink-0">
+                <span className="material-icons text-yellow-400 text-2xl">swap_horiz</span>
               </div>
               <div>
                 <h3 id="confirm-dialog-title" className="text-white font-bold text-lg">
@@ -478,24 +502,26 @@ export function CanvasFormatSelector({ onFormatChange }: CanvasFormatSelectorPro
 
             {/* Info note */}
             <p className="text-zinc-500 text-xs mb-5 flex items-start gap-2">
-              <span className="material-icons text-sm text-zinc-600 mt-0.5">info</span>
+              <span className="material-icons text-sm text-emerald-500 mt-0.5">auto_fix_high</span>
               <span>
-                Your design elements will be preserved but may need repositioning for the new dimensions.
+                Your elements will be automatically scaled and repositioned to safe zones for the new dimensions.
               </span>
             </p>
 
             {/* Actions */}
             <div className="flex gap-3">
               <button
+                type="button"
                 onClick={cancelFormatChange}
                 className={`${BTN_NEU_SOLID} flex-1 rounded-xl text-sm`}
               >
                 Cancel
               </button>
               <button
+                type="button"
                 onClick={confirmFormatChange}
                 autoFocus
-                className="flex-1 min-h-[44px] px-4 rounded-xl bg-gradient-to-br from-amber-500 to-orange-500 text-white font-bold text-sm uppercase tracking-wider hover:brightness-110 hover:scale-[1.02] active:scale-[0.98] transition-all shadow-lg shadow-amber-500/20"
+                className="flex-1 min-h-[44px] px-4 rounded-xl bg-gradient-to-br from-yellow-500 to-orange-500 text-white font-bold text-sm uppercase tracking-wider hover:brightness-110 hover:scale-[1.02] active:scale-[0.98] transition-all shadow-lg shadow-yellow-500/20"
               >
                 Change Format
               </button>

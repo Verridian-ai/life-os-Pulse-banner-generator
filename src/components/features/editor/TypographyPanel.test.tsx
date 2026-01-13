@@ -1,9 +1,34 @@
-import { describe, it, expect, vi } from 'vitest';
+import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/react';
 import '@testing-library/jest-dom';
 
 import { TypographyPanel } from './TypographyPanel';
 import type { BannerElement } from '@/types';
+import { CanvasStateProvider } from '@/context/canvas/CanvasStateContext';
+import { ElementsProvider } from '@/context/canvas/ElementsContext';
+import { ImageProvider } from '@/context/canvas/ImageContext';
+import { LayerProvider } from '@/context/canvas/LayerContext';
+import { HistoryProvider } from '@/context/canvas/HistoryContext';
+
+// Test wrapper with required providers
+const TestWrapper: React.FC<{ children: React.ReactNode }> = ({ children }) => (
+  <CanvasStateProvider>
+    <ElementsProvider>
+      <ImageProvider>
+        <LayerProvider>
+          <HistoryProvider>
+            {children}
+          </HistoryProvider>
+        </LayerProvider>
+      </ImageProvider>
+    </ElementsProvider>
+  </CanvasStateProvider>
+);
+
+// Custom render with provider
+const renderWithProvider = (ui: React.ReactElement) => {
+  return render(ui, { wrapper: TestWrapper });
+};
 
 describe('TypographyPanel', () => {
   const mockTextElement: BannerElement = {
@@ -32,9 +57,10 @@ describe('TypographyPanel', () => {
   });
 
   it('renders empty state when no element is selected', () => {
-    render(<TypographyPanel selectedElement={null} onUpdate={mockOnUpdate} />);
+    renderWithProvider(<TypographyPanel selectedElement={null} onUpdate={mockOnUpdate} />);
 
-    expect(screen.getByText(/select a text element to edit typography/i)).toBeInTheDocument();
+    // Component shows "Add Text" presets and a hint to select existing text
+    expect(screen.getByText(/select an existing text element to edit/i)).toBeInTheDocument();
   });
 
   it('renders empty state when non-text element is selected', () => {
@@ -46,23 +72,24 @@ describe('TypographyPanel', () => {
       y: 0,
     };
 
-    render(<TypographyPanel selectedElement={imageElement} onUpdate={mockOnUpdate} />);
+    renderWithProvider(<TypographyPanel selectedElement={imageElement} onUpdate={mockOnUpdate} />);
 
-    expect(screen.getByText(/select a text element to edit typography/i)).toBeInTheDocument();
+    // Component shows "Add Text" presets and a hint to select existing text
+    expect(screen.getByText(/select an existing text element to edit/i)).toBeInTheDocument();
   });
 
   it('renders typography controls when text element is selected', () => {
-    render(<TypographyPanel selectedElement={mockTextElement} onUpdate={mockOnUpdate} />);
+    renderWithProvider(<TypographyPanel selectedElement={mockTextElement} onUpdate={mockOnUpdate} />);
 
     expect(screen.getByText('Typography')).toBeInTheDocument();
     expect(screen.getByText('Font & Style')).toBeInTheDocument();
     expect(screen.getByText('Effects')).toBeInTheDocument();
-    expect(screen.getByText('Spacing & Transform')).toBeInTheDocument();
+    expect(screen.getByText('Spacing & Position')).toBeInTheDocument();
   });
 
   describe('Font Controls', () => {
     it('updates font family on selection', () => {
-      render(<TypographyPanel selectedElement={mockTextElement} onUpdate={mockOnUpdate} />);
+      renderWithProvider(<TypographyPanel selectedElement={mockTextElement} onUpdate={mockOnUpdate} />);
 
       const fontSelect = screen.getByLabelText('Font Family');
       fireEvent.change(fontSelect, { target: { value: 'Roboto' } });
@@ -71,16 +98,17 @@ describe('TypographyPanel', () => {
     });
 
     it('updates font size via slider', () => {
-      render(<TypographyPanel selectedElement={mockTextElement} onUpdate={mockOnUpdate} />);
+      renderWithProvider(<TypographyPanel selectedElement={mockTextElement} onUpdate={mockOnUpdate} />);
 
-      const sizeSlider = screen.getByLabelText(/size: 24px/i);
+      // The font size slider has label "Size (px)"
+      const sizeSlider = screen.getByLabelText(/size \(px\)/i);
       fireEvent.change(sizeSlider, { target: { value: '48' } });
 
       expect(mockOnUpdate).toHaveBeenCalledWith({ fontSize: 48 });
     });
 
     it('updates font weight via dropdown', () => {
-      render(<TypographyPanel selectedElement={mockTextElement} onUpdate={mockOnUpdate} />);
+      renderWithProvider(<TypographyPanel selectedElement={mockTextElement} onUpdate={mockOnUpdate} />);
 
       const weightSelect = screen.getByLabelText('Weight');
       fireEvent.change(weightSelect, { target: { value: '700' } });
@@ -89,7 +117,7 @@ describe('TypographyPanel', () => {
     });
 
     it('toggles bold style', () => {
-      render(<TypographyPanel selectedElement={mockTextElement} onUpdate={mockOnUpdate} />);
+      renderWithProvider(<TypographyPanel selectedElement={mockTextElement} onUpdate={mockOnUpdate} />);
 
       const boldButton = screen.getByLabelText('Toggle bold');
       fireEvent.click(boldButton);
@@ -98,7 +126,7 @@ describe('TypographyPanel', () => {
     });
 
     it('toggles italic style', () => {
-      render(<TypographyPanel selectedElement={mockTextElement} onUpdate={mockOnUpdate} />);
+      renderWithProvider(<TypographyPanel selectedElement={mockTextElement} onUpdate={mockOnUpdate} />);
 
       const italicButton = screen.getByLabelText('Toggle italic');
       fireEvent.click(italicButton);
@@ -107,7 +135,7 @@ describe('TypographyPanel', () => {
     });
 
     it('toggles underline decoration', () => {
-      render(<TypographyPanel selectedElement={mockTextElement} onUpdate={mockOnUpdate} />);
+      renderWithProvider(<TypographyPanel selectedElement={mockTextElement} onUpdate={mockOnUpdate} />);
 
       const underlineButton = screen.getByLabelText('Toggle underline');
       fireEvent.click(underlineButton);
@@ -118,7 +146,7 @@ describe('TypographyPanel', () => {
 
   describe('Color Controls', () => {
     it('updates text color via color picker', () => {
-      render(<TypographyPanel selectedElement={mockTextElement} onUpdate={mockOnUpdate} />);
+      renderWithProvider(<TypographyPanel selectedElement={mockTextElement} onUpdate={mockOnUpdate} />);
 
       const colorPicker = screen.getByLabelText('Color');
       fireEvent.change(colorPicker, { target: { value: '#ff0000' } });
@@ -127,7 +155,7 @@ describe('TypographyPanel', () => {
     });
 
     it('updates opacity via slider', () => {
-      render(<TypographyPanel selectedElement={mockTextElement} onUpdate={mockOnUpdate} />);
+      renderWithProvider(<TypographyPanel selectedElement={mockTextElement} onUpdate={mockOnUpdate} />);
 
       const opacitySlider = screen.getByLabelText(/opacity: 100%/i);
       fireEvent.change(opacitySlider, { target: { value: '50' } });
@@ -146,7 +174,7 @@ describe('TypographyPanel', () => {
         textShadowColor: '#000000',
       };
 
-      render(<TypographyPanel selectedElement={elementWithShadow} onUpdate={mockOnUpdate} />);
+      renderWithProvider(<TypographyPanel selectedElement={elementWithShadow} onUpdate={mockOnUpdate} />);
 
       // Effects section is expanded by default
       expect(screen.getByText('Shadow')).toBeInTheDocument();
@@ -165,7 +193,7 @@ describe('TypographyPanel', () => {
         textStrokeStyle: 'solid' as const,
       };
 
-      render(<TypographyPanel selectedElement={elementWithStroke} onUpdate={mockOnUpdate} />);
+      renderWithProvider(<TypographyPanel selectedElement={elementWithStroke} onUpdate={mockOnUpdate} />);
 
       // Effects section is expanded by default
       expect(screen.getByText('Stroke')).toBeInTheDocument();
@@ -173,12 +201,12 @@ describe('TypographyPanel', () => {
     });
   });
 
-  describe('Spacing & Transform Controls', () => {
+  describe('Spacing & Position Controls', () => {
     it('updates letter spacing', () => {
-      render(<TypographyPanel selectedElement={mockTextElement} onUpdate={mockOnUpdate} />);
+      renderWithProvider(<TypographyPanel selectedElement={mockTextElement} onUpdate={mockOnUpdate} />);
 
       // Expand spacing section
-      const spacingButton = screen.getByText('Spacing & Transform');
+      const spacingButton = screen.getByText('Spacing & Position');
       fireEvent.click(spacingButton);
 
       const letterSpacingSlider = screen.getByLabelText(/letter spacing:/i);
@@ -188,10 +216,10 @@ describe('TypographyPanel', () => {
     });
 
     it('updates text transform', () => {
-      render(<TypographyPanel selectedElement={mockTextElement} onUpdate={mockOnUpdate} />);
+      renderWithProvider(<TypographyPanel selectedElement={mockTextElement} onUpdate={mockOnUpdate} />);
 
       // Expand spacing section
-      const spacingButton = screen.getByText('Spacing & Transform');
+      const spacingButton = screen.getByText('Spacing & Position');
       fireEvent.click(spacingButton);
 
       const uppercaseButton = screen.getByTitle('Uppercase');
@@ -201,10 +229,10 @@ describe('TypographyPanel', () => {
     });
 
     it('updates text alignment', () => {
-      render(<TypographyPanel selectedElement={mockTextElement} onUpdate={mockOnUpdate} />);
+      renderWithProvider(<TypographyPanel selectedElement={mockTextElement} onUpdate={mockOnUpdate} />);
 
       // Expand spacing section
-      const spacingButton = screen.getByText('Spacing & Transform');
+      const spacingButton = screen.getByText('Spacing & Position');
       fireEvent.click(spacingButton);
 
       const centerButton = screen.getByTitle('Center');
@@ -216,7 +244,7 @@ describe('TypographyPanel', () => {
 
   describe('Section Toggle', () => {
     it('toggles font section visibility', () => {
-      render(<TypographyPanel selectedElement={mockTextElement} onUpdate={mockOnUpdate} />);
+      renderWithProvider(<TypographyPanel selectedElement={mockTextElement} onUpdate={mockOnUpdate} />);
 
       const fontButton = screen.getByText('Font & Style');
 
@@ -233,7 +261,7 @@ describe('TypographyPanel', () => {
     });
 
     it('toggles effects section visibility', () => {
-      render(<TypographyPanel selectedElement={mockTextElement} onUpdate={mockOnUpdate} />);
+      renderWithProvider(<TypographyPanel selectedElement={mockTextElement} onUpdate={mockOnUpdate} />);
 
       const effectsButton = screen.getByText('Effects');
 
@@ -252,14 +280,16 @@ describe('TypographyPanel', () => {
 
   describe('Accessibility', () => {
     it('provides accessible labels for sliders', () => {
-      render(<TypographyPanel selectedElement={mockTextElement} onUpdate={mockOnUpdate} />);
+      renderWithProvider(<TypographyPanel selectedElement={mockTextElement} onUpdate={mockOnUpdate} />);
 
-      expect(screen.getByLabelText(/size: 24px/i)).toBeInTheDocument();
+      // Font size slider has label "Size (px)"
+      expect(screen.getByLabelText(/size \(px\)/i)).toBeInTheDocument();
+      // Opacity slider has label "Opacity: 100%"
       expect(screen.getByLabelText(/opacity: 100%/i)).toBeInTheDocument();
     });
 
     it('provides accessible button labels', () => {
-      render(<TypographyPanel selectedElement={mockTextElement} onUpdate={mockOnUpdate} />);
+      renderWithProvider(<TypographyPanel selectedElement={mockTextElement} onUpdate={mockOnUpdate} />);
 
       expect(screen.getByLabelText('Toggle bold')).toBeInTheDocument();
       expect(screen.getByLabelText('Toggle italic')).toBeInTheDocument();
@@ -267,14 +297,14 @@ describe('TypographyPanel', () => {
     });
 
     it('shows accessibility tip for color contrast', () => {
-      render(<TypographyPanel selectedElement={mockTextElement} onUpdate={mockOnUpdate} />);
+      renderWithProvider(<TypographyPanel selectedElement={mockTextElement} onUpdate={mockOnUpdate} />);
 
       expect(screen.getByText(/ensure sufficient color contrast/i)).toBeInTheDocument();
       expect(screen.getByText(/WCAG AA: 4.5:1/i)).toBeInTheDocument();
     });
 
     it('uses aria-pressed for toggle buttons', () => {
-      render(<TypographyPanel selectedElement={mockTextElement} onUpdate={mockOnUpdate} />);
+      renderWithProvider(<TypographyPanel selectedElement={mockTextElement} onUpdate={mockOnUpdate} />);
 
       const boldButton = screen.getByLabelText('Toggle bold');
       expect(boldButton).toHaveAttribute('aria-pressed', 'false');
@@ -287,7 +317,7 @@ describe('TypographyPanel', () => {
   describe('Visual States', () => {
     it('highlights active bold button when weight >= 700', () => {
       const boldElement = { ...mockTextElement, fontWeight: '700' };
-      render(<TypographyPanel selectedElement={boldElement} onUpdate={mockOnUpdate} />);
+      renderWithProvider(<TypographyPanel selectedElement={boldElement} onUpdate={mockOnUpdate} />);
 
       const boldButton = screen.getByLabelText('Toggle bold');
       expect(boldButton).toHaveClass('bg-purple-500/30');
@@ -296,7 +326,7 @@ describe('TypographyPanel', () => {
 
     it('highlights active italic button', () => {
       const italicElement = { ...mockTextElement, fontStyle: 'italic' };
-      render(<TypographyPanel selectedElement={italicElement} onUpdate={mockOnUpdate} />);
+      renderWithProvider(<TypographyPanel selectedElement={italicElement} onUpdate={mockOnUpdate} />);
 
       const italicButton = screen.getByLabelText('Toggle italic');
       expect(italicButton).toHaveClass('bg-purple-500/30');
@@ -305,7 +335,7 @@ describe('TypographyPanel', () => {
 
     it('highlights active underline button', () => {
       const underlinedElement = { ...mockTextElement, textDecoration: 'underline' };
-      render(<TypographyPanel selectedElement={underlinedElement} onUpdate={mockOnUpdate} />);
+      renderWithProvider(<TypographyPanel selectedElement={underlinedElement} onUpdate={mockOnUpdate} />);
 
       const underlineButton = screen.getByLabelText('Toggle underline');
       expect(underlineButton).toHaveClass('bg-purple-500/30');
@@ -314,10 +344,10 @@ describe('TypographyPanel', () => {
 
     it('highlights active text transform button', () => {
       const uppercaseElement = { ...mockTextElement, textTransform: 'uppercase' as const };
-      render(<TypographyPanel selectedElement={uppercaseElement} onUpdate={mockOnUpdate} />);
+      renderWithProvider(<TypographyPanel selectedElement={uppercaseElement} onUpdate={mockOnUpdate} />);
 
       // Expand spacing section
-      const spacingButton = screen.getByText('Spacing & Transform');
+      const spacingButton = screen.getByText('Spacing & Position');
       fireEvent.click(spacingButton);
 
       const uppercaseButton = screen.getByTitle('Uppercase');
@@ -326,10 +356,10 @@ describe('TypographyPanel', () => {
 
     it('highlights active text alignment button', () => {
       const centeredElement = { ...mockTextElement, textAlign: 'center' as const };
-      render(<TypographyPanel selectedElement={centeredElement} onUpdate={mockOnUpdate} />);
+      renderWithProvider(<TypographyPanel selectedElement={centeredElement} onUpdate={mockOnUpdate} />);
 
       // Expand spacing section
-      const spacingButton = screen.getByText('Spacing & Transform');
+      const spacingButton = screen.getByText('Spacing & Position');
       fireEvent.click(spacingButton);
 
       const centerButton = screen.getByTitle('Center');

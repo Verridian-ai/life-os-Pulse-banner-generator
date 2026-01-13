@@ -1,0 +1,149 @@
+{
+  "sampleContent": {
+    "id": "tt-001",
+    "userId": "user-001",
+    "coverUrl": "/samples/tiktok-cover.png",
+    "caption": "POV: You discover the AI tool that does your design work 🤯",
+    "hashtags": ["AI", "productivity", "techtok", "designtok", "fyp"],
+    "soundId": "sound-001",
+    "soundName": "Oh No - Kreepa",
+    "viralScore": {
+      "overall": 72,
+      "fypPotential": 68,
+      "factors": [
+        {
+          "id": "hook",
+          "name": "Hook Strength",
+          "score": 85,
+          "maxScore": 100,
+          "weight": 0.30,
+          "suggestion": "Strong POV format - high retention expected"
+        },
+        {
+          "id": "trend",
+          "name": "Trend Alignment",
+          "score": 70,
+          "maxScore": 100,
+          "weight": 0.25,
+          "suggestion": "Sound is popular but not oversaturated"
+        },
+        {
+          "id": "watch_time",
+          "name": "Watch Time Prediction",
+          "score": 75,
+          "maxScore": 100,
+          "weight": 0.25,
+          "suggestion": "Keep video under 30 seconds for completion"
+        },
+        {
+          "id": "engagement",
+          "name": "Engagement Drivers",
+          "score": 60,
+          "maxScore": 100,
+          "weight": 0.20,
+          "suggestion": "Add a question or CTA for comments"
+        }
+      ],
+      "suggestions": [
+        "Add text hook in first 0.5 seconds",
+        "Use pattern interrupt (jump cut, zoom)",
+        "End with a question to drive comments",
+        "Hashtag mix looks good - consider adding 1 trending"
+      ],
+      "optimalPostTime": "2024-01-10T19:00:00Z"
+    },
+    "status": "draft"
+  },
+  "format": {
+    "width": 1080,
+    "height": 1920,
+    "aspectRatio": "9:16"
+  },
+  "viralFactors": [
+    {
+      "id": "hook",
+      "name": "Hook Strength",
+      "weight": 0.30,
+      "description": "First 3 seconds retention"
+    },
+    {
+      "id": "trend",
+      "name": "Trend Alignment",
+      "weight": 0.25,
+      "description": "Sound and hashtag trends"
+    },
+    {
+      "id": "watch_time",
+      "name": "Watch Time Prediction",
+      "weight": 0.25,
+      "description": "Completion rate estimate"
+    },
+    {
+      "id": "engagement",
+      "name": "Engagement Drivers",
+      "weight": 0.20,
+      "description": "Comments, shares, saves"
+    }
+  ],
+  "trendingSounds": [
+    {
+      "id": "sound-001",
+      "name": "Oh No",
+      "artist": "Kreepa",
+      "usageCount": 2500000,
+      "trend": "stable",
+      "previewUrl": "/sounds/oh-no.mp3",
+      "duration": 15,
+      "category": "comedy"
+    },
+    {
+      "id": "sound-002",
+      "name": "Original Sound",
+      "artist": "TechCreator",
+      "usageCount": 45000,
+      "trend": "rising",
+      "previewUrl": "/sounds/original.mp3",
+      "duration": 30,
+      "category": "educational"
+    }
+  ],
+  "trendingHashtags": [
+    {
+      "tag": "fyp",
+      "views": 35000000000000,
+      "trend": "stable",
+      "category": "general"
+    },
+    {
+      "tag": "techtok",
+      "views": 45000000000,
+      "trend": "rising",
+      "category": "niche"
+    },
+    {
+      "tag": "AI",
+      "views": 25000000000,
+      "trend": "rising",
+      "category": "topic"
+    }
+  ],
+  "contentFormats": [
+    { "id": "tutorial", "name": "Tutorial", "description": "Step-by-step how-to" },
+    { "id": "pov", "name": "POV", "description": "Point of view storytelling" },
+    { "id": "storytime", "name": "Storytime", "description": "Personal story narration" },
+    { "id": "transition", "name": "Transition", "description": "Visual transformation" },
+    { "id": "duet", "name": "Duet", "description": "React to another video" },
+    { "id": "stitch", "name": "Stitch", "description": "Add to another video" },
+    { "id": "greenscreen", "name": "Green Screen", "description": "Custom background" },
+    { "id": "challenge", "name": "Challenge", "description": "Participate in trend" }
+  ],
+  "hookTypes": [
+    "POV: [scenario]",
+    "Things I wish I knew about [topic]",
+    "This changed my [area] forever",
+    "Stop [common mistake]",
+    "3 [things] that will [benefit]",
+    "Day [N] of [challenge]",
+    "[Topic] but make it [twist]"
+  ]
+}

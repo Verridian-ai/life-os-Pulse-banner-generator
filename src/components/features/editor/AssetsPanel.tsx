@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import { useCanvas } from '../../../context/CanvasContext';
 import { BTN_NEU_SOLID } from '../../../styles';
 import { ProfileEditorModal } from './ProfileEditorModal';
-import ImageGallery from '../ImageGallery';
 import { useAuth } from '../../../context/AuthContext';
 import { persistFileToGallery } from '../../../utils/imagePersistence';
 
@@ -20,26 +19,6 @@ const AssetsPanel: React.FC = () => {
   } = useCanvas();
   const { authUser } = useAuth();
   const [showProfileEditor, setShowProfileEditor] = useState(false);
-  const [showGallery, setShowGallery] = useState(false);
-  const [galleryMode, setGalleryMode] = useState<'background' | 'element'>('background');
-
-  const handleGallerySelect = (url: string) => {
-    if (galleryMode === 'background') {
-      setBgImage(url);
-    } else {
-      addElement({
-        id: Date.now().toString(),
-        type: 'image',
-        content: url,
-        x: 100,
-        y: 100,
-        width: 300,
-        height: 300,
-        rotation: 0,
-      });
-    }
-    setShowGallery(false);
-  };
 
   const handleLocalUploadEnhanced = async (e: React.ChangeEvent<HTMLInputElement>, type: 'background' | 'ref' | 'profile') => {
     const file = e.target.files?.[0];
@@ -89,20 +68,20 @@ const AssetsPanel: React.FC = () => {
 
   return (
     <>
-      <div className='bg-zinc-900/40 backdrop-blur-md p-6 rounded-3xl border border-white/10 shadow-xl flex flex-col relative group'>
-        <div className='absolute inset-0 bg-gradient-to-br from-blue-500/5 to-transparent rounded-3xl pointer-events-none opacity-0 group-hover:opacity-100 transition duration-500'></div>
+      <div className='bg-zinc-900/40 backdrop-blur-md p-3 sm:p-4 md:p-6 rounded-2xl md:rounded-3xl border border-white/10 shadow-xl flex flex-col relative group'>
+        <div className='absolute inset-0 bg-gradient-to-br from-blue-500/5 to-transparent rounded-2xl md:rounded-3xl pointer-events-none opacity-0 group-hover:opacity-100 transition duration-500'></div>
         {isProcessingImg && (
-          <div className='absolute inset-0 bg-black/60 z-20 rounded-3xl flex items-center justify-center text-xs text-white font-bold backdrop-blur-sm'>
+          <div className='absolute inset-0 bg-black/60 z-20 rounded-2xl md:rounded-3xl flex items-center justify-center text-xs text-white font-bold backdrop-blur-sm'>
             <span className='animate-pulse'>OPTIMIZING...</span>
           </div>
         )}
 
-        <div className='flex items-center justify-between mb-6 relative z-10'>
-          <h3 className='font-black text-sm uppercase tracking-wider text-white flex items-center gap-2 drop-shadow-sm'>
-            <span className='material-icons text-blue-400'>inventory_2</span>
+        <div className='flex items-center justify-between mb-3 sm:mb-4 md:mb-6 relative z-10'>
+          <h3 className='font-black text-xs sm:text-sm uppercase tracking-wider text-white flex items-center gap-2 drop-shadow-sm'>
+            <span className='material-icons text-blue-400 text-lg sm:text-xl'>inventory_2</span>
             Assets
           </h3>
-          <span className='text-[9px] font-bold uppercase tracking-widest bg-white/10 border border-white/5 px-2 py-1 rounded-md text-zinc-400'>
+          <span className='text-[8px] sm:text-[9px] font-bold uppercase tracking-widest bg-white/10 border border-white/5 px-1.5 sm:px-2 py-0.5 sm:py-1 rounded-md text-zinc-400'>
             Uploads
           </span>
         </div>
@@ -113,51 +92,35 @@ const AssetsPanel: React.FC = () => {
             <label className='block text-[10px] font-bold text-zinc-500 mb-3 uppercase tracking-widest'>
               Canvas Background
             </label>
-            <div className='flex gap-2'>
-              <label
-                className={`flex-1 flex items-center justify-center gap-2 py-3 px-4 rounded-xl cursor-pointer transition ${BTN_NEU_SOLID} group/bg`}
-              >
-                <span className='material-icons text-zinc-400 group-hover/bg:text-white transition'>
-                  add_photo_alternate
-                </span>
-                <span className='text-xs font-bold text-zinc-400 group-hover/bg:text-white transition uppercase tracking-wider'>
-                  Upload
-                </span>
-                <input
-                  type='file'
-                  id='bg-upload'
-                  aria-label='Upload background image'
-                  accept='image/*'
-                  className='hidden'
-                  onChange={(e) => handleLocalUploadEnhanced(e, 'background')}
-                />
-              </label>
-              <button
-                onClick={() => {
-                  setGalleryMode('background');
-                  setShowGallery(true);
-                }}
-                className={`flex-1 flex items-center justify-center gap-2 py-3 px-4 rounded-xl cursor-pointer transition ${BTN_NEU_SOLID} group/gal`}
-              >
-                <span className='material-icons text-zinc-400 group-hover/gal:text-white transition'>
-                  collections
-                </span>
-                <span className='text-xs font-bold text-zinc-400 group-hover/gal:text-white transition uppercase tracking-wider'>
-                  Gallery
-                </span>
-              </button>
-            </div>
+            <label
+              className={`w-full flex items-center justify-center gap-2 py-2.5 sm:py-3 px-3 sm:px-4 rounded-xl cursor-pointer transition ${BTN_NEU_SOLID} group/bg`}
+            >
+              <span className='material-icons text-zinc-400 group-hover/bg:text-white transition text-lg sm:text-xl'>
+                add_photo_alternate
+              </span>
+              <span className='text-[10px] sm:text-xs font-bold text-zinc-400 group-hover/bg:text-white transition uppercase tracking-wider'>
+                Upload Background
+              </span>
+              <input
+                type='file'
+                id='bg-upload'
+                aria-label='Upload background image'
+                accept='image/*'
+                className='hidden'
+                onChange={(e) => handleLocalUploadEnhanced(e, 'background')}
+              />
+            </label>
           </div>
 
           <div>
-            <label className='block text-[10px] font-bold text-zinc-500 mb-3 uppercase tracking-widest'>
+            <label className='block text-[9px] sm:text-[10px] font-bold text-zinc-500 mb-2 sm:mb-3 uppercase tracking-widest'>
               Logos
             </label>
-            <div className='grid grid-cols-4 gap-2'>
+            <div className='grid grid-cols-3 sm:grid-cols-4 gap-1.5 sm:gap-2'>
               {refImages.map((img: string, idx: number) => (
                 <div
                   key={idx}
-                  className='relative group/item aspect-square rounded-xl overflow-hidden border border-white/10 bg-black/50'
+                  className='relative group/item aspect-square rounded-lg sm:rounded-xl overflow-hidden border border-white/10 bg-black/50'
                 >
                   <img src={img} alt='logo' className='w-full h-full object-cover' />
                   <div className='absolute inset-0 bg-black/80 opacity-0 group-hover/item:opacity-100 flex flex-col gap-1 items-center justify-center transition-all'>
@@ -168,24 +131,24 @@ const AssetsPanel: React.FC = () => {
                           id: Date.now().toString(),
                           type: 'image',
                           content: img,
-                          x: 1350, // Safe Spot X (Top Right)
-                          y: 40, // Safe Spot Y
+                          x: 1350,
+                          y: 40,
                           width: 150,
                           height: 150,
                           rotation: 0,
                         })
                       }
-                      className='min-h-[44px] text-[9px] sm:text-[10px] font-black uppercase tracking-wide bg-purple-600 text-white px-3 py-2 rounded-lg hover:scale-105 active:scale-95 transition shadow-lg touch-manipulation'
+                      className='min-h-[36px] sm:min-h-[44px] text-[8px] sm:text-[10px] font-black uppercase tracking-wide bg-purple-600 text-white px-2 sm:px-3 py-1.5 sm:py-2 rounded-lg hover:scale-105 active:scale-95 transition shadow-lg touch-manipulation'
                     >
-                      Place Logo
+                      Place
                     </button>
                   </div>
                 </div>
               ))}
               <label
-                className={`flex flex-col items-center justify-center h-full min-h-[60px] rounded-xl cursor-pointer transition aspect-square group/add ${BTN_NEU_SOLID}`}
+                className={`flex flex-col items-center justify-center h-full min-h-[50px] sm:min-h-[60px] rounded-lg sm:rounded-xl cursor-pointer transition aspect-square group/add ${BTN_NEU_SOLID}`}
               >
-                <span className='material-icons text-zinc-500 group-hover/add:text-white transition'>
+                <span className='material-icons text-zinc-500 group-hover/add:text-white transition text-lg sm:text-xl'>
                   add
                 </span>
                 <input
@@ -198,26 +161,14 @@ const AssetsPanel: React.FC = () => {
                   accept='image/*'
                 />
               </label>
-              <button
-                onClick={() => {
-                  setGalleryMode('element');
-                  setShowGallery(true);
-                }}
-                className={`flex flex-col items-center justify-center h-full min-h-[60px] rounded-xl cursor-pointer transition aspect-square group/add ${BTN_NEU_SOLID}`}
-                title="Select from Gallery"
-              >
-                <span className='material-icons text-zinc-500 group-hover/add:text-white transition'>
-                  collections
-                </span>
-              </button>
             </div>
           </div>
 
-          <div className='pt-4 border-t border-white/10 mb-4'>
-            <label className='block text-[10px] font-bold text-zinc-500 mb-3 uppercase tracking-widest'>
-              Logos & Image Overlays
+          <div className='pt-3 sm:pt-4 border-t border-white/10 mb-3 sm:mb-4'>
+            <label className='block text-[9px] sm:text-[10px] font-bold text-zinc-500 mb-2 sm:mb-3 uppercase tracking-widest'>
+              Image Overlays
             </label>
-            <div className='grid grid-cols-4 gap-2'>
+            <div className='grid grid-cols-3 sm:grid-cols-4 gap-1.5 sm:gap-2'>
               {/* Reference Images List */}
               {refImages.map((img, i) => (
                 <div
@@ -227,7 +178,7 @@ const AssetsPanel: React.FC = () => {
                   <img
                     src={img}
                     alt='ref'
-                    className='w-full h-full object-contain p-2 opacity-70 group-hover:opacity-100 transition'
+                    className='w-full h-full object-contain p-1.5 sm:p-2 opacity-70 group-hover:opacity-100 transition'
                   />
                   <div
                     className='absolute inset-0 bg-black/80 flex items-center justify-center opacity-0 group-hover:opacity-100 transition backdrop-blur-sm cursor-pointer'
@@ -236,8 +187,8 @@ const AssetsPanel: React.FC = () => {
                         id: Date.now().toString(),
                         type: 'image',
                         content: img,
-                        x: 1350, // Safe Spot X (Top Right)
-                        y: 40, // Safe Spot Y
+                        x: 1350,
+                        y: 40,
                         width: 150,
                         height: 150,
                         rotation: 0,
@@ -246,7 +197,7 @@ const AssetsPanel: React.FC = () => {
                   >
                     <button
                       type='button'
-                      className='min-h-[44px] text-[9px] sm:text-[10px] font-black uppercase tracking-wide bg-purple-600 text-white px-3 py-2 rounded-lg hover:scale-105 active:scale-95 transition shadow-lg touch-manipulation'
+                      className='min-h-[36px] sm:min-h-[44px] text-[8px] sm:text-[10px] font-black uppercase tracking-wide bg-purple-600 text-white px-2 sm:px-3 py-1.5 sm:py-2 rounded-lg hover:scale-105 active:scale-95 transition shadow-lg touch-manipulation'
                     >
                       Place
                     </button>
@@ -254,9 +205,9 @@ const AssetsPanel: React.FC = () => {
                 </div>
               ))}
               <label
-                className={`flex flex-col items-center justify-center h-full min-h-[60px] rounded-xl cursor-pointer transition aspect-square group/add ${BTN_NEU_SOLID}`}
+                className={`flex flex-col items-center justify-center h-full min-h-[50px] sm:min-h-[60px] rounded-lg sm:rounded-xl cursor-pointer transition aspect-square group/add ${BTN_NEU_SOLID}`}
               >
-                <span className='material-icons text-zinc-500 group-hover/add:text-white transition'>
+                <span className='material-icons text-zinc-500 group-hover/add:text-white transition text-lg sm:text-xl'>
                   add
                 </span>
                 <input
@@ -306,6 +257,7 @@ const AssetsPanel: React.FC = () => {
               {/* New Perfect & Edit Trigger */}
               {profilePic && (
                 <button
+                  type="button"
                   onClick={() => setShowProfileEditor(true)}
                   className='w-full py-2 mt-2 bg-gradient-to-r from-blue-900/50 to-purple-900/50 border border-blue-500/30 hover:border-blue-400 text-blue-200 hover:text-white rounded-lg text-[10px] font-black uppercase tracking-wider transition flex items-center justify-center gap-2 shadow-lg group-hover:shadow-blue-500/20'
                 >
@@ -379,25 +331,6 @@ const AssetsPanel: React.FC = () => {
         initialImage={profilePic}
       />
 
-      {/* Gallery Selection Modal */}
-      {showGallery && (
-        <div className="fixed inset-0 z-[100] bg-black/90 flex items-center justify-center p-4">
-          <div className="bg-zinc-900 w-full max-w-5xl max-h-[85vh] rounded-2xl border border-zinc-800 flex flex-col overflow-hidden shadow-2xl">
-            <div className="p-4 border-b border-zinc-800 flex justify-between items-center bg-zinc-900/50 backdrop-blur-md">
-              <h3 className="text-lg font-bold text-white flex items-center gap-2">
-                <span className='material-icons text-blue-400'>collections</span>
-                Select Image
-              </h3>
-              <button onClick={() => setShowGallery(false)} className="text-zinc-400 hover:text-white transition">
-                <span className="material-icons">close</span>
-              </button>
-            </div>
-            <div className="flex-1 overflow-y-auto bg-black/20">
-              <ImageGallery embedded onSelect={handleGallerySelect} onNavigateToStudio={() => setShowGallery(false)} />
-            </div>
-          </div>
-        </div>
-      )}
     </>
   );
 };

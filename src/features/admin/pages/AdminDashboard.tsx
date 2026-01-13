@@ -62,7 +62,7 @@ export function AdminDashboard(): React.ReactElement {
                                 label="Today's Requests"
                                 value={stats?.today.totalRequests ?? 0}
                                 icon="trending_up"
-                                color="amber"
+                                color="yellow"
                             />
                         </div>
                     )}
@@ -92,9 +92,8 @@ export function AdminDashboard(): React.ReactElement {
                                 </div>
                                 <div>
                                     <p className="text-zinc-500 text-sm">Errors</p>
-                                    <p className={`text-2xl font-bold ${
-                                        stats.today.errorCount > 0 ? 'text-red-400' : 'text-green-400'
-                                    }`}>
+                                    <p className={`text-2xl font-bold ${stats.today.errorCount > 0 ? 'text-red-400' : 'text-green-400'
+                                        }`}>
                                         {stats.today.errorCount}
                                     </p>
                                 </div>
@@ -138,20 +137,20 @@ function StatCard({
     label: string;
     value: number;
     icon: string;
-    color: 'purple' | 'blue' | 'green' | 'amber';
+    color: 'purple' | 'blue' | 'green' | 'yellow';
 }): React.ReactElement {
     const colors = {
         purple: 'from-purple-600/20 to-purple-600/5 border-purple-500/20',
         blue: 'from-blue-600/20 to-blue-600/5 border-blue-500/20',
         green: 'from-green-600/20 to-green-600/5 border-green-500/20',
-        amber: 'from-amber-600/20 to-amber-600/5 border-amber-500/20',
+        yellow: 'from-yellow-500/20 to-yellow-500/5 border-yellow-500/20',
     };
 
     const iconColors = {
         purple: 'text-purple-400',
         blue: 'text-blue-400',
         green: 'text-green-400',
-        amber: 'text-amber-400',
+        yellow: 'text-yellow-400',
     };
 
     return (

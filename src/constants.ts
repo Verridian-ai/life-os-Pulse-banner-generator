@@ -118,17 +118,37 @@ export const LINKEDIN_CANVAS_PRESETS: LinkedInCanvasPreset[] = [
 // ============================================================================
 
 export type CanvasFormatId =
+  // LinkedIn
   | 'linkedin_banner'
   | 'linkedin_post'
+  | 'linkedin_portrait'
+  | 'linkedin_company_banner'
+  | 'linkedin_carousel'
+  // Facebook
   | 'facebook_cover'
   | 'facebook_post'
+  | 'facebook_event'
+  | 'facebook_group'
+  | 'facebook_story'
+  // X (Twitter)
   | 'x_header'
   | 'x_post'
+  | 'x_profile'
+  | 'x_card'
+  // Instagram
   | 'instagram_post'
   | 'instagram_story'
   | 'instagram_avatar'
+  | 'instagram_reels'
+  | 'instagram_portrait'
+  // YouTube
   | 'youtube_banner'
-  | 'youtube_thumbnail';
+  | 'youtube_thumbnail'
+  | 'youtube_shorts'
+  | 'youtube_endscreen'
+  // TikTok
+  | 'tiktok_video'
+  | 'tiktok_profile';
 
 export type SafeZoneType = 'rect' | 'circle';
 
@@ -146,8 +166,8 @@ export interface SafeZoneConfig {
 export interface CanvasFormat {
   id: CanvasFormatId;
   name: string;
-  platform: 'linkedin' | 'facebook' | 'x' | 'instagram' | 'youtube';
-  category: 'banner' | 'post' | 'story' | 'avatar';
+  platform: 'linkedin' | 'facebook' | 'x' | 'instagram' | 'youtube' | 'tiktok';
+  category: 'banner' | 'post' | 'story' | 'avatar' | 'carousel' | 'card';
   width: number;
   height: number;
   aspectRatio: string;
@@ -168,12 +188,22 @@ export const CANVAS_FORMATS: Record<CanvasFormatId, CanvasFormat> = {
     aspectRatio: '4:1',
     safeZones: [
       {
-        type: 'rect',
-        x: 0,
-        y: 132,
-        width: 568,
-        height: 264,
+        type: 'circle',
+        x: 306, // 19.31% of 1584
+        y: 396, // 100% of 396
+        width: 524,
+        height: 524,
+        radius: 262, // 524 / 2
         label: 'Profile Picture Zone',
+      },
+      {
+        type: 'rect',
+        x: 600,
+        y: 50,
+        width: 900,
+        height: 296,
+        label: 'Text-Safe Area',
+        color: 'rgba(34, 197, 94, 0.15)',
       },
     ],
     description: 'Personal profile header image',
@@ -191,6 +221,60 @@ export const CANVAS_FORMATS: Record<CanvasFormatId, CanvasFormat> = {
     description: 'Feed post image (1.91:1)',
     icon: 'article',
   },
+  linkedin_portrait: {
+    id: 'linkedin_portrait',
+    name: 'LinkedIn Portrait',
+    platform: 'linkedin',
+    category: 'post',
+    width: 1080,
+    height: 1350,
+    aspectRatio: '4:5',
+    safeZones: [],
+    description: 'Portrait feed post (maximum engagement - 75% screen)',
+    icon: 'crop_portrait',
+  },
+  linkedin_company_banner: {
+    id: 'linkedin_company_banner',
+    name: 'LinkedIn Company Banner',
+    platform: 'linkedin',
+    category: 'banner',
+    width: 1128,
+    height: 191,
+    aspectRatio: '5.9:1',
+    safeZones: [
+      {
+        type: 'rect',
+        x: 0,
+        y: 0,
+        width: 200,
+        height: 191,
+        label: 'Logo Overlap Zone',
+      },
+    ],
+    description: 'Company page header image',
+    icon: 'business',
+  },
+  linkedin_carousel: {
+    id: 'linkedin_carousel',
+    name: 'LinkedIn Carousel',
+    platform: 'linkedin',
+    category: 'carousel',
+    width: 1080,
+    height: 1350,
+    aspectRatio: '4:5',
+    safeZones: [
+      {
+        type: 'rect',
+        x: 0,
+        y: 1300,
+        width: 1080,
+        height: 50,
+        label: 'Navigation Dots',
+      },
+    ],
+    description: 'Document/carousel slide (4:5 portrait for max engagement)',
+    icon: 'view_carousel',
+  },
 
   // Facebook Formats
   facebook_cover: {
@@ -198,25 +282,26 @@ export const CANVAS_FORMATS: Record<CanvasFormatId, CanvasFormat> = {
     name: 'Facebook Cover',
     platform: 'facebook',
     category: 'banner',
-    width: 820,
-    height: 360, // Official Facebook cover dimensions
-    aspectRatio: '2.28:1',
+    width: 851,
+    height: 315, // Official Facebook cover dimensions (851x315 px)
+    aspectRatio: '2.7:1',
     safeZones: [
       {
-        // Profile pic overlap on desktop (~200px from left)
-        type: 'rect',
-        x: 0,
-        y: 0,
-        width: 170,
-        height: 360,
-        label: 'Profile Overlap (Desktop)',
+        // Profile pic overlap zone (Dead Zone) - Circular to match UI
+        type: 'circle',
+        x: 104, // 12.2% of 851
+        y: 227, // 72% of 315
+        width: 176,
+        height: 176,
+        radius: 88, // 176 / 2
+        label: 'Profile Overlap (176px)',
       },
       {
-        // Safe area for text/important content (accounts for mobile crop)
+        // Safe area for text/important content (~640x312 px per reference)
         type: 'rect',
-        x: 130,
-        y: 24,
-        width: 560,
+        x: 192, // Shifted to account for new circular profile zone (approx)
+        y: 1,
+        width: 550, // Reduced slightly to avoid circle
         height: 312,
         label: 'Text-Safe Area',
         color: 'rgba(34, 197, 94, 0.15)',
@@ -237,6 +322,104 @@ export const CANVAS_FORMATS: Record<CanvasFormatId, CanvasFormat> = {
     description: 'Feed post image',
     icon: 'image',
   },
+  facebook_event: {
+    id: 'facebook_event',
+    name: 'Facebook Event Cover',
+    platform: 'facebook',
+    category: 'banner',
+    width: 1920,
+    height: 1005,
+    aspectRatio: '1.91:1',
+    safeZones: [
+      {
+        type: 'rect',
+        x: 100,
+        y: 700,
+        width: 600,
+        height: 250,
+        label: 'Event Info Overlay',
+      },
+      {
+        type: 'rect',
+        x: 200,
+        y: 100,
+        width: 1520,
+        height: 500,
+        label: 'Content-Safe Area',
+        color: 'rgba(34, 197, 94, 0.15)',
+      },
+    ],
+    description: 'Event cover photo',
+    icon: 'event',
+  },
+  facebook_group: {
+    id: 'facebook_group',
+    name: 'Facebook Group Cover',
+    platform: 'facebook',
+    category: 'banner',
+    width: 1640,
+    height: 856,
+    aspectRatio: '1.91:1',
+    safeZones: [
+      {
+        type: 'rect',
+        x: 0,
+        y: 0,
+        width: 400,
+        height: 856,
+        label: 'Group Name Overlay',
+      },
+      {
+        type: 'rect',
+        x: 450,
+        y: 100,
+        width: 1100,
+        height: 656,
+        label: 'Content-Safe Area',
+        color: 'rgba(34, 197, 94, 0.15)',
+      },
+    ],
+    description: 'Group header image',
+    icon: 'groups',
+  },
+  facebook_story: {
+    id: 'facebook_story',
+    name: 'Facebook Story',
+    platform: 'facebook',
+    category: 'story',
+    width: 1080,
+    height: 1920,
+    aspectRatio: '9:16',
+    safeZones: [
+      {
+        type: 'rect',
+        x: 0,
+        y: 0,
+        width: 1080,
+        height: 200,
+        label: 'Profile & X Button (Top)',
+      },
+      {
+        type: 'rect',
+        x: 0,
+        y: 1720,
+        width: 1080,
+        height: 200,
+        label: 'Reply & Send (Bottom)',
+      },
+      {
+        type: 'rect',
+        x: 165,
+        y: 360,
+        width: 750,
+        height: 1200,
+        label: 'Universal Safe Zone (TikTok/Reels/Shorts)',
+        color: 'rgba(59, 130, 246, 0.15)',
+      },
+    ],
+    description: 'Facebook Story frame',
+    icon: 'auto_stories',
+  },
 
   // X (formerly Twitter) Formats
   x_header: {
@@ -249,24 +432,34 @@ export const CANVAS_FORMATS: Record<CanvasFormatId, CanvasFormat> = {
     aspectRatio: '3:1',
     safeZones: [
       {
-        // Official: 400x400px profile pic, positioned bottom-left, extends below header
+        // Profile pic overlap zone (400x400 circular, bottom-left)
         type: 'circle',
         x: 200,
-        y: 500, // At bottom edge (extends below canvas - realistic view)
+        y: 500, // At bottom edge (extends below canvas)
         width: 400,
         height: 400,
         radius: 200, // 400px diameter (official X profile pic size)
         label: 'Profile Picture Zone (400px)',
       },
       {
-        // Text-safe area avoiding profile overlap and top/bottom crop (~60px each)
+        // Desktop Text-Safe Area (avoiding profile + top/bottom 60px crops)
         type: 'rect',
-        x: 420,
-        y: 60,
-        width: 1000,
-        height: 380,
-        label: 'Text-Safe Area',
+        x: 420, // After 400px profile + 20px margin
+        y: 60, // Below 60px top crop
+        width: 1020, // To 1440px (leaving 60px right margin)
+        height: 380, // 500 - 60 - 60 = 380px safe height
+        label: 'Text-Safe Area (Desktop)',
         color: 'rgba(34, 197, 94, 0.15)',
+      },
+      {
+        // Mobile Safe Zone (center 1200x300 - guaranteed visible on mobile)
+        type: 'rect',
+        x: 150, // (1500-1200)/2 = 150
+        y: 100, // (500-300)/2 = 100
+        width: 1200,
+        height: 300,
+        label: 'Mobile Safe Zone',
+        color: 'rgba(59, 130, 246, 0.1)', // Blue tint to distinguish
       },
     ],
     description: 'Profile header banner',
@@ -281,8 +474,42 @@ export const CANVAS_FORMATS: Record<CanvasFormatId, CanvasFormat> = {
     height: 675,
     aspectRatio: '16:9',
     safeZones: [],
-    description: 'Post image (16:9)',
+    description: 'Post image (optimal 16:9 ratio)',
     icon: 'chat_bubble',
+  },
+  x_profile: {
+    id: 'x_profile',
+    name: 'X Profile Picture',
+    platform: 'x',
+    category: 'avatar',
+    width: 400,
+    height: 400,
+    aspectRatio: '1:1',
+    safeZones: [
+      {
+        type: 'circle',
+        x: 200,
+        y: 200,
+        width: 400,
+        height: 400,
+        radius: 200,
+        label: 'Circular Crop',
+      },
+    ],
+    description: 'Profile picture (circular display)',
+    icon: 'account_circle',
+  },
+  x_card: {
+    id: 'x_card',
+    name: 'X Summary Card',
+    platform: 'x',
+    category: 'card',
+    width: 1200,
+    height: 628,
+    aspectRatio: '1.91:1',
+    safeZones: [],
+    description: 'Link preview card image',
+    icon: 'link',
   },
 
   // Instagram Formats
@@ -325,12 +552,12 @@ export const CANVAS_FORMATS: Record<CanvasFormatId, CanvasFormat> = {
       },
       {
         type: 'rect',
-        x: 0,
-        y: 250,
-        width: 1080,
-        height: 1420,
-        label: 'Content-Safe Area',
-        color: 'rgba(34, 197, 94, 0.15)',
+        x: 165,
+        y: 360,
+        width: 750,
+        height: 1200,
+        label: 'Universal Safe Zone (TikTok/Reels/Shorts)',
+        color: 'rgba(59, 130, 246, 0.15)',
       },
     ],
     description: 'Vertical story/reel',
@@ -338,7 +565,7 @@ export const CANVAS_FORMATS: Record<CanvasFormatId, CanvasFormat> = {
   },
   instagram_avatar: {
     id: 'instagram_avatar',
-    name: 'Instagram Avatar',
+    name: 'Instagram Profile Picture',
     platform: 'instagram',
     category: 'avatar',
     width: 1080,
@@ -358,6 +585,64 @@ export const CANVAS_FORMATS: Record<CanvasFormatId, CanvasFormat> = {
     description: 'Profile picture (circular crop)',
     icon: 'account_circle',
   },
+  instagram_reels: {
+    id: 'instagram_reels',
+    name: 'Instagram Reels',
+    platform: 'instagram',
+    category: 'story',
+    width: 1080,
+    height: 1920,
+    aspectRatio: '9:16',
+    safeZones: [
+      {
+        type: 'rect',
+        x: 0,
+        y: 0,
+        width: 1080,
+        height: 270,
+        label: 'Username & Audio (Top)',
+      },
+      {
+        type: 'rect',
+        x: 0,
+        y: 1550,
+        width: 800,
+        height: 370,
+        label: 'Caption & Sound (Bottom)',
+      },
+      {
+        type: 'rect',
+        x: 880,
+        y: 700,
+        width: 200,
+        height: 600,
+        label: 'Engagement Icons (Right)',
+      },
+      {
+        type: 'rect',
+        x: 165,
+        y: 360,
+        width: 750,
+        height: 1200,
+        label: 'Universal Safe Zone (TikTok/Reels/Shorts)',
+        color: 'rgba(59, 130, 246, 0.15)',
+      },
+    ],
+    description: 'Reels cover/thumbnail',
+    icon: 'movie',
+  },
+  instagram_portrait: {
+    id: 'instagram_portrait',
+    name: 'Instagram Portrait',
+    platform: 'instagram',
+    category: 'post',
+    width: 1080,
+    height: 1350,
+    aspectRatio: '4:5',
+    safeZones: [],
+    description: 'Portrait feed post (maximum height)',
+    icon: 'crop_portrait',
+  },
 
   // YouTube Formats
   youtube_banner: {
@@ -369,6 +654,16 @@ export const CANVAS_FORMATS: Record<CanvasFormatId, CanvasFormat> = {
     height: 1440,
     aspectRatio: '16:9',
     safeZones: [
+      {
+        // TV displays the full 2560x1440 image
+        type: 'rect',
+        x: 0,
+        y: 0,
+        width: 2560,
+        height: 1440,
+        label: 'TV Full View',
+        color: 'rgba(239, 68, 68, 0.08)',
+      },
       {
         // Safe zone visible on ALL devices (mobile, tablet, desktop, TV)
         type: 'rect',
@@ -424,39 +719,206 @@ export const CANVAS_FORMATS: Record<CanvasFormatId, CanvasFormat> = {
     description: 'Video thumbnail (1280x720, HD quality)',
     icon: 'play_circle',
   },
+  youtube_shorts: {
+    id: 'youtube_shorts',
+    name: 'YouTube Shorts',
+    platform: 'youtube',
+    category: 'story',
+    width: 1080,
+    height: 1920,
+    aspectRatio: '9:16',
+    safeZones: [
+      {
+        type: 'rect',
+        x: 0,
+        y: 0,
+        width: 1080,
+        height: 200,
+        label: 'Title & Search (Top)',
+      },
+      {
+        type: 'rect',
+        x: 0,
+        y: 1600,
+        width: 1080,
+        height: 320,
+        label: 'Actions & Description (Bottom)',
+      },
+      {
+        type: 'rect',
+        x: 880,
+        y: 800,
+        width: 200,
+        height: 500,
+        label: 'Engagement Buttons (Right)',
+      },
+      {
+        type: 'rect',
+        x: 165,
+        y: 360,
+        width: 750,
+        height: 1200,
+        label: 'Universal Safe Zone (TikTok/Reels/Shorts)',
+        color: 'rgba(59, 130, 246, 0.15)',
+      },
+    ],
+    description: 'Vertical short-form video thumbnail',
+    icon: 'video_library',
+  },
+  youtube_endscreen: {
+    id: 'youtube_endscreen',
+    name: 'YouTube End Screen',
+    platform: 'youtube',
+    category: 'post',
+    width: 1920,
+    height: 1080,
+    aspectRatio: '16:9',
+    safeZones: [
+      {
+        type: 'rect',
+        x: 100,
+        y: 100,
+        width: 600,
+        height: 400,
+        label: 'Subscribe Element',
+      },
+      {
+        type: 'rect',
+        x: 1220,
+        y: 100,
+        width: 600,
+        height: 400,
+        label: 'Video Element',
+      },
+      {
+        type: 'rect',
+        x: 100,
+        y: 580,
+        width: 600,
+        height: 400,
+        label: 'Video/Playlist Element',
+      },
+      {
+        type: 'rect',
+        x: 1220,
+        y: 580,
+        width: 600,
+        height: 400,
+        label: 'Channel Element',
+      },
+    ],
+    description: 'End screen overlay (last 5-20 seconds)',
+    icon: 'subscriptions',
+  },
+
+  // TikTok Formats
+  tiktok_video: {
+    id: 'tiktok_video',
+    name: 'TikTok Video',
+    platform: 'tiktok',
+    category: 'story',
+    width: 1080,
+    height: 1920,
+    aspectRatio: '9:16',
+    safeZones: [
+      {
+        type: 'rect',
+        x: 0,
+        y: 0,
+        width: 1080,
+        height: 150,
+        label: 'Following/For You (Top)',
+      },
+      {
+        type: 'rect',
+        x: 0,
+        y: 1550,
+        width: 800,
+        height: 370,
+        label: 'Caption & Sound (Bottom)',
+      },
+      {
+        type: 'rect',
+        x: 880,
+        y: 500,
+        width: 200,
+        height: 900,
+        label: 'Engagement Buttons (Right)',
+      },
+      {
+        type: 'rect',
+        x: 165,
+        y: 360,
+        width: 750,
+        height: 1200,
+        label: 'Universal Safe Zone (TikTok/Reels/Shorts)',
+        color: 'rgba(59, 130, 246, 0.15)',
+      },
+    ],
+    description: 'Full-screen vertical video cover',
+    icon: 'video_library',
+  },
+  tiktok_profile: {
+    id: 'tiktok_profile',
+    name: 'TikTok Profile',
+    platform: 'tiktok',
+    category: 'avatar',
+    width: 200,
+    height: 200,
+    aspectRatio: '1:1',
+    safeZones: [
+      {
+        type: 'circle',
+        x: 100,
+        y: 100,
+        width: 180,
+        height: 180,
+        radius: 90,
+        label: 'Visible Circle',
+      },
+    ],
+    description: 'Circular profile picture',
+    icon: 'account_circle',
+  },
 };
 
-// Format categories for UI grouping
+// Format categories for UI grouping (MOBILE-FIRST - vertical/story formats listed first)
 export const FORMAT_CATEGORIES = {
   linkedin: {
     label: 'LinkedIn',
     icon: 'work',
     color: 'blue',
-    formats: ['linkedin_banner', 'linkedin_post'] as CanvasFormatId[],
+    formats: ['linkedin_portrait', 'linkedin_carousel', 'linkedin_post', 'linkedin_banner', 'linkedin_company_banner'] as CanvasFormatId[],
   },
   facebook: {
     label: 'Facebook',
     icon: 'facebook',
     color: 'indigo',
-    formats: ['facebook_cover', 'facebook_post'] as CanvasFormatId[],
+    formats: ['facebook_story', 'facebook_post', 'facebook_cover', 'facebook_event', 'facebook_group'] as CanvasFormatId[],
   },
   x: {
     label: 'X',
     icon: 'tag',
     color: 'zinc',
-    formats: ['x_header', 'x_post'] as CanvasFormatId[],
+    formats: ['x_post', 'x_card', 'x_header', 'x_profile'] as CanvasFormatId[],
   },
   instagram: {
     label: 'Instagram',
     icon: 'camera_alt',
     color: 'pink',
-    formats: ['instagram_post', 'instagram_story', 'instagram_avatar'] as CanvasFormatId[],
+    formats: ['instagram_reels', 'instagram_story', 'instagram_portrait', 'instagram_post', 'instagram_avatar'] as CanvasFormatId[],
   },
   youtube: {
     label: 'YouTube',
     icon: 'smart_display',
     color: 'red',
-    formats: ['youtube_banner', 'youtube_thumbnail'] as CanvasFormatId[],
+    formats: ['youtube_shorts', 'youtube_thumbnail', 'youtube_banner', 'youtube_endscreen'] as CanvasFormatId[],
+  },
+  tiktok: {
+    label: 'TikTok',
+    icon: 'music_note',
+    color: 'cyan',
+    formats: ['tiktok_video', 'tiktok_profile'] as CanvasFormatId[],
   },
 };
 

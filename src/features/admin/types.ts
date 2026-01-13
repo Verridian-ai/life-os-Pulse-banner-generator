@@ -139,3 +139,45 @@ export type ApiMetric = {
     avgLatency: number;
     requestCount: number;
 };
+
+// Model Performance Types
+export type ModelPerformanceStats = {
+    modelId: string;
+    modelName: string;
+    provider: 'gemini' | 'openrouter' | 'replicate';
+    capabilities: string[];
+    totalCalls: number;
+    successCount: number;
+    errorCount: number;
+    successRate: number;
+    avgLatencyMs: number;
+    totalTokens: number;
+    totalCostUsd: number;
+    avgCostPerCall: number;
+    lastUsedAt: string | null;
+};
+
+export type ModelPerformanceResponse = {
+    models: ModelPerformanceStats[];
+    summary: {
+        totalCalls: number;
+        totalTokens: number;
+        totalCostUsd: number;
+        avgSuccessRate: number;
+        avgLatencyMs: number;
+    };
+};
+
+export type ModelComparisonCriteria = 'speed' | 'quality' | 'cost' | 'balanced';
+
+export type ModelRanking = {
+    modelId: string;
+    score: number;
+    ranking: number;
+    reason: string;
+    metrics: {
+        avgTime: number | null;
+        successRate: number | null;
+        cost: number;
+    };
+};

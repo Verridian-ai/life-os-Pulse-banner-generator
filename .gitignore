@@ -44,3 +44,10 @@ nul
 
 # Auto Claude data directory
 .auto-claude/
+.claude_settings.json
+
+# Tool usage logs
+docs/ops/.tool_usage_log.txt
+
+# Claude Code temporary files
+tmpclaude-*

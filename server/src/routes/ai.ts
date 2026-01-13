@@ -5,7 +5,7 @@ import { authMiddleware } from '../lib/auth';
 import { db } from '../db';
 import { userApiKeys } from '../db/schema';
 import { eq } from 'drizzle-orm';
-import { PROMPT_ENHANCER_SYSTEM, PROMPT_ENHANCER_MODEL, type PromptEnhanceContext } from '../prompts/promptEnhancer';
+import { PROMPT_ENHANCER_MODEL, type PromptEnhanceContext, generateSystemPrompt } from '../prompts/promptEnhancer';
 import { aiRateLimit } from '../lib/rateLimit';
 
 type Variables = {
@@ -734,17 +734,8 @@ aiRouter.post('/prompt/enhance', authMiddleware, async (c) => {
     }
 
     try {
-        // Build the system prompt with optional context
-        let systemPrompt = PROMPT_ENHANCER_SYSTEM;
-        if (context?.industry) {
-            systemPrompt += `\n\nINDUSTRY CONTEXT: ${context.industry}`;
-        }
-        if (context?.style) {
-            systemPrompt += `\n\nSTYLE PREFERENCE: ${context.style}`;
-        }
-        if (context?.brandColors && context.brandColors.length > 0) {
-            systemPrompt += `\n\nBRAND COLORS: ${context.brandColors.join(', ')}`;
-        }
+        // Build the system prompt with optional context using the Multi-Specialist logic
+        const systemPrompt = generateSystemPrompt(context);
 
         const messages = [
             { role: 'system', content: systemPrompt },

@@ -25,7 +25,7 @@ export const validatePrompt = (prompt: string, maxLength = MAX_PROMPT_LENGTH): s
 
     // 1. Basic sanitization
     // Remove null bytes and other dangerous control characters (except newlines/tabs)
-    // eslint-disable-next-line
+    // eslint-disable-next-line no-control-regex
     let sanitized = prompt.replace(/[\x00-\x08\x0B\x0C\x0E-\x1F\x7F]/g, '');
 
     // Normalize whitespace (optional, but good for consistency)

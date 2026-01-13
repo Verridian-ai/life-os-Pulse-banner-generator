@@ -1,6 +1,6 @@
 // A/B Testing Panel - Generate and compare design variants
 
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { useToast } from '@/hooks/useToast';
 import { generateImage } from '../../services/imageGenerationService';
 import type { BrandProfile } from '../../types/ai';

@@ -181,6 +181,7 @@ export const OnboardingTour: React.FC = () => {
         >
           {/* ... Modal Content (Same as before, slightly more compact possibly) ... */}
           <button
+            type="button"
             onClick={handleComplete}
             className='absolute top-4 right-4 text-zinc-500 hover:text-white transition'
             aria-label="Skip tour"
@@ -208,6 +209,7 @@ export const OnboardingTour: React.FC = () => {
                 <div className="flex items-center gap-3">
                   {currentStep > 0 && (
                     <button
+                      type="button"
                       onClick={() => setCurrentStep(c => c - 1)}
                       className="text-xs font-bold text-zinc-500 hover:text-white uppercase tracking-wider transition"
                       aria-label="Previous step"
@@ -215,8 +217,8 @@ export const OnboardingTour: React.FC = () => {
                       Prev
                     </button>
                   )}
-                  <button onClick={handleComplete} className="text-xs font-bold text-zinc-500 hover:text-white uppercase tracking-wider underline-offset-4 hover:underline transition">Skip</button>
-                  <button onClick={() => currentStep < TOUR_STEPS.length - 1 ? setCurrentStep(c => c + 1) : handleComplete()} className={`${BTN_BASE} px-6 py-2 bg-white text-black hover:bg-zinc-200 text-xs`}>
+                  <button type="button" onClick={handleComplete} className="text-xs font-bold text-zinc-500 hover:text-white uppercase tracking-wider underline-offset-4 hover:underline transition">Skip</button>
+                  <button type="button" onClick={() => currentStep < TOUR_STEPS.length - 1 ? setCurrentStep(c => c + 1) : handleComplete()} className={`${BTN_BASE} px-6 py-2 bg-white text-black hover:bg-zinc-200 text-xs`}>
                     {currentStep === TOUR_STEPS.length - 1 ? 'Finish' : 'Next'}
                   </button>
                 </div>
@@ -241,6 +243,7 @@ export const OnboardingTour: React.FC = () => {
         className='bg-zinc-900 border border-purple-500/30 rounded-3xl p-8 w-full max-w-md shadow-[0_0_50px_rgba(168,85,247,0.2)] relative animate-fadeIn flex flex-col'
       >
         <button
+          type="button"
           onClick={handleComplete}
           className='absolute top-4 right-4 text-zinc-500 hover:text-white transition'
           aria-label="Skip tour"
@@ -277,6 +280,7 @@ export const OnboardingTour: React.FC = () => {
           <div className="flex items-center gap-3">
             {currentStep > 0 && (
               <button
+                type="button"
                 onClick={() => setCurrentStep(c => c - 1)}
                 className="text-xs font-bold text-zinc-500 hover:text-white uppercase tracking-wider transition"
                 aria-label="Previous step"
@@ -285,12 +289,14 @@ export const OnboardingTour: React.FC = () => {
               </button>
             )}
             <button
+              type="button"
               onClick={handleComplete}
               className="text-xs font-bold text-zinc-500 hover:text-white uppercase tracking-wider underline-offset-4 hover:underline transition"
             >
               Skip
             </button>
             <button
+              type="button"
               onClick={() => {
                 if (currentStep < TOUR_STEPS.length - 1) {
                   setCurrentStep(currentStep + 1);

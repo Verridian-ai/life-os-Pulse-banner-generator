@@ -14,6 +14,7 @@ import {
     creditTransactions,
     apiMetrics,
     dailyStats,
+    llmTraces,
 } from '../db/schema';
 import { eq, desc, sql, like, or, and, count } from 'drizzle-orm';
 import { adminMiddleware, requirePermission, getAdminContext } from '../lib/adminAuth';
@@ -794,7 +795,102 @@ adminRouter.get('/observability/stats', requirePermission('audit_log_access'), a
     }
 });
 
+// ============================================================================
+// Model Performance
+// ============================================================================
 
+// Model metadata registry (mirroring frontend MODEL_METADATA_REGISTRY)
+const MODEL_METADATA: Record<string, { name: string; provider: string; capabilities: string[] }> = {
+    'google/gemini-3.0-pro': { name: 'Gemini 3.0 Pro', provider: 'openrouter', capabilities: ['text', 'vision'] },
+    'google/gemini-3-pro': { name: 'Gemini 3 Pro', provider: 'openrouter', capabilities: ['text', 'vision', 'thinking'] },
+    'gemini-3-pro-image-preview': { name: 'Gemini 3 Pro Image', provider: 'gemini', capabilities: ['image_gen'] },
+    'anthropic/claude-4.5-sonnet': { name: 'Claude 4.5 Sonnet', provider: 'openrouter', capabilities: ['text', 'vision', 'thinking'] },
+    'minimax/minimax-m2-plus': { name: 'MiniMax M2 Plus', provider: 'openrouter', capabilities: ['text', 'vision'] },
+    'openai/gpt-5.2': { name: 'GPT-5.2', provider: 'openrouter', capabilities: ['text', 'vision', 'thinking'] },
+    'openai/gpt-5.2-pro': { name: 'GPT-5.2 Pro', provider: 'openrouter', capabilities: ['text', 'vision', 'thinking'] },
+    'google/gemini-3-deep-think': { name: 'Gemini 3 Deep Think', provider: 'openrouter', capabilities: ['text', 'thinking'] },
+    'nightmareai/real-esrgan': { name: 'Real-ESRGAN', provider: 'replicate', capabilities: ['image_upscale'] },
+    'recraft-ai/recraft-crisp-upscale': { name: 'Recraft Crisp', provider: 'replicate', capabilities: ['image_upscale'] },
+    'fermatresearch/magic-image-refiner': { name: 'Magic Refiner', provider: 'replicate', capabilities: ['image_upscale'] },
+    'cjwbw/rembg': { name: 'Background Removal', provider: 'replicate', capabilities: ['background_removal'] },
+    'sczhou/codeformer': { name: 'CodeFormer', provider: 'replicate', capabilities: ['image_restoration'] },
+    'tencentarc/gfpgan': { name: 'GFPGAN', provider: 'replicate', capabilities: ['face_enhancement'] },
+};
+
+/**
+ * GET /api/admin/models
+ * Get AI model performance metrics aggregated from llm_traces
+ */
+adminRouter.get('/models', requirePermission('observability_config'), async (c) => {
+    try {
+        const days = parseInt(c.req.query('days') || '7');
+        const cutoffDate = new Date();
+        cutoffDate.setDate(cutoffDate.getDate() - days);
+
+        // Aggregate llm_traces by model
+        const modelStats = await db
+            .select({
+                model: llmTraces.model,
+                totalCalls: count(),
+                successCount: sql<number>`SUM(CASE WHEN ${llmTraces.status} = 'success' OR ${llmTraces.status} IS NULL THEN 1 ELSE 0 END)`,
+                errorCount: sql<number>`SUM(CASE WHEN ${llmTraces.status} = 'error' THEN 1 ELSE 0 END)`,
+                avgLatencyMs: sql<number>`AVG(${llmTraces.latencyMs})`,
+                totalTokens: sql<number>`COALESCE(SUM(${llmTraces.totalTokens}), 0)`,
+                totalCostUsd: sql<number>`COALESCE(SUM(CAST(${llmTraces.costUsd} AS NUMERIC)), 0)`,
+                lastUsedAt: sql<string>`MAX(${llmTraces.createdAt})`,
+            })
+            .from(llmTraces)
+            .where(sql`${llmTraces.createdAt} > ${cutoffDate}`)
+            .groupBy(llmTraces.model);
+
+        // Enrich with metadata and calculate derived fields
+        const models = modelStats.map((stat) => {
+            const metadata = MODEL_METADATA[stat.model] || {
+                name: stat.model,
+                provider: 'unknown',
+                capabilities: [],
+            };
+
+            const totalCalls = Number(stat.totalCalls) || 0;
+            const successCount = Number(stat.successCount) || 0;
+            const totalCostUsd = Number(stat.totalCostUsd) || 0;
+
+            return {
+                modelId: stat.model,
+                modelName: metadata.name,
+                provider: metadata.provider as 'gemini' | 'openrouter' | 'replicate',
+                capabilities: metadata.capabilities,
+                totalCalls,
+                successCount,
+                errorCount: Number(stat.errorCount) || 0,
+                successRate: totalCalls > 0 ? (successCount / totalCalls) * 100 : 100,
+                avgLatencyMs: Number(stat.avgLatencyMs) || 0,
+                totalTokens: Number(stat.totalTokens) || 0,
+                totalCostUsd,
+                avgCostPerCall: totalCalls > 0 ? totalCostUsd / totalCalls : 0,
+                lastUsedAt: stat.lastUsedAt,
+            };
+        });
+
+        // Calculate summary
+        const summary = {
+            totalCalls: models.reduce((acc, m) => acc + m.totalCalls, 0),
+            totalTokens: models.reduce((acc, m) => acc + m.totalTokens, 0),
+            totalCostUsd: models.reduce((acc, m) => acc + m.totalCostUsd, 0),
+            avgSuccessRate: models.length > 0
+                ? models.reduce((acc, m) => acc + m.successRate, 0) / models.length
+                : 100,
+            avgLatencyMs: models.length > 0
+                ? models.reduce((acc, m) => acc + m.avgLatencyMs, 0) / models.length
+                : 0,
+        };
+
+        return c.json({ models, summary });
+    } catch (error) {
+        console.error('[Admin] Model performance error:', error);
+        return c.json({ error: 'Failed to get model performance' }, 500);
+    }
+});
 
 // ============================================================================
 // Finance & Credits
@@ -872,27 +968,77 @@ adminRouter.get('/finance/transactions', requirePermission('financial_access'), 
 
 /**
  * GET /api/admin/audit-logs
- * List admin audit logs
+ * List admin audit logs with optional filtering
+ * Query params: action, resource, adminUserId, dateFrom, dateTo, limit, offset
  */
 adminRouter.get('/audit-logs', requirePermission('audit_log_access'), async (c) => {
     try {
         const limit = parseInt(c.req.query('limit') || '50');
         const offset = parseInt(c.req.query('offset') || '0');
+        const action = c.req.query('action') || '';
+        const resource = c.req.query('resource') || '';
+        const adminUserId = c.req.query('adminUserId') || '';
+        const dateFrom = c.req.query('dateFrom') || '';
+        const dateTo = c.req.query('dateTo') || '';
+
+        // Build filter conditions
+        const conditions = [];
+
+        if (action) {
+            conditions.push(like(adminAuditLog.action, `%${action}%`));
+        }
+
+        if (resource) {
+            conditions.push(like(adminAuditLog.resource, `%${resource}%`));
+        }
+
+        if (adminUserId) {
+            conditions.push(eq(adminAuditLog.adminUserId, adminUserId));
+        }
+
+        if (dateFrom) {
+            const fromDate = new Date(dateFrom);
+            conditions.push(sql`${adminAuditLog.createdAt} >= ${fromDate}`);
+        }
+
+        if (dateTo) {
+            const toDate = new Date(dateTo);
+            // Set to end of day
+            toDate.setHours(23, 59, 59, 999);
+            conditions.push(sql`${adminAuditLog.createdAt} <= ${toDate}`);
+        }
+
+        const whereCondition = conditions.length > 0 ? and(...conditions) : undefined;
 
         const logs = await db
             .select()
             .from(adminAuditLog)
+            .where(whereCondition)
             .orderBy(desc(adminAuditLog.createdAt))
             .limit(limit)
             .offset(offset);
 
         const [totalResult] = await db
             .select({ count: count() })
+            .from(adminAuditLog)
+            .where(whereCondition);
+
+        // Get distinct actions and resources for filter dropdowns
+        const distinctActions = await db
+            .selectDistinct({ action: adminAuditLog.action })
+            .from(adminAuditLog);
+
+        const distinctResources = await db
+            .selectDistinct({ resource: adminAuditLog.resource })
             .from(adminAuditLog);
 
         return c.json({
             logs,
             total: totalResult?.count || 0,
+            filters: {
+                actions: distinctActions.map((a) => a.action).filter(Boolean),
+                resources: distinctResources.map((r) => r.resource).filter(Boolean),
+            },
         });
     } catch (error) {
         console.error('[Admin] List audit logs error:', error);

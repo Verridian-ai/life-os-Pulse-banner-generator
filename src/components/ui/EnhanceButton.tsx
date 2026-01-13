@@ -51,16 +51,16 @@ export function EnhanceButton({
     md: 'text-sm',
   };
 
-  // Variant classes
+  // Variant classes - Signal Design System (sky/teal)
   const variantClasses = {
     primary: prompt.trim()
-      ? 'bg-gradient-to-br from-purple-600 to-pink-600 text-white hover:from-purple-500 hover:to-pink-500 shadow-lg shadow-purple-500/20'
+      ? 'bg-gradient-to-br from-sky-500 to-teal-600 text-white hover:from-sky-400 hover:to-teal-500 shadow-lg shadow-sky-500/20'
       : 'bg-black/20 text-zinc-600 border border-white/5 cursor-not-allowed shadow-none',
     secondary: prompt.trim()
       ? 'bg-zinc-800 text-white hover:bg-zinc-700 border border-white/10'
       : 'bg-black/20 text-zinc-600 border border-white/5 cursor-not-allowed shadow-none',
     ghost: prompt.trim()
-      ? 'bg-transparent text-purple-400 hover:bg-purple-500/10 hover:text-purple-300'
+      ? 'bg-transparent text-sky-400 hover:bg-sky-500/10 hover:text-sky-300'
       : 'bg-transparent text-zinc-600 cursor-not-allowed',
   };
 

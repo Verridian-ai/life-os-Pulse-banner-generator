@@ -1,0 +1,1755 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Life OS Studio - Complete Responsive Concept</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;900&display=swap"
+        rel="stylesheet">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #000;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+
+        /* Custom Scrollbar */
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 10px;
+        }
+
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        /* Life OS Brand Colors - Purple Primary, Cyan Secondary */
+        :root {
+            --banana-yellow: #D4A017;
+            --primary: #8B5CF6;
+            --primary-light: #A78BFA;
+            --secondary-cyan: #06B6D4;
+            --secondary-teal: #14B8A6;
+            --bg-dark: #09090b;
+            --bg-card: #111113;
+            --bg-surface: #18181b;
+            --border-color: #27272a;
+            --text-muted: #71717a;
+        }
+
+        .device-frame {
+            background: var(--bg-dark);
+            border-radius: 24px;
+            overflow: hidden;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.7);
+            border: 1px solid var(--border-color);
+        }
+
+        .canvas-preview {
+            background: linear-gradient(135deg, #0891b2 0%, #1d4ed8 100%);
+            border-radius: 16px;
+        }
+
+        .safe-zone {
+            border: 2px dashed rgba(255, 255, 255, 0.4);
+            border-radius: 50%;
+        }
+
+        .fab {
+            background: var(--bg-surface);
+            backdrop-filter: blur(16px);
+            border: 1px solid var(--border-color);
+        }
+
+        .fab-ai {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
+            box-shadow: 0 8px 32px rgba(139, 92, 246, 0.35);
+        }
+
+        .drawer {
+            background: var(--bg-card);
+            backdrop-filter: blur(24px);
+        }
+
+        .banana-smile {
+            background: var(--banana-yellow);
+            border-radius: 0 0 100px 100px;
+            transform: scaleX(1.3);
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
+        }
+
+        .btn-primary-solid {
+            background: var(--primary);
+        }
+
+        .btn-secondary {
+            background: var(--secondary-cyan);
+        }
+
+        .nano-banana-badge {
+            background: linear-gradient(135deg, rgba(139, 92, 246, 0.15) 0%, rgba(167, 139, 250, 0.15) 100%);
+            border: 1px solid rgba(139, 92, 246, 0.3);
+        }
+
+        .platform-linkedin {
+            background: #0A66C2;
+        }
+
+        .platform-facebook {
+            background: #1877F2;
+        }
+
+        .platform-x {
+            background: #000000;
+        }
+
+        .platform-instagram {
+            background: linear-gradient(135deg, #833AB4, #E1306C, #F77737);
+        }
+
+        .platform-youtube {
+            background: #FF0000;
+        }
+
+        @keyframes slideUp {
+            from {
+                transform: translateY(100%);
+            }
+
+            to {
+                transform: translateY(0);
+            }
+        }
+
+        .animate-slide-up {
+            animation: slideUp 0.5s ease-out forwards;
+        }
+
+        .format-item:hover {
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        .format-item.selected {
+            background: rgba(139, 92, 246, 0.12);
+            border-left: 2px solid var(--primary);
+        }
+
+        .text-primary {
+            color: var(--primary);
+        }
+
+        .text-banana {
+            color: var(--banana-yellow);
+        }
+
+        .bg-surface {
+            background: var(--bg-surface);
+        }
+
+        .border-custom {
+            border-color: var(--border-color);
+        }
+
+        /* Icon styles */
+        .icon {
+            width: 20px;
+            height: 20px;
+            stroke: currentColor;
+            stroke-width: 1.5;
+            fill: none;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+        }
+
+        .icon-sm {
+            width: 16px;
+            height: 16px;
+        }
+
+        .icon-lg {
+            width: 24px;
+            height: 24px;
+        }
+
+        .icon-filled {
+            fill: currentColor;
+            stroke: none;
+        }
+    </style>
+</head>
+
+<body class="bg-slate-950 min-h-screen p-6 md:p-8">
+
+    <!-- SVG Icon Definitions -->
+    <svg xmlns="http://www.w3.org/2000/svg" style="display: none;">
+        <defs>
+            <!-- Mic Icon -->
+            <symbol id="icon-mic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"
+                stroke-linecap="round" stroke-linejoin="round">
+                <path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z" />
+                <path d="M19 10v2a7 7 0 0 1-14 0v-2" />
+                <line x1="12" x2="12" y1="19" y2="22" />
+            </symbol>
+
+            <!-- User Icon -->
+            <symbol id="icon-user" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"
+                stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="8" r="4" />
+                <path d="M20 21a8 8 0 0 0-16 0" />
+            </symbol>
+
+            <!-- Help Icon -->
+            <symbol id="icon-help" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"
+                stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="10" />
+                <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3" />
+                <path d="M12 17h.01" />
+            </symbol>
+
+            <!-- Palette/Assets Icon -->
+            <symbol id="icon-palette" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"
+                stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="13.5" cy="6.5" r="2.5" />
+                <circle cx="17.5" cy="10.5" r="2.5" />
+                <circle cx="8.5" cy="7.5" r="2.5" />
+                <circle cx="6.5" cy="12.5" r="2.5" />
+                <path
+                    d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10c.926 0 1.648-.746 1.648-1.688 0-.437-.18-.835-.437-1.125-.29-.289-.438-.652-.438-1.125a1.64 1.64 0 0 1 1.668-1.668h1.996c3.051 0 5.555-2.503 5.555-5.555C21.965 6.012 17.461 2 12 2z" />
+            </symbol>
+
+            <!-- Layers Icon -->
+            <symbol id="icon-layers" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"
+                stroke-linecap="round" stroke-linejoin="round">
+                <path
+                    d="m12.83 2.18a2 2 0 0 0-1.66 0L2.6 6.08a1 1 0 0 0 0 1.83l8.58 3.91a2 2 0 0 0 1.66 0l8.58-3.9a1 1 0 0 0 0-1.83Z" />
+                <path d="m22 12-8.58 3.91a2 2 0 0 1-1.66 0L2 12" />
+                <path d="m22 17-8.58 3.91a2 2 0 0 1-1.66 0L2 17" />
+            </symbol>
+
+            <!-- Sparkles/AI Icon -->
+            <symbol id="icon-sparkles" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"
+                stroke-linecap="round" stroke-linejoin="round">
+                <path
+                    d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z" />
+                <path d="M5 3v4" />
+                <path d="M3 5h4" />
+                <path d="M19 17v4" />
+                <path d="M17 19h4" />
+            </symbol>
+
+            <!-- Zap/Lightning Icon -->
+            <symbol id="icon-zap" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"
+                stroke-linecap="round" stroke-linejoin="round">
+                <path
+                    d="M4 14a1 1 0 0 1-.78-1.63l9.9-10.2a.5.5 0 0 1 .86.46l-1.92 6.02A1 1 0 0 0 13 10h7a1 1 0 0 1 .78 1.63l-9.9 10.2a.5.5 0 0 1-.86-.46l1.92-6.02A1 1 0 0 0 11 14z" />
+            </symbol>
+
+            <!-- Download Icon -->
+            <symbol id="icon-download" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"
+                stroke-linecap="round" stroke-linejoin="round">
+                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                <polyline points="7 10 12 15 17 10" />
+                <line x1="12" x2="12" y1="15" y2="3" />
+            </symbol>
+
+            <!-- Send/Publish Icon -->
+            <symbol id="icon-send" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"
+                stroke-linecap="round" stroke-linejoin="round">
+                <path d="m22 2-7 20-4-9-9-4Z" />
+                <path d="M22 2 11 13" />
+            </symbol>
+
+            <!-- Wand/Magic Icon -->
+            <symbol id="icon-wand" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"
+                stroke-linecap="round" stroke-linejoin="round">
+                <path
+                    d="m21.64 3.64-1.28-1.28a1.21 1.21 0 0 0-1.72 0L2.36 18.64a1.21 1.21 0 0 0 0 1.72l1.28 1.28a1.2 1.2 0 0 0 1.72 0L21.64 5.36a1.2 1.2 0 0 0 0-1.72" />
+                <path d="m14 7 3 3" />
+                <path d="M5 6v4" />
+                <path d="M3 8h4" />
+                <path d="M19 14v4" />
+                <path d="M17 16h4" />
+            </symbol>
+
+            <!-- Book/Library Icon -->
+            <symbol id="icon-library" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"
+                stroke-linecap="round" stroke-linejoin="round">
+                <path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1 0-5H20" />
+            </symbol>
+
+            <!-- Eye Icon -->
+            <symbol id="icon-eye" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"
+                stroke-linecap="round" stroke-linejoin="round">
+                <path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z" />
+                <circle cx="12" cy="12" r="3" />
+            </symbol>
+
+            <!-- Folder Icon -->
+            <symbol id="icon-folder" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"
+                stroke-linecap="round" stroke-linejoin="round">
+                <path
+                    d="M20 20a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.9a2 2 0 0 1-1.69-.9L9.6 3.9A2 2 0 0 0 7.93 3H4a2 2 0 0 0-2 2v13a2 2 0 0 0 2 2Z" />
+            </symbol>
+
+            <!-- Save Icon -->
+            <symbol id="icon-save" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"
+                stroke-linecap="round" stroke-linejoin="round">
+                <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z" />
+                <polyline points="17 21 17 13 7 13 7 21" />
+                <polyline points="7 3 7 8 15 8" />
+            </symbol>
+
+            <!-- Close Icon -->
+            <symbol id="icon-close" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"
+                stroke-linecap="round" stroke-linejoin="round">
+                <path d="M18 6 6 18" />
+                <path d="m6 6 12 12" />
+            </symbol>
+
+            <!-- Check Icon -->
+            <symbol id="icon-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="20 6 9 17 4 12" />
+            </symbol>
+
+            <!-- Chevron Down Icon -->
+            <symbol id="icon-chevron-down" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"
+                stroke-linecap="round" stroke-linejoin="round">
+                <path d="m6 9 6 6 6-6" />
+            </symbol>
+
+            <!-- Image Icon -->
+            <symbol id="icon-image" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"
+                stroke-linecap="round" stroke-linejoin="round">
+                <rect width="18" height="18" x="3" y="3" rx="2" ry="2" />
+                <circle cx="9" cy="9" r="2" />
+                <path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21" />
+            </symbol>
+
+            <!-- Grid Icon -->
+            <symbol id="icon-grid" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"
+                stroke-linecap="round" stroke-linejoin="round">
+                <rect width="7" height="7" x="3" y="3" rx="1" />
+                <rect width="7" height="7" x="14" y="3" rx="1" />
+                <rect width="7" height="7" x="14" y="14" rx="1" />
+                <rect width="7" height="7" x="3" y="14" rx="1" />
+            </symbol>
+
+            <!-- File Text Icon -->
+            <symbol id="icon-file-text" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"
+                stroke-linecap="round" stroke-linejoin="round">
+                <path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z" />
+                <polyline points="14 2 14 8 20 8" />
+                <line x1="16" x2="8" y1="13" y2="13" />
+                <line x1="16" x2="8" y1="17" y2="17" />
+                <line x1="10" x2="8" y1="9" y2="9" />
+            </symbol>
+
+            <!-- Layout Icon -->
+            <symbol id="icon-layout" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"
+                stroke-linecap="round" stroke-linejoin="round">
+                <rect width="18" height="18" x="3" y="3" rx="2" ry="2" />
+                <line x1="3" x2="21" y1="9" y2="9" />
+                <line x1="9" x2="9" y1="21" y2="9" />
+            </symbol>
+
+            <!-- Smartphone Icon -->
+            <symbol id="icon-smartphone" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"
+                stroke-linecap="round" stroke-linejoin="round">
+                <rect width="14" height="20" x="5" y="2" rx="2" ry="2" />
+                <path d="M12 18h.01" />
+            </symbol>
+
+            <!-- Monitor Icon -->
+            <symbol id="icon-monitor" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"
+                stroke-linecap="round" stroke-linejoin="round">
+                <rect width="20" height="14" x="2" y="3" rx="2" />
+                <line x1="8" x2="16" y1="21" y2="21" />
+                <line x1="12" x2="12" y1="17" y2="21" />
+            </symbol>
+
+            <!-- Chart Bar Icon -->
+            <symbol id="icon-chart-bar" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"
+                stroke-linecap="round" stroke-linejoin="round">
+                <path d="M3 3v18h18" />
+                <path d="M18 17V9" />
+                <path d="M13 17V5" />
+                <path d="M8 17v-3" />
+            </symbol>
+
+            <!-- Users Icon -->
+            <symbol id="icon-users" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"
+                stroke-linecap="round" stroke-linejoin="round">
+                <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" />
+                <circle cx="9" cy="7" r="4" />
+                <path d="M22 21v-2a4 4 0 0 0-3-3.87" />
+                <path d="M16 3.13a4 4 0 0 1 0 7.75" />
+            </symbol>
+
+            <!-- Credit Card Icon -->
+            <symbol id="icon-credit-card" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"
+                stroke-linecap="round" stroke-linejoin="round">
+                <rect width="20" height="14" x="2" y="5" rx="2" />
+                <line x1="2" x2="22" y1="10" y2="10" />
+            </symbol>
+
+            <!-- Lock Icon -->
+            <symbol id="icon-lock" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"
+                stroke-linecap="round" stroke-linejoin="round">
+                <rect width="18" height="11" x="3" y="11" rx="2" ry="2" />
+                <path d="M7 11V7a5 5 0 0 1 10 0v4" />
+            </symbol>
+        </defs>
+    </svg>
+
+    <!-- Header -->
+    <div class="max-w-7xl mx-auto mb-10">
+        <div class="flex items-center gap-3 mb-4">
+            <span class="text-3xl font-black text-white">LIFE</span>
+            <div class="relative">
+                <span class="text-3xl font-black text-white">OS</span>
+                <div class="banana-smile absolute -bottom-1 right-0 w-8 h-3"></div>
+            </div>
+            <span class="text-slate-500 text-lg ml-4">Studio Redesign</span>
+        </div>
+        <p class="text-slate-400 text-lg max-w-3xl">
+            Mobile-first responsive design with contextual drawers, platform format selector, and your actual branding.
+            Yellow accent color from the banana smile carries through the entire UI.
+        </p>
+    </div>
+
+    <!-- AI Studio - Canvas Mode -->
+    <div class="max-w-[1400px] mx-auto mb-16 px-4">
+        <h2 class="text-2xl font-bold text-white mb-6 tracking-tight">AI Studio - Canvas Mode</h2>
+
+        <div
+            class="bg-zinc-950 border border-zinc-800 rounded-3xl overflow-hidden shadow-2xl flex flex-col min-h-[85vh] md:min-h-[900px] relative">
+
+            <!-- Canvas Header / Toolbar -->
+            <div
+                class="bg-zinc-900/90 backdrop-blur-md border-b border-zinc-800 px-4 py-3 flex flex-wrap items-center justify-between gap-4 z-30 relative sticky top-0">
+                <!-- Format Selector -->
+                <div class="flex items-center gap-2 flex-grow md:flex-grow-0">
+                    <div class="relative group w-full md:w-auto">
+                        <button
+                            class="flex items-center gap-3 px-4 py-2.5 bg-zinc-800 hover:bg-zinc-700 border border-zinc-700 hover:border-zinc-600 rounded-xl text-white transition w-full md:min-w-[240px] justify-between group outline-none focus:ring-2 focus:ring-violet-500/50"
+                            aria-label="Canvas Format">
+                            <div class="flex items-center gap-3">
+                                <span class="material-icons text-blue-400 text-xl">smart_display</span>
+                                <div class="text-left">
+                                    <div
+                                        class="text-[10px] font-bold uppercase tracking-wider text-zinc-500 group-hover:text-zinc-400 transition">
+                                        Format</div>
+                                    <div class="text-xs font-semibold tracking-wide">LinkedIn Banner</div>
+                                </div>
+                            </div>
+                            <span
+                                class="material-icons text-zinc-500 group-hover:text-white transition">expand_more</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Canvas Controls -->
+                <div class="flex items-center gap-2 ml-auto overflow-x-auto scrollbar-hide py-1">
+                    <!-- Zoom (Desktop) -->
+                    <div
+                        class="hidden md:flex items-center bg-zinc-800 rounded-xl p-1 border border-zinc-700 mr-2 shrink-0">
+                        <button
+                            class="w-8 h-8 flex items-center justify-center text-zinc-400 hover:text-white hover:bg-zinc-600 rounded-lg transition"
+                            aria-label="Zoom Out">
+                            <span class="material-icons text-sm">remove</span>
+                        </button>
+                        <span
+                            class="px-3 text-xs font-bold text-zinc-300 min-w-[3.5rem] text-center font-mono">100%</span>
+                        <button
+                            class="w-8 h-8 flex items-center justify-center text-zinc-400 hover:text-white hover:bg-zinc-600 rounded-lg transition"
+                            aria-label="Zoom In">
+                            <span class="material-icons text-sm">add</span>
+                        </button>
+                    </div>
+
+                    <div class="w-px h-8 bg-zinc-800 mx-1 hidden md:block"></div>
+
+                    <!-- Toggles -->
+                    <button
+                        class="h-10 px-3 md:px-4 rounded-xl flex items-center gap-2 transition bg-violet-600 hover:bg-violet-500 text-white shadow-lg shadow-violet-900/20 shrink-0 border border-violet-500 block"
+                        aria-label="Toggle Safe Zones">
+                        <span class="material-icons text-lg">visibility</span>
+                        <span class="text-xs font-bold uppercase tracking-wide hidden md:inline">Safe Zones</span>
+                    </button>
+
+                    <button
+                        class="h-10 w-10 md:w-auto md:px-4 rounded-xl flex items-center justify-center gap-2 transition bg-zinc-800 border border-zinc-700 text-zinc-400 hover:text-white hover:bg-zinc-700 shrink-0"
+                        aria-label="Load Snapshot">
+                        <span class="material-icons text-lg">folder_open</span>
+                        <span class="text-xs font-bold uppercase tracking-wide hidden md:inline">Load</span>
+                    </button>
+
+                    <button
+                        class="h-10 w-10 md:w-auto md:px-4 rounded-xl flex items-center justify-center gap-2 transition bg-zinc-800 border border-zinc-700 text-zinc-400 hover:text-white hover:bg-zinc-700 shrink-0"
+                        aria-label="Save Snapshot">
+                        <span class="material-icons text-lg">save</span>
+                        <span class="text-xs font-bold uppercase tracking-wide hidden md:inline">Save</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Main Workspace Area -->
+            <div
+                class="flex-1 bg-[#09090b] relative w-full h-full flex flex-col items-center overflow-y-auto overflow-x-hidden custom-scrollbar pb-24 md:pb-8">
+
+                <!-- Canvas Container (Centered & Padded) -->
+                <div class="w-full flex-1 flex items-center justify-center p-4 md:p-12 min-h-[300px] md:min-h-[400px]">
+                    <div class="relative w-full max-w-[1000px] shadow-2xl group select-none ring-1 ring-white/5 bg-zinc-900"
+                        style="aspect-ratio: 4/1;">
+
+                        <!-- Banner Content (Gradient placeholder) -->
+                        <div
+                            class="absolute inset-0 bg-gradient-to-br from-slate-800 via-slate-900 to-black overflow-hidden">
+                            <!-- Grid Pattern -->
+                            <div class="absolute inset-0 opacity-[0.03]"
+                                style="background-image: linear-gradient(#fff 1px, transparent 1px), linear-gradient(90deg, #fff 1px, transparent 1px); background-size: 20px 20px;">
+                            </div>
+                        </div>
+
+                        <!-- Selected Text Element -->
+                        <div class="absolute top-[35%] left-[8%] transform cursor-move z-20">
+                            <!-- Selection Box -->
+                            <div
+                                class="absolute -inset-2 border-2 border-[#3b82f6] bg-[#3b82f6]/10 pointer-events-none">
+                                <!-- Corner Handles -->
+                                <div
+                                    class="absolute -top-1.5 -left-1.5 w-3 h-3 bg-white border border-[#3b82f6] shadow-sm">
+                                </div>
+                                <div
+                                    class="absolute -top-1.5 -right-1.5 w-3 h-3 bg-white border border-[#3b82f6] shadow-sm">
+                                </div>
+                                <div
+                                    class="absolute -bottom-1.5 -left-1.5 w-3 h-3 bg-white border border-[#3b82f6] shadow-sm">
+                                </div>
+                                <div
+                                    class="absolute -bottom-1.5 -right-1.5 w-3 h-3 bg-white border border-[#3b82f6] shadow-sm">
+                                </div>
+                                <!-- Rotate Handle -->
+                                <div class="absolute -top-8 left-1/2 -translate-x-1/2 flex flex-col items-center">
+                                    <div class="w-0.5 h-4 bg-[#3b82f6]"></div>
+                                    <div
+                                        class="w-3 h-3 rounded-full bg-white border-2 border-[#3b82f6] shadow-sm cursor-grab">
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- Content -->
+                            <h1 class="text-fluid-3xl font-black text-white drop-shadow-xl leading-none whitespace-nowrap"
+                                style="font-family: 'Inter', sans-serif; -webkit-text-stroke: 1px rgba(0,0,0,0.1);">
+                                DIGITAL<br>CRAFTSMAN
+                            </h1>
+                        </div>
+
+                        <!-- Safe Zone Overlay (Visible) -->
+                        <div class="absolute inset-0 pointer-events-none z-10">
+                            <!-- Profile Zone -->
+                            <div
+                                class="absolute left-[2.7%] top-[16%] h-[68%] aspect-square rounded-full border-2 border-dashed border-white/30 bg-black/40 flex items-center justify-center backdrop-blur-[2px]">
+                                <div class="text-center">
+                                    <span class="material-icons text-white/40 text-2xl mb-1">person</span>
+                                    <div class="text-[8px] text-white/60 font-medium uppercase tracking-widest">
+                                        Profile<br>Safe Zone</div>
+                                </div>
+                            </div>
+                            <!-- Helper Lines -->
+                            <div class="absolute top-[50%] left-0 w-full h-px bg-cyan-500/30 dashed"></div>
+                            <div class="absolute top-0 left-[50%] h-full w-px bg-cyan-500/30 dashed"></div>
+                            <!-- Dimensions Badge -->
+                            <div
+                                class="absolute bottom-3 right-3 px-2 py-1 bg-black/60 backdrop-blur-md rounded text-white/70 font-mono text-[10px] font-bold border border-white/10">
+                                1584 x 396 px
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Floating Tools Setup (Apple-Grade Glassmorphism) -->
+                <div class="w-full max-w-[1280px] px-4 md:px-8 grid grid-cols-1 lg:grid-cols-3 gap-6">
+
+                    <!-- 1. Assets Panel -->
+                    <div
+                        class="bg-zinc-900/60 backdrop-blur-xl p-6 rounded-3xl border border-white/5 shadow-2xl flex flex-col h-full ring-1 ring-black/50">
+                        <div class="flex items-center justify-between mb-5">
+                            <h3
+                                class="font-bold text-sm uppercase tracking-wider text-zinc-100 flex items-center gap-2">
+                                <span class="material-icons text-blue-400">inventory_2</span> Assets
+                            </h3>
+                            <span
+                                class="text-[10px] font-bold uppercase tracking-widest bg-white/5 px-2 py-1 rounded text-zinc-500 border border-white/5">Library</span>
+                        </div>
+
+                        <div class="space-y-6">
+                            <!-- Background Actions -->
+                            <div class="grid grid-cols-2 gap-3">
+                                <button
+                                    class="flex flex-col items-center justify-center gap-2 py-4 px-2 rounded-2xl bg-zinc-800/50 hover:bg-zinc-800 transition border border-white/5 hover:border-white/20 group">
+                                    <span
+                                        class="material-icons text-zinc-400 group-hover:text-white transition">add_photo_alternate</span>
+                                    <span
+                                        class="text-[10px] font-bold text-zinc-500 group-hover:text-zinc-300 uppercase tracking-widest">Upload</span>
+                                </button>
+                                <button
+                                    class="flex flex-col items-center justify-center gap-2 py-4 px-2 rounded-2xl bg-zinc-800/50 hover:bg-zinc-800 transition border border-white/5 hover:border-white/20 group">
+                                    <span
+                                        class="material-icons text-zinc-400 group-hover:text-white transition">collections</span>
+                                    <span
+                                        class="text-[10px] font-bold text-zinc-500 group-hover:text-zinc-300 uppercase tracking-widest">Gallery</span>
+                                </button>
+                            </div>
+
+                            <!-- Profile Controls -->
+                            <div class="pt-5 border-t border-white/5">
+                                <label
+                                    class="flex items-center justify-between text-[10px] font-bold text-zinc-500 mb-3 uppercase tracking-widest">
+                                    <span>Profile Overlay</span>
+                                    <span class="text-emerald-500">Active</span>
+                                </label>
+                                <div class="flex items-center gap-4 bg-black/20 p-3 rounded-2xl border border-white/5">
+                                    <div
+                                        class="w-12 h-12 rounded-full bg-zinc-800 overflow-hidden relative group/avatar cursor-pointer ring-2 ring-zinc-700">
+                                        <div class="w-full h-full flex items-center justify-center bg-zinc-800">
+                                            <span class="material-icons text-zinc-600">person</span>
+                                        </div>
+                                    </div>
+                                    <div class="flex-1 space-y-2">
+                                        <div class="text-xs text-zinc-400 leading-tight">Position relative to canvas
+                                            edge.</div>
+                                        <input type="range"
+                                            class="w-full h-1 bg-zinc-700 rounded-lg appearance-none cursor-pointer accent-violet-500">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 2. Layers Panel -->
+                    <div
+                        class="bg-zinc-900/60 backdrop-blur-xl p-6 rounded-3xl border border-white/5 shadow-2xl flex flex-col h-full ring-1 ring-black/50">
+                        <div class="flex items-center justify-between mb-5">
+                            <h3
+                                class="font-bold text-sm uppercase tracking-wider text-zinc-100 flex items-center gap-2">
+                                <span class="material-icons text-purple-400">layers</span> Layers
+                            </h3>
+                            <button
+                                class="w-8 h-8 flex items-center justify-center bg-white/5 hover:bg-white/10 rounded-full text-white transition">
+                                <span class="material-icons text-sm">add</span>
+                            </button>
+                        </div>
+
+                        <div class="space-y-2 flex-1 overflow-y-auto custom-scrollbar pr-1 max-h-[300px]">
+                            <!-- Selected Layer -->
+                            <div
+                                class="group relative p-3 rounded-2xl bg-violet-500/10 border border-violet-500/50 transition-all hover:bg-violet-500/20">
+                                <div class="flex items-center gap-3">
+                                    <span
+                                        class="material-icons text-zinc-500 text-sm cursor-grab active:cursor-grabbing">drag_indicator</span>
+                                    <div class="flex-1 min-w-0">
+                                        <div class="text-xs font-bold text-white truncate">DIGITAL CRAFTSMAN</div>
+                                        <div class="text-[10px] text-violet-300">Text • Inter Bold</div>
+                                    </div>
+                                    <div class="flex items-center gap-1">
+                                        <button
+                                            class="p-1.5 text-zinc-400 hover:text-white rounded hover:bg-white/10"><span
+                                                class="material-icons text-xs">visibility</span></button>
+                                        <button
+                                            class="p-1.5 text-zinc-400 hover:text-white rounded hover:bg-white/10"><span
+                                                class="material-icons text-xs">lock_open</span></button>
+                                    </div>
+                                </div>
+                                <!-- Expanded Properties -->
+                                <div class="mt-3 pt-3 border-t border-white/5 grid grid-cols-5 gap-1">
+                                    <button
+                                        class="aspect-square rounded bg-violet-600 text-white flex items-center justify-center font-bold text-xs">B</button>
+                                    <button
+                                        class="aspect-square rounded bg-zinc-800 text-zinc-400 hover:text-white flex items-center justify-center italic text-xs">I</button>
+                                    <button
+                                        class="aspect-square rounded bg-zinc-800 text-zinc-400 hover:text-white flex items-center justify-center text-[10px]">AA</button>
+                                    <div
+                                        class="col-span-2 bg-zinc-800 rounded flex items-center justify-center border border-zinc-700">
+                                        <div class="w-4 h-4 rounded-full bg-white border border-black shadow-sm mr-2">
+                                        </div>
+                                        <span class="text-[10px] text-zinc-300">#FFF</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Inactive Layer -->
+                            <div
+                                class="group p-3 rounded-2xl bg-transparent border border-transparent hover:bg-white/5 hover:border-white/5 transition-all">
+                                <div class="flex items-center gap-3 opacity-60 group-hover:opacity-100 transition">
+                                    <span class="material-icons text-zinc-600 text-sm">drag_indicator</span>
+                                    <div class="flex-1 min-w-0">
+                                        <div class="text-xs font-bold text-zinc-300 truncate">Background Gradient</div>
+                                        <div class="text-[10px] text-zinc-500">Image • 100%</div>
+                                    </div>
+                                    <button class="p-1.5 text-zinc-500 hover:text-white"><span
+                                            class="material-icons text-xs">visibility</span></button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 3. Export Panel -->
+                    <div
+                        class="bg-zinc-900/60 backdrop-blur-xl p-6 rounded-3xl border border-white/5 shadow-2xl flex flex-col ring-1 ring-black/50">
+                        <div class="flex items-center justify-between mb-5">
+                            <h3
+                                class="font-bold text-sm uppercase tracking-wider text-zinc-100 flex items-center gap-2">
+                                <span class="material-icons text-emerald-400">ios_share</span> Export
+                            </h3>
+                        </div>
+                        <div class="flex-1 flex flex-col justify-end space-y-3">
+                            <div class="flex items-center justify-between text-xs text-zinc-400 px-1 mb-2">
+                                <span>Quality</span>
+                                <span class="text-white font-medium">High (PNG)</span>
+                            </div>
+                            <button
+                                class="w-full py-3.5 rounded-xl bg-zinc-800 hover:bg-zinc-700 border border-zinc-700 text-white flex items-center justify-center gap-2 transition font-bold text-xs uppercase tracking-wide group">
+                                <span
+                                    class="material-icons text-sm text-zinc-400 group-hover:text-white">download</span>
+                                Download Image
+                            </button>
+                            <button
+                                class="w-full py-3.5 rounded-xl bg-[#0077b5] hover:bg-[#00639b] text-white shadow-lg shadow-blue-900/20 flex items-center justify-center gap-2 transition font-bold text-xs uppercase tracking-wide hover:-translate-y-0.5">
+                                <span class="material-icons text-sm">rocket_launch</span> Publish to LinkedIn
+                            </button>
+                        </div>
+                    </div>
+
+                </div>
+
+            </div>
+
+            <!-- Mobile Quick Actions Bar (Floating) -->
+            <div
+                class="md:hidden absolute bottom-6 left-1/2 -translate-x-1/2 z-40 bg-zinc-800/90 backdrop-blur-xl border border-white/10 rounded-full p-2 flex gap-3 shadow-2xl items-center ring-1 ring-black/50">
+                <button
+                    class="w-10 h-10 flex items-center justify-center bg-zinc-700/50 hover:bg-zinc-700 rounded-full text-zinc-300 hover:text-white transition"
+                    title="Undo">
+                    <span class="material-icons text-lg">undo</span>
+                </button>
+                <div class="w-px h-6 bg-white/10"></div>
+                <button
+                    class="w-12 h-12 flex items-center justify-center bg-gradient-to-br from-violet-600 to-indigo-600 rounded-full text-white shadow-lg shadow-violet-500/30 transform active:scale-95 transition"
+                    title="Add Text">
+                    <span class="material-icons text-xl">add</span>
+                </button>
+                <div class="w-px h-6 bg-white/10"></div>
+                <button
+                    class="w-10 h-10 flex items-center justify-center bg-zinc-700/50 hover:bg-zinc-700 rounded-full text-zinc-300 hover:text-white"
+                    title="Layers">
+                    <span class="material-icons text-lg">layers</span>
+                </button>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- Admin Dashboard Screen -->
+    <div class="max-w-7xl mx-auto mb-16">
+        <h2 class="text-2xl font-bold text-white mb-6">Admin Dashboard</h2>
+
+        <div class="bg-zinc-950 border border-zinc-800 rounded-2xl overflow-hidden shadow-2xl">
+            <div class="grid grid-cols-1 md:grid-cols-12 min-h-[600px]">
+                <!-- Admin Sidebar -->
+                <div class="md:col-span-2 bg-zinc-900 border-r border-zinc-800 p-4 hidden md:block">
+                    <div class="flex items-center gap-2 mb-8 px-2">
+                        <div
+                            class="w-8 h-8 rounded-lg bg-gradient-to-br from-violet-600 to-indigo-600 flex items-center justify-center text-white font-bold">
+                            L
+                        </div>
+                        <span class="font-bold text-white">Admin</span>
+                    </div>
+
+                    <div class="space-y-1">
+                        <div
+                            class="flex items-center gap-3 px-3 py-2 bg-violet-500/10 text-violet-400 rounded-lg border border-violet-500/20">
+                            <svg class="w-5 h-5">
+                                <use href="#icon-chart-bar" />
+                            </svg>
+                            <span class="text-sm font-medium">Dashboard</span>
+                        </div>
+                        <div
+                            class="flex items-center gap-3 px-3 py-2 text-zinc-400 hover:bg-zinc-800 rounded-lg transition-colors">
+                            <svg class="w-5 h-5">
+                                <use href="#icon-users" />
+                            </svg>
+                            <span class="text-sm font-medium">Users</span>
+                        </div>
+                        <div
+                            class="flex items-center gap-3 px-3 py-2 text-zinc-400 hover:bg-zinc-800 rounded-lg transition-colors">
+                            <svg class="w-5 h-5">
+                                <use href="#icon-sparkles" />
+                            </svg>
+                            <span class="text-sm font-medium">Agents</span>
+                        </div>
+                        <div
+                            class="flex items-center gap-3 px-3 py-2 text-zinc-400 hover:bg-zinc-800 rounded-lg transition-colors">
+                            <svg class="w-5 h-5">
+                                <use href="#icon-monitor" />
+                            </svg>
+                            <span class="text-sm font-medium">Observability</span>
+                        </div>
+                        <div
+                            class="flex items-center gap-3 px-3 py-2 text-zinc-400 hover:bg-zinc-800 rounded-lg transition-colors">
+                            <svg class="w-5 h-5">
+                                <use href="#icon-credit-card" />
+                            </svg>
+                            <span class="text-sm font-medium">Finance</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Admin Content -->
+                <div class="md:col-span-10 bg-black p-6 md:p-8">
+                    <!-- Top Stats -->
+                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+                        <div class="bg-zinc-900 border border-zinc-800 rounded-xl p-4">
+                            <div class="flex justify-between items-start mb-2">
+                                <span class="text-zinc-400 text-xs uppercase tracking-wider font-semibold">Total
+                                    Revenue</span>
+                                <div class="p-1.5 bg-green-500/10 rounded text-green-500">
+                                    <svg class="w-4 h-4">
+                                        <use href="#icon-credit-card" />
+                                    </svg>
+                                </div>
+                            </div>
+                            <div class="text-2xl font-bold text-white">$45,231.89</div>
+                            <div class="text-xs text-green-500 mt-1 flex items-center gap-1">
+                                <span>↑ 20.1%</span> <span class="text-zinc-500">from last month</span>
+                            </div>
+                        </div>
+
+                        <div class="bg-zinc-900 border border-zinc-800 rounded-xl p-4">
+                            <div class="flex justify-between items-start mb-2">
+                                <span class="text-zinc-400 text-xs uppercase tracking-wider font-semibold">Active
+                                    Users</span>
+                                <div class="p-1.5 bg-blue-500/10 rounded text-blue-500">
+                                    <svg class="w-4 h-4">
+                                        <use href="#icon-users" />
+                                    </svg>
+                                </div>
+                            </div>
+                            <div class="text-2xl font-bold text-white">+2350</div>
+                            <div class="text-xs text-blue-500 mt-1 flex items-center gap-1">
+                                <span>↑ 180.1%</span> <span class="text-zinc-500">from last month</span>
+                            </div>
+                        </div>
+
+                        <div class="bg-zinc-900 border border-zinc-800 rounded-xl p-4">
+                            <div class="flex justify-between items-start mb-2">
+                                <span class="text-zinc-400 text-xs uppercase tracking-wider font-semibold">Agent
+                                    Tasks</span>
+                                <div class="p-1.5 bg-violet-500/10 rounded text-violet-500">
+                                    <svg class="w-4 h-4">
+                                        <use href="#icon-sparkles" />
+                                    </svg>
+                                </div>
+                            </div>
+                            <div class="text-2xl font-bold text-white">12,234</div>
+                            <div class="text-xs text-violet-500 mt-1 flex items-center gap-1">
+                                <span>↑ 19%</span> <span class="text-zinc-500">from last month</span>
+                            </div>
+                        </div>
+
+                        <div class="bg-zinc-900 border border-zinc-800 rounded-xl p-4">
+                            <div class="flex justify-between items-start mb-2">
+                                <span class="text-zinc-400 text-xs uppercase tracking-wider font-semibold">Error
+                                    Rate</span>
+                                <div class="p-1.5 bg-red-500/10 rounded text-red-500">
+                                    <svg class="w-4 h-4">
+                                        <use href="#icon-monitor" />
+                                    </svg>
+                                </div>
+                            </div>
+                            <div class="text-2xl font-bold text-white">0.43%</div>
+                            <div class="text-xs text-green-500 mt-1 flex items-center gap-1">
+                                <span>↓ 2.1%</span> <span class="text-zinc-500">improvement</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Chart & Activity Grid -->
+                    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                        <!-- Main Chart Area -->
+                        <div class="lg:col-span-2 bg-zinc-900 border border-zinc-800 rounded-xl p-6">
+                            <div class="flex items-center justify-between mb-6">
+                                <h3 class="text-lg font-semibold text-white">Revenue Overview</h3>
+                                <div class="flex gap-2">
+                                    <button class="px-3 py-1 bg-zinc-800 rounded-lg text-xs text-white">Weekly</button>
+                                    <button class="px-3 py-1 text-zinc-500 text-xs">Monthly</button>
+                                </div>
+                            </div>
+                            <div class="h-64 flex items-end justify-between gap-2 px-4">
+                                <!-- Fake Bar Chart -->
+                                <div
+                                    class="w-full bg-violet-500/20 rounded-t-sm h-[40%] hover:bg-violet-500/40 transition-all cursor-pointer relative group">
+                                    <div
+                                        class="absolute -top-8 left-1/2 -translate-x-1/2 bg-zinc-800 text-white text-[10px] py-1 px-2 rounded opacity-0 group-hover:opacity-100 transition-opacity">
+                                        $2400</div>
+                                </div>
+                                <div
+                                    class="w-full bg-violet-500/30 rounded-t-sm h-[65%] hover:bg-violet-500/50 transition-all relative group">
+                                    <div
+                                        class="absolute -top-8 left-1/2 -translate-x-1/2 bg-zinc-800 text-white text-[10px] py-1 px-2 rounded opacity-0 group-hover:opacity-100 transition-opacity">
+                                        $4500</div>
+                                </div>
+                                <div
+                                    class="w-full bg-violet-500/20 rounded-t-sm h-[50%] hover:bg-violet-500/40 transition-all relative group">
+                                </div>
+                                <div
+                                    class="w-full bg-violet-500/50 rounded-t-sm h-[85%] hover:bg-violet-500/70 transition-all relative group">
+                                </div>
+                                <div
+                                    class="w-full bg-violet-500/30 rounded-t-sm h-[60%] hover:bg-violet-500/50 transition-all relative group">
+                                </div>
+                                <div
+                                    class="w-full bg-violet-500/40 rounded-t-sm h-[75%] hover:bg-violet-500/60 transition-all relative group">
+                                </div>
+                                <div
+                                    class="w-full bg-violet-500/60 rounded-t-sm h-[95%] hover:bg-violet-500/80 transition-all relative group">
+                                </div>
+                            </div>
+                            <div class="flex justify-between mt-4 text-xs text-zinc-500 px-2">
+                                <span>Mon</span><span>Tue</span><span>Wed</span><span>Thu</span><span>Fri</span><span>Sat</span><span>Sun</span>
+                            </div>
+                        </div>
+
+                        <!-- Recent signups -->
+                        <div class="bg-zinc-900 border border-zinc-800 rounded-xl p-6">
+                            <h3 class="text-lg font-semibold text-white mb-4">Recent Users</h3>
+                            <div class="space-y-4">
+                                <div class="flex items-center gap-3">
+                                    <div
+                                        class="w-8 h-8 rounded-full bg-zinc-800 flex items-center justify-center text-xs font-bold text-white">
+                                        JD</div>
+                                    <div class="flex-1">
+                                        <div class="text-sm font-medium text-white">John Doe</div>
+                                        <div class="text-xs text-zinc-500">john@example.com</div>
+                                    </div>
+                                    <div class="text-xs text-emerald-500">+ $19</div>
+                                </div>
+                                <div class="flex items-center gap-3">
+                                    <div
+                                        class="w-8 h-8 rounded-full bg-zinc-800 flex items-center justify-center text-xs font-bold text-white">
+                                        AS</div>
+                                    <div class="flex-1">
+                                        <div class="text-sm font-medium text-white">Alice Smith</div>
+                                        <div class="text-xs text-zinc-500">alice@example.com</div>
+                                    </div>
+                                    <div class="text-xs text-emerald-500">+ $49</div>
+                                </div>
+                                <div class="flex items-center gap-3">
+                                    <div
+                                        class="w-8 h-8 rounded-full bg-zinc-800 flex items-center justify-center text-xs font-bold text-white">
+                                        RK</div>
+                                    <div class="flex-1">
+                                        <div class="text-sm font-medium text-white">Robert K.</div>
+                                        <div class="text-xs text-zinc-500">rob@example.com</div>
+                                    </div>
+                                    <div class="text-xs text-zinc-500">Free</div>
+                                </div>
+                                <div class="flex items-center gap-3">
+                                    <div
+                                        class="w-8 h-8 rounded-full bg-zinc-800 flex items-center justify-center text-xs font-bold text-white">
+                                        ML</div>
+                                    <div class="flex-1">
+                                        <div class="text-sm font-medium text-white">Maria L.</div>
+                                        <div class="text-xs text-zinc-500">maria@example.com</div>
+                                    </div>
+                                    <div class="text-xs text-emerald-500">+ $19</div>
+                                </div>
+                            </div>
+                            <button
+                                class="w-full mt-6 py-2 border border-zinc-700 rounded-lg text-sm text-zinc-400 hover:bg-zinc-800 transition-colors">View
+                                All Users</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Template Library & Gallery Screens -->
+    <div class="max-w-7xl mx-auto mb-16">
+        <h2 class="text-2xl font-bold text-white mb-6">Templates & Gallery</h2>
+
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            <!-- Template Library -->
+            <div class="space-y-4">
+                <div class="flex items-center justify-between">
+                    <span class="px-3 py-1 bg-violet-600 rounded-full text-sm font-semibold text-white">Template
+                        Library</span>
+                </div>
+
+                <div class="bg-zinc-950 border border-zinc-800 rounded-2xl p-6 h-[500px] overflow-hidden relative">
+                    <!-- Search Bar -->
+                    <div class="flex gap-2 mb-6">
+                        <div
+                            class="flex-1 bg-zinc-900 border border-zinc-700 rounded-xl px-4 py-2 flex items-center gap-2">
+                            <svg class="w-4 h-4 text-zinc-400">
+                                <use href="#icon-sparkles" />
+                            </svg>
+                            <span class="text-sm text-zinc-500">Search for "Tech", "Minimal", "Agency"...</span>
+                        </div>
+                        <button
+                            class="px-4 py-2 bg-zinc-900 border border-zinc-700 rounded-xl text-zinc-400 hover:text-white transition-colors"
+                            aria-label="Grid View">
+                            <svg class="w-4 h-4">
+                                <use href="#icon-grid" />
+                            </svg>
+                        </button>
+                    </div>
+
+                    <!-- Category Tabs -->
+                    <div class="flex gap-2 overflow-x-auto pb-4 mb-2 no-scrollbar">
+                        <button
+                            class="px-4 py-1.5 bg-violet-600 rounded-full text-xs font-semibold text-white whitespace-nowrap">All
+                            Templates</button>
+                        <button
+                            class="px-4 py-1.5 bg-zinc-900 border border-zinc-700 rounded-full text-xs text-zinc-400 whitespace-nowrap hover:bg-zinc-800">SaaS</button>
+                        <button
+                            class="px-4 py-1.5 bg-zinc-900 border border-zinc-700 rounded-full text-xs text-zinc-400 whitespace-nowrap hover:bg-zinc-800">Agency</button>
+                        <button
+                            class="px-4 py-1.5 bg-zinc-900 border border-zinc-700 rounded-full text-xs text-zinc-400 whitespace-nowrap hover:bg-zinc-800">Personal
+                            Brand</button>
+                        <button
+                            class="px-4 py-1.5 bg-zinc-900 border border-zinc-700 rounded-full text-xs text-zinc-400 whitespace-nowrap hover:bg-zinc-800">E-commerce</button>
+                    </div>
+
+                    <!-- Grid -->
+                    <div class="grid grid-cols-2 gap-4 overflow-y-auto h-[350px] pr-2 custom-scrollbar">
+                        <!-- Template Card 1 -->
+                        <div
+                            class="group relative aspect-[2/1] bg-gradient-to-br from-violet-900 via-indigo-900 to-blue-900 rounded-xl border border-white/5 overflow-hidden cursor-pointer hover:border-violet-500/50 transition-colors">
+                            <div class="absolute inset-0 flex items-center justify-center p-4">
+                                <div class="text-center">
+                                    <div class="text-xs font-bold text-white mb-1">GROWTH</div>
+                                    <div class="text-[10px] text-white/60">Modern SaaS</div>
+                                </div>
+                            </div>
+                            <div
+                                class="absolute inset-0 bg-black/60 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity backdrop-blur-sm">
+                                <button
+                                    class="px-3 py-1.5 bg-white text-black text-xs font-bold rounded-lg transform scale-90 group-hover:scale-100 transition-transform">Use
+                                    Template</button>
+                            </div>
+                        </div>
+
+                        <!-- Template Card 2 -->
+                        <div
+                            class="group relative aspect-[2/1] bg-zinc-900 rounded-xl border border-white/5 overflow-hidden cursor-pointer hover:border-violet-500/50 transition-colors">
+                            <div class="absolute inset-0 p-4">
+                                <div class="w-full h-full border border-white/10 flex items-center justify-center">
+                                    <span class="text-xs text-zinc-500 font-mono">MINIMALIST</span>
+                                </div>
+                            </div>
+                            <div
+                                class="absolute inset-0 bg-black/60 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity backdrop-blur-sm">
+                                <button class="px-3 py-1.5 bg-white text-black text-xs font-bold rounded-lg">Use
+                                    Template</button>
+                            </div>
+                        </div>
+
+                        <!-- Template Card 3 -->
+                        <div
+                            class="group relative aspect-[2/1] bg-gradient-to-r from-emerald-900 to-teal-900 rounded-xl border border-white/5 overflow-hidden cursor-pointer hover:border-violet-500/50 transition-colors">
+                            <div class="absolute right-0 bottom-0 w-16 h-16 bg-white/5 rounded-tl-full"></div>
+                            <div
+                                class="absolute inset-0 bg-black/60 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity backdrop-blur-sm">
+                                <button class="px-3 py-1.5 bg-white text-black text-xs font-bold rounded-lg">Use
+                                    Template</button>
+                            </div>
+                        </div>
+
+                        <!-- Template Card 4 -->
+                        <div
+                            class="group relative aspect-[2/1] bg-gradient-to-bl from-orange-900 to-red-900 rounded-xl border border-white/5 overflow-hidden cursor-pointer hover:border-violet-500/50 transition-colors">
+                            <div
+                                class="absolute inset-0 bg-black/60 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity backdrop-blur-sm">
+                                <button class="px-3 py-1.5 bg-white text-black text-xs font-bold rounded-lg">Use
+                                    Template</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Gallery -->
+            <div class="space-y-4">
+                <div class="flex items-center justify-between">
+                    <span class="px-3 py-1 bg-cyan-600 rounded-full text-sm font-semibold text-white">Your
+                        Gallery</span>
+                </div>
+
+                <div class="bg-zinc-950 border border-zinc-800 rounded-2xl p-6 h-[500px] overflow-hidden">
+                    <div class="flex justify-between items-center mb-6">
+                        <h3 class="text-white font-medium">Recent Designs</h3>
+                        <button class="text-xs text-violet-400 hover:text-violet-300">View All</button>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-4 h-[400px] overflow-y-auto pr-2 custom-scrollbar">
+                        <!-- Gallery Item 1 -->
+                        <div class="relative group">
+                            <div
+                                class="aspect-[4/1] bg-zinc-900 rounded-lg overflow-hidden border border-zinc-800 mb-2">
+                                <div
+                                    class="w-full h-full bg-gradient-to-r from-blue-600/20 to-violet-600/20 flex items-center justify-center">
+                                    <span class="text-[10px] text-zinc-500">Banner 01</span>
+                                </div>
+                            </div>
+                            <div class="flex justify-between items-center">
+                                <div>
+                                    <div class="text-xs text-white font-medium">LinkedIn Main</div>
+                                    <div class="text-[10px] text-zinc-500">Edited 2m ago</div>
+                                </div>
+                                <button class="p-1 hover:bg-zinc-800 rounded text-zinc-400" aria-label="Menu">
+                                    <svg class="w-3 h-3">
+                                        <use href="#icon-grid" />
+                                    </svg>
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Gallery Item 2 -->
+                        <div class="relative group">
+                            <div
+                                class="aspect-[4/1] bg-zinc-900 rounded-lg overflow-hidden border border-zinc-800 mb-2">
+                                <div
+                                    class="w-full h-full bg-gradient-to-r from-emerald-600/20 to-teal-600/20 flex items-center justify-center">
+                                    <span class="text-[10px] text-zinc-500">Banner 02</span>
+                                </div>
+                            </div>
+                            <div class="flex justify-between items-center">
+                                <div>
+                                    <div class="text-xs text-white font-medium">Twitter Header</div>
+                                    <div class="text-[10px] text-zinc-500">Edited 2h ago</div>
+                                </div>
+                                <button class="p-1 hover:bg-zinc-800 rounded text-zinc-400" aria-label="Menu">
+                                    <svg class="w-3 h-3">
+                                        <use href="#icon-grid" />
+                                    </svg>
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Gallery Item 3 -->
+                        <div class="relative group">
+                            <div
+                                class="aspect-[4/1] bg-zinc-900 rounded-lg overflow-hidden border border-zinc-800 mb-2">
+                                <div
+                                    class="w-full h-full bg-gradient-to-r from-orange-600/20 to-red-600/20 flex items-center justify-center">
+                                    <span class="text-[10px] text-zinc-500">Banner 03</span>
+                                </div>
+                            </div>
+                            <div class="flex justify-between items-center">
+                                <div>
+                                    <div class="text-xs text-white font-medium">YouTube Cover</div>
+                                    <div class="text-[10px] text-zinc-500">Edited 1d ago</div>
+                                </div>
+                                <button class="p-1 hover:bg-zinc-800 rounded text-zinc-400" aria-label="Menu">
+                                    <svg class="w-3 h-3">
+                                        <use href="#icon-grid" />
+                                    </svg>
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Gallery Item 4 -->
+                        <div class="relative group">
+                            <div
+                                class="aspect-[4/1] bg-zinc-900 rounded-lg overflow-hidden border border-zinc-800 mb-2">
+                                <div class="w-full h-full bg-zinc-800 flex items-center justify-center">
+                                    <span class="text-[10px] text-zinc-600">Draft</span>
+                                </div>
+                            </div>
+                            <div class="flex justify-between items-center">
+                                <div>
+                                    <div class="text-xs text-white font-medium">Untitled</div>
+                                    <div class="text-[10px] text-zinc-500">Edited 3d ago</div>
+                                </div>
+                                <button class="p-1 hover:bg-zinc-800 rounded text-zinc-400" aria-label="Menu">
+                                    <svg class="w-3 h-3">
+                                        <use href="#icon-grid" />
+                                    </svg>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Authentication Screen -->
+    <div class="max-w-7xl mx-auto mb-16">
+        <h2 class="text-2xl font-bold text-white mb-6">Authentication</h2>
+
+        <div
+            class="relative bg-zinc-950 border border-zinc-800 rounded-2xl overflow-hidden h-[600px] flex items-center justify-center">
+            <!-- Background Elements -->
+            <div class="absolute top-0 left-0 w-full h-full overflow-hidden pointer-events-none">
+                <div class="absolute top-[-10%] left-[-10%] w-[50%] h-[50%] bg-violet-600/20 rounded-full blur-[100px]">
+                </div>
+                <div
+                    class="absolute bottom-[-10%] right-[-10%] w-[50%] h-[50%] bg-blue-600/10 rounded-full blur-[100px]">
+                </div>
+            </div>
+
+            <!-- Auth Card -->
+            <div
+                class="relative w-full max-w-md p-8 bg-zinc-900/50 backdrop-blur-xl border border-white/10 rounded-2xl shadow-2xl">
+                <div class="text-center mb-8">
+                    <div
+                        class="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br from-violet-600 to-indigo-600 rounded-2xl mb-4 shadow-lg shadow-violet-500/20">
+                        <span class="text-3xl font-black text-white">L</span>
+                    </div>
+                    <h2 class="text-2xl font-bold text-white mb-2">Welcome Back</h2>
+                    <p class="text-zinc-400 text-sm">Sign in to continue to Life OS Studio</p>
+                </div>
+
+                <div class="space-y-4">
+                    <div class="space-y-1.5">
+                        <label class="text-xs font-semibold text-zinc-400 ml-1">Email Address</label>
+                        <div class="relative">
+                            <input type="email" placeholder="you@example.com"
+                                class="w-full px-4 py-3 bg-black/50 border border-zinc-700 rounded-xl text-white placeholder-zinc-600 focus:outline-none focus:border-violet-500 focus:ring-1 focus:ring-violet-500 transition-all">
+                            <div class="absolute right-3 top-1/2 -translate-y-1/2 text-zinc-500">
+                                <svg class="w-5 h-5">
+                                    <use href="#icon-users" />
+                                </svg>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="space-y-1.5">
+                        <label class="text-xs font-semibold text-zinc-400 ml-1">Password</label>
+                        <div class="relative">
+                            <input type="password" placeholder="••••••••"
+                                class="w-full px-4 py-3 bg-black/50 border border-zinc-700 rounded-xl text-white placeholder-zinc-600 focus:outline-none focus:border-violet-500 focus:ring-1 focus:ring-violet-500 transition-all">
+                            <div class="absolute right-3 top-1/2 -translate-y-1/2 text-zinc-500">
+                                <svg class="w-5 h-5">
+                                    <use href="#icon-lock" />
+                                </svg>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="flex items-center justify-between text-xs">
+                        <label class="flex items-center gap-2 cursor-pointer text-zinc-400 hover:text-white">
+                            <input type="checkbox"
+                                class="rounded border-zinc-700 bg-zinc-800 text-violet-600 focus:ring-violet-600">
+                            Remember me
+                        </label>
+                        <a href="#" class="text-violet-400 hover:text-violet-300">Forgot password?</a>
+                    </div>
+
+                    <button
+                        class="w-full py-3.5 mt-2 bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-500 hover:to-indigo-500 rounded-xl text-white font-bold shadow-lg shadow-violet-500/25 transition-all transform active:scale-[0.98]">
+                        Sign In
+                    </button>
+
+                    <div class="relative my-6">
+                        <div class="absolute inset-0 flex items-center">
+                            <div class="w-full border-t border-zinc-800"></div>
+                        </div>
+                        <div class="relative flex justify-center text-xs">
+                            <span class="px-2 bg-zinc-900 text-zinc-500">Or continue with</span>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-3">
+                        <button
+                            class="flex items-center justify-center gap-2 py-2.5 bg-zinc-800 hover:bg-zinc-700 border border-zinc-700 rounded-xl text-white transition-colors text-sm font-medium">
+                            <svg class="w-5 h-5" viewBox="0 0 24 24">
+                                <path fill="currentColor"
+                                    d="M12.545,10.239v3.821h5.445c-0.712,2.315-2.647,3.972-5.445,3.972c-3.332,0-6.033-2.701-6.033-6.032s2.701-6.032,6.033-6.032c1.498,0,2.866,0.549,3.921,1.453l2.814-2.814C17.503,2.988,15.139,2,12.545,2C7.021,2,2.543,6.477,2.543,12s4.478,10,10.002,10c8.396,0,10.249-7.85,9.426-11.748L12.545,10.239z" />
+                            </svg>
+                            Google
+                        </button>
+                        <button
+                            class="flex items-center justify-center gap-2 py-2.5 bg-zinc-800 hover:bg-zinc-700 border border-zinc-700 rounded-xl text-white transition-colors text-sm font-medium">
+                            <svg class="w-5 h-5" viewBox="0 0 24 24" fill="currentColor">
+                                <path
+                                    d="M12 2C6.477 2 2 6.477 2 12c0 4.991 3.657 9.128 8.438 9.879V14.89h-2.54V12h2.54V9.797c0-2.506 1.492-3.89 3.777-3.89 1.094 0 2.238.195 2.238.195v2.46h-1.26c-1.243 0-1.63.771-1.63 1.562V12h2.773l-.443 2.89h-2.33v6.988C18.343 21.128 22 16.991 22 12c0-5.523-4.477-10-10-10z" />
+                            </svg>
+                            Facebook
+                        </button>
+                    </div>
+                </div>
+
+                <div class="mt-8 text-center text-sm">
+                    <span class="text-zinc-500">Don't have an account?</span>
+                    <a href="#" class="text-violet-400 hover:text-violet-300 font-semibold ml-1">Create account</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- AI Brainstorming Chat -->
+    <div class="max-w-[1400px] mx-auto mb-16 px-4">
+        <h2 class="text-3xl font-extrabold text-white mb-8 tracking-tight">AI Brainstorming Chat</h2>
+        <div
+            class="bg-zinc-950/50 border border-white/5 rounded-[2rem] overflow-hidden shadow-[0_0_50px_rgba(0,0,0,0.3)] h-[600px] flex flex-col relative ring-1 ring-white/10 backdrop-blur-3xl">
+
+            <!-- Chat Header -->
+            <div
+                class="bg-zinc-900/80 backdrop-blur-2xl border-b border-white/5 p-4 flex items-center justify-between z-10 sticky top-0">
+                <div class="flex items-center gap-4">
+                    <div
+                        class="w-12 h-12 rounded-2xl bg-gradient-to-br from-violet-600 via-indigo-600 to-blue-600 flex items-center justify-center text-white shadow-[0_8px_32px_rgba(124,58,237,0.4)] ring-1 ring-white/20">
+                        <span class="material-icons text-2xl drop-shadow-md">psychology</span>
+                    </div>
+                    <div>
+                        <h3 class="font-bold text-white text-base leading-tight tracking-wide">Creative Assistant</h3>
+                        <div class="flex items-center gap-2 mt-1">
+                            <span class="relative flex h-2 w-2">
+                                <span
+                                    class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                                <span class="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+                            </span>
+                            <span class="text-[11px] font-semibold text-zinc-400 uppercase tracking-wider">Online &
+                                Ready</span>
+                        </div>
+                    </div>
+                </div>
+                <button
+                    class="w-10 h-10 rounded-xl bg-white/5 hover:bg-white/10 flex items-center justify-center text-zinc-400 hover:text-white transition border border-white/5"
+                    aria-label="Menu">
+                    <span class="material-icons">more_vert</span>
+                </button>
+            </div>
+
+            <!-- Chat Area -->
+            <div
+                class="flex-1 bg-black/20 p-4 md:p-8 space-y-8 overflow-y-auto custom-scrollbar scroll-smooth relative">
+                <!-- Background Glow -->
+                <div
+                    class="absolute top-1/4 left-1/4 w-96 h-96 bg-violet-500/5 rounded-full blur-[100px] pointer-events-none">
+                </div>
+
+                <!-- AI Message -->
+                <div class="flex items-start gap-4 max-w-3xl animate-slide-in-right relative z-10">
+                    <div
+                        class="w-10 h-10 rounded-2xl bg-zinc-900 flex items-center justify-center shrink-0 border border-white/10 shadow-lg mt-1">
+                        <span class="material-icons text-zinc-400 text-sm">smart_toy</span>
+                    </div>
+                    <div class="space-y-4">
+                        <div
+                            class="bg-zinc-900/90 backdrop-blur-md rounded-2xl rounded-tl-none p-6 text-[15px] text-zinc-200 border border-white/5 leading-relaxed shadow-xl max-w-xl">
+                            <p class="mb-4 font-medium text-zinc-100">Hello! I'm here to help you create stunning
+                                content for your personal brand. What would you like to work on today?</p>
+                            <p class="text-xs font-bold text-zinc-500 uppercase tracking-widest mb-2">Suggested Actions
+                            </p>
+                            <div class="flex flex-wrap gap-2">
+                                <button
+                                    class="px-4 py-2.5 bg-white/5 hover:bg-white/10 border border-white/5 hover:border-white/20 rounded-xl text-xs font-semibold text-zinc-300 transition hover:text-white hover:shadow-lg hover:-translate-y-0.5 transform duration-200 flex items-center gap-2">
+                                    <span class="material-icons text-sm text-yellow-400">auto_awesome</span> Generate a
+                                    banner
+                                </button>
+                                <button
+                                    class="px-4 py-2.5 bg-white/5 hover:bg-white/10 border border-white/5 hover:border-white/20 rounded-xl text-xs font-semibold text-zinc-300 transition hover:text-white hover:shadow-lg hover:-translate-y-0.5 transform duration-200 flex items-center gap-2">
+                                    <span class="material-icons text-sm text-blue-400">edit_note</span> Write a hook
+                                </button>
+                                <button
+                                    class="px-4 py-2.5 bg-white/5 hover:bg-white/10 border border-white/5 hover:border-white/20 rounded-xl text-xs font-semibold text-zinc-300 transition hover:text-white hover:shadow-lg hover:-translate-y-0.5 transform duration-200 flex items-center gap-2">
+                                    <span class="material-icons text-sm text-purple-400">query_stats</span> Audit
+                                    Profile
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- User Message -->
+                <div class="flex items-start gap-4 max-w-3xl ml-auto flex-row-reverse animate-slide-in-right relative z-10"
+                    style="animation-delay: 0.1s;">
+                    <div
+                        class="w-10 h-10 rounded-2xl bg-indigo-600 flex items-center justify-center shrink-0 shadow-[0_0_20px_rgba(79,70,229,0.4)] ring-2 ring-white/10 mt-1">
+                        <span class="text-white text-xs font-black tracking-tighter">YO</span>
+                    </div>
+                    <div
+                        class="bg-indigo-600/20 backdrop-blur-md rounded-2xl rounded-tr-none p-6 text-[15px] text-indigo-50 border border-indigo-500/30 leading-relaxed shadow-xl max-w-xl">
+                        I need a banner for a "Digital Craftsman" personal brand. Dark, sleek, maybe some neon blue
+                        accents.
+                    </div>
+                </div>
+
+                <!-- AI Response (Generating) -->
+                <div class="flex items-start gap-4 max-w-3xl animate-slide-in-right relative z-10"
+                    style="animation-delay: 0.2s;">
+                    <div
+                        class="w-10 h-10 rounded-2xl bg-zinc-900 flex items-center justify-center shrink-0 border border-white/10 shadow-lg mt-1">
+                        <span class="material-icons text-zinc-400 text-sm">smart_toy</span>
+                    </div>
+                    <div
+                        class="bg-zinc-900/90 rounded-2xl rounded-tl-none p-5 border border-white/5 shadow-lg flex items-center gap-4 w-fit">
+                        <div class="flex gap-1.5 px-1">
+                            <div class="w-2 h-2 bg-violet-500 rounded-full animate-bounce" style="animation-delay: 0s">
+                            </div>
+                            <div class="w-2 h-2 bg-violet-500 rounded-full animate-bounce"
+                                style="animation-delay: 0.15s"></div>
+                            <div class="w-2 h-2 bg-violet-500 rounded-full animate-bounce"
+                                style="animation-delay: 0.3s"></div>
+                        </div>
+                        <span class="text-xs text-zinc-400 font-bold uppercase tracking-wider">Analysing design
+                            trends...</span>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- Input Area -->
+            <div class="p-6 bg-zinc-900/90 backdrop-blur-3xl border-t border-white/5 z-20">
+                <div class="relative max-w-4xl mx-auto group">
+                    <div
+                        class="absolute -inset-1 bg-gradient-to-r from-violet-600/30 to-indigo-600/30 rounded-2xl blur-lg opacity-0 group-hover:opacity-100 transition duration-700">
+                    </div>
+                    <div
+                        class="relative flex items-center bg-black/60 border border-white/10 rounded-2xl shadow-inner focus-within:border-violet-500/50 focus-within:ring-1 focus-within:ring-violet-500/50 transition-all overflow-hidden p-1.5">
+                        <button class="p-3 text-zinc-500 hover:text-violet-400 hover:bg-white/5 rounded-xl transition"
+                            aria-label="Upload">
+                            <span class="material-icons text-xl">add_circle</span>
+                        </button>
+                        <input type="text" placeholder="Describe what you want to create..."
+                            class="w-full py-3 bg-transparent text-white placeholder-zinc-500 focus:outline-none font-medium px-2 text-sm md:text-base">
+                        <div class="flex items-center gap-1">
+                            <button class="p-3 hover:bg-white/5 rounded-xl text-zinc-400 hover:text-white transition"
+                                aria-label="Voice Input">
+                                <span class="material-icons text-xl">mic</span>
+                            </button>
+                            <button
+                                class="w-10 h-10 bg-white text-black rounded-xl hover:bg-zinc-200 transition shadow-lg shadow-white/10 flex items-center justify-center transform active:scale-95">
+                                <span class="material-icons -ml-0.5 transform -rotate-45">arrow_upward</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- LinkedIn Studio -->
+    <div class="max-w-[1400px] mx-auto mb-16 px-4">
+        <h2 class="text-3xl font-extrabold text-white mb-8 tracking-tight">LinkedIn Studio</h2>
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 min-h-[700px]">
+
+            <!-- Editor Side -->
+            <div
+                class="bg-zinc-950/80 backdrop-blur-xl border border-white/10 rounded-[2rem] p-6 md:p-8 flex flex-col shadow-2xl relative overflow-hidden group ring-1 ring-white/5">
+                <div class="flex items-center justify-between mb-8">
+                    <h3 class="font-bold text-white flex items-center gap-3 text-lg">
+                        <div class="p-2 bg-blue-500/10 rounded-lg border border-blue-500/20">
+                            <span class="material-icons text-blue-500 text-xl">post_add</span>
+                        </div>
+                        Post Editor
+                    </h3>
+                    <div class="flex items-center gap-4">
+                        <div
+                            class="flex items-center text-[10px] font-bold uppercase tracking-wider text-emerald-400 bg-emerald-500/10 px-3 py-1.5 rounded-lg border border-emerald-500/20 shadow-[0_0_10px_rgba(16,185,129,0.1)]">
+                            <span class="w-1.5 h-1.5 bg-emerald-400 rounded-full mr-2 animate-pulse"></span> Draft Saved
+                        </div>
+                        <div class="w-px h-6 bg-zinc-800"></div>
+                        <div class="text-xs font-mono font-medium text-zinc-400">
+                            1,240 <span class="text-zinc-600">/ 3,000</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Toolbar -->
+                <div
+                    class="flex flex-wrap items-center gap-1.5 mb-6 p-1.5 bg-zinc-900/80 backdrop-blur rounded-2xl border border-white/5 w-full md:w-max shadow-lg">
+                    <button
+                        class="w-9 h-9 flex items-center justify-center hover:bg-white/10 rounded-xl text-zinc-400 hover:text-white transition"
+                        title="Bold"><span class="material-icons text-lg">format_bold</span></button>
+                    <button
+                        class="w-9 h-9 flex items-center justify-center hover:bg-white/10 rounded-xl text-zinc-400 hover:text-white transition"
+                        title="Italic"><span class="material-icons text-lg">format_italic</span></button>
+                    <button
+                        class="w-9 h-9 flex items-center justify-center hover:bg-white/10 rounded-xl text-zinc-400 hover:text-white transition"
+                        title="List"><span class="material-icons text-lg">format_list_bulleted</span></button>
+                    <button
+                        class="w-9 h-9 flex items-center justify-center hover:bg-white/10 rounded-xl text-zinc-400 hover:text-white transition"
+                        title="Link"><span class="material-icons text-lg">link</span></button>
+                    <div class="w-px h-5 bg-white/10 mx-1"></div>
+                    <button
+                        class="px-4 py-1.5 hover:bg-white/5 rounded-xl text-violet-300 hover:text-violet-200 transition flex items-center gap-2 font-bold text-xs bg-violet-600/10 border border-violet-500/20 group/ai"
+                        title="AI Rewrite">
+                        <span class="material-icons text-sm group-hover/ai:text-violet-200">auto_fix_high</span> Rewrite
+                    </button>
+                </div>
+
+                <!-- Text Area -->
+                <div
+                    class="flex-1 relative rounded-2xl bg-black/40 border border-white/5 hover:bg-black/50 hover:border-white/10 transition-colors shadow-inner">
+                    <textarea
+                        class="w-full h-full bg-transparent resize-none focus:outline-none text-zinc-200 text-base leading-relaxed p-6 custom-scrollbar font-normal tracking-wide"
+                        placeholder="What do you want to talk about?" spellcheck="false">
+🚀 Just launched my new portfolio!
+
+It's been a journey of 3 months, 524 commits, and countless cups of coffee. ☕
+
+As a Digital Craftsman, I believe in:
+1. Pixel perfection
+2. User-centric design
+3. Performance optimization
+
+Check it out and let me know your thoughts! 👇
+
+#webdev #portfolio #design #react #coding
+                        <div class="p-4 pb-8 bg-white min-h-[500px]">
+                            <div class="flex gap-3 mb-3">
+                                <div
+                                    class="w-10 h-10 rounded-full bg-indigo-600 flex items-center justify-center text-white font-bold text-xs">
+                                    YO</div>
+                                <div>
+                                    <div class="font-bold text-sm text-black">Your Name</div>
+                                    <div class="text-[10px] text-zinc-500">Digital Craftsman • 2m</div>
+                                </div>
+                            </div>
+                            <div class="text-xs text-zinc-800 leading-relaxed space-y-2 mb-3">
+                                <p>🚀 Just launched my new portfolio!</p>
+                                <p>It's been a journey of 3 months, 524 commits, and countless cups of coffee. ☕</p>
+                                <p class="text-blue-600 font-medium cursor-pointer">see more...</p>
+                            </div>
+
+                            <!-- Image Placeholder -->
+                            <div
+                                class="w-full aspect-video bg-zinc-100 rounded-lg flex items-center justify-center border border-zinc-200 mb-3">
+                                <span class="material-icons text-zinc-300 text-3xl">image</span>
+                            </div>
+
+                            <div class="flex items-center justify-between border-t border-zinc-100 pt-2 px-2">
+                                <div class="flex gap-4">
+                                    <span class="material-icons text-zinc-500 text-lg">thumb_up_off_alt</span>
+                                    <span class="material-icons text-zinc-500 text-lg">chat_bubble_outline</span>
+                                    <span class="material-icons text-zinc-500 text-lg">repeat</span>
+                                    <span class="material-icons text-zinc-500 text-lg">send</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- App Modals & Settings -->
+        <div class="max-w-7xl mx-auto mb-16 px-4">
+            <h2 class="text-2xl font-bold text-white mb-6 tracking-tight">Modals & Overlays</h2>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+
+                <!-- Settings Modal Preview -->
+                <div
+                    class="bg-zinc-950 border border-zinc-800 rounded-3xl p-6 relative group overflow-hidden shadow-xl ring-1 ring-white/5">
+                    <div class="absolute inset-0 bg-black/80 z-0 transition duration-500 group-hover:bg-black/90"></div>
+                    <div class="relative z-10 opacity-70 group-hover:opacity-100 transition duration-300">
+                        <h3 class="font-bold text-white mb-4 flex items-center gap-2">
+                            <span class="material-icons text-zinc-400">settings</span> Settings
+                        </h3>
+                        <div class="space-y-3">
+                            <div
+                                class="flex justify-between items-center bg-zinc-900 p-3 rounded-xl border border-zinc-800">
+                                <span class="text-sm text-zinc-300 font-medium">Dark Mode</span>
+                                <div class="w-10 h-5 bg-violet-600 rounded-full relative shadow-inner">
+                                    <div class="absolute right-1 top-1 w-3 h-3 bg-white rounded-full shadow-sm"></div>
+                                </div>
+                            </div>
+                            <div
+                                class="flex justify-between items-center bg-zinc-900 p-3 rounded-xl border border-zinc-800">
+                                <span class="text-sm text-zinc-300 font-medium">Notifications</span>
+                                <div
+                                    class="w-10 h-5 bg-zinc-700/50 rounded-full relative shadow-inner border border-zinc-600">
+                                    <div class="absolute left-1 top-1 w-3 h-3 bg-zinc-400 rounded-full shadow-sm"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Shortcuts Modal Preview -->
+                <div
+                    class="bg-zinc-950 border border-zinc-800 rounded-3xl p-6 relative group overflow-hidden shadow-xl ring-1 ring-white/5">
+                    <div class="absolute inset-0 bg-black/80 z-0 transition duration-500 group-hover:bg-black/90"></div>
+                    <div class="relative z-10 opacity-70 group-hover:opacity-100 transition duration-300">
+                        <h3 class="font-bold text-white mb-4 flex items-center gap-2">
+                            <span class="material-icons text-zinc-400">keyboard</span> Shortcuts
+                        </h3>
+                        <div class="grid grid-cols-2 gap-3">
+                            <div
+                                class="bg-zinc-900/50 p-3 rounded-xl border border-zinc-800 text-center hover:bg-zinc-800 transition">
+                                <div class="flex items-center justify-center gap-1 mb-1.5">
+                                    <kbd
+                                        class="bg-black/50 px-2 py-1 rounded-lg text-[10px] font-bold text-zinc-300 border border-zinc-700 font-mono shadow-sm">Ctrl</kbd>
+                                    <span class="text-zinc-600 text-xs">+</span>
+                                    <kbd
+                                        class="bg-black/50 px-2 py-1 rounded-lg text-[10px] font-bold text-zinc-300 border border-zinc-700 font-mono shadow-sm">Z</kbd>
+                                </div>
+                                <div class="text-[10px] font-bold text-zinc-500 uppercase tracking-wider">Undo</div>
+                            </div>
+                            <div
+                                class="bg-zinc-900/50 p-3 rounded-xl border border-zinc-800 text-center hover:bg-zinc-800 transition">
+                                <div class="flex items-center justify-center gap-1 mb-1.5">
+                                    <kbd
+                                        class="bg-black/50 px-2 py-1 rounded-lg text-[10px] font-bold text-zinc-300 border border-zinc-700 font-mono shadow-sm">Space</kbd>
+                                </div>
+                                <div class="text-[10px] font-bold text-zinc-500 uppercase tracking-wider">Pan Tool</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Profile Modal Preview -->
+                <div
+                    class="bg-zinc-950 border border-zinc-800 rounded-3xl p-6 relative group overflow-hidden shadow-xl ring-1 ring-white/5">
+                    <div class="absolute inset-0 bg-black/80 z-0 transition duration-500 group-hover:bg-black/90"></div>
+                    <div
+                        class="relative z-10 opacity-70 group-hover:opacity-100 transition duration-300 flex flex-col items-center text-center">
+                        <div
+                            class="w-16 h-16 rounded-full bg-gradient-to-br from-violet-600 to-cyan-500 p-[2px] mb-3 shadow-lg shadow-violet-900/20">
+                            <div class="w-full h-full rounded-full bg-zinc-900 p-1">
+                                <div
+                                    class="w-full h-full rounded-full bg-zinc-800 flex items-center justify-center text-white font-black text-sm">
+                                    YO</div>
+                            </div>
+                        </div>
+                        <h3 class="font-bold text-white text-lg">Your Profile</h3>
+                        <p
+                            class="text-xs text-zinc-500 font-medium mb-4 flex items-center gap-1.5 bg-zinc-900/50 px-2 py-1 rounded-full border border-zinc-800">
+                            <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span> Pro Plan Active
+                        </p>
+                        <button
+                            class="px-5 py-2.5 bg-zinc-800 hover:bg-zinc-700 rounded-xl text-xs font-bold text-white border border-zinc-700 transition w-full">
+                            Manage Account
+                        </button>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+        <!-- Design System -->
+        <div class="max-w-7xl mx-auto mb-16">
+            <h2 class="text-2xl font-bold text-white mb-6">Design System</h2>
+
+            <div class="grid grid-cols-2 md:grid-cols-5 gap-6">
+                <!-- Primary Purple -->
+                <div class="space-y-3">
+                    <div class="w-full h-20 btn-primary rounded-xl shadow-lg shadow-violet-500/30"></div>
+                    <div>
+                        <div class="text-white font-medium">Primary Purple</div>
+                        <div class="text-zinc-500 text-sm">#8B5CF6</div>
+                    </div>
+                </div>
+
+                <!-- Secondary Cyan -->
+                <div class="space-y-3">
+                    <div class="w-full h-20 rounded-xl" style="background: #06B6D4;"></div>
+                    <div>
+                        <div class="text-white font-medium">Secondary Cyan</div>
+                        <div class="text-zinc-500 text-sm">#06B6D4</div>
+                    </div>
+                </div>
+
+                <!-- Banana Yellow -->
+                <div class="space-y-3">
+                    <div class="w-full h-20 rounded-xl" style="background: #D4A017;"></div>
+                    <div>
+                        <div class="text-white font-medium">Banana Yellow</div>
+                        <div class="text-zinc-500 text-sm">#D4A017</div>
+                    </div>
+                </div>
+
+                <!-- Background -->
+                <div class="space-y-3">
+                    <div class="w-full h-20 rounded-xl border border-zinc-700" style="background: #09090b;"></div>
+                    <div>
+                        <div class="text-white font-medium">Background</div>
+                        <div class="text-zinc-500 text-sm">#09090B</div>
+                    </div>
+                </div>
+
+                <!-- Surface -->
+                <div class="space-y-3">
+                    <div class="w-full h-20 rounded-xl border border-zinc-700" style="background: #18181b;"></div>
+                    <div>
+                        <div class="text-white font-medium">Surface</div>
+                        <div class="text-zinc-500 text-sm">#18181B</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Key Benefits -->
+        <div class="max-w-7xl mx-auto">
+            <h2 class="text-2xl font-bold text-white mb-6">Key Benefits</h2>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div class="bg-zinc-900/50 border border-zinc-800 rounded-2xl p-6">
+                    <div class="w-12 h-12 rounded-xl flex items-center justify-center mb-4"
+                        style="background: rgba(139, 92, 246, 0.15);">
+                        <svg class="w-6 h-6 text-violet-400">
+                            <use href="#icon-layout" />
+                        </svg>
+                    </div>
+                    <h3 class="text-lg font-semibold text-white mb-2">All Formats, One Pattern</h3>
+                    <p class="text-zinc-400 text-sm">
+                        LinkedIn, Facebook, X, Instagram, YouTube - all use the same dropdown selector pattern.
+                        No learning curve when switching platforms.
+                    </p>
+                </div>
+
+                <div class="bg-zinc-900/50 border border-zinc-800 rounded-2xl p-6">
+                    <div class="w-12 h-12 rounded-xl flex items-center justify-center mb-4"
+                        style="background: rgba(139, 92, 246, 0.15);">
+                        <svg class="w-6 h-6 text-violet-400">
+                            <use href="#icon-smartphone" />
+                        </svg>
+                    </div>
+                    <h3 class="text-lg font-semibold text-white mb-2">True Responsive</h3>
+                    <p class="text-zinc-400 text-sm">
+                        Bottom sheets on mobile feel native iOS/Android. Side panels on desktop maximize canvas space.
+                        Same functionality, platform-appropriate UX.
+                    </p>
+                </div>
+
+                <div class="bg-zinc-900/50 border border-zinc-800 rounded-2xl p-6">
+                    <div class="w-12 h-12 rounded-xl flex items-center justify-center mb-4"
+                        style="background: rgba(139, 92, 246, 0.15);">
+                        <svg class="w-6 h-6 text-violet-400">
+                            <use href="#icon-sparkles" />
+                        </svg>
+                    </div>
+                    <h3 class="text-lg font-semibold text-white mb-2">Brand Consistency</h3>
+                    <p class="text-zinc-400 text-sm">
+                        Purple gradient accent carries through buttons, badges, and highlights.
+                        Cyan as secondary for canvas elements. Dark background keeps focus on content.
+                    </p>
+                </div>
+            </div>
+        </div>
+
+</body>
+
+</html>

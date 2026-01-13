@@ -249,7 +249,7 @@ export class BatchDeleteElementsCommand implements Command {
       try {
         context.canvasCallbacks.deleteElement!(id);
         successCount++;
-      } catch (err) {
+      } catch {
         errors.push(`Failed to delete ${id}`);
       }
     });
@@ -284,7 +284,7 @@ export class BatchUpdateElementsCommand implements Command {
       try {
         context.canvasCallbacks.updateElement!(id, properties);
         successCount++;
-      } catch (err) {
+      } catch {
         errors.push(`Failed to update ${id}`);
       }
     });
@@ -328,7 +328,7 @@ export class BatchMoveElementsCommand implements Command {
           y: el.y + dy
         });
         successCount++;
-      } catch (err) {
+      } catch {
         errors.push(`Failed to move ${id}`);
       }
     });

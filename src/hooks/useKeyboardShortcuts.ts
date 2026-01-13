@@ -155,6 +155,7 @@ export const getDefaultShortcuts = (handlers: {
   onZoomOut?: () => void;
   onToggleSafeZones?: () => void;
   onExport?: () => void;
+  onToggleVoice?: () => void;
 }): KeyboardShortcut[] => {
   const shortcuts: KeyboardShortcut[] = [];
 
@@ -324,6 +325,16 @@ export const getDefaultShortcuts = (handlers: {
       ctrl: true,
       callback: handlers.onExport,
       description: 'Export design',
+    });
+  }
+
+  // Toggle voice agent
+  if (handlers.onToggleVoice) {
+    shortcuts.push({
+      key: 'm',
+      ctrl: true,
+      callback: handlers.onToggleVoice,
+      description: 'Toggle voice agent',
     });
   }
 

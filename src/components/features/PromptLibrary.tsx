@@ -66,7 +66,7 @@ export const PromptLibrary: React.FC<PromptLibraryProps> = ({ onSelect, onClose 
           Prompt History
         </h3>
         {onClose && (
-          <button onClick={onClose} className='text-zinc-500 hover:text-white transition'>
+          <button type="button" onClick={onClose} className='text-zinc-500 hover:text-white transition'>
             <span className='material-icons text-sm'>close</span>
           </button>
         )}
@@ -86,6 +86,7 @@ export const PromptLibrary: React.FC<PromptLibraryProps> = ({ onSelect, onClose 
           {categories.map(cat => (
             <button
               key={cat}
+              type="button"
               onClick={() => setActiveCategory(cat)}
               className={`px-3 py-1.5 rounded-full text-[10px] font-bold uppercase tracking-wider whitespace-nowrap transition ${activeCategory === cat ? 'bg-purple-600 text-white' : 'bg-zinc-800 text-zinc-500 hover:text-zinc-300'
                 }`}
@@ -104,6 +105,7 @@ export const PromptLibrary: React.FC<PromptLibraryProps> = ({ onSelect, onClose 
             <p className='text-xs text-zinc-500'>No history found</p>
             {(searchQuery || activeCategory !== 'All') && (
               <button
+                type="button"
                 onClick={() => {
                   setSearchQuery('');
                   setActiveCategory('All');
@@ -127,6 +129,7 @@ export const PromptLibrary: React.FC<PromptLibraryProps> = ({ onSelect, onClose 
                 </h4>
                 <div className='flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity'>
                   <button
+                    type="button"
                     onClick={(e) => handleToggleFavorite(prompt.id, e)}
                     className={`text-sm material-icons ${prompt.isFavorite ? 'text-pink-500' : 'text-zinc-600 hover:text-pink-400'}`}
                     title="Toggle Favorite"
@@ -134,6 +137,7 @@ export const PromptLibrary: React.FC<PromptLibraryProps> = ({ onSelect, onClose 
                     {prompt.isFavorite ? 'favorite' : 'favorite_border'}
                   </button>
                   <button
+                    type="button"
                     onClick={(e) => handleDelete(prompt.id, e)}
                     className='text-sm material-icons text-zinc-600 hover:text-red-400'
                     title="Delete"

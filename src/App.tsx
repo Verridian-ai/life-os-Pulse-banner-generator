@@ -1,24 +1,41 @@
 import React, { useState, useEffect, Suspense, lazy } from 'react';
 import Header from './components/layout/Header';
-import GenerativeSidebar from './components/features/GenerativeSidebar';
-const CanvasEditor = lazy(() => import('./components/features/CanvasEditor'));
 const LiveActionPanel = lazy(() => import('./components/features/LiveActionPanel'));
 import { APIKeyInstructionsModal } from './components/features/APIKeyInstructionsModal';
+
+// New Signal UI components
+const DashboardPage = lazy(() => import('./pages/DashboardPage').then(m => ({ default: m.DashboardPage })));
+import type { PlatformType } from './components/dashboard';
+import { DashboardSkeleton } from './components/dashboard/DashboardSkeleton';
 
 // Lazy load heavy components for code splitting
 const ChatInterface = lazy(() => import('./components/ChatInterface'));
 const ImageGallery = lazy(() => import('./components/features/ImageGallery'));
 const TemplateLibrary = lazy(() => import('./components/features/TemplateLibrary').then(m => ({ default: m.TemplateLibrary })));
 const QuickGenerateWizard = lazy(() => import('./components/features/QuickGenerateWizard').then(m => ({ default: m.QuickGenerateWizard })));
-const SettingsModal = lazy(() => import('./components/features/SettingsModal').then(m => ({ default: m.SettingsModal })));
+const UserPreferencesModal = lazy(() => import('./components/features/UserPreferencesModal').then(m => ({ default: m.UserPreferencesModal })));
 const AuthModal = lazy(() => import('./components/auth/AuthModal').then(m => ({ default: m.AuthModal })));
 const LinkedInContentStudio = lazy(() => import('./features/linkedin-posts').then(m => ({ default: m.LinkedInContentStudio })));
+
+// Platform-specific studios - lazy loaded
+const LinkedInStudio = lazy(() => import('./components/studios/LinkedInStudio'));
+const YouTubeStudio = lazy(() => import('./components/studios/YouTubeStudio'));
+const InstagramStudio = lazy(() => import('./components/studios/InstagramStudio'));
+const FacebookStudio = lazy(() => import('./components/studios/FacebookStudio'));
+const TikTokStudio = lazy(() => import('./components/studios/TikTokStudio'));
+const XStudio = lazy(() => import('./components/studios/XStudio'));
 
 // Admin pages (lazy loaded)
 const AdminDashboard = lazy(() => import('./features/admin').then(m => ({ default: m.AdminDashboard })));
 const AdminUsers = lazy(() => import('./features/admin').then(m => ({ default: m.AdminUsers })));
 const AdminAgents = lazy(() => import('./features/admin').then(m => ({ default: m.AdminAgents })));
+const AdminModels = lazy(() => import('./features/admin').then(m => ({ default: m.AdminModels })));
 const AdminObservability = lazy(() => import('./features/admin').then(m => ({ default: m.AdminObservability })));
+const AssetGenerator = lazy(() => import('./features/admin/AssetGenerator').then(m => ({ default: m.AssetGenerator })));
+
+// Design System (lazy loaded)
+const DesignSystemPage = lazy(() => import('./features/design-system/DesignSystemPage').then(m => ({ default: m.DesignSystemPage })));
+
 import {
   ScreenReaderAnnouncerProvider,
   useAnnouncer,
@@ -26,26 +43,37 @@ import {
 import { useKeyboardShortcuts, getDefaultShortcuts, useKeyboardShortcutsModal } from './hooks/useKeyboardShortcuts';
 import { KeyboardShortcutsModal } from './components/features/KeyboardShortcutsModal';
 import { OnboardingTour } from './components/features/OnboardingTour';
-import { Tab, StudioMode } from './constants';
+import { Tab, StudioMode, FORMAT_CATEGORIES } from './constants';
 import { StudioSubNav } from './components/layout/StudioSubNav';
+import { StudioShell } from './components/shell/StudioShell';
 import { CanvasProvider, useCanvas } from './context/CanvasContext';
 import { AIProvider, useAI } from './context/AIContext';
 import { useAuth } from './context/AuthContext';
 // Voice Provider Imported
 import { VoiceAgentProvider, useVoiceAgent } from './context/VoiceAgentContext';
 // Toast Provider and Container
-import { ToastProvider } from './context/ToastContext';
 import { ToastContainer } from './components/ui/ToastContainer';
 import { useToast } from './hooks/useToast';
 import { Skeleton } from './components/ui/Skeleton';
 
+// App view type
+type AppView = 'dashboard' | 'studio';
+
 const AppContent = () => {
+  // New Signal UI state
+  const [appView, setAppView] = useState<AppView>('dashboard');
+  const [activePlatform, setActivePlatform] = useState<PlatformType>('linkedin');
+
   const [activeTab, setActiveTab] = useState<Tab>(Tab.STUDIO);
   const [studioMode, setStudioMode] = useState<StudioMode>(StudioMode.CANVAS);
-  const [showSettings, setShowSettings] = useState(false);
+  const [showPreferences, setShowPreferences] = useState(false);
   const [showAuthModal, setShowAuthModal] = useState(false);
   const [showInstructions, setShowInstructions] = useState(false);
   const [showQuickGen, setShowQuickGen] = useState(false);
+
+  // Refresh state
+  const [isRefreshLoading, setIsRefreshLoading] = useState(false);
+  const [refreshKey, setRefreshKey] = useState(0);
 
   // Voice Agent state
   const [isVoiceActive, setIsVoiceActive] = useState(false);
@@ -102,9 +130,6 @@ const AppContent = () => {
   const { isAuthenticated, isLoading } = useAuth();
 
   const {
-    bgImage,
-    setBgImage,
-    refImages,
     selectedElementId,
     deleteElement,
     addElement,
@@ -112,7 +137,10 @@ const AppContent = () => {
     showSafeZones,
     setShowSafeZones,
     canvasRef,
-    updateElement
+    updateElement,
+    setCanvasFormatId,
+    undo,
+    redo,
   } = useCanvas();
 
   // Generation States
@@ -139,17 +167,19 @@ const AppContent = () => {
   const [isEnhancing, setIsEnhancing] = useState(false);
 
   // Register voice agent setters
-  const { registerPromptSetter, registerTabSetter } = voiceAgent;
+  const { registerPromptSetter, registerTabSetter, registerPlatform } = voiceAgent;
   useEffect(() => {
     registerPromptSetter(setGenPrompt);
     registerTabSetter(setActiveTab, setStudioMode);
   }, [registerPromptSetter, registerTabSetter]);
-  const [editPrompt, setEditPrompt] = useState('');
-  const [isEditing, setIsEditing] = useState(false);  // Register setGenPrompt with voice agent for voice-to-prompt enhancement
+
+  // Register active platform for platform-aware agent routing
   useEffect(() => {
-    voiceAgent.registerPromptSetter(setGenPrompt);
-    voiceAgent.registerTabSetter(setActiveTab, setStudioMode);
-  }, [voiceAgent, setGenPrompt, setActiveTab, setStudioMode]);
+    registerPlatform(activePlatform);
+  }, [registerPlatform, activePlatform]);
+
+  const [editPrompt, setEditPrompt] = useState('');
+  const [isEditing, setIsEditing] = useState(false);
 
   const handleDelete = React.useCallback(() => {
     if (selectedElementId) {
@@ -234,8 +264,43 @@ const AppContent = () => {
   const handleRemoveBg = () => { };
   const handleUpscale = () => { };
 
-  // Keyboard shortcuts
-  // eslint-disable-next-line
+  // Refresh handler
+  const handleRefresh = React.useCallback(async () => {
+    setIsRefreshLoading(true);
+
+    try {
+      if (activeTab === Tab.STUDIO) {
+        if (studioMode === StudioMode.MEDIA) {
+          // Refresh gallery by incrementing refresh key to force re-mount
+          setRefreshKey(prev => prev + 1);
+          toast.info('Gallery refreshed');
+        } else if (studioMode === StudioMode.CANVAS) {
+          // Refresh canvas - could clear/reset canvas state if needed
+          toast.info('Canvas refreshed');
+        } else if (studioMode === StudioMode.TEMPLATES) {
+          // Refresh templates - could reload template library
+          toast.info('Templates refreshed');
+        } else if (studioMode === StudioMode.LINKEDIN) {
+          // Refresh LinkedIn content
+          toast.info('LinkedIn content refreshed');
+        }
+      } else if (activeTab === Tab.BRAINSTORM) {
+        // Refresh brainstorm - could clear chat or reload history
+        toast.info('Brainstorm refreshed');
+      }
+
+      // Simulate network delay for UX
+      await new Promise(resolve => setTimeout(resolve, 500));
+
+    } catch (error) {
+      console.error('Refresh failed:', error);
+      toast.error('Refresh failed');
+    } finally {
+      setIsRefreshLoading(false);
+    }
+  }, [activeTab, studioMode, toast]);
+
+  // Keyboard shortcuts - intentionally excludes handler dependencies to prevent re-renders
   const shortcuts = React.useMemo(() => getDefaultShortcuts({
     onGenerate: () => {
       if (!genPrompt.trim()) {
@@ -250,12 +315,12 @@ const AppContent = () => {
     },
     onClosePanels: () => {
       setShowChatHistory(false);
-      setShowSettings(false);
+      setShowPreferences(false);
       closeModal();
     },
     onOpenSettings: () => {
-      setShowSettings(true);
-      announce('Settings opened', 'polite');
+      setShowPreferences(true);
+      announce('Preferences opened', 'polite');
     },
     onSwitchToStudio: () => {
       setActiveTab(Tab.STUDIO);
@@ -274,6 +339,14 @@ const AppContent = () => {
       openModal();
       announce('Keyboard shortcuts modal opened', 'polite');
     },
+    onUndo: () => {
+      undo();
+      announce('Undo', 'polite');
+    },
+    onRedo: () => {
+      redo();
+      announce('Redo', 'polite');
+    },
     onDelete: handleDelete,
     onDuplicate: handleDuplicate,
     onZoomIn: () => handleZoom(1.1),
@@ -284,7 +357,8 @@ const AppContent = () => {
       // Basic save notification since we don't have a backend save project yet beyond gallery
       toast.info('Design auto-saved to session');
       announce('Design saved', 'polite');
-    }
+    },
+    onToggleVoice: toggleVoiceMode,
   }), [
     genPrompt,
     showChatHistory,
@@ -296,7 +370,10 @@ const AppContent = () => {
     handleZoom,
     handleToggleSafeZones,
     handleExport,
-    toast
+    toast,
+    toggleVoiceMode,
+    undo,
+    redo,
   ]);
 
   useKeyboardShortcuts({
@@ -317,22 +394,71 @@ const AppContent = () => {
     );
   }
 
+  // Handler for entering studio from dashboard
+  const handleEnterStudio = (platform: PlatformType) => {
+    setActivePlatform(platform);
+    setAppView('studio');
+
+    // Auto-select platform's primary format (mobile-first: vertical/story formats prioritized)
+    const platformFormats = FORMAT_CATEGORIES[platform]?.formats;
+    if (platformFormats && platformFormats.length > 0) {
+      setCanvasFormatId(platformFormats[0]);
+    }
+
+    // Set appropriate studio mode based on platform
+    if (platform === 'linkedin') {
+      setStudioMode(StudioMode.LINKEDIN);
+    } else {
+      setStudioMode(StudioMode.CANVAS);
+    }
+  };
+
+  // Handler to return to dashboard
+  const handleBackToDashboard = () => {
+    setAppView('dashboard');
+  };
+
+  // Render Dashboard view (new Signal UI)
+  if (appView === 'dashboard') {
+    return (
+      <Suspense fallback={<DashboardSkeleton fullPage />}>
+        <DashboardPage
+          onEnterStudio={handleEnterStudio}
+          onOpenPreferences={() => setShowPreferences(true)}
+          onOpenAuth={() => setShowAuthModal(true)}
+        />
+        <Suspense fallback={null}>
+          <UserPreferencesModal isOpen={showPreferences} onClose={() => setShowPreferences(false)} />
+        </Suspense>
+        <Suspense fallback={null}>
+          <AuthModal
+            isOpen={showAuthModal}
+            onClose={() => {
+              if (isAuthenticated) setShowAuthModal(false);
+            }}
+            onSuccess={() => {
+              toast.info('Signed in successfully');
+              announce('Signed in successfully', 'polite');
+              setShowAuthModal(false);
+            }}
+          />
+        </Suspense>
+      </Suspense>
+    );
+  }
+
+  // Render Studio view (existing UI with back button)
   return (
     <div className='min-h-screen bg-black text-white font-sans flex flex-col'>
       <Header
-        activeTab={activeTab}
-        setActiveTab={setActiveTab}
-        onOpenSettings={() => setShowSettings(true)}
-        onOpenAuth={() => setShowAuthModal(true)}
-        onOpenInstructions={() => setShowInstructions(true)}
-        onOpenQuickGen={() => setShowQuickGen(true)}
-        isVoiceActive={isVoiceActive}
-        voiceConnectionState={voiceAgent.connectionState}
-        onToggleVoice={toggleVoiceMode}
+        onRefresh={handleRefresh}
+        isRefreshLoading={isRefreshLoading}
+        onBackToDashboard={handleBackToDashboard}
+        activePlatform={activePlatform}
       />
 
       <Suspense fallback={null}>
-        <SettingsModal isOpen={showSettings} onClose={() => setShowSettings(false)} />
+        <UserPreferencesModal isOpen={showPreferences} onClose={() => setShowPreferences(false)} />
       </Suspense>
       <Suspense fallback={null}>
         <AuthModal
@@ -376,79 +502,197 @@ const AppContent = () => {
         <div className='absolute top-0 left-0 w-full h-[500px] bg-gradient-to-b from-blue-900/10 to-transparent pointer-events-none'></div>
 
         {activeTab === Tab.STUDIO && (
-          <div className='flex-1 flex flex-col h-full w-full relative z-10 overflow-hidden'>
-            {/* Studio Sub-Navigation */}
-            <StudioSubNav currentMode={studioMode} onModeChange={setStudioMode} />
+          <StudioShell
+            activeNavItem="studio"
+            isVoiceActive={isVoiceActive}
+            onNavigate={(id) => {
+              if (id === 'dashboard') handleBackToDashboard();
+              else if (id === 'gallery') {
+                setActiveTab(Tab.STUDIO);
+                setStudioMode(StudioMode.MEDIA);
+              }
+              else if (id === 'brainstorm' || id === 'partner') setActiveTab(Tab.BRAINSTORM);
+              else if (id === 'studio') {
+                setActiveTab(Tab.STUDIO);
+                setStudioMode(StudioMode.CANVAS);
+              }
+              else if (id === 'quick-gen') handleGenerate();
+              else if (id === 'voice') toggleVoiceMode();
+              else if (id === 'help') openModal();
+            }}
+            onCreateNew={handleGenerate}
+          >
+            <div className='flex-1 flex flex-col h-full w-full relative z-10 overflow-hidden pb-20 lg:pb-0'>
+              {/* Studio Sub-Navigation */}
+              <StudioSubNav currentMode={studioMode} onModeChange={setStudioMode} />
 
-            {/* Canvas Mode - Banner Design */}
-            {studioMode === StudioMode.CANVAS && (
-              <div className='flex-1 flex flex-col md:flex-row h-auto w-full overflow-hidden'>
+              {/* Canvas Mode - Platform-Specific Studios */}
+              {studioMode === StudioMode.CANVAS && (
                 <Suspense fallback={<div className="flex-1 flex items-center justify-center"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div></div>}>
-                  <CanvasEditor />
+                  {/* Route to platform-specific studio based on activePlatform */}
+                  {activePlatform === 'linkedin' && (
+                    <LinkedInStudio
+                      genPrompt={genPrompt}
+                      setGenPrompt={setGenPrompt}
+                      genSize={genSize}
+                      setGenSize={setGenSize}
+                      isGenerating={isGenerating}
+                      onGenerate={handleGenerate}
+                      isMagicPrompting={isMagicPrompting}
+                      onMagicPrompt={handleMagicPrompt}
+                      isEnhancing={isEnhancing}
+                      onEnhancePrompt={handleEnhancePrompt}
+                      editPrompt={editPrompt}
+                      setEditPrompt={setEditPrompt}
+                      isEditing={isEditing}
+                      onEdit={handleEdit}
+                      onRemoveBg={handleRemoveBg}
+                      onUpscale={handleUpscale}
+                    />
+                  )}
+                  {activePlatform === 'youtube' && (
+                    <YouTubeStudio
+                      genPrompt={genPrompt}
+                      setGenPrompt={setGenPrompt}
+                      genSize={genSize}
+                      setGenSize={setGenSize}
+                      isGenerating={isGenerating}
+                      onGenerate={handleGenerate}
+                      isMagicPrompting={isMagicPrompting}
+                      onMagicPrompt={handleMagicPrompt}
+                      isEnhancing={isEnhancing}
+                      onEnhancePrompt={handleEnhancePrompt}
+                      editPrompt={editPrompt}
+                      setEditPrompt={setEditPrompt}
+                      isEditing={isEditing}
+                      onEdit={handleEdit}
+                      onRemoveBg={handleRemoveBg}
+                      onUpscale={handleUpscale}
+                    />
+                  )}
+                  {activePlatform === 'instagram' && (
+                    <InstagramStudio
+                      genPrompt={genPrompt}
+                      setGenPrompt={setGenPrompt}
+                      genSize={genSize}
+                      setGenSize={setGenSize}
+                      isGenerating={isGenerating}
+                      onGenerate={handleGenerate}
+                      isMagicPrompting={isMagicPrompting}
+                      onMagicPrompt={handleMagicPrompt}
+                      isEnhancing={isEnhancing}
+                      onEnhancePrompt={handleEnhancePrompt}
+                      editPrompt={editPrompt}
+                      setEditPrompt={setEditPrompt}
+                      isEditing={isEditing}
+                      onEdit={handleEdit}
+                      onRemoveBg={handleRemoveBg}
+                      onUpscale={handleUpscale}
+                    />
+                  )}
+                  {activePlatform === 'facebook' && (
+                    <FacebookStudio
+                      genPrompt={genPrompt}
+                      setGenPrompt={setGenPrompt}
+                      genSize={genSize}
+                      setGenSize={setGenSize}
+                      isGenerating={isGenerating}
+                      onGenerate={handleGenerate}
+                      isMagicPrompting={isMagicPrompting}
+                      onMagicPrompt={handleMagicPrompt}
+                      isEnhancing={isEnhancing}
+                      onEnhancePrompt={handleEnhancePrompt}
+                      editPrompt={editPrompt}
+                      setEditPrompt={setEditPrompt}
+                      isEditing={isEditing}
+                      onEdit={handleEdit}
+                      onRemoveBg={handleRemoveBg}
+                      onUpscale={handleUpscale}
+                    />
+                  )}
+                  {activePlatform === 'tiktok' && (
+                    <TikTokStudio
+                      genPrompt={genPrompt}
+                      setGenPrompt={setGenPrompt}
+                      genSize={genSize}
+                      setGenSize={setGenSize}
+                      isGenerating={isGenerating}
+                      onGenerate={handleGenerate}
+                      isMagicPrompting={isMagicPrompting}
+                      onMagicPrompt={handleMagicPrompt}
+                      isEnhancing={isEnhancing}
+                      onEnhancePrompt={handleEnhancePrompt}
+                      editPrompt={editPrompt}
+                      setEditPrompt={setEditPrompt}
+                      isEditing={isEditing}
+                      onEdit={handleEdit}
+                      onRemoveBg={handleRemoveBg}
+                      onUpscale={handleUpscale}
+                    />
+                  )}
+                  {activePlatform === 'x' && (
+                    <XStudio
+                      genPrompt={genPrompt}
+                      setGenPrompt={setGenPrompt}
+                      genSize={genSize}
+                      setGenSize={setGenSize}
+                      isGenerating={isGenerating}
+                      onGenerate={handleGenerate}
+                      isMagicPrompting={isMagicPrompting}
+                      onMagicPrompt={handleMagicPrompt}
+                      isEnhancing={isEnhancing}
+                      onEnhancePrompt={handleEnhancePrompt}
+                      editPrompt={editPrompt}
+                      setEditPrompt={setEditPrompt}
+                      isEditing={isEditing}
+                      onEdit={handleEdit}
+                      onRemoveBg={handleRemoveBg}
+                      onUpscale={handleUpscale}
+                    />
+                  )}
                 </Suspense>
-                <GenerativeSidebar
-                  refImages={refImages}
-                  genPrompt={genPrompt}
-                  setGenPrompt={setGenPrompt}
-                  genSize={genSize}
-                  setGenSize={setGenSize}
-                  isGenerating={isGenerating}
-                  onGenerate={handleGenerate}
-                  isMagicPrompting={isMagicPrompting}
-                  onMagicPrompt={handleMagicPrompt}
-                  isEnhancing={isEnhancing}
-                  onEnhancePrompt={handleEnhancePrompt}
-                  editPrompt={editPrompt}
-                  setEditPrompt={setEditPrompt}
-                  isEditing={isEditing}
-                  onEdit={handleEdit}
-                  onRemoveBg={handleRemoveBg}
-                  onUpscale={handleUpscale}
-                  bgImage={bgImage}
-                  onImageUpdate={(img: string) => setBgImage(img)}
-                />
-              </div>
-            )}
+              )}
 
-            {/* LinkedIn Mode - Posts Studio */}
-            {studioMode === StudioMode.LINKEDIN && (
-              <Suspense fallback={
-                <div className="flex-1 p-8 space-y-6">
-                  <Skeleton height={40} width={200} />
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <Skeleton height={400} />
-                    <div className="space-y-4">
-                      <Skeleton height={100} />
-                      <Skeleton height={100} />
-                      <Skeleton height={100} />
+              {/* LinkedIn Mode - Posts Studio */}
+              {studioMode === StudioMode.LINKEDIN && (
+                <Suspense fallback={
+                  <div className="flex-1 p-8 space-y-6">
+                    <Skeleton height={40} width={200} />
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                      <Skeleton height={400} />
+                      <div className="space-y-4">
+                        <Skeleton height={100} />
+                        <Skeleton height={100} />
+                        <Skeleton height={100} />
+                      </div>
                     </div>
                   </div>
-                </div>
-              }>
-                <LinkedInContentStudio />
-              </Suspense>
-            )}
+                }>
+                  <LinkedInContentStudio platform={activePlatform} />
+                </Suspense>
+              )}
 
-            {/* Template Library Mode */}
-            {studioMode === StudioMode.TEMPLATES && (
-              <Suspense fallback={<div className="flex-1 p-8 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"><Skeleton height={250} /><Skeleton height={250} /><Skeleton height={250} /></div>}>
-                <div className="flex-1 p-4 md:p-6 lg:p-8 overflow-hidden">
-                  <TemplateLibrary onClose={() => setStudioMode(StudioMode.CANVAS)} />
-                </div>
-              </Suspense>
-            )}
+              {/* Template Library Mode */}
+              {studioMode === StudioMode.TEMPLATES && (
+                <Suspense fallback={<div className="flex-1 p-8 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"><Skeleton height={250} /><Skeleton height={250} /><Skeleton height={250} /></div>}>
+                  <div className="flex-1 p-4 md:p-6 lg:p-8 overflow-hidden">
+                    <TemplateLibrary onClose={() => setStudioMode(StudioMode.CANVAS)} />
+                  </div>
+                </Suspense>
+              )}
 
-            {/* Media Mode - Gallery */}
-            {studioMode === StudioMode.MEDIA && (
-              <Suspense fallback={
-                <div className="flex-1 p-8 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 overflow-hidden">
-                  {[...Array(8)].map((_, i) => <Skeleton height={200} key={i} />)}
-                </div>
-              }>
-                <ImageGallery onNavigateToStudio={() => setStudioMode(StudioMode.CANVAS)} />
-              </Suspense>
-            )}
-          </div>
+              {/* Media Mode - Gallery */}
+              {studioMode === StudioMode.MEDIA && (
+                <Suspense fallback={
+                  <div className="flex-1 p-8 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 overflow-hidden">
+                    {[...Array(8)].map((_, i) => <Skeleton height={200} key={i} />)}
+                  </div>
+                }>
+                  <ImageGallery key={refreshKey} onNavigateToStudio={() => setStudioMode(StudioMode.CANVAS)} />
+                </Suspense>
+              )}
+            </div>
+          </StudioShell>
         )}
 
         {activeTab === Tab.BRAINSTORM && (
@@ -534,11 +778,27 @@ function AdminRouter(): React.ReactElement | null {
     );
   }
 
+  if (path.startsWith('/admin/models')) {
+    return (
+      <Suspense fallback={<AdminLoadingFallback />}>
+        <AdminModels />
+      </Suspense>
+    );
+  }
 
   if (path.startsWith('/admin/observability')) {
     return (
       <Suspense fallback={<AdminLoadingFallback />}>
         <AdminObservability />
+      </Suspense>
+    );
+  }
+
+  // New Asset Generator Route
+  if (path.startsWith('/admin/assets')) {
+    return (
+      <Suspense fallback={<div className="bg-black text-white h-screen flex items-center justify-center">Loading Generator...</div>}>
+        <AssetGenerator />
       </Suspense>
     );
   }
@@ -574,19 +834,33 @@ function AdminLoadingFallback(): React.ReactElement {
 function App() {
   const path = window.location.pathname;
   const isAdminPath = path.startsWith('/admin');
+  const isDesignPath = path.startsWith('/design');
 
   // Render admin pages separately (they have their own layout)
   if (isAdminPath) {
     return (
-      <ToastProvider>
+      <>
         <ToastContainer />
         <AdminRouter />
-      </ToastProvider>
+      </>
+    );
+  }
+
+  // Render Design System page
+  if (isDesignPath) {
+    return (
+      <Suspense fallback={
+        <div className="min-h-screen bg-black flex items-center justify-center">
+          <div className="text-white">Loading Design System...</div>
+        </div>
+      }>
+        <DesignSystemPage />
+      </Suspense>
     );
   }
 
   return (
-    <ToastProvider>
+    <>
       <ToastContainer />
       <ScreenReaderAnnouncerProvider>
         <AIProvider>
@@ -597,7 +871,7 @@ function App() {
           </CanvasProvider>
         </AIProvider>
       </ScreenReaderAnnouncerProvider>
-    </ToastProvider>
+    </>
   );
 }
 

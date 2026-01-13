@@ -1,6 +1,6 @@
 // Tool Chain Builder - Create and execute multi-step AI workflows
 
-import React, { useState } from 'react';
+import { useState } from 'react';
 
 import { generateImage } from '../../services/imageGenerationService';
 import {

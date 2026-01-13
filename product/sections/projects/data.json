@@ -1,0 +1,91 @@
+{
+  "projects": [
+    {
+      "id": "project-1",
+      "name": "Q1 Campaign",
+      "description": "Marketing materials for Q1 2025 product launch",
+      "coverImages": [
+        "https://images.unsplash.com/photo-1557804506-669a67965ba0?w=200&h=200&fit=crop",
+        "https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=200&h=200&fit=crop",
+        "https://images.unsplash.com/photo-1522071820081-009f0129c71c?w=200&h=200&fit=crop"
+      ],
+      "designCount": 12,
+      "createdAt": "2025-01-01T10:00:00Z",
+      "updatedAt": "2025-01-10T14:30:00Z",
+      "isArchived": false
+    },
+    {
+      "id": "project-2",
+      "name": "Product Launch",
+      "description": "Assets for new product announcement",
+      "coverImages": [
+        "https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w=200&h=200&fit=crop",
+        "https://images.unsplash.com/photo-1531482615713-2afd69097998?w=200&h=200&fit=crop"
+      ],
+      "designCount": 8,
+      "createdAt": "2024-12-15T09:00:00Z",
+      "updatedAt": "2025-01-09T16:45:00Z",
+      "isArchived": false
+    },
+    {
+      "id": "project-3",
+      "name": "Social Media",
+      "description": "Ongoing social media content",
+      "coverImages": [
+        "https://images.unsplash.com/photo-1552664730-d307ca884978?w=200&h=200&fit=crop",
+        "https://images.unsplash.com/photo-1557682250-33bd709cbe85?w=200&h=200&fit=crop",
+        "https://images.unsplash.com/photo-1488190211105-8b0e65b80b4e?w=200&h=200&fit=crop"
+      ],
+      "designCount": 23,
+      "createdAt": "2024-11-01T08:00:00Z",
+      "updatedAt": "2025-01-08T11:20:00Z",
+      "isArchived": false
+    },
+    {
+      "id": "project-4",
+      "name": "Brand Refresh",
+      "description": "Updated brand materials",
+      "coverImages": [
+        "https://images.unsplash.com/photo-1492684223066-81342ee5ff30?w=200&h=200&fit=crop"
+      ],
+      "designCount": 5,
+      "createdAt": "2024-10-20T14:00:00Z",
+      "updatedAt": "2025-01-05T09:15:00Z",
+      "isArchived": false
+    }
+  ],
+  "projectDesigns": [
+    {
+      "id": "design-1",
+      "title": "Launch Banner - LinkedIn",
+      "thumbnailUrl": "https://images.unsplash.com/photo-1557804506-669a67965ba0?w=300&h=300&fit=crop",
+      "platform": "linkedin",
+      "status": "completed",
+      "createdAt": "2025-01-10T10:00:00Z"
+    },
+    {
+      "id": "design-2",
+      "title": "Launch Post - Instagram",
+      "thumbnailUrl": "https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=300&h=300&fit=crop",
+      "platform": "instagram",
+      "status": "completed",
+      "createdAt": "2025-01-10T09:30:00Z"
+    },
+    {
+      "id": "design-3",
+      "title": "Promo Story",
+      "thumbnailUrl": "https://images.unsplash.com/photo-1557682250-33bd709cbe85?w=300&h=533&fit=crop",
+      "platform": "instagram",
+      "status": "draft",
+      "createdAt": "2025-01-09T16:00:00Z"
+    },
+    {
+      "id": "design-4",
+      "title": "Twitter Announcement",
+      "thumbnailUrl": "https://images.unsplash.com/photo-1522071820081-009f0129c71c?w=300&h=169&fit=crop",
+      "platform": "x",
+      "status": "completed",
+      "createdAt": "2025-01-09T14:00:00Z"
+    }
+  ]
+}

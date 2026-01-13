@@ -2,7 +2,7 @@ import React from 'react';
 
 interface SkeletonProps {
   className?: string;
-  variant?: 'rect' | 'circle' | 'text';
+  variant?: 'rect' | 'circle' | 'text' | 'shimmer' | 'pulse';
   width?: string | number;
   height?: string | number;
 }
@@ -11,17 +11,27 @@ interface SkeletonProps {
  * Reusable Skeleton component for perceived performance improvements
  * Mimics the shape of loading content
  */
-export const Skeleton: React.FC<SkeletonProps> = ({ 
-  className = '', 
-  variant = 'rect',
+export const Skeleton: React.FC<SkeletonProps> = ({
+  className = '',
+  variant = 'shimmer',
   width,
   height
 }) => {
-  const baseClasses = 'animate-pulse bg-white/5';
+  /* 
+   * Logic: 
+   * - 'shimmer' variant uses the .skeleton class (from index.css) which has its own background gradient and animation.
+   * - 'pulse' variant uses standard Tailwind animate-pulse + bg-white/5.
+   * - Other variants default to pulse animation if not shimmer.
+   */
+  const isShimmer = variant === 'shimmer';
+  const baseClasses = isShimmer ? 'skeleton' : 'animate-pulse bg-white/5';
+
   const variantClasses = {
     rect: 'rounded-xl',
     circle: 'rounded-full',
-    text: 'rounded h-3 w-full'
+    text: 'rounded h-3 w-full',
+    pulse: 'rounded-xl', // Explicit pulse variant
+    shimmer: 'rounded-xl' // Default shape for shimmer is rect-like
   };
 
   const style: React.CSSProperties = {
@@ -30,8 +40,8 @@ export const Skeleton: React.FC<SkeletonProps> = ({
   };
 
   return (
-    <div 
-      className={`${baseClasses} ${variantClasses[variant]} ${className}`}
+    <div
+      className={`${baseClasses} ${variantClasses[variant] || variantClasses.shimmer} ${className}`}
       style={style}
       aria-hidden="true"
     />

@@ -16,7 +16,7 @@ describe('useKeyboardShortcuts', () => {
     vi.clearAllMocks();
     addEventListenerSpy = vi.spyOn(document, 'addEventListener');
     removeEventListenerSpy = vi.spyOn(document, 'removeEventListener');
-    consoleLogSpy = vi.spyOn(console, 'log').mockImplementation(() => {});
+    consoleLogSpy = vi.spyOn(console, 'log').mockImplementation(() => { });
   });
 
   afterEach(() => {
@@ -618,7 +618,7 @@ describe('getDefaultShortcuts', () => {
       key: 's',
       ctrl: true,
       callback: onSave,
-      description: 'Save/Export',
+      description: 'Save project',
     });
   });
 
@@ -643,7 +643,7 @@ describe('getDefaultShortcuts', () => {
       'Undo',
       'Redo',
       'Open settings',
-      'Save/Export',
+      'Save project',
     ]);
   });
 });

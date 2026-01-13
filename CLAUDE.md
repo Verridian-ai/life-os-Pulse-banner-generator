@@ -9,8 +9,8 @@
 
 **Nanobanna Pro** is an AI-powered LinkedIn banner design tool for the Careersy Community.
 
-- **Tech Stack**: React + TypeScript + Vite + Tailwind CSS + Supabase
-- **AI Services**: Gemini, OpenRouter, Replicate
+- **Tech Stack**: React + TypeScript + Vite + Tailwind CSS + Neon PostgreSQL
+- **AI Services**: OpenRouter (Gemini, GPT, Claude), OpenAI Realtime, Replicate
 - **Core Concept**: Multi-AI orchestration for image generation, editing, and enhancement with voice-powered workflows
 
 ---
@@ -51,6 +51,7 @@ Full details: `.claude/rules/shared_contract.md`
 ### 2.2 Required Artifacts Before Implementation
 
 Before ANY code is written:
+
 - [ ] Task exists in WORK_BOARD
 - [ ] Acceptance criteria defined
 - [ ] Test plan documented
@@ -213,6 +214,7 @@ Hook scripts: `scripts/claude-hooks/`
 ### 8.3 Allowed Write Paths in Root
 
 The orchestrator CAN write to these paths in the root worktree:
+
 - `CLAUDE.md`
 - `.claude/**`
 - `docs/**`
@@ -318,11 +320,13 @@ Four main React contexts:
 ### Component Structure
 
 **Tab System** (`src/constants.ts:Tab` enum):
+
 - **STUDIO**: Canvas editor + generative sidebar
 - **GALLERY**: Saved designs browser
 - **BRAINSTORM**: Chat interface for prompt ideation
 
 **Key Components**:
+
 - `CanvasEditor` - Main canvas with safe zones, layers
 - `GenerativeSidebar` - Generation/editing controls
 - `ChatInterface` - Brainstorming tab UI
@@ -334,6 +338,7 @@ Four main React contexts:
 **Overview**: Hands-free banner creation using OpenAI Realtime API with WebSocket-based bidirectional audio streaming.
 
 **Key Files**:
+
 - `src/context/VoiceAgentContext.tsx` - Connection lifecycle, state management, approval workflow
 - `src/services/openaiRealtimeClient.ts` - WebSocket client, audio pipeline, ring buffer
 - `src/services/actionExecutor.ts` - 17 tool command implementations
@@ -355,6 +360,7 @@ Four main React contexts:
 **Documentation**: See `VOICE_AGENT_GUIDE.md` for user guide, `VOICE_COMMANDS_REFERENCE.md` for quick reference, and `docs/VOICE_AGENT_TECHNICAL.md` for technical details.
 
 **Requirements**:
+
 - OpenAI API key (configured in Settings → API Keys)
 - Chrome/Edge browser (recommended)
 - Microphone permissions
@@ -369,6 +375,7 @@ Four main React contexts:
 Services use tagged logs: `[ServiceName] Message`
 
 Examples:
+
 - `[Live]` - Voice agent
 - `[Replicate]` - Image processing
 - `[App]` - Main application

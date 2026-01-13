@@ -1,0 +1,194 @@
+{
+  "defaultSettings": {
+    "theme": "system",
+    "accentColor": "#0ea5e9",
+    "fontSize": "medium",
+    "reducedMotion": false,
+    "showCanvasGrid": true,
+    "autoSave": true,
+    "notifications": {
+      "email": true,
+      "inApp": true,
+      "generationComplete": true,
+      "weeklyDigest": false,
+      "marketing": false
+    }
+  },
+  "apiKeyConfigs": [
+    {
+      "provider": "openai",
+      "label": "OpenAI",
+      "placeholder": "sk-...",
+      "helpUrl": "https://platform.openai.com/api-keys",
+      "description": "Required for voice agent and advanced text generation"
+    },
+    {
+      "provider": "replicate",
+      "label": "Replicate",
+      "placeholder": "r8_...",
+      "helpUrl": "https://replicate.com/account/api-tokens",
+      "description": "Used for image upscaling and background removal"
+    },
+    {
+      "provider": "openrouter",
+      "label": "OpenRouter",
+      "placeholder": "sk-or-...",
+      "helpUrl": "https://openrouter.ai/keys",
+      "description": "Access to 10+ image generation models"
+    },
+    {
+      "provider": "google",
+      "label": "Google AI (Gemini)",
+      "placeholder": "AIza...",
+      "helpUrl": "https://aistudio.google.com/app/apikey",
+      "description": "Powers the primary image generation (Gemini 3 Pro)"
+    }
+  ],
+  "plans": [
+    {
+      "id": "free",
+      "name": "Free",
+      "price": 0,
+      "features": [
+        "50 generations/month",
+        "Basic formats",
+        "Community templates",
+        "Email support"
+      ],
+      "limits": {
+        "generations": 50,
+        "storage": 100,
+        "apiCalls": 1000
+      }
+    },
+    {
+      "id": "pro",
+      "name": "Pro",
+      "price": 19,
+      "features": [
+        "Unlimited generations",
+        "All formats",
+        "Premium templates",
+        "Voice agent access",
+        "Priority support",
+        "Brand kit (3 profiles)"
+      ],
+      "limits": {
+        "generations": -1,
+        "storage": 5000,
+        "apiCalls": 50000
+      }
+    },
+    {
+      "id": "team",
+      "name": "Team",
+      "price": 49,
+      "features": [
+        "Everything in Pro",
+        "5 team members",
+        "Shared brand kits",
+        "Team analytics",
+        "Admin dashboard",
+        "API access"
+      ],
+      "limits": {
+        "generations": -1,
+        "storage": 25000,
+        "apiCalls": 200000
+      }
+    }
+  ],
+  "defaultShortcuts": [
+    {
+      "id": "generate",
+      "action": "Generate Image",
+      "keys": ["Cmd+Enter", "Ctrl+Enter"],
+      "category": "generation",
+      "description": "Generate image from current prompt"
+    },
+    {
+      "id": "delete",
+      "action": "Delete Element",
+      "keys": ["Delete", "Backspace"],
+      "category": "editing",
+      "description": "Delete selected element"
+    },
+    {
+      "id": "duplicate",
+      "action": "Duplicate Element",
+      "keys": ["Cmd+D", "Ctrl+D"],
+      "category": "editing",
+      "description": "Duplicate selected element"
+    },
+    {
+      "id": "undo",
+      "action": "Undo",
+      "keys": ["Cmd+Z", "Ctrl+Z"],
+      "category": "canvas",
+      "description": "Undo last action"
+    },
+    {
+      "id": "redo",
+      "action": "Redo",
+      "keys": ["Cmd+Shift+Z", "Ctrl+Shift+Z"],
+      "category": "canvas",
+      "description": "Redo last undone action"
+    },
+    {
+      "id": "zoom-in",
+      "action": "Zoom In",
+      "keys": ["Cmd+=", "Ctrl+="],
+      "category": "canvas",
+      "description": "Zoom in on canvas"
+    },
+    {
+      "id": "zoom-out",
+      "action": "Zoom Out",
+      "keys": ["Cmd+-", "Ctrl+-"],
+      "category": "canvas",
+      "description": "Zoom out on canvas"
+    },
+    {
+      "id": "export",
+      "action": "Export Design",
+      "keys": ["Cmd+Shift+E", "Ctrl+Shift+E"],
+      "category": "export",
+      "description": "Open export panel"
+    },
+    {
+      "id": "settings",
+      "action": "Open Settings",
+      "keys": ["Cmd+,", "Ctrl+,"],
+      "category": "navigation",
+      "description": "Open settings modal"
+    },
+    {
+      "id": "shortcuts-help",
+      "action": "Show Shortcuts",
+      "keys": ["Cmd+?", "Ctrl+?"],
+      "category": "navigation",
+      "description": "Show keyboard shortcuts help"
+    },
+    {
+      "id": "toggle-safe-zones",
+      "action": "Toggle Safe Zones",
+      "keys": ["Cmd+Shift+Z", "Ctrl+Shift+Z"],
+      "category": "canvas",
+      "description": "Show/hide safe zone overlays"
+    },
+    {
+      "id": "studio-tab",
+      "action": "Switch to Studio",
+      "keys": ["Cmd+1", "Ctrl+1"],
+      "category": "navigation",
+      "description": "Switch to Studio tab"
+    },
+    {
+      "id": "brainstorm-tab",
+      "action": "Switch to Brainstorm",
+      "keys": ["Cmd+3", "Ctrl+3"],
+      "category": "navigation",
+      "description": "Switch to Brainstorm tab"
+    }
+  ]
+}

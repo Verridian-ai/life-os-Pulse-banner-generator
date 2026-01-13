@@ -1,0 +1,29 @@
+[log] [Console Filter] ✓ Noisy extension errors filtered
+[debug] [vite] connecting...
+[debug] [vite] connected.
+[info] %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
+[log] [API] Using backend: http://localhost:8888
+[log] 🔍 Checking environment variables...
+[warning] ❌ VITE_GEMINI_API_KEY: NOT SET
+[log] ✅ VITE_OPENROUTER_API_KEY: sk-or-v1-9...
+[log] ✅ VITE_REPLICATE_API_KEY: r8_UovoAMD...
+[log] ✅ VITE_OPENAI_API_KEY: sk-proj-Ft...
+[error] ⚠️ Missing environment variables: [VITE_GEMINI_API_KEY]
+[log] 🚀 Nanobanna Pro - Initializing...
+[warning] ❌ VITE_GEMINI_API_KEY: NOT SET
+[log] ✅ VITE_OPENROUTER_API_KEY: sk-or-v1-9...
+[log] ✅ VITE_REPLICATE_API_KEY: r8_UovoAMD...
+[log] ✅ VITE_OPENAI_API_KEY: sk-proj-Ft...
+[error] ⚠️ Missing environment variables: [VITE_GEMINI_API_KEY]
+[log] [VoiceAgentContext] Prompt setter registered
+[log] [VoiceAgentContext] Tab setter registered
+[log] [Keyboard] Registered shortcuts: [Object, Object, Object, Object, Object, Object, Object, Object, Object, Object, Object, Object, Object, Object, Object, Object, Object]
+[error] Connecting to 'http://localhost:8888/api/auth/me' violates the following Content Security Policy directive: "connect-src 'self' ws: wss: https://*.openrouter.ai https://*.replicate.com https://api.openai.com https://*.googleapis.com https://*.verridian.ai". The action has been blocked.
+[error] Fetch API cannot load http://localhost:8888/api/auth/me. Refused to connect because it violates the document's Content Security Policy.
+[log] [VoiceAgentContext] Prompt setter registered
+[log] [VoiceAgentContext] Tab setter registered
+[log] [Keyboard] Registered shortcuts: [Object, Object, Object, Object, Object, Object, Object, Object, Object, Object, Object, Object, Object, Object, Object, Object, Object]
+[log] [Keyboard] Registered shortcuts: [Object, Object, Object, Object, Object, Object, Object, Object, Object, Object, Object, Object, Object, Object, Object, Object, Object]
+[log] [Keyboard] Registered shortcuts: [Object, Object, Object, Object, Object, Object, Object, Object, Object, Object, Object, Object, Object, Object, Object, Object, Object]
+[verbose] [DOM] Input elements should have autocomplete attributes (suggested: "current-password"): (More info: https://goo.gl/9p2vKq) %o
+[log] [Keyboard] Shortcut triggered: Close panels

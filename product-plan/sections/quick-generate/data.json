@@ -1,0 +1,128 @@
+{
+  "wizardSteps": [
+    {
+      "id": "starting-point",
+      "title": "How would you like to start?",
+      "description": "Choose your starting point"
+    },
+    {
+      "id": "description",
+      "title": "Describe your design",
+      "description": "Tell us what you want to create"
+    },
+    {
+      "id": "format",
+      "title": "Choose format",
+      "description": "Select platform and dimensions"
+    },
+    {
+      "id": "generating",
+      "title": "Creating your designs",
+      "description": "AI is generating multiple options"
+    },
+    {
+      "id": "results",
+      "title": "Choose your favorite",
+      "description": "Compare and select the best option"
+    },
+    {
+      "id": "refine",
+      "title": "Make it perfect",
+      "description": "Fine-tune your selection"
+    }
+  ],
+  "samplePrompts": [
+    {
+      "category": "LinkedIn",
+      "prompts": [
+        "Professional banner with abstract tech visualization, electric blue gradient",
+        "Minimalist profile banner with geometric patterns and company logo space",
+        "Dynamic banner showing data flow and AI connections, modern style"
+      ]
+    },
+    {
+      "category": "YouTube",
+      "prompts": [
+        "Gaming channel thumbnail with explosive energy, bold text space",
+        "Tutorial video thumbnail with clean layout and face placeholder",
+        "Tech review thumbnail with product showcase and rating badges"
+      ]
+    },
+    {
+      "category": "Instagram",
+      "prompts": [
+        "Lifestyle post with warm tones and text overlay area",
+        "Product showcase with clean white background and shadows",
+        "Quote post with elegant typography and soft gradient"
+      ]
+    }
+  ],
+  "sampleVariants": [
+    {
+      "id": "var-001",
+      "imageUrl": "/samples/variant-1.png",
+      "thumbnailUrl": "/samples/variant-1-thumb.png",
+      "prompt": "Professional LinkedIn banner with abstract neural network visualization, electric blue to white gradient, modern and clean",
+      "platform": "linkedin",
+      "format": {
+        "id": "linkedin-banner",
+        "name": "LinkedIn Banner",
+        "width": 1584,
+        "height": 396,
+        "platform": "linkedin",
+        "aspectRatio": "4:1"
+      },
+      "generatedAt": "2024-01-09T12:00:00Z",
+      "model": "gemini-3-pro"
+    },
+    {
+      "id": "var-002",
+      "imageUrl": "/samples/variant-2.png",
+      "thumbnailUrl": "/samples/variant-2-thumb.png",
+      "prompt": "Professional LinkedIn banner with abstract neural network visualization, electric blue to white gradient, modern and clean",
+      "platform": "linkedin",
+      "format": {
+        "id": "linkedin-banner",
+        "name": "LinkedIn Banner",
+        "width": 1584,
+        "height": 396,
+        "platform": "linkedin",
+        "aspectRatio": "4:1"
+      },
+      "generatedAt": "2024-01-09T12:00:02Z",
+      "model": "gemini-3-pro"
+    },
+    {
+      "id": "var-003",
+      "imageUrl": "/samples/variant-3.png",
+      "thumbnailUrl": "/samples/variant-3-thumb.png",
+      "prompt": "Professional LinkedIn banner with abstract neural network visualization, electric blue to white gradient, modern and clean",
+      "platform": "linkedin",
+      "format": {
+        "id": "linkedin-banner",
+        "name": "LinkedIn Banner",
+        "width": 1584,
+        "height": 396,
+        "platform": "linkedin",
+        "aspectRatio": "4:1"
+      },
+      "generatedAt": "2024-01-09T12:00:04Z",
+      "model": "gemini-3-pro"
+    }
+  ],
+  "promptEnhancementExample": {
+    "original": "blue tech banner",
+    "enhanced": "Professional LinkedIn banner featuring abstract technology visualization with flowing data streams, electric blue to cyan gradient, subtle grid pattern, modern minimalist style, high contrast, 4K quality",
+    "additions": [
+      "Professional LinkedIn banner",
+      "abstract technology visualization",
+      "flowing data streams",
+      "electric blue to cyan gradient",
+      "subtle grid pattern",
+      "modern minimalist style",
+      "high contrast",
+      "4K quality"
+    ],
+    "reasoning": "Added platform context, specific visual elements, color details, and quality modifiers for better generation results"
+  }
+}

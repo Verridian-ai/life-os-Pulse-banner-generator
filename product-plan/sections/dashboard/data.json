@@ -1,0 +1,154 @@
+{
+  "user": {
+    "id": "usr_01abc123def456",
+    "email": "alex.morgan@example.com",
+    "first_name": "Alex",
+    "last_name": "Morgan",
+    "username": "alexmorgan",
+    "avatar_url": "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=150&h=150&fit=crop",
+    "credits": 250,
+    "is_pro": true,
+    "created_at": "2024-09-15T10:30:00Z",
+    "updated_at": "2025-01-08T14:22:00Z"
+  },
+  "recentDesigns": [
+    {
+      "id": "des_01linkedin_banner",
+      "user_id": "usr_01abc123def456",
+      "title": "Tech Conference Speaker Banner",
+      "description": "LinkedIn banner for upcoming AI Summit 2025 speaking engagement",
+      "thumbnail_url": "https://images.unsplash.com/photo-1451187580459-43490279c0fa?w=400&h=128&fit=crop",
+      "design_url": "/designs/des_01linkedin_banner.png",
+      "width": 1584,
+      "height": 396,
+      "tags": ["linkedin", "conference", "speaker", "tech"],
+      "is_public": false,
+      "view_count": 0,
+      "created_at": "2025-01-08T09:15:00Z",
+      "updated_at": "2025-01-08T14:22:00Z"
+    },
+    {
+      "id": "des_02youtube_thumb",
+      "user_id": "usr_01abc123def456",
+      "title": "AI Tools Tutorial Thumbnail",
+      "description": "Eye-catching thumbnail for my AI productivity tools video",
+      "thumbnail_url": "https://images.unsplash.com/photo-1677442136019-21780ecad995?w=400&h=225&fit=crop",
+      "design_url": "/designs/des_02youtube_thumb.png",
+      "width": 1280,
+      "height": 720,
+      "tags": ["youtube", "thumbnail", "tutorial", "ai"],
+      "is_public": true,
+      "view_count": 142,
+      "created_at": "2025-01-07T16:45:00Z",
+      "updated_at": "2025-01-07T18:30:00Z"
+    },
+    {
+      "id": "des_03instagram_post",
+      "user_id": "usr_01abc123def456",
+      "title": "Product Launch Announcement",
+      "description": "Instagram post announcing new SaaS feature release",
+      "thumbnail_url": "https://images.unsplash.com/photo-1558655146-9f40138edfeb?w=400&h=400&fit=crop",
+      "design_url": "/designs/des_03instagram_post.png",
+      "width": 1080,
+      "height": 1080,
+      "tags": ["instagram", "launch", "product", "announcement"],
+      "is_public": true,
+      "view_count": 89,
+      "created_at": "2025-01-06T11:20:00Z",
+      "updated_at": "2025-01-06T14:10:00Z"
+    },
+    {
+      "id": "des_04facebook_cover",
+      "user_id": "usr_01abc123def456",
+      "title": "Company Page Cover",
+      "description": "Updated cover photo for startup Facebook page",
+      "thumbnail_url": "https://images.unsplash.com/photo-1504384308090-c894fdcc538d?w=400&h=150&fit=crop",
+      "design_url": "/designs/des_04facebook_cover.png",
+      "width": 820,
+      "height": 312,
+      "tags": ["facebook", "cover", "company", "branding"],
+      "is_public": false,
+      "view_count": 0,
+      "created_at": "2025-01-05T08:00:00Z",
+      "updated_at": "2025-01-05T10:45:00Z"
+    },
+    {
+      "id": "des_05tiktok_promo",
+      "user_id": "usr_01abc123def456",
+      "title": "New Year Promo Cover",
+      "description": "TikTok cover image for January sale campaign",
+      "thumbnail_url": "https://images.unsplash.com/photo-1467810563316-b5476525c0f9?w=400&h=711&fit=crop",
+      "design_url": "/designs/des_05tiktok_promo.png",
+      "width": 1080,
+      "height": 1920,
+      "tags": ["tiktok", "promo", "sale", "new-year"],
+      "is_public": true,
+      "view_count": 234,
+      "created_at": "2025-01-02T13:30:00Z",
+      "updated_at": "2025-01-02T15:20:00Z"
+    }
+  ],
+  "platforms": [
+    {
+      "id": "linkedin",
+      "name": "LinkedIn",
+      "description": "Professional banners and posts",
+      "icon": "Linkedin",
+      "logoUrl": "/assets/platforms/linkedin-3d.png",
+      "route": "/studio/linkedin",
+      "dimensions": { "width": 1584, "height": 396 }
+    },
+    {
+      "id": "youtube",
+      "name": "YouTube",
+      "description": "Thumbnails and channel art",
+      "icon": "Youtube",
+      "logoUrl": "/assets/platforms/youtube-3d.png",
+      "route": "/studio/youtube",
+      "dimensions": { "width": 1280, "height": 720 }
+    },
+    {
+      "id": "instagram",
+      "name": "Instagram",
+      "description": "Posts, stories, and reels covers",
+      "icon": "Instagram",
+      "logoUrl": "/assets/platforms/instagram-3d.png",
+      "route": "/studio/instagram",
+      "dimensions": { "width": 1080, "height": 1080 }
+    },
+    {
+      "id": "facebook",
+      "name": "Facebook",
+      "description": "Covers, posts, and ads",
+      "icon": "Facebook",
+      "logoUrl": "/assets/platforms/facebook-3d.png",
+      "route": "/studio/facebook",
+      "dimensions": { "width": 820, "height": 312 }
+    },
+    {
+      "id": "tiktok",
+      "name": "TikTok",
+      "description": "Profile pics and video covers",
+      "icon": "Music2",
+      "logoUrl": "/assets/platforms/tiktok-3d.png",
+      "route": "/studio/tiktok",
+      "dimensions": { "width": 1080, "height": 1920 }
+    },
+    {
+      "id": "x",
+      "name": "X",
+      "description": "Headers and post images",
+      "icon": "Twitter",
+      "logoUrl": "/assets/platforms/x-3d.png",
+      "route": "/studio/x",
+      "dimensions": { "width": 1500, "height": 500 }
+    }
+  ],
+  "userStats": {
+    "total_designs": 47,
+    "total_brand_profiles": 3,
+    "total_reference_images": 12,
+    "total_cost_usd": 4.23,
+    "total_operations": 156
+  }
+}

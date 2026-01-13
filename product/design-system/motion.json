@@ -1,0 +1,160 @@
+{
+  "meta": {
+    "name": "Signal Design System — Motion",
+    "version": "1.0.0",
+    "description": "Motion tokens implementing Luxury Lag physics",
+    "philosophy": "Spring physics and interpolation that feel premium"
+  },
+
+  "principles": {
+    "luxuryLag": "Intentional delay that creates a premium, considered feel",
+    "goodFriction": "Resistance that engages rather than frustrates",
+    "springPhysics": "Natural motion that responds to velocity and acceleration"
+  },
+
+  "lerp": {
+    "description": "Linear interpolation factors for Luxury Lag",
+    "scroll": {
+      "value": 0.1,
+      "description": "Smooth scroll following, creates parallax-like depth"
+    },
+    "cursor": {
+      "value": 0.06,
+      "description": "Standard cursor trailing for magnetic effects"
+    },
+    "heavyCursor": {
+      "value": 0.05,
+      "description": "Heavier cursor for large elements"
+    },
+    "lightCursor": {
+      "value": 0.08,
+      "description": "Lighter cursor for small elements"
+    }
+  },
+
+  "spring": {
+    "description": "Spring physics presets (tension, friction, mass)",
+    "snappy": {
+      "tension": 300,
+      "friction": 20,
+      "mass": 1,
+      "description": "Quick response for small UI elements"
+    },
+    "smooth": {
+      "tension": 170,
+      "friction": 26,
+      "mass": 1,
+      "description": "Default smooth motion"
+    },
+    "heavy": {
+      "tension": 120,
+      "friction": 14,
+      "mass": 2,
+      "description": "Weighty feel for large elements"
+    },
+    "bouncy": {
+      "tension": 400,
+      "friction": 10,
+      "mass": 0.8,
+      "description": "Playful overshoot for emphasis"
+    },
+    "gentle": {
+      "tension": 100,
+      "friction": 30,
+      "mass": 1.5,
+      "description": "Slow, deliberate motion"
+    }
+  },
+
+  "easing": {
+    "description": "CSS cubic-bezier curves for non-Spring animations",
+    "luxuryOut": {
+      "value": "cubic-bezier(0.33, 1, 0.68, 1)",
+      "description": "Premium ease-out for exits and reveals"
+    },
+    "luxuryInOut": {
+      "value": "cubic-bezier(0.65, 0, 0.35, 1)",
+      "description": "Symmetric for bidirectional motion"
+    },
+    "magnetic": {
+      "value": "cubic-bezier(0.25, 0.46, 0.45, 0.94)",
+      "description": "Attraction-like feel for hover states"
+    },
+    "snap": {
+      "value": "cubic-bezier(0.68, -0.55, 0.265, 1.55)",
+      "description": "Slight overshoot for click feedback"
+    }
+  },
+
+  "duration": {
+    "instant": "50ms",
+    "fast": "100ms",
+    "normal": "200ms",
+    "slow": "300ms",
+    "slower": "400ms",
+    "slowest": "500ms"
+  },
+
+  "interactions": {
+    "buttonPress": {
+      "scale": 0.98,
+      "duration": "100ms",
+      "easing": "snap"
+    },
+    "buttonHover": {
+      "scale": 1.02,
+      "duration": "200ms",
+      "easing": "luxuryOut"
+    },
+    "fabPress": {
+      "scale": 0.9,
+      "spring": "bouncy"
+    },
+    "fabBounce": {
+      "sequence": [0.85, 1.05, 1],
+      "delays": [0, 100, 200],
+      "spring": "bouncy"
+    },
+    "activeIndicator": {
+      "height": "24px",
+      "duration": "300ms",
+      "easing": "luxuryOut"
+    },
+    "navHoverShift": {
+      "translateX": "2px",
+      "duration": "200ms",
+      "easing": "luxuryOut"
+    }
+  },
+
+  "voiceAgent": {
+    "connecting": {
+      "animation": "spin",
+      "duration": "1000ms",
+      "easing": "linear"
+    },
+    "connected": {
+      "animation": "ping",
+      "scale": 1.4,
+      "duration": "1000ms"
+    },
+    "ripple": {
+      "color": "rgba(16, 185, 129, 0.3)",
+      "scale": 1.5,
+      "duration": "1500ms"
+    }
+  },
+
+  "menuDrawer": {
+    "enter": {
+      "transform": "translateX(0)",
+      "duration": "300ms",
+      "easing": "luxuryOut"
+    },
+    "exit": {
+      "transform": "translateX(-100%)",
+      "duration": "300ms",
+      "easing": "luxuryOut"
+    }
+  }
+}

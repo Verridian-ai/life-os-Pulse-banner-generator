@@ -1,0 +1,76 @@
+{
+  "brandKit": {
+    "id": "brand-kit-1",
+    "name": "Signal",
+    "tagline": "Create stunning designs with AI",
+    "logos": {
+      "primary": "https://via.placeholder.com/200x60/f97316/ffffff?text=Signal",
+      "dark": "https://via.placeholder.com/200x60/ffffff/0c0a09?text=Signal",
+      "light": "https://via.placeholder.com/200x60/0c0a09/ffffff?text=Signal",
+      "icon": "https://via.placeholder.com/100x100/f97316/ffffff?text=S"
+    },
+    "colors": [
+      {
+        "id": "color-1",
+        "name": "Primary Orange",
+        "hex": "#f97316",
+        "usage": "Primary brand color, CTAs, accents"
+      },
+      {
+        "id": "color-2",
+        "name": "Accent Emerald",
+        "hex": "#10b981",
+        "usage": "Success states, secondary accents"
+      },
+      {
+        "id": "color-3",
+        "name": "Warning Amber",
+        "hex": "#f59e0b",
+        "usage": "Warnings, loading states"
+      },
+      {
+        "id": "color-4",
+        "name": "Neutral Dark",
+        "hex": "#292524",
+        "usage": "Dark backgrounds, cards"
+      },
+      {
+        "id": "color-5",
+        "name": "Text Primary",
+        "hex": "#fafaf9",
+        "usage": "Primary text on dark backgrounds"
+      }
+    ],
+    "typography": {
+      "headingFont": "Space Grotesk",
+      "headingWeights": [500, 600, 700],
+      "bodyFont": "system-ui",
+      "bodyWeights": [400, 500, 600]
+    },
+    "voice": {
+      "tone": ["Professional", "Friendly", "Innovative"],
+      "keywords": ["AI-powered", "Creative", "Premium", "Distinctive"],
+      "description": "Signal speaks with confidence and warmth. We're experts in design, but we don't talk down to users. Our voice is encouraging, clear, and occasionally playful."
+    },
+    "createdAt": "2024-12-01T10:00:00Z",
+    "updatedAt": "2025-01-10T12:00:00Z"
+  },
+  "availableFonts": [
+    { "name": "Space Grotesk", "category": "sans-serif" },
+    { "name": "Inter", "category": "sans-serif", "antiSlop": true },
+    { "name": "DM Sans", "category": "sans-serif" },
+    { "name": "Poppins", "category": "sans-serif" },
+    { "name": "Playfair Display", "category": "serif" },
+    { "name": "Merriweather", "category": "serif" },
+    { "name": "IBM Plex Mono", "category": "monospace" }
+  ],
+  "antiSlopColors": {
+    "banned": ["#14B8A6", "#A020F0", "#8B5CF6", "#06B6D4"],
+    "alternatives": {
+      "#14B8A6": "#10b981",
+      "#A020F0": "#f97316",
+      "#8B5CF6": "#f97316",
+      "#06B6D4": "#10b981"
+    }
+  }
+}

@@ -3,72 +3,104 @@
     {
       "id": "ci-001",
       "type": "code_improvements",
-      "title": "Add AI Cache Analytics Hook",
-      "description": "Create a useAICacheMetrics hook that exposes AI cache statistics including hit rate, miss rate, fuzzy match rate, and total cached prompts. This enables users to understand cache effectiveness and optimize their prompt usage patterns.",
-      "rationale": "The codebase has established metrics hook patterns (useModelMetrics, useErrorMetrics) that aggregate localStorage data and expose stats via useMemo. The aiCache service already tracks exact and fuzzy matches but lacks a corresponding analytics hook to surface this data to users.",
-      "builds_upon": ["useModelMetrics hook", "useErrorMetrics hook", "aiCache service", "StorageManager pattern"],
-      "estimated_effort": "trivial",
-      "affected_files": ["src/hooks/useAICacheMetrics.ts", "src/services/aiCache.ts", "src/services/storageManager.ts"],
-      "existing_patterns": ["useModelMetrics aggregation pattern", "window.dispatchEvent for hook updates", "useMemo for stats computation"],
-      "implementation_approach": "1. Add cache hit/miss tracking to aiCache.get() and getSimilar() methods by storing access records. 2. Dispatch 'ai-cache-access' event on each access. 3. Create useAICacheMetrics hook following useModelMetrics structure with stats like hitRate, missRate, fuzzyHitRate, totalCached, cacheUsageBytes. 4. Wire to PerformanceMetricsPanel for display.",
+      "title": "Add Teams CRUD Router",
+      "description": "Create a full CRUD API router for the teams and teamMembers tables. The database schema already defines teams and teamMembers tables with proper relationships, but no API routes exist. This would enable team creation, member management, and role assignment.",
+      "rationale": "The teams and teamMembers tables exist in server/src/db/schema.ts with full schema definitions (team name, owner, members with roles). The CRUD router pattern is well-established in brands.ts, designs.ts, and images.ts - this is a direct copy with table name changes. Teams are referenced by brandProfiles (team_id FK exists), showing the data model is ready.",
+      "builds_upon": ["brands.ts CRUD router pattern", "authMiddleware pattern", "Drizzle ORM query patterns"],
+      "estimated_effort": "medium",
+      "affected_files": [
+        "server/src/routes/teams.ts",
+        "server/src/index.ts"
+      ],
+      "existing_patterns": [
+        "server/src/routes/brands.ts - Full CRUD with ownership verification",
+        "server/src/routes/designs.ts - List with filtering, pagination",
+        "server/src/lib/auth.ts - authMiddleware application"
+      ],
+      "implementation_approach": "1. Create server/src/routes/teams.ts following brands.ts structure exactly. 2. Import teams and teamMembers from schema. 3. Add routes: GET / (list user's teams), POST / (create team), GET /:id (get team with members), PATCH /:id (update team), DELETE /:id (delete team), POST /:id/members (add member), DELETE /:id/members/:userId (remove member), PATCH /:id/members/:userId (change role). 4. Register in index.ts with app.route('/api/teams', teamRouter).",
       "status": "draft",
-      "created_at": "2026-01-08T07:15:00.000Z"
+      "created_at": "2026-01-13T10:50:00.000Z"
     },
     {
       "id": "ci-002",
       "type": "code_improvements",
-      "title": "Extend Error Handler for AI Provider-Specific Errors",
-      "description": "Enhance the error classification system to recognize and provide user-friendly messages for AI provider-specific errors including Gemini quota exceeded, Replicate model cold start/warming, OpenRouter credit exhaustion, and API-specific rate limits.",
-      "rationale": "The errorHandler.ts already classifies generic network errors (timeout, CORS, 429 rate limit) but doesn't distinguish between AI providers. Since the app uses Gemini, OpenRouter, and Replicate, provider-specific error messages would help users troubleshoot issues faster.",
-      "builds_upon": ["classifyError() function", "NetworkError interface", "Error tracking pattern"],
+      "title": "Add Voice Transcripts API Route",
+      "description": "Create an API route to list, search, and export voice transcripts. The voiceTranscripts table stores all voice interactions but users have no way to review, search, or export their voice history.",
+      "rationale": "The voiceTranscripts table exists with fields for userId, conversationId, role, content, audioDurationMs, toolCalls, and provider. The chatMessages route (server/src/routes/chat.ts) already provides identical functionality for chat messages. This is a small extension applying the same pattern to voice data.",
+      "builds_upon": ["chat.ts conversation/messages pattern", "prompts.ts list with filters pattern"],
       "estimated_effort": "small",
-      "affected_files": ["src/utils/errorHandler.ts", "src/services/gemini.ts", "src/services/openrouter.ts", "src/services/replicate.ts"],
-      "existing_patterns": ["Error classification with message.includes() checks", "NetworkError type with retryable flag", "Provider-specific error handling in service files"],
-      "implementation_approach": "1. Add new error types to NetworkError.type union: 'gemini_quota' | 'replicate_warmup' | 'openrouter_credits'. 2. Extend classifyError() with provider-specific message patterns (e.g., 'billing not enabled', 'model is warming up', 'insufficient credits'). 3. Update user-friendly messages with actionable guidance. 4. Consider adding provider detection from error response headers/body.",
+      "affected_files": [
+        "server/src/routes/voice.ts",
+        "server/src/index.ts"
+      ],
+      "existing_patterns": [
+        "server/src/routes/chat.ts - Messages list with conversation scoping",
+        "server/src/routes/prompts.ts - List with search and category filters",
+        "server/src/routes/images.ts - List with type/favorites filtering"
+      ],
+      "implementation_approach": "1. Create server/src/routes/voice.ts with Hono router. 2. Add GET /transcripts endpoint with filters: date range, provider (gemini/openai), search in content. 3. Add GET /transcripts/export for JSON/CSV export of transcript history. 4. Follow prompts.ts for search/filter query param patterns. 5. Include pagination with limit/offset. 6. Register in index.ts.",
       "status": "draft",
-      "created_at": "2026-01-08T07:15:00.000Z"
+      "created_at": "2026-01-13T10:50:00.000Z"
     },
     {
       "id": "ci-003",
       "type": "code_improvements",
-      "title": "Add Snapshot Favorites and Search",
-      "description": "Extend useCanvasSnapshots hook with favorites toggle and search functionality, following the established usePromptHistory pattern. This allows users to mark important snapshots and quickly find them by name.",
-      "rationale": "usePromptHistory has a mature pattern with toggleFavorite(), searchPrompts(), and getFavoritePrompts() methods. useCanvasSnapshots currently only supports CRUD operations without favorites or search, despite having a similar data structure (records with id, name, timestamps).",
-      "builds_upon": ["useCanvasSnapshots hook", "usePromptHistory favorites/search pattern", "snapshotStorage"],
+      "title": "Add Design Owner Comments Management",
+      "description": "Enable design owners to view, resolve, and delete comments on their designs. Currently comments are only accessible via shared links - owners cannot manage feedback on their own designs.",
+      "rationale": "The comments table exists and is used via sharing.ts public routes. The isResolved field exists but has no toggle route. Design owners should be able to: list all comments on their designs, mark comments as resolved, delete inappropriate comments. The toggle pattern exists in prompts.ts (toggle-favorite) and designs.ts (toggle-public).",
+      "builds_upon": ["sharing.ts comments routes", "designs.ts ownership verification pattern", "toggle-favorite pattern"],
       "estimated_effort": "small",
-      "affected_files": ["src/hooks/useCanvasSnapshots.ts", "src/components/features/SnapshotsModal.tsx"],
-      "existing_patterns": ["toggleFavorite pattern from usePromptHistory", "searchPrompts with toLowerCase().includes()", "getFavoriteSnapshots sorting pattern"],
-      "implementation_approach": "1. Add isFavorite field to SnapshotRecord interface. 2. Implement toggleFavorite(id) following usePromptHistory pattern. 3. Add searchSnapshots(query) that searches name field. 4. Add getFavoriteSnapshots() sorted by updatedAt. 5. Update SnapshotsModal UI with star icon for favorites and search input.",
+      "affected_files": [
+        "server/src/routes/sharing.ts"
+      ],
+      "existing_patterns": [
+        "server/src/routes/sharing.ts - Comment creation on shared designs",
+        "server/src/routes/designs.ts - Ownership verification pattern",
+        "server/src/routes/prompts.ts - toggle-favorite endpoint structure"
+      ],
+      "implementation_approach": "1. Add authenticated routes to sharing.ts: GET /designs/:designId/comments (list comments for owned design), POST /comments/:id/resolve (toggle isResolved), DELETE /comments/:id (delete comment). 2. Each route verifies design ownership via designs table userId check. 3. Follow the existing toggle-favorite pattern from prompts.ts for the resolve toggle. 4. Add filters for resolved/unresolved in list endpoint.",
       "status": "draft",
-      "created_at": "2026-01-08T07:15:00.000Z"
+      "created_at": "2026-01-13T10:50:00.000Z"
     },
     {
       "id": "ci-004",
       "type": "code_improvements",
-      "title": "Add Compare Models Voice Command",
-      "description": "Expose the existing compareModelPerformance() function as a voice command that allows users to verbally request model comparisons and receive spoken recommendations based on speed, quality, or cost criteria.",
-      "rationale": "The modelRouter.ts already implements sophisticated model comparison with compareModelPerformance() that ranks models by criteria. The Command pattern in services/commands/ enables adding new voice commands. Currently no voice command surfaces this capability despite it being useful for hands-free workflow optimization.",
-      "builds_upon": ["compareModelPerformance() function", "Command interface pattern", "analysisCommands.ts structure"],
-      "estimated_effort": "medium",
-      "affected_files": ["src/services/commands/analysisCommands.ts", "src/services/actionExecutor.ts", "src/services/modelRouter.ts"],
-      "existing_patterns": ["Command class with name and execute(args, context)", "ActionResult return format", "Voice command tool definitions in actionExecutor"],
-      "implementation_approach": "1. Create CompareModelsCommand class implementing Command interface. 2. Accept args: { capability: string, criteria: 'speed'|'quality'|'cost'|'balanced' }. 3. Call filterModelsByCapability() then compareModelPerformance(). 4. Return formatted result string listing top 3 models with scores and reasons. 5. Register command in actionExecutor AVAILABLE_TOOLS. 6. Add voice tool definition for OpenAI Realtime API.",
+      "title": "Add Batch Delete Designs Command",
+      "description": "Add a voice/AI command for batch deleting multiple designs from the gallery. The pattern exists for batch operations on canvas elements but not for gallery cleanup.",
+      "rationale": "BatchDeleteElementsCommand, BatchUpscaleCommand, and BatchRemoveBackgroundCommand already exist in the command system demonstrating the batch pattern. Users may want to clean up multiple old designs at once. The Command interface and ActionExecutor registration pattern are well established.",
+      "builds_upon": ["BatchDeleteElementsCommand", "DeleteDesignCommand", "Command pattern in actionExecutor.ts"],
+      "estimated_effort": "trivial",
+      "affected_files": [
+        "src/services/commands/galleryCommands.ts",
+        "src/services/actionExecutor.ts"
+      ],
+      "existing_patterns": [
+        "src/services/commands/imageCommands.ts - BatchUpscaleCommand, BatchRemoveBackgroundCommand",
+        "src/services/commands/canvasCommands.ts - BatchDeleteElementsCommand",
+        "src/services/commands/galleryCommands.ts - DeleteDesignCommand (single)"
+      ],
+      "implementation_approach": "1. In galleryCommands.ts, add BatchDeleteDesignsCommand class implementing Command. 2. Accept args: { design_ids: string[] }. 3. Loop through IDs calling deleteDesignFromDb for each, collecting results/errors like BatchUpscaleCommand does. 4. Return aggregated result: { success: X, errors: Y }. 5. Register in actionExecutor.ts with this.registerCommand(new BatchDeleteDesignsCommand()). 6. Add to ToolSchemas for validation.",
       "status": "draft",
-      "created_at": "2026-01-08T07:15:00.000Z"
+      "created_at": "2026-01-13T10:50:00.000Z"
     },
     {
       "id": "ci-005",
       "type": "code_improvements",
-      "title": "Add Storage Usage Dashboard Component",
-      "description": "Create a StorageUsagePanel component that visualizes localStorage usage across all StorageManager namespaces, showing per-namespace usage, total usage, and quota remaining with a progress bar.",
-      "rationale": "StorageManager.getUsage() already returns character count per namespace, and the codebase has 7 storage namespaces (aiCache, errorMetrics, modelPreferences, modelMetrics, onboarding, promptHistory, snapshots). No UI currently exposes this to users, but storage quota is a real concern especially with canvas snapshots storing base64 images.",
-      "builds_upon": ["StorageManager.getUsage() method", "StorageManager instances (aiCacheStorage, snapshotStorage, etc.)", "SettingsModal component structure"],
-      "estimated_effort": "medium",
-      "affected_files": ["src/services/storageManager.ts", "src/components/features/SettingsModal.tsx", "src/components/features/StorageUsagePanel.tsx"],
-      "existing_patterns": ["Panel component structure in features/", "Progress bar styling from existing UI components", "StorageManager namespace organization"],
-      "implementation_approach": "1. Export a getGlobalStorageStats() function from storageManager.ts that iterates all namespace instances and calls getUsage(). 2. Create StorageUsagePanel.tsx component with progress bars per namespace. 3. Show total usage vs estimated quota (5MB typical). 4. Add clear buttons per namespace calling storage.clear(). 5. Integrate into SettingsModal under a 'Storage' tab or accordion section.",
+      "title": "Implement LangfuseService getDailyMetrics",
+      "description": "Complete the stubbed getDailyMetrics method in LangfuseService to aggregate and return daily usage statistics from Langfuse traces.",
+      "rationale": "LangfuseService.getDailyMetrics() exists but returns empty array with comment 'for now, let's focus on Traces'. The getTraces method shows the working pattern for Langfuse API calls with proper auth headers. The dailyStats table exists in schema for storing aggregated metrics. AdminObservability page likely expects this data.",
+      "builds_upon": ["LangfuseService.getTraces method", "dailyStats table schema", "Admin observability dashboard"],
+      "estimated_effort": "small",
+      "affected_files": [
+        "server/src/services/langfuse.ts"
+      ],
+      "existing_patterns": [
+        "server/src/services/langfuse.ts - getTraces method with Langfuse API auth",
+        "server/src/db/schema.ts - dailyStats table structure"
+      ],
+      "implementation_approach": "1. In langfuse.ts getDailyMetrics, follow getTraces pattern for API calls. 2. Fetch traces for date range, aggregate by day: totalRequests, totalTokens, uniqueUsers, errorCount. 3. Option A: Compute from traces API if Langfuse supports date filtering. Option B: Store daily aggregates in dailyStats table via scheduled job and query from DB. 4. Return array of { date, metrics } objects matching dailyStats schema. 5. Add error handling matching getTraces pattern.",
       "status": "draft",
-      "created_at": "2026-01-08T07:15:00.000Z"
+      "created_at": "2026-01-13T10:50:00.000Z"
     }
   ]
 }

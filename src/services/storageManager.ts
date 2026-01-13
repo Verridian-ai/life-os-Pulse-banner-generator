@@ -168,6 +168,67 @@ export class StorageManager {
         });
         return total;
     }
+
+    /**
+     * Get or create a hash index for fast similarity lookups
+     * Index structure: { [hashHex: string]: string[] }
+     */
+    getHashIndex(): Map<string, string[]> {
+        const indexKey = '__hash_index__';
+        try {
+            const raw = localStorage.getItem(this.getKey(indexKey));
+            if (raw) {
+                const parsed = JSON.parse(raw);
+                return new Map(Object.entries(parsed));
+            }
+        } catch {
+            // Index corrupted, will rebuild
+        }
+        return new Map();
+    }
+
+    /**
+     * Save hash index to storage
+     */
+    saveHashIndex(index: Map<string, string[]>): void {
+        const indexKey = '__hash_index__';
+        try {
+            const obj = Object.fromEntries(index);
+            localStorage.setItem(this.getKey(indexKey), JSON.stringify(obj));
+        } catch {
+            console.warn('[StorageManager] Failed to save hash index');
+        }
+    }
+
+    /**
+     * Add entry to hash index
+     */
+    addToHashIndex(hashHex: string, cacheKey: string): void {
+        const index = this.getHashIndex();
+        const existing = index.get(hashHex) || [];
+        if (!existing.includes(cacheKey)) {
+            existing.push(cacheKey);
+            index.set(hashHex, existing);
+            this.saveHashIndex(index);
+        }
+    }
+
+    /**
+     * Remove entry from hash index
+     */
+    removeFromHashIndex(hashHex: string, cacheKey: string): void {
+        const index = this.getHashIndex();
+        const existing = index.get(hashHex);
+        if (existing) {
+            const filtered = existing.filter(k => k !== cacheKey);
+            if (filtered.length > 0) {
+                index.set(hashHex, filtered);
+            } else {
+                index.delete(hashHex);
+            }
+            this.saveHashIndex(index);
+        }
+    }
 }
 
 // Export instances for common services

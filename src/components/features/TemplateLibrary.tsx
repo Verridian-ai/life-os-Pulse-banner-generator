@@ -14,15 +14,19 @@ export const TemplateLibrary: React.FC<TemplateLibraryProps> = ({ onClose }) => 
   const { setPrompt } = useAI();
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedIndustry, setSelectedIndustry] = useState('All');
+  const [selectedPlatform, setSelectedPlatform] = useState('All');
   const toast = useToast();
 
   const industries = ['All', ...new Set(BANNER_TEMPLATES.map(t => t.industry))];
+  const platforms = ['All', 'linkedin', 'facebook', 'x', 'instagram', 'youtube', 'tiktok'];
 
   const filteredTemplates = BANNER_TEMPLATES.filter(t => {
     const matchesSearch = t.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
       t.description.toLowerCase().includes(searchQuery.toLowerCase());
     const matchesIndustry = selectedIndustry === 'All' || t.industry === selectedIndustry;
-    return matchesSearch && matchesIndustry;
+    // Safe check if template has platform property (for backward compatibility if data didn't fully update)
+    const matchesPlatform = selectedPlatform === 'All' || (t.platform && t.platform === selectedPlatform);
+    return matchesSearch && matchesIndustry && matchesPlatform;
   });
 
   const handleApplyTemplate = (template: BannerTemplate) => {
@@ -49,10 +53,7 @@ export const TemplateLibrary: React.FC<TemplateLibraryProps> = ({ onClose }) => 
       {/* Header */}
       <div className='p-6 border-b border-white/5 flex items-center justify-between bg-zinc-950/50'>
         <div>
-          <h2 className='text-lg font-black uppercase tracking-wider text-white flex items-center gap-2'>
-            <span className='material-icons text-blue-500'>auto_awesome_motion</span>
-            Template Library
-          </h2>
+          {/* Heading removed to prevent double-header with Studio Nav */}
           <p className='text-[10px] text-zinc-500 font-bold uppercase tracking-widest'>
             {BANNER_TEMPLATES.length} Professional Starting Points
           </p>
@@ -66,28 +67,41 @@ export const TemplateLibrary: React.FC<TemplateLibraryProps> = ({ onClose }) => 
 
       {/* Filters */}
       <div className='p-6 space-y-4 border-b border-white/5'>
-        <div className='flex flex-col md:flex-row gap-4'>
-          <div className='flex-1'>
-            <input
-              type='text'
-              placeholder='Search templates...'
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className={`${INPUT_NEU} w-full h-12 px-4 text-sm`}
-            />
-          </div>
-          <div className='flex gap-2 overflow-x-auto pb-1 scrollbar-hide'>
-            {industries.map(ind => (
-              <button
-                key={ind}
-                onClick={() => setSelectedIndustry(ind)}
-                className={`px-4 py-2 rounded-full text-xs font-bold uppercase tracking-wider whitespace-nowrap transition ${selectedIndustry === ind ? 'bg-blue-600 text-white' : 'bg-zinc-800 text-zinc-500 hover:text-zinc-300'
-                  }`}
-              >
-                {ind}
-              </button>
-            ))}
-          </div>
+        {/* Search */}
+        <input
+          type='text'
+          placeholder='Search templates...'
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+          className={`${INPUT_NEU} w-full h-12 px-4 text-sm mb-4`}
+        />
+
+        {/* Platform Filter */}
+        <div className='flex gap-2 overflow-x-auto pb-1 scrollbar-hide mb-2 border-b border-white/5 pb-4'>
+          {platforms.map(p => (
+            <button
+              key={p}
+              onClick={() => setSelectedPlatform(p)}
+              className={`px-4 py-2 rounded-full text-xs font-black uppercase tracking-wider whitespace-nowrap transition flex items-center gap-2 ${selectedPlatform === p ? 'bg-white text-black' : 'bg-black/40 text-zinc-500 hover:text-white border border-white/10'
+                }`}
+            >
+              {p === 'All' ? 'ALL PLATFORMS' : p}
+            </button>
+          ))}
+        </div>
+
+        {/* Industry Filter */}
+        <div className='flex gap-2 overflow-x-auto pb-1 scrollbar-hide'>
+          {industries.map(ind => (
+            <button
+              key={ind}
+              onClick={() => setSelectedIndustry(ind)}
+              className={`px-4 py-2 rounded-full text-xs font-bold uppercase tracking-wider whitespace-nowrap transition ${selectedIndustry === ind ? 'bg-blue-600 text-white' : 'bg-zinc-800 text-zinc-500 hover:text-zinc-300'
+                }`}
+            >
+              {ind}
+            </button>
+          ))}
         </div>
       </div>
 

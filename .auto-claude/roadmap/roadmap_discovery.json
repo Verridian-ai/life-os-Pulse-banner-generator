@@ -7,139 +7,159 @@
       "React 19",
       "Vite",
       "Tailwind CSS",
-      "Supabase"
+      "Hono (Backend)",
+      "Drizzle ORM"
     ],
     "key_dependencies": [
-      "react",
-      "react-dom",
-      "typescript",
-      "vite",
-      "tailwindcss",
-      "@datadog/browser-rum",
-      "react-virtualized-auto-sizer",
+      "lucide-react",
       "react-window",
+      "jszip",
+      "file-saver",
+      "@datadog/browser-rum",
+      "@google-cloud/storage",
+      "lucia",
+      "drizzle-orm",
+      "ioredis",
+      "nodemailer",
       "vitest",
       "@playwright/test"
     ]
   },
   "target_audience": {
-    "primary_persona": "Career-focused professionals in the Careersy Community seeking to enhance their LinkedIn presence with professional, AI-generated banners",
+    "primary_persona": "Career-focused professionals seeking to enhance their LinkedIn presence through visually compelling banners",
     "secondary_personas": [
-      "LinkedIn power users optimizing personal branding",
-      "Job seekers wanting to stand out with professional visuals",
-      "Freelancers and solo entrepreneurs building online presence",
-      "Career coaches helping clients improve LinkedIn profiles"
+      "Career coaches creating branded materials for clients",
+      "Marketing professionals managing personal or company brands",
+      "Job seekers wanting to stand out with professional profiles",
+      "HR professionals and recruiters building employer brand",
+      "Personal brand consultants creating assets for clients",
+      "Content creators building thought leadership presence"
     ],
     "pain_points": [
-      "Lack of design skills to create professional LinkedIn banners",
-      "Time-consuming manual banner design process",
-      "Expensive professional designers for simple branding tasks",
+      "Lack of design skills to create professional-looking banners",
+      "Time-consuming manual design process with traditional tools",
       "Difficulty maintaining brand consistency across visual assets",
-      "No voice-first tools for hands-free creative workflows"
+      "LinkedIn's specific dimension requirements causing cropping issues",
+      "Expensive professional design services for simple banner updates",
+      "Generic templates that don't reflect unique personal brand",
+      "No easy way to iterate on designs quickly with AI assistance"
     ],
     "goals": [
-      "Create professional LinkedIn banners quickly without design skills",
-      "Maintain consistent personal branding across assets",
-      "Use AI to iterate and improve designs through natural conversation",
-      "Access multiple AI models for diverse creative outputs",
-      "Save and organize designs for easy retrieval and reuse"
+      "Create professional LinkedIn banners in minutes, not hours",
+      "Establish a memorable and cohesive personal brand",
+      "Stand out in competitive job markets or professional networks",
+      "Maintain brand consistency across all professional touchpoints",
+      "Quickly A/B test different banner designs",
+      "Use voice commands for hands-free design iteration"
     ],
-    "usage_context": "Desktop web browser (Chrome/Edge recommended for voice features), used during personal branding sessions, job searching periods, or profile refresh moments"
+    "usage_context": "Professionals use Nanobanna Pro when updating their LinkedIn profile for job searches, career pivots, personal branding refreshes, or seasonal updates. Often accessed during evening/weekend personal branding sessions or as part of career coaching workflows."
   },
   "product_vision": {
-    "one_liner": "AI-powered LinkedIn banner designer with voice-controlled workflows for professionals to create stunning banners in seconds",
-    "problem_statement": "Creating professional LinkedIn banners requires design skills most career professionals don't have, leading to generic or unprofessional profiles that fail to make the right first impression",
-    "value_proposition": "Multi-AI orchestration (Gemini, OpenRouter, Replicate) enables 4K image generation, intelligent editing, voice-powered workflows with 17 commands, and professional image processing - all without design expertise",
+    "one_liner": "AI-powered LinkedIn banner designer that creates stunning, professional banners in seconds with voice-powered workflows",
+    "problem_statement": "Creating professional LinkedIn banners requires design skills most professionals don't have, forcing them to use generic templates, pay for expensive designers, or settle for subpar visuals that don't reflect their personal brand",
+    "value_proposition": "Nanobanna Pro combines cutting-edge multi-model AI (Gemini, GPT, Claude) with voice-powered workflows to let anyone create 4K professional banners through natural conversation, eliminating the design skills barrier while enabling rapid iteration and brand consistency",
     "success_metrics": [
-      "Number of banners generated per user",
-      "User retention and return session rate",
-      "Voice command adoption rate",
-      "Time from signup to first banner export",
-      "Community growth in Careersy Community",
-      "Gallery shares and public designs created"
+      "Number of banners generated per user per month",
+      "User retention rate (monthly active users)",
+      "Time from start to exported banner (target: under 5 minutes)",
+      "Voice command adoption rate (% users using voice features)",
+      "Net Promoter Score (NPS) from Careersy community",
+      "Conversion from free to paid tier",
+      "Design save/re-edit rate (indicates value in saved designs)"
     ]
   },
   "current_state": {
     "maturity": "mvp",
     "existing_features": [
-      "Multi-LLM AI integration (Gemini 3 Pro, OpenRouter, Replicate)",
-      "4K resolution image generation",
+      "Canvas-based editor with layers and safe zones",
+      "AI image generation via Gemini 3 Pro (4K resolution)",
       "Voice-powered creation with 17 commands via OpenAI Realtime API",
-      "AI image upscaling (3 quality tiers)",
-      "Background removal with transparent PNG output",
-      "Image restoration and face enhancement",
-      "Canvas editor with LinkedIn-specific safe zones",
-      "Multi-turn image editing with AI memory",
-      "Studio/Gallery/Brainstorm tab navigation",
-      "Supabase authentication and user profiles",
-      "Row Level Security for data isolation",
-      "Design saving and canvas state persistence",
-      "Brand profile management",
-      "Performance metrics and AI usage tracking",
-      "Admin dashboard",
-      "Preview mode for cost control on image operations"
+      "Multi-model AI routing (Gemini, OpenRouter, Replicate)",
+      "Image processing: upscaling, background removal, restoration, face enhancement",
+      "Magic edit functionality for iterative refinement",
+      "Brand profile management and extraction",
+      "Design gallery with save/re-edit capabilities",
+      "Brainstorm tab for AI-assisted prompt ideation",
+      "A/B testing variant generator",
+      "Tool chain builder for automated workflows",
+      "Performance metrics and usage tracking",
+      "Admin dashboard with finance and observability",
+      "20+ professional banner templates",
+      "Keyboard shortcuts and accessibility features",
+      "Multi-tenant auth with RLS (Row Level Security)",
+      "Encrypted API key storage per user",
+      "Preview mode for cost-controlled image operations"
     ],
     "known_gaps": [
-      "Component exports incomplete (ChatInterface Phase 2 TODO)",
-      "Profile update handling incomplete",
-      "Some type safety issues (any types in services)",
-      "No mobile-optimized experience",
-      "Limited A/B testing implementation",
-      "Tool chain builder not fully implemented",
-      "Public gallery features limited"
+      "ChatInterface Phase 2 components not yet exported",
+      "Better admin authentication mechanism needed",
+      "Profile updates handling in chat incomplete",
+      "LinkedIn OAuth integration for direct publishing",
+      "Team collaboration features (sharing, co-editing)",
+      "Mobile-responsive design editor",
+      "Offline mode / PWA capabilities",
+      "Advanced analytics dashboard for users",
+      "Batch processing for multiple banners"
     ],
     "technical_debt": [
-      "Type safety improvements needed in API services",
-      "Some import ordering violations remain",
-      "Context splitting still evolving (CanvasContext was recently split)",
-      "Test coverage gaps in some components",
-      "Documentation for some features still in progress"
+      "Admin check uses existence check instead of proper useAdminAuth hook",
+      "Some ChatInterface components still in Phase 1 structure",
+      "Profile updates need better state management in chat context",
+      "Test coverage could be expanded for newer features",
+      "Some voice error diagnostics utilities may need consolidation"
     ]
   },
   "competitive_context": {
     "alternatives": [
-      "Canva - General-purpose design tool with templates",
-      "Adobe Express - Professional design with AI features",
-      "Figma - Design tool for professionals",
-      "Leonardo.ai - AI image generation platform",
-      "Midjourney - Premium AI image generation",
-      "DALL-E - OpenAI image generation"
+      "Canva - General-purpose design with LinkedIn templates",
+      "Adobe Express - Professional design suite with AI features",
+      "Visme - Business graphics and presentation tool",
+      "LinkedIn's native banner upload - Manual upload only",
+      "Figma - Professional design tool (steep learning curve)",
+      "Fotor - Online photo editor with banner templates",
+      "Crello (VistaCreate) - Template-based design tool"
     ],
     "differentiators": [
-      "LinkedIn banner specialization with safe zone awareness",
-      "Multi-AI orchestration (Gemini + OpenRouter + Replicate) for best-in-class outputs",
-      "Voice-powered workflows with 17 dedicated commands",
-      "Multi-turn conversational image editing with AI memory",
-      "Career community integration (Careersy Community focus)",
-      "4K professional output quality",
-      "Preview mode for cost-conscious usage",
-      "BYOK (Bring Your Own Keys) deployment model"
+      "Voice-first design: 17 voice commands for hands-free creation",
+      "Multi-model AI orchestration (Gemini + GPT + Claude + Replicate)",
+      "LinkedIn-specific optimization with safe zones and dimension presets",
+      "4K resolution output for print-quality professional results",
+      "Multi-turn image editing with AI memory context",
+      "Brand consistency engine for automatic guideline enforcement",
+      "Tool chain automation for complex multi-step workflows",
+      "Preview mode for cost-controlled AI operations"
     ],
-    "market_position": "Niche vertical AI tool focused specifically on LinkedIn banner creation for career-focused professionals, differentiating from general-purpose design tools through voice-first workflows and LinkedIn-specific optimizations",
+    "market_position": "Premium AI-native design tool positioned specifically for LinkedIn professionals, sitting between consumer-grade template tools (Canva) and professional design suites (Figma). Unique value in voice-powered workflows and LinkedIn-specific optimization.",
     "competitor_pain_points": [],
     "competitor_analysis_available": false
   },
   "constraints": {
     "technical": [
-      "Requires modern browser with WebSocket support for voice features",
-      "Chrome/Edge recommended for optimal voice agent performance",
-      "Multiple AI API keys required (Gemini, OpenRouter, Replicate, OpenAI)",
-      "Supabase backend dependency for auth and data persistence",
-      "CORS handling for Replicate proxy in development"
+      "Requires API keys from multiple providers (Gemini, OpenRouter, Replicate, OpenAI)",
+      "Voice features require Chrome/Edge browser and microphone permissions",
+      "WebSocket connections needed for real-time voice streaming",
+      "Heavy reliance on external AI services (single points of failure)",
+      "CORS handling required for Replicate proxy in development",
+      "4K image generation is computationally expensive"
     ],
     "resources": [
-      "Active development with AI-assisted agent workflow",
-      "Careersy Community providing pilot testing and feedback",
-      "Self-hosted or Careersy-hosted deployment options"
+      "Primary development by small team (2-3 contributors based on git history)",
+      "Pilot program targeting Careersy community initially",
+      "Two deployment modes: user-hosted (BYOK) and pilot-hosted (shared quota)",
+      "Invite-only during pilot phase limits user growth",
+      "AI API costs scale with usage (need cost management)"
     ],
     "dependencies": [
       "Google Gemini API for primary image generation",
       "OpenRouter for multi-model LLM access",
       "Replicate for image processing operations",
       "OpenAI Realtime API for voice agent",
-      "Supabase for authentication, database, and storage",
-      "Vercel for hosting and deployment"
+      "Neon PostgreSQL for database",
+      "Google Cloud Storage for file storage",
+      "Langfuse for LLM observability and tracing",
+      "Datadog for application monitoring",
+      "Supabase for authentication (mixed with Lucia)"
     ]
   },
-  "created_at": "2026-01-08T14:30:00Z"
+  "created_at": "2026-01-13T12:00:00Z"
 }

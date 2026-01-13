@@ -13,6 +13,8 @@ export interface PromptEnhanceContext {
     industry?: string;      // e.g., "tech", "finance", "healthcare"
     style?: string;         // e.g., "professional", "creative", "minimal"
     brandColors?: string[]; // e.g., ["#1a73e8", "#34a853"]
+    targetModel?: 'imagen-3' | 'flux' | 'ideogram' | 'sd3' | 'kling' | 'luma';
+    platformFormat?: string; // e.g., "Instagram Story (9:16)"
 }
 
 export type CanvasDimensions = {

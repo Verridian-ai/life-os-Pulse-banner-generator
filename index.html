@@ -3,18 +3,17 @@
 
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta http-equiv="Content-Security-Policy" content="
     default-src 'self';
     script-src 'self';
     style-src 'self' 'unsafe-inline' https://fonts.googleapis.com;
     font-src 'self' https://fonts.gstatic.com data:;
     img-src 'self' data: blob: https://*.replicate.com https://*.replicate.delivery https://*.openrouter.ai https://*.googleusercontent.com https://*.googleapis.com;
-    connect-src 'self' ws: wss: https://*.openrouter.ai https://*.replicate.com https://api.openai.com https://*.googleapis.com https://*.supabase.co;
+    connect-src 'self' ws: wss: http://localhost:* https://*.openrouter.ai https://*.replicate.com https://api.openai.com https://*.googleapis.com https://*.verridian.ai;
     frame-src 'self';
     object-src 'none';
     base-uri 'self';
-    upgrade-insecure-requests;
   ">
   <title>Nanobanna Pro</title>
   <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
@@ -23,7 +22,8 @@
     To regenerate, curl the URL and pipe to: openssl dgst -sha384 -binary | openssl base64 -A
     Example: curl -s "URL" | openssl dgst -sha384 -binary | openssl base64 -A
   -->
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" crossorigin="anonymous">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet"
+    crossorigin="anonymous">
   <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet" crossorigin="anonymous">
 </head>
 

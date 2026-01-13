@@ -348,7 +348,8 @@ describe('ActionExecutor', () => {
       const result = await executor.executeToolCall(toolCall);
 
       expect(result.success).toBe(false);
-      expect(result.error).toContain('Invalid arguments');
+      // The command returns a specific error when reference_image is missing
+      expect(result.error).toContain('reference image');
     });
   });
 });

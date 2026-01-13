@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from 'react';
+import { useState, useCallback } from 'react';
 
 import type { BannerElement } from '@/types';
 import { FONT_OPTIONS_CATEGORIZED, FONT_CATEGORY_LABELS, type FontCategory, TEXT_ELEMENT_PRESETS, BANNER_WIDTH, BANNER_HEIGHT } from '@/constants';
@@ -85,6 +85,7 @@ export function TypographyPanel({ selectedElement, onUpdate }: TypographyPanelPr
           {TEXT_ELEMENT_PRESETS.map((preset) => (
             <button
               key={preset.id}
+              type="button"
               onClick={() => handleAddPreset(preset)}
               className="group flex flex-col items-start p-3 rounded-xl bg-white/5 border border-white/10 hover:bg-white/10 hover:border-purple-500/50 transition-all text-left"
             >
@@ -92,16 +93,7 @@ export function TypographyPanel({ selectedElement, onUpdate }: TypographyPanelPr
                 <span className="material-icons text-white/50 group-hover:text-purple-400 transition-colors text-xl">
                   {preset.icon}
                 </span>
-                <span
-                  className="text-white group-hover:text-white transition-colors truncate"
-                  style={{
-                    fontFamily: preset.styles.fontFamily,
-                    fontWeight: preset.styles.fontWeight,
-                    fontSize: Math.min(preset.styles.fontSize * 0.7, 24) + 'px', // Scale down for preview
-                    textTransform: preset.styles.textTransform,
-                    letterSpacing: (preset.styles.letterSpacing || 0) * 0.5 + 'px',
-                  }}
-                >
+                <span className="text-white group-hover:text-white transition-colors truncate text-sm font-semibold">
                   {preset.label}
                 </span>
               </div>
@@ -172,6 +164,11 @@ export function TypographyPanel({ selectedElement, onUpdate }: TypographyPanelPr
   const hasShadow = (selectedElement.textShadowBlur || 0) > 0;
   const hasStroke = (selectedElement.textStrokeWidth || 0) > 0;
 
+  // ARIA state values (must be explicit strings for accessibility validation)
+  const ariaPressedBold = isBold ? 'true' : 'false';
+  const ariaPressedItalic = isItalic ? 'true' : 'false';
+  const ariaPressedUnderlined = isUnderlined ? 'true' : 'false';
+
   return (
     <div className="glass-panel p-4 space-y-4 rounded-2xl">
       <h3 className="text-sm font-semibold text-white/80 flex items-center gap-2">
@@ -205,7 +202,7 @@ export function TypographyPanel({ selectedElement, onUpdate }: TypographyPanelPr
                 {(Object.keys(groupedFonts) as FontCategory[]).map((category) => (
                   <optgroup key={category} label={FONT_CATEGORY_LABELS[category]}>
                     {groupedFonts[category].map((font) => (
-                      <option key={font} value={font} style={{ fontFamily: font }}>
+                      <option key={font} value={font}>
                         {font}
                       </option>
                     ))}
@@ -223,6 +220,7 @@ export function TypographyPanel({ selectedElement, onUpdate }: TypographyPanelPr
                   value={selectedElement.fontSize || 16}
                   onChange={(e) => onUpdate({ fontSize: parseInt(e.target.value) || 12 })}
                   className="w-16 bg-white/5 border border-white/10 rounded px-2 py-0.5 text-xs text-white text-right"
+                  aria-label="Font Size Value"
                 />
               </div>
               <input
@@ -265,7 +263,7 @@ export function TypographyPanel({ selectedElement, onUpdate }: TypographyPanelPr
                     : 'bg-white/5 text-white/60 border-2 border-white/10 hover:bg-white/10'
                     }`}
                   aria-label="Toggle bold"
-                  aria-pressed={isBold}
+                  aria-pressed={ariaPressedBold}
                 >
                   B
                 </button>
@@ -277,7 +275,7 @@ export function TypographyPanel({ selectedElement, onUpdate }: TypographyPanelPr
                     : 'bg-white/5 text-white/60 border-2 border-white/10 hover:bg-white/10'
                     }`}
                   aria-label="Toggle italic"
-                  aria-pressed={isItalic}
+                  aria-pressed={ariaPressedItalic}
                 >
                   I
                 </button>
@@ -289,7 +287,7 @@ export function TypographyPanel({ selectedElement, onUpdate }: TypographyPanelPr
                     : 'bg-white/5 text-white/60 border-2 border-white/10 hover:bg-white/10'
                     }`}
                   aria-label="Toggle underline"
-                  aria-pressed={isUnderlined}
+                  aria-pressed={ariaPressedUnderlined}
                 >
                   U
                 </button>

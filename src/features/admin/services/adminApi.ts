@@ -238,13 +238,47 @@ export async function listTransactions(params: { limit?: number; offset?: number
 // Audit Logs
 // ============================================================================
 
-export async function listAuditLogs(params: { limit?: number; offset?: number } = {}): Promise<{
+export type ListAuditLogsParams = {
+    limit?: number;
+    offset?: number;
+    action?: string;
+    resource?: string;
+    adminUserId?: string;
+    dateFrom?: string;
+    dateTo?: string;
+};
+
+export type ListAuditLogsResponse = {
     logs: AuditLogEntry[];
     total: number;
-}> {
+    filters: {
+        actions: string[];
+        resources: string[];
+    };
+};
+
+export async function listAuditLogs(params: ListAuditLogsParams = {}): Promise<ListAuditLogsResponse> {
     const searchParams = new URLSearchParams();
     if (params.limit) searchParams.set('limit', String(params.limit));
     if (params.offset) searchParams.set('offset', String(params.offset));
+    if (params.action) searchParams.set('action', params.action);
+    if (params.resource) searchParams.set('resource', params.resource);
+    if (params.adminUserId) searchParams.set('adminUserId', params.adminUserId);
+    if (params.dateFrom) searchParams.set('dateFrom', params.dateFrom);
+    if (params.dateTo) searchParams.set('dateTo', params.dateTo);
 
     return fetchWithCredentials(`${API_BASE}/audit-logs?${searchParams.toString()}`);
+}
+
+// ============================================================================
+// Model Performance
+// ============================================================================
+
+import type { ModelPerformanceResponse } from '../types';
+
+export async function getModelPerformance(params: { days?: number } = {}): Promise<ModelPerformanceResponse> {
+    const searchParams = new URLSearchParams();
+    if (params.days) searchParams.set('days', String(params.days));
+
+    return fetchWithCredentials(`${API_BASE}/models?${searchParams.toString()}`);
 }

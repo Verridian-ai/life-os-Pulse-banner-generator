@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect } from 'react';
 
 import { useCanvas } from '@/context/CanvasContext';
 import { useAuth } from '@/context/AuthContext';
@@ -167,6 +167,7 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({ onGenerateFromPrompt }) =
             {chatMessages.agentSuggestions.map((s) => (
               <button
                 key={s.agentId}
+                type="button"
                 className='px-3 py-1.5 rounded-full bg-purple-600/20 border border-purple-500/30 text-purple-300 text-[10px] font-black uppercase tracking-wider whitespace-nowrap flex items-center gap-1.5 hover:bg-purple-600/30 transition'
               >
                 <span className='material-icons text-xs'>bolt</span>

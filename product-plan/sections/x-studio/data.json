@@ -1,0 +1,165 @@
+{
+  "sampleContent": {
+    "id": "x-001",
+    "userId": "user-001",
+    "contentType": "thread",
+    "tweets": [
+      {
+        "id": "tweet-001",
+        "content": "I've spent 1,000+ hours studying viral content.\n\nHere are 10 patterns that work every time:\n\n🧵",
+        "charCount": 95,
+        "order": 1
+      },
+      {
+        "id": "tweet-002",
+        "content": "1/ The Contrarian Take\n\nGo against conventional wisdom.\n\n\"Hustle culture is dead. Here's what works instead.\"\n\nThis triggers engagement because people NEED to share their opinion.",
+        "charCount": 178,
+        "order": 2
+      },
+      {
+        "id": "tweet-003",
+        "content": "2/ The Number Promise\n\n\"7 tools\", \"10 lessons\", \"5 mistakes\"\n\nNumbers create commitment. Readers know exactly what they're getting.\n\nOdd numbers perform 20% better than even.",
+        "charCount": 195,
+        "order": 3
+      }
+    ],
+    "media": [],
+    "engagementScore": {
+      "overall": 82,
+      "retweets": 450,
+      "likes": 2100,
+      "replies": 85,
+      "quotes": 35,
+      "bookmarks": 890,
+      "factors": [
+        {
+          "id": "hook",
+          "name": "Hook Strength",
+          "score": 90,
+          "maxScore": 100,
+          "weight": 0.30,
+          "suggestion": "Strong opening with credibility and promise"
+        },
+        {
+          "id": "structure",
+          "name": "Thread Structure",
+          "score": 85,
+          "maxScore": 100,
+          "weight": 0.25,
+          "suggestion": "Good numbering, clear formatting"
+        },
+        {
+          "id": "timing",
+          "name": "Post Timing",
+          "score": 75,
+          "maxScore": 100,
+          "weight": 0.20,
+          "suggestion": "Consider posting at 8am EST"
+        },
+        {
+          "id": "engagement",
+          "name": "Engagement Potential",
+          "score": 80,
+          "maxScore": 100,
+          "weight": 0.25,
+          "suggestion": "Add a question in the final tweet"
+        }
+      ],
+      "bestTimes": [
+        { "day": 2, "hour": 8, "score": 95, "timezone": "EST" },
+        { "day": 4, "hour": 12, "score": 90, "timezone": "EST" },
+        { "day": 1, "hour": 9, "score": 85, "timezone": "EST" }
+      ],
+      "viralPotential": 78
+    },
+    "status": "draft"
+  },
+  "formats": [
+    {
+      "id": "header",
+      "name": "Header",
+      "width": 1500,
+      "height": 500,
+      "aspectRatio": "3:1",
+      "contentType": "header"
+    },
+    {
+      "id": "profile",
+      "name": "Profile",
+      "width": 400,
+      "height": 400,
+      "aspectRatio": "1:1",
+      "contentType": "profile"
+    },
+    {
+      "id": "tweet-16-9",
+      "name": "Tweet Image (16:9)",
+      "width": 1200,
+      "height": 675,
+      "aspectRatio": "16:9",
+      "contentType": "tweet"
+    },
+    {
+      "id": "tweet-square",
+      "name": "Tweet Image (1:1)",
+      "width": 1200,
+      "height": 1200,
+      "aspectRatio": "1:1",
+      "contentType": "tweet"
+    }
+  ],
+  "numberingStyles": [
+    { "id": "none", "label": "None", "example": "First point..." },
+    { "id": "simple", "label": "Simple", "example": "1/ First point..." },
+    { "id": "total", "label": "With Total", "example": "1/10 First point..." },
+    { "id": "emoji", "label": "Emoji", "example": "🧵1/ First point..." }
+  ],
+  "engagementFactors": [
+    {
+      "id": "hook",
+      "name": "Hook Strength",
+      "weight": 0.30,
+      "description": "First tweet impact"
+    },
+    {
+      "id": "structure",
+      "name": "Thread Structure",
+      "weight": 0.25,
+      "description": "Formatting and flow"
+    },
+    {
+      "id": "timing",
+      "name": "Post Timing",
+      "weight": 0.20,
+      "description": "Audience activity alignment"
+    },
+    {
+      "id": "engagement",
+      "name": "Engagement Potential",
+      "weight": 0.25,
+      "description": "Reply and share drivers"
+    }
+  ],
+  "threadBestPractices": [
+    "Start with a strong hook (credibility + promise)",
+    "Use 1/ numbering for easy following",
+    "One idea per tweet",
+    "Add visual breaks (images) every 3-4 tweets",
+    "End with a CTA (follow, retweet, reply)",
+    "Post at 8-9am or 12pm in your audience's timezone",
+    "Reply to your own thread immediately"
+  ],
+  "quoteAngles": [
+    { "id": "agree", "label": "Agree & Expand", "description": "Add your perspective" },
+    { "id": "disagree", "label": "Disagree", "description": "Present counter-argument" },
+    { "id": "add_context", "label": "Add Context", "description": "Provide background" },
+    { "id": "ask_question", "label": "Ask Question", "description": "Prompt discussion" },
+    { "id": "humor", "label": "Humor", "description": "Add wit or sarcasm" },
+    { "id": "summarize", "label": "Summarize", "description": "TL;DR the thread" }
+  ],
+  "characterLimit": 280,
+  "optimalLength": {
+    "tweet": { "min": 71, "max": 100 },
+    "thread_start": { "min": 180, "max": 280 }
+  }
+}

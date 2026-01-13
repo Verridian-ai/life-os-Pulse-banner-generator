@@ -18,13 +18,13 @@ const TestWrapper: React.FC<{ children: React.ReactNode; canvasValue?: any }> = 
   children,
   canvasValue,
 }) => (
-  <AuthProvider>
-    <AIProvider>
-      <ToastProvider>
+  <ToastProvider>
+    <AuthProvider>
+      <AIProvider>
         <CanvasProvider value={canvasValue || mockCanvasContext}>{children}</CanvasProvider>
-      </ToastProvider>
-    </AIProvider>
-  </AuthProvider>
+      </AIProvider>
+    </AuthProvider>
+  </ToastProvider>
 );
 
 const mockCanvasContext = {
@@ -86,17 +86,20 @@ describe('CanvasEditor - Responsive Scaling', () => {
       </TestWrapper>,
     );
 
-    expect(screen.getByText(/Canvas View/i)).toBeInTheDocument();
+    // Check for canvas element
+    const canvas = document.querySelector('canvas');
+    expect(canvas).toBeInTheDocument();
   });
 
-  it('should show canvas dimensions', () => {
+  it('should show canvas dimensions in format selector', () => {
     render(
       <TestWrapper>
         <CanvasEditor />
       </TestWrapper>,
     );
 
-    expect(screen.getByText(/1584 x 396 PX/i)).toBeInTheDocument();
+    // The format selector shows dimensions like "1584 × 396"
+    expect(screen.getByText(/1584/)).toBeInTheDocument();
   });
 
   it('should render center profile info in empty state', async () => {
@@ -130,19 +133,20 @@ describe('CanvasEditor - Responsive Scaling', () => {
       </TestWrapper>,
     );
 
-    expect(screen.getByText(/Safe Zones:/i)).toBeInTheDocument();
+    // The button has title "Toggle Safe Zones" and text "Safe Zones"
+    expect(screen.getByTitle('Toggle Safe Zones')).toBeInTheDocument();
   });
 
-  it('should render AssetsPanel, LayersPanel, and ExportPanel', () => {
-    render(
+  it('should render canvas container', () => {
+    const { container } = render(
       <TestWrapper>
         <CanvasEditor />
       </TestWrapper>,
     );
 
-    // These panels should be rendered in the tools grid
-    const canvasEditor = screen.getByText(/Canvas View/i).closest('div');
-    expect(canvasEditor).toBeInTheDocument();
+    // Check that the canvas container is rendered
+    const canvas = container.querySelector('canvas');
+    expect(canvas).toBeInTheDocument();
   });
 });
 

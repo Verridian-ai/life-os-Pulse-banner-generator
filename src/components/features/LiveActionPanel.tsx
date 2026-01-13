@@ -95,11 +95,11 @@ const LiveActionPanel: React.FC<LiveActionPanelProps> = ({
     switch (connectionState) {
       case 'connecting':
         return {
-          border: 'border-amber-500/30',
-          bg: 'bg-amber-950/20',
-          dot: 'bg-amber-500 animate-pulse',
+          border: 'border-yellow-500/30',
+          bg: 'bg-yellow-950/20',
+          dot: 'bg-yellow-500 animate-pulse',
           icon: 'sync',
-          iconClass: 'animate-spin text-amber-500',
+          iconClass: 'animate-spin text-yellow-500',
           text: 'Connecting to Benno...',
         };
       case 'connected':
@@ -228,21 +228,18 @@ const LiveActionPanel: React.FC<LiveActionPanelProps> = ({
               <div className='flex items-end gap-0.5 h-4'>
                 {/* Bar 1 (always shown) */}
                 <div
-                  className={`w-1 transition-all duration-300 ${qualityIndicator.bars >= 1 ? qualityIndicator.color : 'bg-zinc-700'
+                  className={`w-1 h-1/3 transition-all duration-300 ${qualityIndicator.bars >= 1 ? qualityIndicator.color : 'bg-zinc-700'
                     }`}
-                  style={{ height: '33%' }}
                 />
                 {/* Bar 2 */}
                 <div
-                  className={`w-1 transition-all duration-300 ${qualityIndicator.bars >= 2 ? qualityIndicator.color : 'bg-zinc-700'
+                  className={`w-1 h-2/3 transition-all duration-300 ${qualityIndicator.bars >= 2 ? qualityIndicator.color : 'bg-zinc-700'
                     }`}
-                  style={{ height: '66%' }}
                 />
                 {/* Bar 3 */}
                 <div
-                  className={`w-1 transition-all duration-300 ${qualityIndicator.bars >= 3 ? qualityIndicator.color : 'bg-zinc-700'
+                  className={`w-1 h-full transition-all duration-300 ${qualityIndicator.bars >= 3 ? qualityIndicator.color : 'bg-zinc-700'
                     }`}
-                  style={{ height: '100%' }}
                 />
               </div>
               <span className='text-[9px] font-bold uppercase tracking-wider text-zinc-400'>

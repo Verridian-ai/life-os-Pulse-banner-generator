@@ -38,7 +38,7 @@ export const LinkedInPublishModal: React.FC<LinkedInPublishModalProps> = ({ isOp
   return (
     <div className='fixed inset-0 z-[250] flex items-center justify-center bg-black/80 backdrop-blur-md p-4'>
       <div className='bg-zinc-900 border border-white/10 rounded-3xl p-8 w-full max-w-lg shadow-2xl relative'>
-        <button onClick={onClose} className='absolute top-4 right-4 text-zinc-500 hover:text-white transition'>
+        <button type="button" onClick={onClose} className='absolute top-4 right-4 text-zinc-500 hover:text-white transition'>
           <span className='material-icons'>close</span>
         </button>
 
@@ -52,6 +52,7 @@ export const LinkedInPublishModal: React.FC<LinkedInPublishModalProps> = ({ isOp
 
         <div className='grid grid-cols-2 gap-4 mb-8'>
           <button 
+            type="button"
             onClick={() => setPublishMode('profile')}
             className={`p-4 rounded-2xl border transition-all text-left ${publishMode === 'profile' ? 'bg-blue-600/10 border-blue-500 text-white' : 'bg-zinc-950 border-white/5 text-zinc-500 hover:border-white/10'}`}
           >
@@ -60,6 +61,7 @@ export const LinkedInPublishModal: React.FC<LinkedInPublishModalProps> = ({ isOp
             <div className='text-[10px] opacity-60'>Update your 1584x396 header</div>
           </button>
           <button 
+            type="button"
             onClick={() => setPublishMode('post')}
             className={`p-4 rounded-2xl border transition-all text-left ${publishMode === 'post' ? 'bg-blue-600/10 border-blue-500 text-white' : 'bg-zinc-950 border-white/5 text-zinc-500 hover:border-white/10'}`}
           >
@@ -81,6 +83,7 @@ export const LinkedInPublishModal: React.FC<LinkedInPublishModalProps> = ({ isOp
         </div>
 
         <button 
+          type="button"
           onClick={handlePublish}
           disabled={isPublishing}
           className={`w-full ${BTN_BASE} bg-[#0077b5] text-white hover:bg-[#00639b] shadow-lg shadow-blue-900/30`}

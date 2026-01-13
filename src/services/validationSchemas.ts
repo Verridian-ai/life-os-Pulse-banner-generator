@@ -117,6 +117,21 @@ export const BatchMoveElementsSchema = z.object({
     dy: z.number(),
 });
 
+export const SearchDesignsSchema = z.object({
+    query: z.string(),
+    tags: z.array(z.string()).optional(),
+});
+
+export const BatchAnalyzeSchema = z.object({
+    image_urls: z.array(z.string()),
+});
+
+export const BatchCompareSchema = z.object({
+    image_urls: z.array(z.string()),
+    reference_image: z.string(),
+    criteria: z.string().optional(),
+});
+
 export const ToolSchemas: Record<string, z.ZodType<unknown>> = {
     write_enhanced_prompt: WriteEnhancedPromptSchema,
     generate_background: GenerateBackgroundSchema,
@@ -145,5 +160,8 @@ export const ToolSchemas: Record<string, z.ZodType<unknown>> = {
     batch_delete_elements: BatchDeleteElementsSchema,
     batch_update_elements: BatchUpdateElementsSchema,
     batch_move_elements: BatchMoveElementsSchema,
+    search_designs: SearchDesignsSchema,
+    batch_analyze: BatchAnalyzeSchema,
+    batch_compare: BatchCompareSchema,
 };
 

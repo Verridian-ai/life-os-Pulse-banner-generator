@@ -246,3 +246,23 @@ export const aiRateLimit = rateLimit({
     windowMs: 60 * 1000, // 1 minute
     message: 'API rate limit exceeded. Please slow down your requests.'
 });
+
+/**
+ * Rate limit for data mutation endpoints (POST, PATCH, DELETE)
+ * Prevents abuse while allowing normal usage patterns
+ */
+export const dataRateLimit = rateLimit({
+    limit: 60,
+    windowMs: 60 * 1000, // 1 minute
+    message: 'Too many data requests. Please slow down.'
+});
+
+/**
+ * Rate limit for storage/upload endpoints
+ * More restrictive due to resource-intensive nature
+ */
+export const storageRateLimit = rateLimit({
+    limit: 20,
+    windowMs: 60 * 1000, // 1 minute
+    message: 'Too many storage requests. Please wait before uploading more files.'
+});

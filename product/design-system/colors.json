@@ -1,0 +1,133 @@
+{
+  "meta": {
+    "name": "Signal Design System — Colors",
+    "version": "1.0.0",
+    "description": "Anti-Slop compliant color palette for Signal",
+    "philosophy": "Distinctive visuals that stand apart from generic AI outputs"
+  },
+
+  "antiSlop": {
+    "description": "Colors explicitly banned from the design system to avoid AI clichés",
+    "banned": [
+      {
+        "hex": "#14B8A6",
+        "name": "teal-500",
+        "reason": "Overused in AI products, signals 'generic AI tool'"
+      },
+      {
+        "hex": "#A020F0",
+        "name": "AI purple",
+        "reason": "The quintessential AI color, screams algorithmic origin"
+      },
+      {
+        "hex": "#8B5CF6",
+        "name": "violet-500",
+        "reason": "Variation of AI purple, equally problematic"
+      },
+      {
+        "hex": "#06B6D4",
+        "name": "cyan-500",
+        "reason": "Close cousin of teal, same algorithmic feel"
+      }
+    ]
+  },
+
+  "primary": {
+    "name": "orange",
+    "description": "Warm, energetic, distinctive — the opposite of cold AI blues",
+    "50": "#fff7ed",
+    "100": "#ffedd5",
+    "200": "#fed7aa",
+    "300": "#fdba74",
+    "400": "#fb923c",
+    "500": "#f97316",
+    "600": "#ea580c",
+    "700": "#c2410c",
+    "800": "#9a3412",
+    "900": "#7c2d12",
+    "950": "#431407",
+    "gradient": {
+      "default": "linear-gradient(135deg, #f97316 0%, #ea580c 100%)",
+      "glow": "0 8px 32px rgba(249, 115, 22, 0.4)",
+      "subtle": "linear-gradient(135deg, rgba(249, 115, 22, 0.12) 0%, rgba(234, 88, 12, 0.08) 100%)"
+    }
+  },
+
+  "accent": {
+    "name": "emerald",
+    "description": "Natural green, not algorithmic teal — organic and approachable",
+    "50": "#ecfdf5",
+    "100": "#d1fae5",
+    "200": "#a7f3d0",
+    "300": "#6ee7b7",
+    "400": "#34d399",
+    "500": "#10b981",
+    "600": "#059669",
+    "700": "#047857",
+    "800": "#065f46",
+    "900": "#064e3b",
+    "950": "#022c22",
+    "gradient": {
+      "default": "linear-gradient(135deg, #10b981 0%, #059669 100%)",
+      "glow": "0 8px 32px rgba(16, 185, 129, 0.4)"
+    }
+  },
+
+  "neutral": {
+    "name": "stone",
+    "description": "Warm grays for sophisticated dark mode — not cold zinc or slate",
+    "50": "#fafaf9",
+    "100": "#f5f5f4",
+    "200": "#e7e5e4",
+    "300": "#d6d3d1",
+    "400": "#a8a29e",
+    "500": "#78716c",
+    "600": "#57534e",
+    "700": "#44403c",
+    "800": "#292524",
+    "900": "#1c1917",
+    "950": "#0c0a09"
+  },
+
+  "semantic": {
+    "success": {
+      "name": "green",
+      "500": "#22c55e",
+      "description": "Standard success green, distinct from accent emerald"
+    },
+    "warning": {
+      "name": "amber",
+      "500": "#f59e0b",
+      "description": "Warm warning color, complements orange primary"
+    },
+    "error": {
+      "name": "red",
+      "500": "#ef4444",
+      "description": "Clear error indication"
+    },
+    "info": {
+      "name": "orange",
+      "500": "#f97316",
+      "description": "Uses primary for info to avoid introducing blue"
+    }
+  },
+
+  "surface": {
+    "background": "#0c0a09",
+    "card": "rgba(28, 25, 23, 0.8)",
+    "cardHover": "rgba(41, 37, 36, 1)",
+    "glass": "rgba(12, 10, 9, 0.6)",
+    "glassHover": "rgba(12, 10, 9, 0.8)",
+    "border": "rgba(255, 255, 255, 0.04)",
+    "borderHover": "rgba(255, 255, 255, 0.08)",
+    "borderFocus": "rgba(249, 115, 22, 0.4)"
+  },
+
+  "text": {
+    "primary": "#fafaf9",
+    "secondary": "#d6d3d1",
+    "tertiary": "#a8a29e",
+    "muted": "#78716c",
+    "inverse": "#0c0a09"
+  }
+}

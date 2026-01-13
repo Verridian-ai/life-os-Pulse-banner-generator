@@ -5,12 +5,20 @@ import { PostPreview } from './components/PostPreview';
 import { LinkedInImageGenerator } from './components/LinkedInImageGenerator';
 import { CopywritingRequest, ImageGenerationRequest } from './types';
 import { useToast } from '@/hooks/useToast';
+import { getPlatformPostsConfig } from './config/platformPostsConfig';
+import type { PlatformType } from '@/components/studios/config/platformConfig';
+
+interface SocialContentStudioProps {
+  platform?: PlatformType;
+}
 
 /**
- * LinkedInContentStudio - Unified workspace for creating viral LinkedIn posts.
- * Integrates AI copywriting, analysis, and preview.
+ * SocialContentStudio - Unified workspace for creating viral social media posts.
+ * Supports all platforms: LinkedIn, YouTube, Instagram, Facebook, TikTok, X
+ * Adapts UI, tips, and content generation based on platform.
  */
-export const LinkedInContentStudio: React.FC = () => {
+export const LinkedInContentStudio: React.FC<SocialContentStudioProps> = ({ platform = 'linkedin' }) => {
+    const config = getPlatformPostsConfig(platform);
     const [content, setContent] = useState('');
     const [isGenerating, setIsGenerating] = useState(false);
     const [isGeneratingImage, setIsGeneratingImage] = useState(false);
@@ -78,14 +86,14 @@ What's the one thing you've changed about your brand this year? Drop it in the c
                         {/* Page Header */}
                         <header className='space-y-4'>
                             <div className='flex items-center gap-3'>
-                                <div className='w-12 h-12 bg-blue-600/20 rounded-2xl flex items-center justify-center border border-blue-500/30'>
-                                    <span className='material-icons text-blue-500 text-3xl'>auto_awesome</span>
+                                <div className={`w-12 h-12 bg-${config.accentColor}/20 rounded-2xl flex items-center justify-center border border-${config.accentColor}/30`}>
+                                    <span className={`material-icons text-${config.accentColor} text-3xl`}>{config.icon}</span>
                                 </div>
                                 <div>
-                                    <h1 className='text-4xl font-black text-white tracking-tighter'>
-                                        POST STUDIO
+                                    <h1 className='text-3xl sm:text-4xl font-black text-white tracking-tighter'>
+                                        {config.name.toUpperCase()} POSTS
                                     </h1>
-                                    <p className='text-zinc-500 text-xs font-black uppercase tracking-[0.2em]'>
+                                    <p className='text-zinc-500 text-[10px] sm:text-xs font-black uppercase tracking-[0.2em]'>
                                         AI-Powered Viral Content Creator
                                     </p>
                                 </div>
@@ -119,21 +127,29 @@ What's the one thing you've changed about your brand this year? Drop it in the c
 
                         {/* Image Generator */}
                         <LinkedInImageGenerator
-                            topic={topic || "professional branding"}
+                            topic={topic || config.placeholderTopic}
                             isLoading={isGeneratingImage}
                             onGenerate={handleGenerateImage}
                         />
 
-                        {/* Tips Card */}
-                        <div className='bg-gradient-to-br from-blue-600/10 to-transparent border border-blue-500/20 rounded-3xl p-6 space-y-3'>
-                            <h4 className='text-xs font-black text-blue-400 uppercase tracking-widest flex items-center gap-2'>
+                        {/* Platform-Specific Tips Card */}
+                        <div className={`bg-gradient-to-br ${config.bgGradient} border border-${config.borderColor} rounded-3xl p-4 sm:p-6 space-y-3`}>
+                            <h4 className={`text-[10px] sm:text-xs font-black text-${config.accentColor} uppercase tracking-widest flex items-center gap-2`}>
                                 <span className='material-icons text-sm'>info</span>
-                                Pro Studio Tip
+                                {config.name} Pro Tip
                             </h4>
-                            <p className='text-[11px] text-zinc-400 leading-relaxed font-medium'>
-                                LinkedIn's algorithm currently prioritizes posts that encourage "meaningful comments."
-                                End your post with a specific question to boost your viral reach by up to 40%.
+                            <p className='text-[10px] sm:text-[11px] text-zinc-400 leading-relaxed font-medium'>
+                                {config.algorithmTip}
                             </p>
+                            {/* Content Tips List */}
+                            <ul className='space-y-1.5 pt-2 border-t border-white/5'>
+                                {config.contentTips.slice(0, 3).map((tip, i) => (
+                                    <li key={i} className='text-[9px] sm:text-[10px] text-zinc-500 flex items-start gap-2'>
+                                        <span className={`text-${config.accentColor} mt-0.5`}>*</span>
+                                        {tip}
+                                    </li>
+                                ))}
+                            </ul>
                         </div>
 
                         {/* Footer space */}

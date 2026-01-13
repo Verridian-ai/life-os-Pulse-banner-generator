@@ -74,6 +74,7 @@ export type CombinedCanvasContextType = {
   setShowSafeZones: (show: boolean) => void;
   isProcessingImg: boolean;
   setIsProcessingImg: (isProcessing: boolean) => void;
+  setCanvasFormatId: ReturnType<typeof useCanvasState>['setCanvasFormatId'];
 
   // From ElementsContext
   elements: ReturnType<typeof useElements>['elements'];
@@ -150,6 +151,7 @@ export function useCanvas(): CombinedCanvasContextType {
     setShowSafeZones: canvasState.setShowSafeZones,
     isProcessingImg: canvasState.isProcessingImg,
     setIsProcessingImg: canvasState.setIsProcessingImg,
+    setCanvasFormatId: canvasState.setCanvasFormatId,
 
     // Elements
     elements: elements.elements,

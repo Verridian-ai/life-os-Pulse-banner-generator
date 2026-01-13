@@ -33,6 +33,7 @@ export const APIKeyInstructionsModal: React.FC<APIKeyInstructionsModalProps> = (
         className='bg-zinc-900 border border-white/10 rounded-2xl md:rounded-3xl p-4 sm:p-6 md:p-8 w-full max-w-lg md:max-w-2xl shadow-2xl relative my-4 md:my-8 max-h-[95vh] overflow-y-auto'
       >
         <button
+          type="button"
           onClick={onClose}
           className='absolute top-3 right-3 md:top-4 md:right-4 text-zinc-500 hover:text-white transition z-10 min-w-[44px] min-h-[44px] flex items-center justify-center'
           aria-label='Close instructions'
@@ -59,6 +60,7 @@ export const APIKeyInstructionsModal: React.FC<APIKeyInstructionsModalProps> = (
         {/* Service Tabs */}
         <div className='flex bg-zinc-950 p-1 rounded-lg md:rounded-xl border border-white/5 mb-4 md:mb-6 max-w-md mx-auto'>
           <button
+            type="button"
             onClick={() => setActiveService('openrouter')}
             className={`flex-1 py-2 md:py-3 rounded-md md:rounded-lg text-[10px] sm:text-xs font-bold uppercase tracking-wider transition min-h-[44px] ${
               activeService === 'openrouter'
@@ -71,6 +73,7 @@ export const APIKeyInstructionsModal: React.FC<APIKeyInstructionsModalProps> = (
             <span className='sm:hidden'>OpenR.</span>
           </button>
           <button
+            type="button"
             onClick={() => setActiveService('replicate')}
             className={`flex-1 py-2 md:py-3 rounded-md md:rounded-lg text-[10px] sm:text-xs font-bold uppercase tracking-wider transition min-h-[44px] ${
               activeService === 'replicate'
@@ -176,10 +179,9 @@ export const APIKeyInstructionsModal: React.FC<APIKeyInstructionsModalProps> = (
                       <span className='font-bold'>Create Key</span>. Give it a name like "Nano Banana
                       Pro App" and copy the key.
                     </p>
-                    <div className='bg-amber-500/10 border border-amber-500/20 rounded-md md:rounded-lg p-2 md:p-3 flex items-start gap-2'>
-                      <span className='material-icons text-amber-400 text-sm shrink-0 mt-0.5'>warning</span>
-                      <p className='text-[10px] sm:text-xs text-amber-300 leading-relaxed'>
-                        Your key starts with <span className='font-mono break-all'>sk-or-v1-</span>. Keep it
+                                    <div className='bg-yellow-500/10 border border-yellow-500/20 rounded-md md:rounded-lg p-2 md:p-3 flex items-start gap-2'>
+                                      <span className='material-icons text-yellow-400 text-sm shrink-0 mt-0.5'>warning</span>
+                                      <p className='text-[10px] sm:text-xs text-yellow-300 leading-relaxed'>                        Your key starts with <span className='font-mono break-all'>sk-or-v1-</span>. Keep it
                         secure and never share it publicly!
                       </p>
                     </div>
@@ -312,10 +314,9 @@ export const APIKeyInstructionsModal: React.FC<APIKeyInstructionsModalProps> = (
                       </a>
                       , then click <span className='font-bold'>Create Token</span>. Copy the token.
                     </p>
-                    <div className='bg-amber-500/10 border border-amber-500/20 rounded-md md:rounded-lg p-2 md:p-3 flex items-start gap-2'>
-                      <span className='material-icons text-amber-400 text-sm shrink-0 mt-0.5'>warning</span>
-                      <p className='text-[10px] sm:text-xs text-amber-300 leading-relaxed'>
-                        Your token starts with <span className='font-mono break-all'>r8_</span>. Keep it secure!
+                                    <div className='bg-yellow-500/10 border border-yellow-500/20 rounded-md md:rounded-lg p-2 md:p-3 flex items-start gap-2'>
+                                      <span className='material-icons text-yellow-400 text-sm shrink-0 mt-0.5'>warning</span>
+                                      <p className='text-[10px] sm:text-xs text-yellow-300 leading-relaxed'>                        Your token starts with <span className='font-mono break-all'>r8_</span>. Keep it secure!
                       </p>
                     </div>
                   </div>

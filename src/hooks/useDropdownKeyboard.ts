@@ -73,9 +73,15 @@ export function useDropdownKeyboard(
                     break;
 
                 case 'Tab':
-                    // Close menu on Tab
-                    setIsOpen(false);
-                    setFocusedIndex(-1);
+                    // Trap focus within dropdown menu
+                    e.preventDefault();
+                    if (e.shiftKey) {
+                        // Shift+Tab: move to previous item, wrap to last
+                        setFocusedIndex((current) => (current - 1 + menuItemCount) % menuItemCount);
+                    } else {
+                        // Tab: move to next item, wrap to first
+                        setFocusedIndex((current) => (current + 1) % menuItemCount);
+                    }
                     break;
 
                 case 'Enter':

@@ -100,7 +100,10 @@ describe('KeyboardShortcutsModal', () => {
     const onClose = vi.fn();
     render(<KeyboardShortcutsModal isOpen={true} onClose={onClose} shortcuts={mockShortcuts} />);
 
-    fireEvent.keyDown(document, { key: 'Escape' });
+    // The escape key listener is attached to the modal content element (the one with ref)
+    // which is the inner div containing the close button
+    const closeButton = screen.getByLabelText('Close shortcuts modal');
+    fireEvent.keyDown(closeButton, { key: 'Escape' });
 
     expect(onClose).toHaveBeenCalledTimes(1);
   });

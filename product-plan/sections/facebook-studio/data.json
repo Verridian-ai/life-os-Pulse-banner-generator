@@ -1,0 +1,162 @@
+{
+  "sampleContent": {
+    "id": "fb-001",
+    "userId": "user-001",
+    "pageId": "page-001",
+    "contentType": "post",
+    "text": "🎉 Big announcement!\n\nAfter months of development, we're excited to launch our new AI design tool.\n\nHere's what makes it special:\n✅ Voice-powered design\n✅ Works with all major platforms\n✅ Brand consistency built-in\n\nTry it free for 14 days 👉 [link]\n\nWhat feature would you want to see first?",
+    "mediaUrls": ["/samples/fb-post.png"],
+    "audience": {
+      "type": "public",
+      "estimatedReach": 5200
+    },
+    "engagementScore": {
+      "overall": 78,
+      "reach": 5200,
+      "reactions": 145,
+      "comments": 32,
+      "shares": 18,
+      "factors": [
+        {
+          "id": "content_type",
+          "name": "Content Type",
+          "score": 85,
+          "maxScore": 100,
+          "weight": 0.20,
+          "suggestion": "Image posts get 2.3x more engagement"
+        },
+        {
+          "id": "text",
+          "name": "Text Engagement",
+          "score": 80,
+          "maxScore": 100,
+          "weight": 0.25,
+          "suggestion": "Good use of emojis and formatting"
+        },
+        {
+          "id": "visual",
+          "name": "Visual Quality",
+          "score": 75,
+          "maxScore": 100,
+          "weight": 0.25,
+          "suggestion": "Consider adding faces for more reactions"
+        },
+        {
+          "id": "timing",
+          "name": "Post Timing",
+          "score": 70,
+          "maxScore": 100,
+          "weight": 0.15
+        },
+        {
+          "id": "audience",
+          "name": "Audience Match",
+          "score": 80,
+          "maxScore": 100,
+          "weight": 0.15
+        }
+      ],
+      "boostRecommendation": {
+        "recommended": true,
+        "estimatedReach": 25000,
+        "suggestedBudget": 50,
+        "reasoning": "High engagement potential, good for brand awareness"
+      },
+      "bestTimes": [
+        { "day": 3, "hour": 13, "score": 95 },
+        { "day": 1, "hour": 9, "score": 90 },
+        { "day": 5, "hour": 15, "score": 85 }
+      ]
+    },
+    "status": "draft"
+  },
+  "formats": [
+    {
+      "id": "cover",
+      "name": "Cover Photo",
+      "width": 820,
+      "height": 312,
+      "aspectRatio": "2.63:1",
+      "contentType": "cover"
+    },
+    {
+      "id": "post",
+      "name": "Post Image",
+      "width": 1200,
+      "height": 630,
+      "aspectRatio": "1.91:1",
+      "contentType": "post"
+    },
+    {
+      "id": "event",
+      "name": "Event Cover",
+      "width": 1920,
+      "height": 1080,
+      "aspectRatio": "16:9",
+      "contentType": "event"
+    },
+    {
+      "id": "group",
+      "name": "Group Cover",
+      "width": 1640,
+      "height": 856,
+      "aspectRatio": "1.92:1",
+      "contentType": "cover"
+    },
+    {
+      "id": "story",
+      "name": "Story",
+      "width": 1080,
+      "height": 1920,
+      "aspectRatio": "9:16",
+      "contentType": "story"
+    }
+  ],
+  "ctaOptions": [
+    { "id": "learn_more", "label": "Learn More" },
+    { "id": "shop_now", "label": "Shop Now" },
+    { "id": "sign_up", "label": "Sign Up" },
+    { "id": "book_now", "label": "Book Now" },
+    { "id": "contact_us", "label": "Contact Us" },
+    { "id": "download", "label": "Download" },
+    { "id": "get_offer", "label": "Get Offer" },
+    { "id": "subscribe", "label": "Subscribe" }
+  ],
+  "engagementFactors": [
+    {
+      "id": "content_type",
+      "name": "Content Type",
+      "weight": 0.20,
+      "description": "Type of post (image, video, link, text)"
+    },
+    {
+      "id": "text",
+      "name": "Text Engagement",
+      "weight": 0.25,
+      "description": "Copy quality and engagement drivers"
+    },
+    {
+      "id": "visual",
+      "name": "Visual Quality",
+      "weight": 0.25,
+      "description": "Image/video quality and appeal"
+    },
+    {
+      "id": "timing",
+      "name": "Post Timing",
+      "weight": 0.15,
+      "description": "Audience activity alignment"
+    },
+    {
+      "id": "audience",
+      "name": "Audience Match",
+      "weight": 0.15,
+      "description": "Content relevance to audience"
+    }
+  ],
+  "postLengthGuidelines": {
+    "optimal": { "min": 40, "max": 80 },
+    "acceptable": { "min": 20, "max": 200 },
+    "note": "Posts between 40-80 characters get 86% higher engagement"
+  }
+}

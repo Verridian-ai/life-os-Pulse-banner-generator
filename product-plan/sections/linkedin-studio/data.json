@@ -1,0 +1,112 @@
+{
+  "samplePost": {
+    "id": "post-001",
+    "userId": "user-001",
+    "content": "🚀 Just shipped a new feature that's been 6 months in the making.\n\nThe journey taught me 3 crucial lessons:\n\n1. Ship early, iterate often\n   We launched an MVP after 2 weeks. User feedback shaped everything.\n\n2. Technical debt is real debt\n   That 'temporary' fix from month 1? It took 3 weeks to undo.\n\n3. Celebrate the small wins\n   Every bug fixed, every user delighted - it all adds up.\n\nWhat's the biggest lesson you've learned from a long project?\n\n#ProductDevelopment #StartupLife #TechLeadership",
+    "images": [],
+    "hashtags": ["ProductDevelopment", "StartupLife", "TechLeadership"],
+    "viralScore": {
+      "overall": 78,
+      "factors": [
+        {
+          "id": "hook",
+          "name": "Hook Strength",
+          "score": 85,
+          "maxScore": 100,
+          "weight": 0.25,
+          "suggestion": "Strong opening with emoji and intrigue"
+        },
+        {
+          "id": "structure",
+          "name": "Structure & Readability",
+          "score": 90,
+          "maxScore": 100,
+          "weight": 0.20,
+          "suggestion": "Excellent use of numbered list and whitespace"
+        },
+        {
+          "id": "engagement",
+          "name": "Engagement Potential",
+          "score": 75,
+          "maxScore": 100,
+          "weight": 0.25,
+          "suggestion": "Good question at the end encourages comments"
+        },
+        {
+          "id": "hashtags",
+          "name": "Hashtag Effectiveness",
+          "score": 65,
+          "maxScore": 100,
+          "weight": 0.15,
+          "suggestion": "Consider adding 1-2 more niche hashtags"
+        },
+        {
+          "id": "length",
+          "name": "Optimal Length",
+          "score": 70,
+          "maxScore": 100,
+          "weight": 0.15,
+          "suggestion": "Slightly long - consider trimming 10%"
+        }
+      ],
+      "suggestions": [
+        "Add a more specific hashtag like #ProductLaunch or #SaaSFounder",
+        "Consider adding an image to increase engagement by 2x",
+        "The hook could be even stronger with a specific number/result"
+      ]
+    },
+    "status": "draft",
+    "createdAt": "2024-01-09T11:00:00Z",
+    "updatedAt": "2024-01-09T11:15:00Z"
+  },
+  "toneOptions": [
+    {
+      "id": "professional",
+      "label": "Professional",
+      "description": "Formal, business-appropriate tone",
+      "example": "I'm pleased to announce..."
+    },
+    {
+      "id": "casual",
+      "label": "Casual",
+      "description": "Friendly, conversational tone",
+      "example": "Hey everyone! Excited to share..."
+    },
+    {
+      "id": "inspiring",
+      "label": "Inspiring",
+      "description": "Motivational, uplifting tone",
+      "example": "Here's what I learned on my journey..."
+    },
+    {
+      "id": "educational",
+      "label": "Educational",
+      "description": "Teaching, informative tone",
+      "example": "Let me break this down for you..."
+    },
+    {
+      "id": "storytelling",
+      "label": "Storytelling",
+      "description": "Narrative, engaging tone",
+      "example": "It was 2am when I realized..."
+    }
+  ],
+  "sampleAccounts": [
+    {
+      "id": "acc-001",
+      "name": "Sarah Chen",
+      "avatar": "/avatars/sarah.jpg",
+      "headline": "CEO @ NeuralFlow | Building AI that understands you",
+      "type": "personal",
+      "connected": true
+    },
+    {
+      "id": "acc-002",
+      "name": "NeuralFlow",
+      "avatar": "/avatars/neuralflow.jpg",
+      "headline": "AI solutions for the future",
+      "type": "company",
+      "connected": true
+    }
+  ]
+}

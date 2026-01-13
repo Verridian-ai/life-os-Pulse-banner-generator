@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { generateImage } from '../../services/imageGenerationService';
 import { useCanvas } from '../../context/CanvasContext';
 import { useToast } from '../../hooks/useToast';
@@ -82,7 +82,7 @@ export const QuickGenerateWizard: React.FC<QuickGenerateWizardProps> = ({ onClos
   return (
     <div className='fixed inset-0 z-[250] flex items-center justify-center bg-black/90 backdrop-blur-md p-4'>
       <div className='bg-zinc-900 border border-white/10 rounded-3xl p-8 w-full max-w-2xl shadow-2xl relative max-h-[90vh] overflow-y-auto'>
-        <button onClick={onClose} className='absolute top-4 right-4 text-zinc-500 hover:text-white transition'>
+        <button type="button" onClick={onClose} className='absolute top-4 right-4 text-zinc-500 hover:text-white transition'>
           <span className='material-icons'>close</span>
         </button>
 
@@ -100,6 +100,7 @@ export const QuickGenerateWizard: React.FC<QuickGenerateWizardProps> = ({ onClos
                 {QUESTIONS[step].options?.map(opt => (
                   <button
                     key={opt}
+                    type="button"
                     onClick={() => handleAnswer(opt)}
                     className={`${BTN_NEU_SOLID} py-4 rounded-2xl text-sm font-bold hover:border-purple-500/50 hover:bg-purple-500/5 transition-all`}
                   >
@@ -119,6 +120,7 @@ export const QuickGenerateWizard: React.FC<QuickGenerateWizardProps> = ({ onClos
             }}
                 />
                 <button 
+                  type="button"
                   onClick={(e) => handleAnswer(((e.target as HTMLElement).previousSibling as HTMLInputElement).value)}
                   className={`w-full ${BTN_BASE} bg-purple-600 text-white`}
                 >
@@ -158,8 +160,8 @@ export const QuickGenerateWizard: React.FC<QuickGenerateWizardProps> = ({ onClos
             </div>
 
             <div className='flex gap-4'>
-              <button onClick={() => setStep(0)} className={`flex-1 ${BTN_NEU_SOLID}`}>Try Again</button>
-              <button onClick={onClose} className={`flex-1 ${BTN_BASE} bg-zinc-800 text-white`}>Cancel</button>
+              <button type="button" onClick={() => setStep(0)} className={`flex-1 ${BTN_NEU_SOLID}`}>Try Again</button>
+              <button type="button" onClick={onClose} className={`flex-1 ${BTN_BASE} bg-zinc-800 text-white`}>Cancel</button>
             </div>
           </div>
         )}

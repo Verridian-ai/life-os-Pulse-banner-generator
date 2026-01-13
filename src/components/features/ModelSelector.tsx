@@ -158,6 +158,7 @@ export const ModelSelector: React.FC<ModelSelectorProps> = ({ onModelChange }) =
               {['gemini', 'openrouter'].map((p) => (
                 <button
                   key={p}
+                  type="button"
                   onClick={() => handleProviderChange(p as 'gemini' | 'openrouter')}
                   className={`flex-1 py-2 px-4 rounded-lg text-sm font-bold transition ${provider === p
                     ? 'bg-blue-600 text-white'
@@ -183,6 +184,7 @@ export const ModelSelector: React.FC<ModelSelectorProps> = ({ onModelChange }) =
                 {getFeaturedModels().map((model) => (
                   <button
                     key={model.id}
+                    type="button"
                     onClick={() => handleModelSelect(model.id)}
                     className={`w-full text-left p-3 rounded-lg transition relative overflow-hidden ${modelOverride === model.id
                       ? 'bg-blue-600 border border-blue-500'
@@ -190,7 +192,7 @@ export const ModelSelector: React.FC<ModelSelectorProps> = ({ onModelChange }) =
                       }`}
                   >
                     {/* Recommended Badge */}
-                    {/* @ts-ignore - property explicitly added in enhancement step */}
+                    {/* @ts-expect-error - property explicitly added in enhancement step */}
                     {model.isRecommended && (
                       <div className="absolute top-0 right-0 bg-green-500 text-black text-[9px] font-bold px-2 py-0.5 rounded-bl-lg">
                         RECOMMENDED
@@ -201,10 +203,10 @@ export const ModelSelector: React.FC<ModelSelectorProps> = ({ onModelChange }) =
                       <div className='flex-1'>
                         <div className="flex items-center gap-2">
                           <h5 className='text-sm font-bold text-white'>{model.name}</h5>
-                          {/* @ts-ignore */}
+                          {/* @ts-expect-error - property explicitly added in enhancement step */}
                           {model.reason && (
                             <span className="text-[9px] px-1.5 py-0.5 rounded bg-white/10 text-zinc-300 border border-white/5">
-                              {/* @ts-ignore */}
+                              {/* @ts-expect-error - property explicitly added in enhancement step */}
                               {model.reason}
                             </span>
                           )}
@@ -228,6 +230,7 @@ export const ModelSelector: React.FC<ModelSelectorProps> = ({ onModelChange }) =
                       {openrouterModels.slice(4).map((model) => (
                         <button
                           key={model.id}
+                          type="button"
                           onClick={() => handleModelSelect(model.id)}
                           className={`w-full text-left p-2 rounded text-xs transition ${modelOverride === model.id
                             ? 'bg-blue-600 text-white'

@@ -1,0 +1,98 @@
+{
+  "platforms": [
+    {
+      "id": "linkedin",
+      "name": "LinkedIn",
+      "icon": "Linkedin",
+      "aspectRatios": [
+        { "id": "banner", "label": "Banner (4:1)", "width": 1584, "height": 396 },
+        { "id": "post", "label": "Post (1:1)", "width": 1200, "height": 1200 },
+        { "id": "article", "label": "Article (1.86:1)", "width": 1200, "height": 644 }
+      ]
+    },
+    {
+      "id": "instagram",
+      "name": "Instagram",
+      "icon": "Instagram",
+      "aspectRatios": [
+        { "id": "square", "label": "Square (1:1)", "width": 1080, "height": 1080 },
+        { "id": "portrait", "label": "Portrait (4:5)", "width": 1080, "height": 1350 },
+        { "id": "story", "label": "Story (9:16)", "width": 1080, "height": 1920 }
+      ]
+    },
+    {
+      "id": "youtube",
+      "name": "YouTube",
+      "icon": "Youtube",
+      "aspectRatios": [
+        { "id": "thumbnail", "label": "Thumbnail (16:9)", "width": 1280, "height": 720 },
+        { "id": "banner", "label": "Channel Banner", "width": 2560, "height": 1440 }
+      ]
+    },
+    {
+      "id": "x",
+      "name": "X / Twitter",
+      "icon": "Twitter",
+      "aspectRatios": [
+        { "id": "post", "label": "Post (16:9)", "width": 1200, "height": 675 },
+        { "id": "header", "label": "Header (3:1)", "width": 1500, "height": 500 }
+      ]
+    }
+  ],
+  "sampleDesign": {
+    "id": "design-1",
+    "title": "Q1 Product Launch Banner",
+    "description": "Professional LinkedIn banner for Q1 product launch announcement",
+    "imageUrl": "https://images.unsplash.com/photo-1557804506-669a67965ba0?w=1584&h=396&fit=crop",
+    "thumbnailUrl": "https://images.unsplash.com/photo-1557804506-669a67965ba0?w=300&h=75&fit=crop",
+    "platform": "linkedin",
+    "aspectRatio": "banner",
+    "prompt": "A professional LinkedIn banner announcing our Q1 product launch with modern geometric shapes and our brand colors",
+    "status": "completed",
+    "createdAt": "2025-01-10T10:00:00Z",
+    "updatedAt": "2025-01-10T14:30:00Z"
+  },
+  "sampleLayers": [
+    {
+      "id": "layer-1",
+      "type": "image",
+      "name": "Background",
+      "visible": true,
+      "locked": false,
+      "properties": {
+        "src": "https://images.unsplash.com/photo-1557804506-669a67965ba0?w=1584&h=396&fit=crop"
+      }
+    },
+    {
+      "id": "layer-2",
+      "type": "text",
+      "name": "Headline",
+      "visible": true,
+      "locked": false,
+      "properties": {
+        "text": "Introducing Signal Pro",
+        "fontSize": 48,
+        "fontWeight": 700,
+        "color": "#ffffff"
+      }
+    },
+    {
+      "id": "layer-3",
+      "type": "shape",
+      "name": "Accent Shape",
+      "visible": true,
+      "locked": false,
+      "properties": {
+        "type": "rectangle",
+        "fill": "#f97316",
+        "opacity": 0.8
+      }
+    }
+  ],
+  "stylePresets": [
+    { "id": "professional", "label": "Professional", "description": "Clean and corporate" },
+    { "id": "creative", "label": "Creative", "description": "Bold and expressive" },
+    { "id": "minimal", "label": "Minimal", "description": "Simple and elegant" },
+    { "id": "vibrant", "label": "Vibrant", "description": "Colorful and energetic" }
+  ]
+}

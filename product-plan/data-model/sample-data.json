@@ -1,0 +1,121 @@
+{
+  "users": [
+    {
+      "id": "usr_01abc123def456",
+      "email": "alex.morgan@example.com",
+      "first_name": "Alex",
+      "last_name": "Morgan",
+      "username": "alexmorgan",
+      "avatar_url": "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=150&h=150&fit=crop",
+      "credits": 250,
+      "is_pro": true,
+      "onboarding_completed": true,
+      "preferred_platforms": ["linkedin", "youtube", "instagram"],
+      "created_at": "2024-09-15T10:30:00Z",
+      "updated_at": "2025-01-08T14:22:00Z"
+    }
+  ],
+  "platforms": [
+    {
+      "id": "linkedin",
+      "name": "LinkedIn",
+      "description": "Professional banners and posts",
+      "icon": "Linkedin",
+      "logoUrl": "/assets/platforms/linkedin-3d.png",
+      "formats": [
+        { "name": "Banner", "width": 1584, "height": 396, "aspectRatio": "4:1" },
+        { "name": "Profile Photo", "width": 400, "height": 400, "aspectRatio": "1:1" },
+        { "name": "Post Image", "width": 1200, "height": 627, "aspectRatio": "1.91:1" }
+      ],
+      "defaultFormat": "Banner"
+    },
+    {
+      "id": "youtube",
+      "name": "YouTube",
+      "description": "Thumbnails and channel art",
+      "icon": "Youtube",
+      "logoUrl": "/assets/platforms/youtube-3d.png",
+      "formats": [
+        { "name": "Thumbnail", "width": 1280, "height": 720, "aspectRatio": "16:9" },
+        { "name": "Channel Banner", "width": 2560, "height": 1440, "aspectRatio": "16:9" }
+      ],
+      "defaultFormat": "Thumbnail"
+    },
+    {
+      "id": "instagram",
+      "name": "Instagram",
+      "description": "Posts, stories, and reels covers",
+      "icon": "Instagram",
+      "logoUrl": "/assets/platforms/instagram-3d.png",
+      "formats": [
+        { "name": "Square Post", "width": 1080, "height": 1080, "aspectRatio": "1:1" },
+        { "name": "Story/Reel", "width": 1080, "height": 1920, "aspectRatio": "9:16" }
+      ],
+      "defaultFormat": "Square Post"
+    }
+  ],
+  "designs": [
+    {
+      "id": "des_01linkedin_banner",
+      "user_id": "usr_01abc123def456",
+      "title": "Tech Conference Speaker Banner",
+      "description": "LinkedIn banner for upcoming AI Summit 2025",
+      "thumbnail_url": "https://images.unsplash.com/photo-1451187580459-43490279c0fa?w=400&h=128&fit=crop",
+      "design_url": "/designs/des_01linkedin_banner.png",
+      "platform": "linkedin",
+      "width": 1584,
+      "height": 396,
+      "tags": ["linkedin", "conference", "speaker", "tech"],
+      "is_public": false,
+      "view_count": 0,
+      "created_at": "2025-01-08T09:15:00Z",
+      "updated_at": "2025-01-08T14:22:00Z"
+    }
+  ],
+  "brands": [
+    {
+      "id": "brand_01nexus_tech",
+      "user_id": "usr_01abc123def456",
+      "name": "Nexus Technologies",
+      "colors": [
+        { "hex": "#0ea5e9", "name": "Sky Blue", "usage": "primary" },
+        { "hex": "#14b8a6", "name": "Teal", "usage": "accent" },
+        { "hex": "#0f172a", "name": "Slate Dark", "usage": "background" }
+      ],
+      "fonts": [
+        { "name": "Inter", "usage": "heading" },
+        { "name": "Inter", "usage": "body" }
+      ],
+      "style_keywords": ["modern", "minimal", "tech-forward", "professional"],
+      "industry": "Technology",
+      "is_active": true,
+      "version": 3,
+      "created_at": "2024-11-15T09:00:00Z",
+      "updated_at": "2025-01-05T16:30:00Z"
+    }
+  ],
+  "templates": [
+    {
+      "id": "tech-minimal",
+      "title": "Tech Minimalist",
+      "industry": "Technology",
+      "description": "Clean, modern tech vibe with a focus on core value proposition.",
+      "platform": "linkedin",
+      "backgroundUrl": "/assets/templates/tech-minimal-bg.png",
+      "thumbnailUrl": "/assets/templates/tech-minimal-thumb.png",
+      "prompt": "Minimalist technology background, abstract circuit patterns",
+      "elements": [
+        {
+          "type": "text",
+          "content": "Engineering the Future",
+          "x": 800,
+          "y": 150,
+          "fontSize": 56,
+          "fontWeight": "900",
+          "color": "#ffffff"
+        }
+      ],
+      "created_at": "2024-10-01T00:00:00Z"
+    }
+  ]
+}
