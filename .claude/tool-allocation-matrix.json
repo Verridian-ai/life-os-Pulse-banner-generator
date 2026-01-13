@@ -1,0 +1,647 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "version": "1.0.0",
+  "description": "MCP Tool Allocation Matrix - Maps tools to skill agents for context isolation",
+  "last_updated": "2026-01-13",
+
+  "tool_categories": {
+    "code_search": {
+      "tools": ["Grep", "Glob", "Serena"],
+      "assigned_skills": ["research-agent"],
+      "context_impact": "low",
+      "isolation_required": true
+    },
+    "code_modification": {
+      "tools": ["Read", "Edit", "Write"],
+      "assigned_skills": ["coding-agent", "quick-tasks-agent", "codebase-organization-agent"],
+      "context_impact": "medium",
+      "isolation_required": true
+    },
+    "testing": {
+      "tools": ["Bash(test)", "Vitest", "Playwright"],
+      "assigned_skills": ["qa-agent"],
+      "context_impact": "high",
+      "isolation_required": true
+    },
+    "database": {
+      "tools": ["NeonManager", "Supabase", "Postgres"],
+      "assigned_skills": ["database-agent"],
+      "context_impact": "medium",
+      "isolation_required": true
+    },
+    "security": {
+      "tools": ["Semgrep", "OSVScanner"],
+      "assigned_skills": ["security-agent"],
+      "context_impact": "high",
+      "isolation_required": true
+    },
+    "linting": {
+      "tools": ["ESLint", "TypeScript", "Prettier"],
+      "assigned_skills": ["quick-tasks-agent", "codebase-organization-agent"],
+      "context_impact": "low",
+      "isolation_required": false
+    },
+    "performance": {
+      "tools": ["ChromeDevTools", "Lighthouse"],
+      "assigned_skills": ["chrome-ui-browser-agent", "debugging-agent"],
+      "context_impact": "very_high",
+      "isolation_required": true
+    },
+    "git": {
+      "tools": ["GitHub", "ConventionalCommits"],
+      "assigned_skills": ["release-agent"],
+      "context_impact": "medium",
+      "isolation_required": false
+    },
+    "ai_observability": {
+      "tools": ["Langfuse", "Guardrails"],
+      "assigned_skills": ["observability-agent", "safety-agent"],
+      "context_impact": "medium",
+      "isolation_required": true
+    },
+    "documentation": {
+      "tools": ["Context7", "WebSearch", "WebFetch"],
+      "assigned_skills": ["research-agent"],
+      "context_impact": "low",
+      "isolation_required": false
+    },
+    "autonomous_execution": {
+      "tools": ["RalphLoop"],
+      "assigned_skills": ["orchestrator", "coding-agent"],
+      "context_impact": "very_high",
+      "isolation_required": false
+    },
+    "governance_hooks": {
+      "tools": ["Hookify"],
+      "assigned_skills": ["orchestrator", "codebase-organization-agent"],
+      "context_impact": "low",
+      "isolation_required": false
+    },
+    "memory_system": {
+      "tools": ["Cognee"],
+      "assigned_skills": ["ALL"],
+      "context_impact": "medium",
+      "isolation_required": true
+    }
+  },
+
+  "skill_tool_map": {
+    "orchestrator": {
+      "allowed_tools": ["TodoWrite", "AskUserQuestion", "Skill", "RalphLoop", "Hookify", "Cognee"],
+      "forbidden_tools": ["Edit", "Write", "Read", "Grep", "Glob", "Bash"],
+      "context_budget": 5000,
+      "mcp_servers": ["cognee"],
+      "cognee_permissions": {
+        "search": true,
+        "add": true,
+        "cognify": false,
+        "dataset": "ALL"
+      },
+      "rationale": "Orchestrator delegates ALL tasks but has Cognee access for context loading and learning storage"
+    },
+    "research-agent": {
+      "allowed_tools": [
+        "Grep",
+        "Glob",
+        "Read",
+        "Serena",
+        "Context7",
+        "WebSearch",
+        "WebFetch",
+        "Cognee"
+      ],
+      "forbidden_tools": ["Edit", "Write", "Bash"],
+      "context_budget": 20000,
+      "mcp_servers": ["serena", "context7", "cognee"],
+      "cognee_permissions": {
+        "search": true,
+        "add": true,
+        "cognify": true,
+        "dataset": "agent_research"
+      },
+      "rationale": "Read-only exploration with memory storage, no code modification"
+    },
+    "quick-tasks-agent": {
+      "allowed_tools": [
+        "Read",
+        "Edit",
+        "Bash(lint)",
+        "ESLint",
+        "TypeScript",
+        "Prettier",
+        "Cognee"
+      ],
+      "forbidden_tools": ["Write", "Bash(build)", "Bash(test)"],
+      "context_budget": 10000,
+      "mcp_servers": ["eslint", "typescript", "cognee"],
+      "cognee_permissions": {
+        "search": true,
+        "add": false,
+        "cognify": false,
+        "dataset": "nanobanna_global"
+      },
+      "rationale": "Simple fixes with global context access, no memory writes"
+    },
+    "coding-agent": {
+      "allowed_tools": [
+        "Read",
+        "Edit",
+        "Write",
+        "Bash(install)",
+        "TypeScript",
+        "ESLint",
+        "Cognee"
+      ],
+      "forbidden_tools": ["Bash(rm)", "Bash(deploy)"],
+      "context_budget": 50000,
+      "mcp_servers": ["typescript", "eslint", "cognee"],
+      "cognee_permissions": {
+        "search": true,
+        "add": true,
+        "cognify": true,
+        "dataset": "agent_coding"
+      },
+      "rationale": "Full code modification with memory storage, but no destructive operations"
+    },
+    "debugging-agent": {
+      "allowed_tools": [
+        "Read",
+        "Bash(debug)",
+        "ChromeDevTools",
+        "Lighthouse",
+        "Grep",
+        "Cognee"
+      ],
+      "forbidden_tools": ["Edit", "Write"],
+      "context_budget": 30000,
+      "mcp_servers": ["chrome-devtools", "lighthouse", "cognee"],
+      "cognee_permissions": {
+        "search": true,
+        "add": true,
+        "cognify": true,
+        "dataset": "agent_debugging"
+      },
+      "rationale": "Investigation with memory storage for root causes, fixes delegated to coding-agent"
+    },
+    "decision-agent": {
+      "allowed_tools": [
+        "Read",
+        "Grep",
+        "Glob",
+        "Serena",
+        "WebSearch",
+        "Cognee"
+      ],
+      "forbidden_tools": ["Edit", "Write", "Bash"],
+      "context_budget": 20000,
+      "mcp_servers": ["serena", "cognee"],
+      "cognee_permissions": {
+        "search": true,
+        "add": true,
+        "cognify": true,
+        "dataset": "agent_decisions"
+      },
+      "rationale": "Analysis with memory storage for architectural decisions"
+    },
+    "codebase-organization-agent": {
+      "allowed_tools": [
+        "Read",
+        "Edit",
+        "Grep",
+        "Glob",
+        "ESLint",
+        "Serena",
+        "Cognee"
+      ],
+      "forbidden_tools": ["Write", "Bash"],
+      "context_budget": 15000,
+      "mcp_servers": ["eslint", "serena", "cognee"],
+      "cognee_permissions": {
+        "search": true,
+        "add": false,
+        "cognify": false,
+        "dataset": "nanobanna_global"
+      },
+      "rationale": "Organize existing code with global context access"
+    },
+    "database-agent": {
+      "allowed_tools": [
+        "Read",
+        "NeonManager",
+        "Supabase",
+        "Postgres",
+        "Cognee"
+      ],
+      "forbidden_tools": ["Edit", "Write", "Bash"],
+      "context_budget": 25000,
+      "mcp_servers": ["neon", "supabase", "postgres", "cognee"],
+      "cognee_permissions": {
+        "search": true,
+        "add": true,
+        "cognify": true,
+        "dataset": "agent_database"
+      },
+      "rationale": "Database operations with memory for schema/migration history"
+    },
+    "qa-agent": {
+      "allowed_tools": [
+        "Read",
+        "Bash(test)",
+        "Vitest",
+        "Playwright",
+        "Axe",
+        "Cognee"
+      ],
+      "forbidden_tools": ["Edit", "Write", "Bash(build)"],
+      "context_budget": 40000,
+      "mcp_servers": ["vitest", "playwright", "axe", "cognee"],
+      "cognee_permissions": {
+        "search": true,
+        "add": true,
+        "cognify": false,
+        "dataset": "agent_qa"
+      },
+      "rationale": "Run tests with memory for test results and coverage tracking"
+    },
+    "security-agent": {
+      "allowed_tools": [
+        "Read",
+        "Grep",
+        "Semgrep",
+        "OSVScanner",
+        "Cognee"
+      ],
+      "forbidden_tools": ["Edit", "Write", "Bash"],
+      "context_budget": 20000,
+      "mcp_servers": ["semgrep", "osv-scanner", "cognee"],
+      "cognee_permissions": {
+        "search": true,
+        "add": true,
+        "cognify": true,
+        "dataset": "agent_security"
+      },
+      "rationale": "Security scanning with memory for vulnerability tracking"
+    },
+    "release-agent": {
+      "allowed_tools": [
+        "Read",
+        "Bash(git)",
+        "GitHub",
+        "ConventionalCommits",
+        "Cognee"
+      ],
+      "forbidden_tools": ["Edit", "Write", "Bash(build)"],
+      "context_budget": 15000,
+      "mcp_servers": ["github", "cognee"],
+      "cognee_permissions": {
+        "search": true,
+        "add": true,
+        "cognify": false,
+        "dataset": "agent_release"
+      },
+      "rationale": "Git operations with memory for deployment history"
+    },
+    "observability-agent": {
+      "allowed_tools": [
+        "Read",
+        "Langfuse",
+        "Grep",
+        "Cognee"
+      ],
+      "forbidden_tools": ["Edit", "Write", "Bash"],
+      "context_budget": 10000,
+      "mcp_servers": ["langfuse", "cognee"],
+      "cognee_permissions": {
+        "search": true,
+        "add": true,
+        "cognify": false,
+        "dataset": "agent_observability"
+      },
+      "rationale": "Metrics and tracing with memory for performance patterns"
+    },
+    "safety-agent": {
+      "allowed_tools": [
+        "Read",
+        "Guardrails",
+        "Cognee"
+      ],
+      "forbidden_tools": ["Edit", "Write", "Bash"],
+      "context_budget": 10000,
+      "mcp_servers": ["guardrails", "cognee"],
+      "cognee_permissions": {
+        "search": true,
+        "add": true,
+        "cognify": false,
+        "dataset": "agent_safety"
+      },
+      "rationale": "AI safety validation with memory for guardrail patterns"
+    },
+    "skill-creator-agent": {
+      "allowed_tools": [
+        "Read",
+        "Write",
+        "Grep",
+        "Glob",
+        "Cognee"
+      ],
+      "forbidden_tools": ["Edit", "Bash"],
+      "context_budget": 30000,
+      "mcp_servers": ["cognee"],
+      "cognee_permissions": {
+        "search": true,
+        "add": true,
+        "cognify": true,
+        "dataset": "ALL"
+      },
+      "rationale": "Create new skills with full memory access for pattern discovery"
+    },
+    "chrome-ui-browser-agent": {
+      "allowed_tools": [
+        "ChromeDevTools",
+        "Read",
+        "Grep",
+        "Bash(serve)",
+        "Cognee"
+      ],
+      "forbidden_tools": ["Edit", "Write"],
+      "context_budget": 25000,
+      "mcp_servers": ["chrome-devtools", "cognee"],
+      "cognee_permissions": {
+        "search": true,
+        "add": true,
+        "cognify": false,
+        "dataset": "agent_chrome_ui"
+      },
+      "rationale": "Visual UI verification with memory for baseline comparisons"
+    },
+    "cognee-memory-agent": {
+      "allowed_tools": [
+        "Read",
+        "WebFetch",
+        "Cognee"
+      ],
+      "forbidden_tools": ["Edit", "Write", "Bash"],
+      "context_budget": 20000,
+      "mcp_servers": ["cognee"],
+      "cognee_permissions": {
+        "search": true,
+        "add": true,
+        "cognify": true,
+        "query": true,
+        "dataset": "ALL"
+      },
+      "rationale": "System memory agent with full Cognee access for all datasets"
+    },
+    "workos-manager": {
+      "allowed_tools": [
+        "Read",
+        "Edit",
+        "Write",
+        "Bash",
+        "WebFetch",
+        "Cognee",
+        "workos_list_users",
+        "workos_create_user",
+        "workos_update_user",
+        "workos_delete_user",
+        "workos_list_organizations",
+        "workos_create_organization",
+        "workos_update_organization",
+        "workos_list_connections",
+        "workos_create_connection",
+        "workos_list_directories",
+        "workos_create_directory_sync",
+        "workos_list_domains",
+        "workos_verify_domain",
+        "workos_get_email_template",
+        "workos_update_email_template",
+        "workos_list_sessions",
+        "workos_revoke_session"
+      ],
+      "forbidden_tools": [],
+      "context_budget": 25000,
+      "mcp_servers": ["workos_manager", "cognee"],
+      "access_level": "FULL_CONTROL",
+      "cognee_permissions": {
+        "search": true,
+        "add": true,
+        "cognify": false,
+        "dataset": "nanobanna_global"
+      },
+      "rationale": "Full administrative control over WorkOS with global memory access"
+    },
+    "neon-manager": {
+      "allowed_tools": [
+        "Read",
+        "Edit",
+        "Write",
+        "Bash",
+        "Grep",
+        "Cognee",
+        "neon_list_projects",
+        "neon_create_project",
+        "neon_delete_project",
+        "neon_list_branches",
+        "neon_create_branch",
+        "neon_delete_branch",
+        "neon_reset_branch",
+        "neon_get_connection_string",
+        "neon_run_sql",
+        "neon_run_sql_transaction",
+        "neon_list_databases",
+        "neon_create_database",
+        "neon_list_roles",
+        "neon_create_role",
+        "neon_get_schema",
+        "neon_describe_table"
+      ],
+      "forbidden_tools": [],
+      "context_budget": 30000,
+      "mcp_servers": ["neon_manager", "cognee"],
+      "access_level": "FULL_CONTROL",
+      "cognee_permissions": {
+        "search": true,
+        "add": true,
+        "cognify": true,
+        "dataset": "agent_database"
+      },
+      "rationale": "Full control over Neon PostgreSQL with memory for schema history"
+    },
+    "cloud-run-manager": {
+      "allowed_tools": [
+        "Read",
+        "Edit",
+        "Write",
+        "Bash",
+        "Grep",
+        "Glob",
+        "Cognee",
+        "cloudrun_list_services",
+        "cloudrun_get_service",
+        "cloudrun_deploy",
+        "cloudrun_update_traffic",
+        "cloudrun_list_revisions",
+        "cloudrun_delete_revision",
+        "cloudrun_get_logs",
+        "cloudrun_set_iam_policy",
+        "cloudrun_map_domain",
+        "cloudrun_list_domain_mappings"
+      ],
+      "forbidden_tools": [],
+      "context_budget": 30000,
+      "mcp_servers": ["cloud_run_manager", "cognee"],
+      "access_level": "FULL_CONTROL",
+      "cognee_permissions": {
+        "search": true,
+        "add": true,
+        "cognify": false,
+        "dataset": "agent_release"
+      },
+      "gcloud_commands": [
+        "gcloud run deploy",
+        "gcloud run services update",
+        "gcloud run services set-iam-policy",
+        "gcloud run revisions list",
+        "gcloud run services update-traffic",
+        "gcloud run domain-mappings create",
+        "gcloud logging read"
+      ],
+      "rationale": "Full control over Cloud Run deployments with memory for deployment history"
+    },
+    "gcloud-services": {
+      "allowed_tools": [
+        "Read",
+        "Edit",
+        "Write",
+        "Bash",
+        "Grep",
+        "Glob",
+        "WebFetch",
+        "WebSearch",
+        "Cognee"
+      ],
+      "forbidden_tools": [],
+      "context_budget": 35000,
+      "mcp_servers": ["cognee"],
+      "access_level": "FULL_CONTROL",
+      "cognee_permissions": {
+        "search": true,
+        "add": true,
+        "cognify": false,
+        "dataset": "nanobanna_global"
+      },
+      "gcloud_commands": [
+        "gcloud iam *",
+        "gcloud projects *",
+        "gcloud storage *",
+        "gsutil *",
+        "gcloud pubsub *",
+        "bq *",
+        "gcloud firestore *",
+        "gcloud functions *",
+        "gcloud ai *",
+        "gcloud secrets *",
+        "gcloud scheduler *",
+        "gcloud compute *",
+        "gcloud services *"
+      ],
+      "rationale": "Full control over all GCP services with global memory access"
+    },
+    "depth-ui-engineer": {
+      "allowed_tools": [
+        "Read",
+        "Edit",
+        "Write",
+        "Grep",
+        "Glob",
+        "TypeScript",
+        "ESLint",
+        "Cognee"
+      ],
+      "forbidden_tools": ["Bash", "NeonManager", "Supabase"],
+      "context_budget": 40000,
+      "mcp_servers": ["typescript", "eslint", "cognee"],
+      "cognee_permissions": {
+        "search": true,
+        "add": true,
+        "cognify": true,
+        "dataset": "agent_depth_ui"
+      },
+      "rationale": "Premium UI implementation with memory for design patterns and anti-slop compliance"
+    },
+    "code-standards-auditor": {
+      "allowed_tools": [
+        "Read",
+        "Grep",
+        "Glob",
+        "Cognee"
+      ],
+      "forbidden_tools": ["Edit", "Write", "Bash"],
+      "context_budget": 25000,
+      "mcp_servers": ["cognee"],
+      "cognee_permissions": {
+        "search": true,
+        "add": true,
+        "cognify": false,
+        "dataset": "agent_code_audit"
+      },
+      "rationale": "Read-only auditing with memory for violation tracking"
+    },
+    "ux-heatmap-analyst": {
+      "allowed_tools": [
+        "Read",
+        "Grep",
+        "Glob",
+        "Cognee"
+      ],
+      "forbidden_tools": ["Edit", "Write", "Bash"],
+      "context_budget": 20000,
+      "mcp_servers": ["cognee"],
+      "cognee_permissions": {
+        "search": true,
+        "add": true,
+        "cognify": false,
+        "dataset": "agent_ux_analysis"
+      },
+      "rationale": "UX analysis with memory for gaze pattern research"
+    }
+  },
+
+  "routing_rules": {
+    "default_behavior": "delegate_to_skill",
+    "orchestrator_overrides": [
+      "TodoWrite",
+      "AskUserQuestion",
+      "Skill"
+    ],
+    "bypass_isolation": [
+      "Context7",
+      "WebSearch"
+    ],
+    "require_approval": [
+      "Write",
+      "Bash(rm)",
+      "Bash(deploy)",
+      "Supabase(migrate)"
+    ]
+  },
+
+  "context_budgets": {
+    "daily_total": 200000,
+    "orchestrator_max": 5000,
+    "per_skill_defaults": {
+      "haiku": 20000,
+      "sonnet": 50000,
+      "opus": 20000
+    },
+    "alert_threshold": 0.8
+  },
+
+  "isolation_config": {
+    "method": "subprocess",
+    "timeout_ms": 300000,
+    "max_concurrent_skills": 5,
+    "cleanup_after_execution": true,
+    "share_context_between_skills": false
+  }
+}

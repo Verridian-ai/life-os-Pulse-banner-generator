@@ -5,7 +5,8 @@ import tracer from 'dd-trace';
 tracer.init({
     logInjection: true,
     llmobs: {
-        enabled: true,
+        // enabled: true, // Removed: 'enabled' is not a valid property in LLMObsEnableOptions
+        // LLM Observability is enabled by the presence of this object or DD_LLMOBS_ENABLED=true env var
     },
 });
 
@@ -30,11 +31,14 @@ import { designRouter } from './routes/designs';
 import { sharingRouter } from './routes/sharing';
 import { brandRouter } from './routes/brands';
 import { cogneeRouter } from './routes/cognee';
+import { webhooksRouter } from './routes/webhooks';
+import { billingRouter } from './routes/billing';
 import { lucia } from './lib/auth';
+import type { HonoEnv } from './types';
 
 config()
 
-const app = new Hono()
+const app = new Hono<HonoEnv>()
 
 // Configure CORS for local development and production
 app.use('*', cors({
@@ -46,6 +50,10 @@ app.use('*', cors({
         'http://localhost:3030',
         'http://localhost:3033',
         'http://localhost:8888',
+        // Production domains
+        'https://life-os-verridian.ai',
+        'http://life-os-verridian.ai',
+        'https://www.life-os-verridian.ai',
         'https://life-os-banner.verridian.ai',
         'https://nanobanna-pro-237245874937.us-central1.run.app',
         'https://nanobanna.verridian.ai',
@@ -53,8 +61,14 @@ app.use('*', cors({
     credentials: true,
 }));
 
-// SECURITY: CSRF protection
-app.use('*', csrf());
+// SECURITY: CSRF protection (exclude webhooks which use signature verification)
+app.use('*', async (c, next) => {
+    // Skip CSRF for webhooks - they use signature verification instead
+    if (c.req.path.startsWith('/api/webhooks')) {
+        return next();
+    }
+    return csrf()(c, next);
+});
 
 // SECURITY: High-impact Security Headers (HSTS, CSP, X-Content-Type-Options)
 app.use('*', async (c, next) => {
@@ -138,6 +152,8 @@ app.route('/api/designs', designRouter);
 app.route('/api/sharing', sharingRouter);
 app.route('/api/brands', brandRouter);
 app.route('/api/cognee', cogneeRouter);
+app.route('/api/billing', billingRouter);
+app.route('/api/webhooks', webhooksRouter);
 
 // Serve Static Frontend (FALLBACK)
 app.use('/*', serveStatic({ root: './public' }))

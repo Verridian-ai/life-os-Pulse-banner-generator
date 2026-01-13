@@ -1,0 +1,196 @@
+{
+  "version": "1.0.0",
+  "last_updated": "2026-01-13",
+  "orchestrator": {
+    "enabled": true,
+    "auto_delegate": true,
+    "ask_approval_for_opus": true,
+    "cost_threshold_for_approval": 1.0
+  },
+  "agent_skills": {
+    "research-agent": {
+      "enabled": true,
+      "model": "haiku",
+      "cost_per_1m_tokens": 0.80,
+      "token_budget": 100000,
+      "cost_threshold": 0.05,
+      "auto_activate_on": ["how does", "where is", "find all", "search for"]
+    },
+    "quick-tasks-agent": {
+      "enabled": true,
+      "model": "haiku",
+      "cost_per_1m_tokens": 0.80,
+      "token_budget": 10000,
+      "cost_threshold": 0.01,
+      "auto_activate_on": ["fix type", "sort imports", "format", "add comment"]
+    },
+    "coding-agent": {
+      "enabled": true,
+      "model": "sonnet",
+      "cost_per_1m_tokens": 24.0,
+      "token_budget": 50000,
+      "cost_threshold": 1.20,
+      "auto_activate_on": ["implement", "add", "create", "refactor", "build"]
+    },
+    "debugging-agent": {
+      "enabled": true,
+      "model": "sonnet",
+      "cost_per_1m_tokens": 24.0,
+      "token_budget": 30000,
+      "cost_threshold": 0.72,
+      "auto_activate_on": ["debug", "error", "bug", "not working", "failing"]
+    },
+    "decision-agent": {
+      "enabled": true,
+      "model": "opus",
+      "cost_per_1m_tokens": 120.0,
+      "token_budget": 20000,
+      "cost_threshold": 2.40,
+      "require_approval": true,
+      "auto_activate_on": ["should we", "migrate to", "architecture", "vs", "compare"]
+    },
+    "codebase-organization-agent": {
+      "enabled": true,
+      "model": "haiku",
+      "cost_per_1m_tokens": 0.80,
+      "token_budget": 15000,
+      "cost_threshold": 0.012,
+      "auto_activate_on": ["organize imports", "clean up", "fix structure", "dead code"]
+    },
+    "skill-creator-agent": {
+      "enabled": true,
+      "model": "opus",
+      "cost_per_1m_tokens": 120.0,
+      "token_budget": 30000,
+      "cost_threshold": 3.60,
+      "require_approval": true,
+      "auto_activate_on": ["create skill", "new capability", "gap detected"]
+    },
+    "chrome-ui-browser-agent": {
+      "enabled": true,
+      "model": "haiku",
+      "cost_per_1m_tokens": 0.80,
+      "token_budget": 25000,
+      "cost_threshold": 0.020,
+      "auto_activate_on": ["check ui", "verify design", "test page", "screenshot", "browse to", "visual check", "performance test", "accessibility check"]
+    },
+    "cognee-memory-agent": {
+      "enabled": true,
+      "model": "haiku",
+      "cost_per_1m_tokens": 0.80,
+      "token_budget": 20000,
+      "cost_threshold": 0.016,
+      "auto_activate_on": ["search memory", "load context", "store learning", "what do we know", "find similar"],
+      "pre_task_activation": true
+    },
+    "workos-manager": {
+      "enabled": true,
+      "model": "sonnet",
+      "cost_per_1m_tokens": 24.0,
+      "token_budget": 25000,
+      "cost_threshold": 0.60,
+      "access_level": "FULL_CONTROL",
+      "auto_activate_on": ["workos", "sso", "oauth", "scim", "directory sync", "authentication config", "user management workos", "organization workos", "email template"]
+    },
+    "neon-manager": {
+      "enabled": true,
+      "model": "sonnet",
+      "cost_per_1m_tokens": 24.0,
+      "token_budget": 30000,
+      "cost_threshold": 0.72,
+      "access_level": "FULL_CONTROL",
+      "auto_activate_on": ["neon", "database", "postgresql", "postgres", "sql query", "migration", "schema", "create table", "branch database"]
+    },
+    "cloud-run-manager": {
+      "enabled": true,
+      "model": "sonnet",
+      "cost_per_1m_tokens": 24.0,
+      "token_budget": 30000,
+      "cost_threshold": 0.72,
+      "access_level": "FULL_CONTROL",
+      "auto_activate_on": ["cloud run", "deploy to gcp", "gcp deployment", "cloudrun", "revision", "traffic split", "rollback deployment"]
+    },
+    "gcloud-services": {
+      "enabled": true,
+      "model": "sonnet",
+      "cost_per_1m_tokens": 24.0,
+      "token_budget": 35000,
+      "cost_threshold": 0.84,
+      "access_level": "FULL_CONTROL",
+      "auto_activate_on": ["gcloud", "google cloud", "gcp", "iam", "cloud storage", "pubsub", "bigquery", "firestore", "cloud function", "vertex ai", "secret manager", "cloud scheduler", "service account"]
+    },
+    "depth-ui-engineer": {
+      "enabled": true,
+      "model": "sonnet",
+      "cost_per_1m_tokens": 24.0,
+      "token_budget": 40000,
+      "cost_threshold": 0.96,
+      "auto_activate_on": ["glass effect", "neumorphic", "depth ui", "premium motion", "gold accent", "glassmorphism", "luxury ui", "life os design", "anti-slop", "banned color"]
+    },
+    "code-standards-auditor": {
+      "enabled": true,
+      "model": "haiku",
+      "cost_per_1m_tokens": 0.80,
+      "token_budget": 25000,
+      "cost_threshold": 0.020,
+      "auto_activate_on": ["audit code", "check standards", "review compliance", "anti-slop violations", "import order", "code review", "standards check"]
+    },
+    "ux-heatmap-analyst": {
+      "enabled": true,
+      "model": "haiku",
+      "cost_per_1m_tokens": 0.80,
+      "token_budget": 20000,
+      "cost_threshold": 0.016,
+      "auto_activate_on": ["analyze layout", "visual hierarchy", "engagement flow", "gaze pattern", "heatmap", "scroll depth", "conversion optimization", "ux analysis"]
+    }
+  },
+  "infrastructure_skills": {
+    "neon_manager": {
+      "enabled": true,
+      "access_level": "FULL_CONTROL",
+      "description": "Full control over Neon PostgreSQL - projects, branches, schemas, migrations, queries"
+    },
+    "serena_memory": {
+      "enabled": true,
+      "description": "Semantic code intelligence"
+    },
+    "workos_manager": {
+      "enabled": true,
+      "access_level": "FULL_CONTROL",
+      "description": "Full control over WorkOS - OAuth, SSO, SCIM, users, organizations, domains, email templates"
+    },
+    "cloud_run_manager": {
+      "enabled": true,
+      "access_level": "FULL_CONTROL",
+      "description": "Full control over Cloud Run - deployments, revisions, traffic, domains, IAM, secrets"
+    },
+    "gcloud_services": {
+      "enabled": true,
+      "access_level": "FULL_CONTROL",
+      "description": "Full control over GCP - IAM, Storage, Pub/Sub, BigQuery, Firestore, Functions, Vertex AI, Secrets"
+    },
+    "deep_analysis": {
+      "enabled": true,
+      "description": "Complex problem-solving"
+    },
+    "powershell_build": {
+      "enabled": false,
+      "description": "PowerShell build tools (Windows only)"
+    }
+  },
+  "cost_tracking": {
+    "enabled": true,
+    "daily_budget": 50.0,
+    "weekly_budget": 200.0,
+    "monthly_budget": 1000.0,
+    "alert_at_percentage": 80,
+    "log_file": "docs/ops/.agent_usage_log.txt"
+  },
+  "quality_gates": {
+    "enforce_tests": true,
+    "min_coverage": 80,
+    "enforce_types": true,
+    "enforce_imports_order": true,
+    "run_pre_commit": true
+  }
+}

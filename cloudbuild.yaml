@@ -4,21 +4,21 @@ steps:
     args:
       - "build"
       - "-t"
-      - "gcr.io/$PROJECT_ID/signal:$COMMIT_SHA"
+      - "gcr.io/$PROJECT_ID/nanobanna-pro:$COMMIT_SHA"
       - "-t"
-      - "gcr.io/$PROJECT_ID/signal:latest"
+      - "gcr.io/$PROJECT_ID/nanobanna-pro:latest"
       - "."
 
   # Push the container image to Container Registry
   - name: "gcr.io/cloud-builders/docker"
     args:
       - "push"
-      - "gcr.io/$PROJECT_ID/signal:$COMMIT_SHA"
+      - "gcr.io/$PROJECT_ID/nanobanna-pro:$COMMIT_SHA"
 
   - name: "gcr.io/cloud-builders/docker"
     args:
       - "push"
-      - "gcr.io/$PROJECT_ID/signal:latest"
+      - "gcr.io/$PROJECT_ID/nanobanna-pro:latest"
 
   # Deploy container image to Cloud Run
   - name: "gcr.io/google.com/cloudsdktool/cloud-sdk"
@@ -26,9 +26,9 @@ steps:
     args:
       - "run"
       - "deploy"
-      - "signal"
+      - "nanobanna-pro"
       - "--image"
-      - "gcr.io/$PROJECT_ID/signal:$COMMIT_SHA"
+      - "gcr.io/$PROJECT_ID/nanobanna-pro:$COMMIT_SHA"
       - "--region"
       - "us-central1"
       - "--platform"
@@ -47,16 +47,20 @@ steps:
       - "--timeout"
       - "300"
       - "--set-env-vars"
-      - "NODE_ENV=production,GCS_BUCKET_NAME=${_GCS_BUCKET_NAME}"
+      - "NODE_ENV=production,GCS_BUCKET_NAME=${_GCS_BUCKET_NAME},CORS_ORIGIN=${_CORS_ORIGIN},COGNEE_API_URL=${_COGNEE_API_URL},WORKOS_REDIRECT_URI=${_WORKOS_REDIRECT_URI},WORKOS_ORG_ID=${_WORKOS_ORG_ID}"
       - "--set-secrets"
-      - "DATABASE_URL=neon-database-url:latest,OPENROUTER_API_KEY=openrouter-api-key:latest,OPENAI_API_KEY=openai-api-key:latest,REPLICATE_API_KEY=replicate-api-key:latest,COGNEE_API_URL=cognee-api-url:latest,COGNEE_API_KEY=cognee-api-key:latest,DD_API_KEY=datadog-api-key:latest,LANGFUSE_PUBLIC_KEY=langfuse-public-key:latest,LANGFUSE_SECRET_KEY=langfuse-secret-key:latest"
+      - "DATABASE_URL=NEON_DATABASE_URL:latest,OPENAI_API_KEY=OPENAI_API_KEY:latest,COGNEE_API_KEY=COGNEE_API_KEY:latest,WORKOS_API_KEY=WORKOS_API_KEY:latest,WORKOS_CLIENT_ID=WORKOS_CLIENT_ID:latest,WORKOS_COOKIE_PASSWORD=WORKOS_COOKIE_PASSWORD:latest"
 
 images:
-  - "gcr.io/$PROJECT_ID/signal:$COMMIT_SHA"
-  - "gcr.io/$PROJECT_ID/signal:latest"
+  - "gcr.io/$PROJECT_ID/nanobanna-pro:$COMMIT_SHA"
+  - "gcr.io/$PROJECT_ID/nanobanna-pro:latest"
 
 substitutions:
   _GCS_BUCKET_NAME: "signal-user-files"
+  _CORS_ORIGIN: "https://life-os-verridian.ai,https://life-os-banner.verridian.ai,https://nanobanna.verridian.ai"
+  _COGNEE_API_URL: "https://cognee-api-ypjes2hexa-uc.a.run.app"
+  _WORKOS_REDIRECT_URI: "https://life-os-verridian.ai/api/auth/callback"
+  _WORKOS_ORG_ID: "org_01KETHAB24WTQT83FRYBETZGPW"
 
 options:
   logging: CLOUD_LOGGING_ONLY
