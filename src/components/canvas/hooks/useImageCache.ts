@@ -37,6 +37,7 @@ export interface ImageCacheResult {
 export function useImageCache(): ImageCacheResult {
   const imageCache = useRef<Map<string, HTMLImageElement>>(new Map());
   const [renderVersion, setRenderVersion] = useState(0);
+  const [cacheSize, setCacheSize] = useState(0);
 
   // Force re-render when images load
   const forceUpdate = useCallback(() => {
@@ -67,6 +68,7 @@ export function useImageCache(): ImageCacheResult {
 
       img.src = src;
       imageCache.current.set(src, img);
+      setCacheSize(imageCache.current.size);
       return img;
     },
     [forceUpdate],
@@ -85,6 +87,7 @@ export function useImageCache(): ImageCacheResult {
    */
   const clearCache = useCallback(() => {
     imageCache.current.clear();
+    setCacheSize(0);
   }, []);
 
   // Cleanup on unmount
@@ -99,7 +102,7 @@ export function useImageCache(): ImageCacheResult {
     getCachedImage,
     isImageLoaded,
     clearCache,
-    cacheSize: imageCache.current.size,
+    cacheSize,
     renderVersion,
   };
 }

@@ -72,10 +72,10 @@ const SidebarSkeleton: React.FC = () => (
 
         {/* Navigation Items */}
         <nav className="space-y-1 flex-1">
-            {[...Array(9)].map((_, i) => (
+            {[60, 45, 55, 50, 65, 48, 52, 58, 42].map((width, i) => (
                 <div key={i} className="flex items-center gap-3 px-3 py-2.5">
                     <Skeleton width={20} height={20} className="rounded" />
-                    <Skeleton height={16} width={i === 0 ? '60%' : `${40 + Math.random() * 30}%`} />
+                    <Skeleton height={16} width={`${width}%`} />
                 </div>
             ))}
         </nav>
