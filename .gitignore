@@ -21,6 +21,8 @@ dist-ssr
 .env*.local
 .env.cognee
 .env.cognee.local
+.env.mcp
+.env.credentials
 server/.env
 
 # Editor directories and files
@@ -53,4 +55,5 @@ nul
 docs/ops/.tool_usage_log.txt
 
 # Claude Code temporary files
-tmpclaude-*
+tmpclaude-*.workos-cli/
+.workos-cli/config.yaml

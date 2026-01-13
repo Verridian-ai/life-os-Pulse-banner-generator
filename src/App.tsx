@@ -1,7 +1,11 @@
-import React, { useState, useEffect, Suspense, lazy } from 'react';
+import React, { useState, useEffect, Suspense, lazy, useRef } from 'react';
 import Header from './components/layout/Header';
 const LiveActionPanel = lazy(() => import('./components/features/LiveActionPanel'));
 import { APIKeyInstructionsModal } from './components/features/APIKeyInstructionsModal';
+
+// Mobile Navigation
+import { BottomNav } from './components/navigation';
+import { useAdminAuth } from './features/admin/hooks/useAdminAuth';
 
 // New Signal UI components
 const DashboardPage = lazy(() => import('./pages/DashboardPage').then(m => ({ default: m.DashboardPage })));
@@ -43,6 +47,12 @@ const OnboardingPage = lazy(() => import('./features/onboarding').then(m => ({ d
 
 // Landing page (lazy loaded)
 const LandingPage = lazy(() => import('./features/landing').then(m => ({ default: m.LandingPage })));
+
+// Auth pages (lazy loaded)
+const LoginPageAuthKit = lazy(() => import('./pages/auth/LoginPage').then(m => ({ default: m.LoginPage })));
+const SignupPageAuthKit = lazy(() => import('./pages/auth/SignupPage').then(m => ({ default: m.SignupPage })));
+const InvitePage = lazy(() => import('./pages/auth/InvitePage').then(m => ({ default: m.InvitePage })));
+const ResetPasswordPage = lazy(() => import('./pages/auth/ResetPasswordPage').then(m => ({ default: m.ResetPasswordPage })));
 
 import {
   ScreenReaderAnnouncerProvider,
@@ -137,6 +147,9 @@ const AppContent = () => {
   // Auth state
   const { isAuthenticated, isLoading } = useAuth();
 
+  // Admin status for bottom nav
+  const { isAdmin } = useAdminAuth();
+
   const {
     selectedElementId,
     deleteElement,
@@ -155,19 +168,39 @@ const AppContent = () => {
   const [genPrompt, setGenPrompt] = useState('');
   const { prompt: contextPrompt, setPrompt: setContextPrompt } = useAI();
 
+  // Track the last synced value to prevent infinite loops and stale closure issues
+  // Using a ref to hold the last value we synced TO context, so we know when context
+  // changes are external (from TemplateLibrary etc.) vs from our own sync
+  const lastSyncedToContextRef = useRef('');
+  const lastSyncedFromContextRef = useRef('');
+
   // Sync prompt from AIContext (e.g. from TemplateLibrary) to local state
+  // Only sync if the context changed externally (not from our own sync)
   useEffect(() => {
-    if (contextPrompt && contextPrompt !== genPrompt) {
+    // Skip if this context value came from our own sync to context
+    if (contextPrompt === lastSyncedToContextRef.current) {
+      return;
+    }
+    // External update to context - sync to local state
+    if (contextPrompt && contextPrompt !== lastSyncedFromContextRef.current) {
+      lastSyncedFromContextRef.current = contextPrompt;
       setGenPrompt(contextPrompt);
     }
-  }, [contextPrompt, genPrompt]);
+  }, [contextPrompt]);
 
   // Sync local prompt to AIContext
+  // Only sync if the local change is from user input (not from context sync)
   useEffect(() => {
-    if (genPrompt && genPrompt !== contextPrompt) {
+    // Skip if this local value came from syncing FROM context
+    if (genPrompt === lastSyncedFromContextRef.current) {
+      return;
+    }
+    // User typed - sync to context
+    if (genPrompt !== lastSyncedToContextRef.current) {
+      lastSyncedToContextRef.current = genPrompt;
       setContextPrompt(genPrompt);
     }
-  }, [genPrompt, contextPrompt, setContextPrompt]);
+  }, [genPrompt, setContextPrompt]);
 
   const [genSize, setGenSize] = useState<'1K' | '2K' | '4K'>('1K');
   const [isGenerating, setIsGenerating] = useState(false); // Used in handleGenerate
@@ -388,6 +421,41 @@ const AppContent = () => {
     shortcuts,
   });
 
+  // Bottom Navigation - Determine active tab based on current view
+  // NOTE: Must be before conditional returns for React hooks rules compliance
+  const activeBottomNavTab = React.useMemo((): string => {
+    if (appView === 'dashboard') return 'home';
+    // In studio view
+    if (studioMode === StudioMode.MEDIA) return 'library';
+    return 'generate'; // Default to generate for canvas/templates/linkedin modes
+  }, [appView, studioMode]);
+
+  // Bottom Navigation - Handle tab selection
+  // NOTE: Must be before conditional returns for React hooks rules compliance
+  const handleBottomNavSelect = React.useCallback((tabId: string): void => {
+    switch (tabId) {
+      case 'home':
+        setAppView('dashboard');
+        break;
+      case 'generate':
+        setAppView('studio');
+        setStudioMode(StudioMode.CANVAS);
+        break;
+      case 'library':
+        setAppView('studio');
+        setStudioMode(StudioMode.MEDIA);
+        break;
+      case 'profile':
+        setShowPreferences(true);
+        break;
+      case 'admin':
+        window.location.href = '/admin';
+        break;
+      default:
+        break;
+    }
+  }, []);
+
   // Show loading screen while checking authentication
   if (isLoading) {
     return (
@@ -451,6 +519,12 @@ const AppContent = () => {
             }}
           />
         </Suspense>
+        {/* Mobile Bottom Navigation */}
+        <BottomNav
+          activeTabId={activeBottomNavTab}
+          onTabSelect={handleBottomNavSelect}
+          showAdminTab={isAdmin}
+        />
       </Suspense>
     );
   }
@@ -754,6 +828,13 @@ const AppContent = () => {
         </Suspense>
       )}
       <OnboardingTour />
+
+      {/* Mobile Bottom Navigation */}
+      <BottomNav
+        activeTabId={activeBottomNavTab}
+        onTabSelect={handleBottomNavSelect}
+        showAdminTab={isAdmin}
+      />
     </div>
   );
 };
@@ -861,15 +942,64 @@ function App() {
   const isDesignPath = path.startsWith('/design');
   const isOnboardingPath = path.startsWith('/onboarding');
   const isAuthPath = path === '/login' || path === '/signup';
+  const isInvitePath = path === '/invite';
+  const isResetPasswordPath = path === '/reset-password';
   const isRootPath = path === '/' || path === '';
   const isDashboardPath = path === '/dashboard';
 
-  // Render auth pages (login/signup)
+  // Render auth pages (login/signup) - WorkOS AuthKit redirect pages
   if (isAuthPath) {
     return (
       <>
         <ToastContainer />
-        <AuthPage mode={path === '/signup' ? 'signup' : 'login'} />
+        <Suspense fallback={
+          <div className="min-h-screen bg-zinc-950 flex items-center justify-center">
+            <div className="text-center">
+              <div className="w-16 h-16 border-4 border-purple-500 border-t-transparent rounded-full animate-spin mx-auto mb-4" />
+              <p className="text-zinc-400">Loading...</p>
+            </div>
+          </div>
+        }>
+          {path === '/signup' ? <SignupPageAuthKit /> : <LoginPageAuthKit />}
+        </Suspense>
+      </>
+    );
+  }
+
+  // Render invite page - handles invitation tokens from emails
+  if (isInvitePath) {
+    return (
+      <>
+        <ToastContainer />
+        <Suspense fallback={
+          <div className="min-h-screen bg-zinc-950 flex items-center justify-center">
+            <div className="text-center">
+              <div className="w-16 h-16 border-4 border-purple-500 border-t-transparent rounded-full animate-spin mx-auto mb-4" />
+              <p className="text-zinc-400">Processing invitation...</p>
+            </div>
+          </div>
+        }>
+          <InvitePage />
+        </Suspense>
+      </>
+    );
+  }
+
+  // Render reset password page - handles password reset tokens from emails
+  if (isResetPasswordPath) {
+    return (
+      <>
+        <ToastContainer />
+        <Suspense fallback={
+          <div className="min-h-screen bg-zinc-950 flex items-center justify-center">
+            <div className="text-center">
+              <div className="w-16 h-16 border-4 border-purple-500 border-t-transparent rounded-full animate-spin mx-auto mb-4" />
+              <p className="text-zinc-400">Verifying reset link...</p>
+            </div>
+          </div>
+        }>
+          <ResetPasswordPage />
+        </Suspense>
       </>
     );
   }
@@ -1009,64 +1139,7 @@ function MainAppRouter(): React.ReactElement {
   );
 }
 
-/**
- * Auth Page - Handles login and signup flows
- */
-function AuthPage({ mode }: { mode: 'login' | 'signup' }): React.ReactElement {
-  const { isAuthenticated, isLoading } = useAuth();
-  const [showAuthModal, setShowAuthModal] = useState(true);
-
-  // If already authenticated, redirect to dashboard
-  useEffect(() => {
-    if (!isLoading && isAuthenticated) {
-      window.location.href = '/';
-    }
-  }, [isAuthenticated, isLoading]);
-
-  if (isLoading) {
-    return (
-      <div className="min-h-screen bg-zinc-950 flex items-center justify-center">
-        <div className="text-center">
-          <div className="w-16 h-16 border-4 border-purple-500 border-t-transparent rounded-full animate-spin mx-auto mb-4" />
-          <p className="text-zinc-400">Loading...</p>
-        </div>
-      </div>
-    );
-  }
-
-  return (
-    <div className="min-h-screen bg-zinc-950 flex items-center justify-center">
-      {/* Background */}
-      <div className="fixed inset-0 bg-gradient-to-br from-purple-900/20 via-zinc-950 to-pink-900/20 pointer-events-none" />
-
-      {/* Logo and brand */}
-      <div className="absolute top-8 left-8 flex items-center gap-3">
-        <a href="/" className="flex items-center gap-2">
-          <div className="w-10 h-10 bg-gradient-to-br from-purple-500 to-pink-500 rounded-xl flex items-center justify-center">
-            <span className="text-white font-black text-lg">N</span>
-          </div>
-          <span className="text-xl font-black text-white">Nanobanna</span>
-        </a>
-      </div>
-
-      {/* Auth Modal */}
-      <Suspense fallback={null}>
-        <AuthModal
-          isOpen={showAuthModal}
-          onClose={() => {
-            // Redirect back to landing if closed
-            window.location.href = '/';
-          }}
-          onSuccess={() => {
-            // Redirect to onboarding after successful auth
-            window.location.href = '/onboarding';
-          }}
-          defaultMode={mode}
-        />
-      </Suspense>
-    </div>
-  );
-}
+// Note: AuthPage component removed - now using AuthKit pages (LoginPageAuthKit, SignupPageAuthKit)
 
 // Wrapper component that connects VoiceAgentProvider to CanvasContext
 function VoiceAgentWrapper({ children }: { children: React.ReactNode }) {
