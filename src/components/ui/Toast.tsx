@@ -1,6 +1,7 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useToast as useToastContext } from '@/context/ToastContext';
 import type { Toast as ToastType } from '@/types';
+import { useIsMobile } from '@/hooks/useBreakpoint';
 
 interface ToastProps {
     toast: ToastType;
@@ -8,10 +9,30 @@ interface ToastProps {
 }
 
 /**
+ * Get progress bar color based on toast type
+ * Uses brand colors: orange/yellow for info/success, red for error
+ */
+function getProgressBarColor(type: ToastType['type']): string {
+    switch (type) {
+        case 'success':
+            return 'bg-white/40';
+        case 'error':
+            return 'bg-white/50';
+        case 'warning':
+            return 'bg-black/30';
+        case 'info':
+        default:
+            return 'bg-white/40';
+    }
+}
+
+/**
  * Individual toast notification component with smooth slide-in/slide-out animations
  *
- * **Auto-Dismiss Timer:**
+ * **Auto-Dismiss Timer with Progress Indicator:**
  * - Timer pauses on hover and resumes on mouse leave
+ * - Visual progress bar shows remaining time before auto-dismiss
+ * - Progress bar pauses when user hovers, creating visual feedback
  * - Allows users to read toast content without rushing
  *
  * **Glassmorphism Styling (Life OS Design System):**
@@ -43,8 +64,20 @@ interface ToastProps {
 export function Toast({ toast, onDismiss }: ToastProps) {
     const [isExiting, setIsExiting] = useState(false);
     const [isVisible, setIsVisible] = useState(false);
-    const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
+    const isMobile = useIsMobile();
+    const [isPaused, setIsPaused] = useState(false);
     const { pauseToast, resumeToast } = useToastContext();
+
+    // Handle pause/resume with local state tracking for progress bar
+    const handleMouseEnter = () => {
+        setIsPaused(true);
+        pauseToast(toast.id);
+    };
+
+    const handleMouseLeave = () => {
+        setIsPaused(false);
+        resumeToast(toast.id);
+    };
 
     // Trigger enter animation on mount
     useEffect(() => {
@@ -53,14 +86,7 @@ export function Toast({ toast, onDismiss }: ToastProps) {
         return () => clearTimeout(timer);
     }, []);
 
-    // Track viewport size for blur budget compliance (20px mobile, 40px desktop)
-    useEffect(() => {
-        const handleResize = () => {
-            setIsMobile(window.innerWidth < 768);
-        };
-        window.addEventListener('resize', handleResize);
-        return () => window.removeEventListener('resize', handleResize);
-    }, []);
+    // isMobile now provided by useIsMobile hook for blur budget compliance (20px mobile, 40px desktop)
 
     const handleDismiss = () => {
         setIsExiting(true);
@@ -98,7 +124,7 @@ export function Toast({ toast, onDismiss }: ToastProps) {
             default:
                 return {
                     icon: 'info',
-                    bgColor: 'bg-blue-600/90 dark:bg-blue-500/90',
+                    bgColor: 'bg-sky-600/90 dark:bg-sky-500/90',
                     textColor: 'text-white',
                     iconColor: 'text-white',
                 };
@@ -108,8 +134,11 @@ export function Toast({ toast, onDismiss }: ToastProps) {
     const config = getToastConfig();
     const isAlert = toast.type === 'error' || toast.type === 'warning';
 
+    // Use rounded-2xl for longer messages to accommodate multi-line text
+    const isLongMessage = toast.message.length > 50;
+
     const commonClasses = `
-        px-4 md:px-6 py-2 md:py-3 rounded-full shadow-2xl
+        px-4 md:px-6 py-2 md:py-3 ${isLongMessage ? 'rounded-2xl' : 'rounded-full'} shadow-2xl
         flex items-center gap-2 md:gap-3
         border border-white/10
         max-w-[90vw] w-full
@@ -133,6 +162,9 @@ export function Toast({ toast, onDismiss }: ToastProps) {
         }
     `;
 
+    const progressBarColor = getProgressBarColor(toast.type);
+    const showProgressBar = toast.duration > 0;
+
     return (
         <>
             {isAlert ? (
@@ -140,22 +172,44 @@ export function Toast({ toast, onDismiss }: ToastProps) {
                     role="alert"
                     aria-live="assertive"
                     aria-atomic="true"
-                    onMouseEnter={() => pauseToast(toast.id)}
-                    onMouseLeave={() => resumeToast(toast.id)}
+                    onMouseEnter={handleMouseEnter}
+                    onMouseLeave={handleMouseLeave}
                     className={commonClasses}
                 >
                     <ToastContent config={config} toast={toast} onDismiss={handleDismiss} />
+                    {/* Progress bar showing remaining time - hidden for reduced motion */}
+                    {showProgressBar && (
+                        <div
+                            className={`absolute bottom-0 left-0 right-0 h-0.5 origin-left toast-progress-bar motion-reduce:hidden ${progressBarColor}`}
+                            style={{
+                                animationDuration: `${toast.duration}ms`,
+                                animationPlayState: isPaused ? 'paused' : 'running',
+                            }}
+                            aria-hidden="true"
+                        />
+                    )}
                 </div>
             ) : (
                 <div
                     role="status"
                     aria-live="polite"
                     aria-atomic="true"
-                    onMouseEnter={() => pauseToast(toast.id)}
-                    onMouseLeave={() => resumeToast(toast.id)}
+                    onMouseEnter={handleMouseEnter}
+                    onMouseLeave={handleMouseLeave}
                     className={commonClasses}
                 >
                     <ToastContent config={config} toast={toast} onDismiss={handleDismiss} />
+                    {/* Progress bar showing remaining time - hidden for reduced motion */}
+                    {showProgressBar && (
+                        <div
+                            className={`absolute bottom-0 left-0 right-0 h-0.5 origin-left toast-progress-bar motion-reduce:hidden ${progressBarColor}`}
+                            style={{
+                                animationDuration: `${toast.duration}ms`,
+                                animationPlayState: isPaused ? 'paused' : 'running',
+                            }}
+                            aria-hidden="true"
+                        />
+                    )}
                 </div>
             )}
         </>
@@ -184,8 +238,11 @@ function ToastContent({ config, toast, onDismiss }: ToastContentProps) {
                 {config.icon}
             </span>
 
-            {/* Message */}
-            <span className="text-[10px] sm:text-xs font-bold uppercase tracking-wider truncate flex-1">
+            {/* Message - line-clamp-2 allows 2 lines before truncating, title shows full text on hover */}
+            <span
+                className="text-[10px] sm:text-xs font-bold uppercase tracking-wider line-clamp-2 flex-1"
+                title={toast.message}
+            >
                 {toast.message}
             </span>
 
@@ -204,11 +261,11 @@ function ToastContent({ config, toast, onDismiss }: ToastContentProps) {
                 </button>
             )}
 
-            {/* Close Button */}
+            {/* Close Button - 44x44px touch target per iOS HIG */}
             {toast.dismissible && (
                 <button
                     onClick={onDismiss}
-                    className="ml-1 md:ml-2 hover:opacity-50 focus:outline-none focus:ring-2 focus:ring-white/50 focus:rounded-full transition-opacity shrink-0"
+                    className="min-w-[44px] min-h-[44px] flex items-center justify-center rounded-full hover:bg-white/20 active:bg-white/30 focus:outline-none focus:ring-2 focus:ring-white/50 transition-colors shrink-0 -mr-2"
                     aria-label="Close notification"
                     type="button"
                 >

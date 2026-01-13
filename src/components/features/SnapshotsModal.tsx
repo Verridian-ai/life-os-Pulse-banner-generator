@@ -27,7 +27,7 @@ export const SnapshotsModal: React.FC<SnapshotsModalProps> = ({ isOpen, onClose 
                         <span className='material-icons text-purple-500'>history</span>
                         Saved Snapshots
                     </h2>
-                    <button onClick={onClose} className='text-zinc-500 hover:text-white transition' aria-label="Close modal">
+                    <button type="button" onClick={onClose} className='min-w-[44px] min-h-[44px] flex items-center justify-center text-zinc-500 hover:text-white hover:bg-white/10 rounded-full transition focus-ring' aria-label="Close modal">
                         <span className='material-icons'>close</span>
                     </button>
                 </div>
@@ -49,6 +49,7 @@ export const SnapshotsModal: React.FC<SnapshotsModalProps> = ({ isOpen, onClose 
                                 </div>
                                 <div className="flex gap-1 shrink-0">
                                     <button
+                                        type="button"
                                         onClick={() => { restoreSnapshot(snapshot); onClose(); }}
                                         className="p-2 hover:bg-white/10 rounded-lg text-purple-400 hover:text-purple-300 transition"
                                         title="Restore"
@@ -57,6 +58,7 @@ export const SnapshotsModal: React.FC<SnapshotsModalProps> = ({ isOpen, onClose 
                                         <span className="material-icons">restore</span>
                                     </button>
                                     <button
+                                        type="button"
                                         onClick={() => deleteSnapshot(snapshot.id)}
                                         className="p-2 hover:bg-white/10 rounded-lg text-zinc-500 hover:text-red-400 transition"
                                         title="Delete"

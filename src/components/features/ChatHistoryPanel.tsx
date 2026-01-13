@@ -1,4 +1,4 @@
-import React, { useRef, useEffect } from 'react';
+import { useRef, useEffect } from 'react';
 import { TranscriptEntry } from '../../services/liveClient';
 import { useFocusTrap } from '../../hooks/useFocusTrap';
 
@@ -92,7 +92,7 @@ const ChatHistoryPanel: React.FC<ChatHistoryPanelProps> = ({ isOpen, onClose, tr
           </h2>
           <button
             onClick={onClose}
-            className='w-8 h-8 rounded-full bg-white/5 hover:bg-white/10 flex items-center justify-center text-zinc-400 hover:text-white transition'
+            className='min-w-[44px] min-h-[44px] rounded-full bg-white/5 hover:bg-white/10 flex items-center justify-center text-zinc-400 hover:text-white transition focus-ring'
             aria-label='Close chat history'
           >
             <span className='material-icons text-sm'>close</span>

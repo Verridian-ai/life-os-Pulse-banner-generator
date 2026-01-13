@@ -166,8 +166,9 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onSuccess
         className='bg-zinc-900 border border-white/10 rounded-3xl p-8 w-full max-w-md shadow-2xl relative max-h-[90vh] overflow-y-auto'
       >
         <button
+          type="button"
           onClick={onClose}
-          className='absolute top-4 right-4 text-zinc-500 hover:text-white transition'
+          className='absolute top-4 right-4 min-w-[44px] min-h-[44px] flex items-center justify-center text-zinc-500 hover:text-white hover:bg-white/10 rounded-full transition focus-ring'
           aria-label="Close modal"
         >
           <span className='material-icons'>close</span>
@@ -197,6 +198,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onSuccess
         {mode !== 'reset' && (
           <div className='flex bg-zinc-950 p-1 rounded-xl border border-white/5 mb-6'>
             <button
+              type="button"
               onClick={() => {
                 setMode('signin');
                 setError(null);
@@ -210,6 +212,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onSuccess
               Sign In
             </button>
             <button
+              type="button"
               onClick={() => {
                 setMode('signup');
                 setError(null);
@@ -228,6 +231,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onSuccess
         {/* Back button for reset mode */}
         {mode === 'reset' && (
           <button
+            type="button"
             onClick={() => {
               setMode('signin');
               setError(null);
@@ -254,7 +258,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onSuccess
                   onChange={(e) => setFirstName(e.target.value)}
                   placeholder='John'
                   required
-                  className='w-full bg-zinc-950 border border-white/10 rounded-xl px-4 py-3 text-white text-sm focus:outline-none focus:border-purple-500 focus:ring-2 focus:ring-purple-500/50 transition placeholder-zinc-700'
+                  className='w-full bg-zinc-950 border border-white/10 rounded-xl px-4 py-3 text-white text-sm focus:border-purple-500 focus-ring transition placeholder-zinc-700'
                 />
               </div>
 
@@ -268,7 +272,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onSuccess
                   onChange={(e) => setLastName(e.target.value)}
                   placeholder='Doe'
                   required
-                  className='w-full bg-zinc-950 border border-white/10 rounded-xl px-4 py-3 text-white text-sm focus:outline-none focus:border-purple-500 focus:ring-2 focus:ring-purple-500/50 transition placeholder-zinc-700'
+                  className='w-full bg-zinc-950 border border-white/10 rounded-xl px-4 py-3 text-white text-sm focus:border-purple-500 focus-ring transition placeholder-zinc-700'
                 />
               </div>
 
@@ -288,7 +292,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onSuccess
                     required
                     minLength={3}
                     maxLength={30}
-                    className='w-full bg-zinc-950 border border-white/10 rounded-xl pl-8 pr-12 py-3 text-white text-sm focus:outline-none focus:border-purple-500 focus:ring-2 focus:ring-purple-500/50 transition placeholder-zinc-700'
+                    className='w-full bg-zinc-950 border border-white/10 rounded-xl pl-8 pr-12 py-3 text-white text-sm focus:border-purple-500 focus-ring transition placeholder-zinc-700'
                   />
                   {/* Loading spinner */}
                   {usernameChecking && (
@@ -333,7 +337,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onSuccess
               onChange={(e) => setEmail(e.target.value)}
               placeholder='you@example.com'
               required
-              className='w-full bg-zinc-950 border border-white/10 rounded-xl px-4 py-3 text-white text-sm focus:outline-none focus:border-purple-500 focus:ring-2 focus:ring-purple-500/50 transition placeholder-zinc-700'
+              className='w-full bg-zinc-950 border border-white/10 rounded-xl px-4 py-3 text-white text-sm focus:border-purple-500 focus-ring transition placeholder-zinc-700'
             />
           </div>
 
@@ -351,7 +355,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onSuccess
                   placeholder='••••••••'
                   required
                   minLength={6}
-                  className='w-full bg-zinc-950 border border-white/10 rounded-xl pl-4 pr-12 py-3 text-white text-sm focus:outline-none focus:border-purple-500 focus:ring-2 focus:ring-purple-500/50 transition placeholder-zinc-700'
+                  className='w-full bg-zinc-950 border border-white/10 rounded-xl pl-4 pr-12 py-3 text-white text-sm focus:border-purple-500 focus-ring transition placeholder-zinc-700'
                 />
                 <button
                   type="button"
@@ -443,6 +447,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onSuccess
             <p className='text-xs text-zinc-600'>
               {mode === 'signin' ? "Don't have an account?" : 'Already have an account?'}{' '}
               <button
+                type="button"
                 onClick={() => {
                   setMode(mode === 'signin' ? 'signup' : 'signin');
                   setError(null);

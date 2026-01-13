@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { formatShortcut, type KeyboardShortcut } from '@/hooks/useKeyboardShortcuts';
+import { type KeyboardShortcut, formatShortcut } from '@/hooks/useKeyboardShortcuts';
 import { useFocusTrap } from '../../hooks/useFocusTrap';
 
 type ShortcutCategory = {
@@ -83,18 +83,14 @@ export function KeyboardShortcutsModal({
       {/* Modal Content */}
       <div
         ref={modalRef}
-        className="relative w-full max-w-3xl max-h-[80vh] overflow-y-auto"
+        className="relative w-full max-w-3xl max-h-[80vh] overflow-y-auto transform-gpu"
         onClick={(e) => e.stopPropagation()}
-        style={{ transform: 'translateZ(0)' }} // GPU optimization
+        // GPU optimization applied via Tailwind transform class
         tabIndex={-1} // Ensure the container itself can be focused if needed programmatically, though hook focuses children
       >
         {/* Glass card - 4 layers per shared_contract.md section 5.4 */}
         <div
-          className="relative rounded-2xl border border-white/20 overflow-hidden"
-          style={{
-            background: 'rgba(18, 18, 18, 0.85)',
-            backdropFilter: 'blur(20px) saturate(180%)',
-          }}
+          className="relative rounded-2xl border border-white/20 overflow-hidden bg-[rgba(18,18,18,0.85)] backdrop-blur-[20px] backdrop-saturate-[180%]"
         >
           {/* Noise overlay (layer 3) */}
           <div
@@ -107,16 +103,19 @@ export function KeyboardShortcutsModal({
           {/* Header */}
           <div className="relative border-b border-white/10 px-6 py-4 flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <span className="material-icons text-amber-400 text-2xl" aria-hidden="true">
-                keyboard
-              </span>
+          <div className="w-12 h-12 rounded-2xl bg-yellow-500/20 flex items-center justify-center shrink-0">
+            <span className="material-icons text-yellow-400 text-2xl" aria-hidden="true">
+              keyboard
+            </span>
+          </div>
               <h2 id="shortcuts-modal-title" className="text-xl font-bold text-white">
                 Keyboard Shortcuts
               </h2>
             </div>
             <button
+              type="button"
               onClick={onClose}
-              className="p-2 rounded-lg hover:bg-white/10 transition-colors group"
+              className="min-w-[44px] min-h-[44px] flex items-center justify-center rounded-full hover:bg-white/10 transition-colors group focus-ring"
               aria-label="Close shortcuts modal"
             >
               <span className="material-icons text-zinc-400 group-hover:text-white transition-colors">
@@ -139,9 +138,9 @@ export function KeyboardShortcutsModal({
                       className="flex items-center justify-between py-2.5 px-3 bg-white/5 hover:bg-white/10 rounded-lg transition-colors"
                     >
                       <span className="text-sm text-zinc-300">{shortcut.description}</span>
-                      <kbd className="px-3 py-1.5 bg-zinc-800/80 border border-zinc-700/50 rounded-md text-xs font-mono text-amber-400 shadow-sm">
-                        {formatShortcut(shortcut)}
-                      </kbd>
+                    <kbd className="px-3 py-1.5 bg-zinc-800/80 border border-zinc-700/50 rounded-md text-xs font-mono text-yellow-400 shadow-sm">
+                      {formatShortcut(shortcut)}
+                    </kbd>
                     </div>
                   ))}
                 </div>
