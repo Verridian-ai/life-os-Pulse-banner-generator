@@ -103,6 +103,9 @@ demo-screenshots/
 # Serena config
 .serena/
 
+# WorkOS CLI
+.workos-cli/
+
 # Root-level config files (may have special formatting)
 .mcp.json
 .auto-claude-security.json
