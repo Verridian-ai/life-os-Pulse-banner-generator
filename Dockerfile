@@ -9,11 +9,20 @@ COPY package*.json ./
 RUN npm ci
 COPY . .
 
-# Build the frontend (Vite) - Set production environment variables
+# Build the frontend (Vite) - Create .env.production file for Vite to read
+# Vite reads from .env files, not shell ENV vars, so we create the file
+RUN echo "VITE_API_MODE=production" > .env.production && \
+    echo "VITE_PROD_API_URL=https://life-os-banner.verridian.ai" >> .env.production && \
+    echo "VITE_ENVIRONMENT=production" >> .env.production && \
+    cat .env.production
+
+# Also set as ENV for any scripts that might read them
 ENV VITE_API_MODE=production
 ENV VITE_PROD_API_URL=https://life-os-banner.verridian.ai
 ENV VITE_ENVIRONMENT=production
-RUN npm run build
+
+# Build with production mode
+RUN npm run build -- --mode production
 
 # Stage 2: Backend & Runtime
 FROM node:20-alpine
