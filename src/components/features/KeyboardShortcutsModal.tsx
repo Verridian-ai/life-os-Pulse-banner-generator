@@ -24,7 +24,6 @@ export function KeyboardShortcutsModal({
   onClose,
   shortcuts,
 }: KeyboardShortcutsModalProps): React.JSX.Element | null {
-  
   // Use Focus Trap (Replaces manual focus management and escape listener)
   const modalRef = useFocusTrap(isOpen, onClose);
 
@@ -37,7 +36,7 @@ export function KeyboardShortcutsModal({
       shortcuts: shortcuts.filter(
         (s) =>
           s.description.toLowerCase().includes('generate') ||
-          s.description.toLowerCase().includes('enhance')
+          s.description.toLowerCase().includes('enhance'),
       ),
     },
     {
@@ -45,7 +44,7 @@ export function KeyboardShortcutsModal({
       shortcuts: shortcuts.filter(
         (s) =>
           s.description.toLowerCase().includes('tab') ||
-          s.description.toLowerCase().includes('switch')
+          s.description.toLowerCase().includes('switch'),
       ),
     },
     {
@@ -54,7 +53,7 @@ export function KeyboardShortcutsModal({
         (s) =>
           s.description.toLowerCase().includes('undo') ||
           s.description.toLowerCase().includes('redo') ||
-          s.description.toLowerCase().includes('history')
+          s.description.toLowerCase().includes('history'),
       ),
     },
     {
@@ -64,83 +63,81 @@ export function KeyboardShortcutsModal({
           s.description.toLowerCase().includes('close') ||
           s.description.toLowerCase().includes('toggle') ||
           s.description.toLowerCase().includes('settings') ||
-          s.description.toLowerCase().includes('save')
+          s.description.toLowerCase().includes('save'),
       ),
     },
   ].filter((cat) => cat.shortcuts.length > 0);
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center p-4"
+      className='fixed inset-0 z-50 flex items-center justify-center p-4'
       onClick={onClose}
-      role="dialog"
-      aria-modal="true"
-      aria-labelledby="shortcuts-modal-title"
+      role='dialog'
+      aria-modal='true'
+      aria-labelledby='shortcuts-modal-title'
     >
       {/* Backdrop with glassmorphism */}
-      <div className="absolute inset-0 bg-black/60 backdrop-blur-md" />
+      <div className='absolute inset-0 bg-black/60 backdrop-blur-md' />
 
       {/* Modal Content */}
       <div
         ref={modalRef}
-        className="relative w-full max-w-3xl max-h-[80vh] overflow-y-auto transform-gpu"
+        className='relative w-full max-w-3xl max-h-[80vh] overflow-y-auto transform-gpu'
         onClick={(e) => e.stopPropagation()}
         // GPU optimization applied via Tailwind transform class
         tabIndex={-1} // Ensure the container itself can be focused if needed programmatically, though hook focuses children
       >
         {/* Glass card - 4 layers per shared_contract.md section 5.4 */}
-        <div
-          className="relative rounded-2xl border border-white/20 overflow-hidden bg-[rgba(18,18,18,0.85)] backdrop-blur-[20px] backdrop-saturate-[180%]"
-        >
+        <div className='relative rounded-2xl border border-white/20 overflow-hidden bg-[rgba(18,18,18,0.85)] backdrop-blur-[20px] backdrop-saturate-[180%]'>
           {/* Noise overlay (layer 3) */}
           <div
-            className="absolute inset-0 pointer-events-none opacity-[0.03]"
+            className='absolute inset-0 pointer-events-none opacity-[0.03]'
             style={{
               backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 400 400' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' /%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' /%3E%3C/svg%3E")`,
             }}
           />
 
           {/* Header */}
-          <div className="relative border-b border-white/10 px-6 py-4 flex items-center justify-between">
-            <div className="flex items-center gap-3">
-          <div className="w-12 h-12 rounded-2xl bg-yellow-500/20 flex items-center justify-center shrink-0">
-            <span className="material-icons text-yellow-400 text-2xl" aria-hidden="true">
-              keyboard
-            </span>
-          </div>
-              <h2 id="shortcuts-modal-title" className="text-xl font-bold text-white">
+          <div className='relative border-b border-white/10 px-6 py-4 flex items-center justify-between'>
+            <div className='flex items-center gap-3'>
+              <div className='w-12 h-12 rounded-2xl bg-yellow-500/20 flex items-center justify-center shrink-0'>
+                <span className='material-icons text-yellow-400 text-2xl' aria-hidden='true'>
+                  keyboard
+                </span>
+              </div>
+              <h2 id='shortcuts-modal-title' className='text-xl font-bold text-white'>
                 Keyboard Shortcuts
               </h2>
             </div>
             <button
-              type="button"
+              type='button'
               onClick={onClose}
-              className="min-w-[44px] min-h-[44px] flex items-center justify-center rounded-full hover:bg-white/10 transition-colors group focus-ring"
-              aria-label="Close shortcuts modal"
+              className='min-w-[44px] min-h-[44px] flex items-center justify-center rounded-full hover:bg-white/10 transition-colors group focus-ring'
+              aria-label='Close shortcuts modal'
             >
-              <span className="material-icons text-zinc-400 group-hover:text-white transition-colors">
+              <span className='material-icons text-zinc-400 group-hover:text-white transition-colors'>
                 close
               </span>
             </button>
           </div>
 
           {/* Content */}
-          <div className="relative px-6 py-5 space-y-6">
+          <div className='relative px-6 py-5 space-y-6'>
             {categories.map((category) => (
               <div key={category.title}>
-                <h3 className="text-xs font-bold text-zinc-400 uppercase tracking-wider mb-3">
+                <h3 className='text-xs font-bold text-zinc-400 uppercase tracking-wider mb-3'>
                   {category.title}
                 </h3>
-                <div className="space-y-2">
+                <div className='space-y-2'>
                   {category.shortcuts.map((shortcut, idx) => (
                     <div
                       key={idx}
-                      className="flex items-center justify-between py-2.5 px-3 bg-white/5 hover:bg-white/10 rounded-lg transition-colors"
+                      className='flex items-center justify-between py-2.5 px-3 bg-white/5 hover:bg-white/10 rounded-lg transition-colors'
                     >
-                      <span className="text-sm text-zinc-300">{shortcut.description}</span>
-                    <kbd className="px-3 py-1.5 bg-zinc-800/80 border border-zinc-700/50 rounded-md text-xs font-mono text-yellow-400 shadow-sm">
-                      {formatShortcut(shortcut)}
-                    </kbd>
+                      <span className='text-sm text-zinc-300'>{shortcut.description}</span>
+                      <kbd className='px-3 py-1.5 bg-zinc-800/80 border border-zinc-700/50 rounded-md text-xs font-mono text-yellow-400 shadow-sm'>
+                        {formatShortcut(shortcut)}
+                      </kbd>
                     </div>
                   ))}
                 </div>
@@ -148,15 +145,22 @@ export function KeyboardShortcutsModal({
             ))}
 
             {/* Footer Tip */}
-            <div className="bg-blue-900/20 border border-blue-500/20 rounded-lg p-4 flex items-start gap-3">
-              <span className="material-icons text-blue-400 text-lg" aria-hidden="true">
+            <div className='bg-blue-900/20 border border-blue-500/20 rounded-lg p-4 flex items-start gap-3'>
+              <span className='material-icons text-blue-400 text-lg' aria-hidden='true'>
                 lightbulb
               </span>
               <div>
-                <p className="text-xs font-bold text-blue-400 uppercase tracking-wide">Pro Tip</p>
-                <p className="text-xs text-blue-300/80 mt-1.5 leading-relaxed">
-                  Press <kbd className="px-1.5 py-0.5 bg-blue-900/40 border border-blue-500/30 rounded text-blue-200">?</kbd> anytime to view this shortcuts reference.
-                  Press <kbd className="px-1.5 py-0.5 bg-blue-900/40 border border-blue-500/30 rounded text-blue-200">Esc</kbd> to close.
+                <p className='text-xs font-bold text-blue-400 uppercase tracking-wide'>Pro Tip</p>
+                <p className='text-xs text-blue-300/80 mt-1.5 leading-relaxed'>
+                  Press{' '}
+                  <kbd className='px-1.5 py-0.5 bg-blue-900/40 border border-blue-500/30 rounded text-blue-200'>
+                    ?
+                  </kbd>{' '}
+                  anytime to view this shortcuts reference. Press{' '}
+                  <kbd className='px-1.5 py-0.5 bg-blue-900/40 border border-blue-500/30 rounded text-blue-200'>
+                    Esc
+                  </kbd>{' '}
+                  to close.
                 </p>
               </div>
             </div>

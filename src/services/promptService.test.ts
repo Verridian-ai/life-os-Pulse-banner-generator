@@ -5,41 +5,41 @@ import { api } from './api';
 import { Mock } from 'vitest';
 
 vi.mock('./api', () => ({
-    api: {
-        post: vi.fn(),
-    },
+  api: {
+    post: vi.fn(),
+  },
 }));
 
 const mockPost = api.post as Mock;
 
 describe('promptService', () => {
-    beforeEach(() => {
-        vi.clearAllMocks();
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
+
+  describe('enhancePrompt', () => {
+    it('should call api.post with prompt and context', async () => {
+      const mockResponse = { enhancedPrompt: 'A detailed prompt', originalPrompt: 'Simple prompt' };
+      mockPost.mockResolvedValue(mockResponse);
+
+      const prompt = 'Simple prompt';
+      const context = { industry: 'tech', style: 'minimalist' };
+      const result = await enhancePrompt(prompt, context);
+
+      expect(api.post).toHaveBeenCalledWith('/api/ai/prompt/enhance', {
+        prompt,
+        context,
+      });
+      expect(result).toEqual(mockResponse);
     });
 
-    describe('enhancePrompt', () => {
-        it('should call api.post with prompt and context', async () => {
-            const mockResponse = { enhancedPrompt: 'A detailed prompt', originalPrompt: 'Simple prompt' };
-            mockPost.mockResolvedValue(mockResponse);
+    it('should log enhancement process', async () => {
+      const consoleSpy = vi.spyOn(console, 'log');
+      mockPost.mockResolvedValue({ enhancedPrompt: '...', originalPrompt: '...' });
 
-            const prompt = 'Simple prompt';
-            const context = { industry: 'tech', style: 'minimalist' };
-            const result = await enhancePrompt(prompt, context);
+      await enhancePrompt('test prompt');
 
-            expect(api.post).toHaveBeenCalledWith('/api/ai/prompt/enhance', {
-                prompt,
-                context
-            });
-            expect(result).toEqual(mockResponse);
-        });
-
-        it('should log enhancement process', async () => {
-            const consoleSpy = vi.spyOn(console, 'log');
-            mockPost.mockResolvedValue({ enhancedPrompt: '...', originalPrompt: '...' });
-
-            await enhancePrompt('test prompt');
-
-            expect(consoleSpy).toHaveBeenCalledWith(expect.stringContaining('[Prompt Enhance]'));
-        });
+      expect(consoleSpy).toHaveBeenCalledWith(expect.stringContaining('[Prompt Enhance]'));
     });
+  });
 });

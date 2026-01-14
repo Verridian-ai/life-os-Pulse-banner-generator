@@ -72,9 +72,16 @@ export const PLATFORM_POSTS_CONFIG: Record<PlatformType, PlatformPostsConfig> = 
       'Generic hashtags (#business #success)',
       'More than 5 hashtags',
     ],
-    algorithmTip: "2026 algorithm uses semantic ranking with 3 signals: engagement quality (first 60 mins), dwell time, and creator authenticity. Comments are #1 for reach expansion - posts with comments are 2-3x more likely to appear in 2nd/3rd-degree feeds.",
+    algorithmTip:
+      '2026 algorithm uses semantic ranking with 3 signals: engagement quality (first 60 mins), dwell time, and creator authenticity. Comments are #1 for reach expansion - posts with comments are 2-3x more likely to appear in 2nd/3rd-degree feeds.',
     placeholderTopic: 'professional branding',
-    toneOptions: ['Thought Leader', 'Personal Story', 'Educational', 'Contrarian Take', 'Data-Driven'],
+    toneOptions: [
+      'Thought Leader',
+      'Personal Story',
+      'Educational',
+      'Contrarian Take',
+      'Data-Driven',
+    ],
     defaultTone: 'Thought Leader',
     postFormats: ['Text Post', 'Carousel (Best)', 'Document', 'Poll', 'LinkedIn Live'],
     imageDimensions: [
@@ -119,7 +126,8 @@ export const PLATFORM_POSTS_CONFIG: Record<PlatformType, PlatformPostsConfig> = 
       'Missing #Shorts tag on Shorts',
       'Slow intros without hooks',
     ],
-    algorithmTip: "2025-2026: Viewer satisfaction beats raw watch time. YouTube's LLM now analyzes content before distribution. Shorts hit 200B+ daily views - optimal length is 15-30 secs for completion. Design for rewatchability to push AVD above 100%.",
+    algorithmTip:
+      "2025-2026: Viewer satisfaction beats raw watch time. YouTube's LLM now analyzes content before distribution. Shorts hit 200B+ daily views - optimal length is 15-30 secs for completion. Design for rewatchability to push AVD above 100%.",
     placeholderTopic: 'video content strategy',
     toneOptions: ['Educational', 'Entertainment', 'Tutorial', 'Commentary', 'Vlog'],
     defaultTone: 'Educational',
@@ -166,7 +174,8 @@ export const PLATFORM_POSTS_CONFIG: Record<PlatformType, PlatformPostsConfig> = 
       'Generic hashtags (#love #instagood)',
       'Ignoring caption SEO keywords',
     ],
-    algorithmTip: "2026: Watch Time is THE most important signal per Adam Mosseri. DM shares = strong quality indicator that boosts Explore reach. Hashtag following removed Dec 2024 - use caption keywords for SEO instead. Carousels get reshown to users who missed slides.",
+    algorithmTip:
+      '2026: Watch Time is THE most important signal per Adam Mosseri. DM shares = strong quality indicator that boosts Explore reach. Hashtag following removed Dec 2024 - use caption keywords for SEO instead. Carousels get reshown to users who missed slides.',
     placeholderTopic: 'lifestyle branding',
     toneOptions: ['Authentic', 'Aesthetic', 'Educational', 'Behind-the-scenes', 'Inspirational'],
     defaultTone: 'Authentic',
@@ -214,9 +223,16 @@ export const PLATFORM_POSTS_CONFIG: Record<PlatformType, PlatformPostsConfig> = 
       'Reposted/stolen content',
       'Contests and giveaways',
     ],
-    algorithmTip: "2025: Link posts nearly INVISIBLE for reach. 40%+ of News Feed is now AI-recommended content. Use Groups for organic reach (10x vs Pages). All video auto-classifies as Reels. DM shares are the #1 indicator of viral potential. Native short-form video <90 secs preferred.",
+    algorithmTip:
+      '2025: Link posts nearly INVISIBLE for reach. 40%+ of News Feed is now AI-recommended content. Use Groups for organic reach (10x vs Pages). All video auto-classifies as Reels. DM shares are the #1 indicator of viral potential. Native short-form video <90 secs preferred.',
     placeholderTopic: 'community building',
-    toneOptions: ['Community-focused', 'Conversational', 'Personal', 'News/Updates', 'Live/Real-time'],
+    toneOptions: [
+      'Community-focused',
+      'Conversational',
+      'Personal',
+      'News/Updates',
+      'Live/Real-time',
+    ],
     defaultTone: 'Conversational',
     postFormats: ['Reel (Best)', 'Live Video', 'Group Post', 'Photo', 'Text Post'],
     imageDimensions: [
@@ -262,7 +278,8 @@ export const PLATFORM_POSTS_CONFIG: Record<PlatformType, PlatformPostsConfig> = 
       'Slow hooks (need 1-3 second hook)',
       'Low-quality video (40x penalty)',
     ],
-    algorithmTip: "2025: FYP now acts like a SEARCH ENGINE. Total watch time (not 3-sec retention) is central. High-quality TikTok-first videos get 40x more follower growth. Test 20, 40, and 60-second versions monthly. Aim for 5%+ engagement rate.",
+    algorithmTip:
+      '2025: FYP now acts like a SEARCH ENGINE. Total watch time (not 3-sec retention) is central. High-quality TikTok-first videos get 40x more follower growth. Test 20, 40, and 60-second versions monthly. Aim for 5%+ engagement rate.',
     placeholderTopic: 'viral trends',
     toneOptions: ['Trendy', 'Educational (Edutok)', 'Comedy', 'Raw/Authentic', 'Challenge'],
     defaultTone: 'Trendy',
@@ -309,7 +326,8 @@ export const PLATFORM_POSTS_CONFIG: Record<PlatformType, PlatformPostsConfig> = 
       'Bare links without context',
       'Hashtags in every thread tweet',
     ],
-    algorithmTip: "2026: Engagement velocity in first 15 mins determines reach. Link posts near-invisible for non-Premium. Threads = 3x engagement vs single tweets (use 4-8 tweets with visuals). Premium = 2-4x visibility boost. Native video priority over external links.",
+    algorithmTip:
+      '2026: Engagement velocity in first 15 mins determines reach. Link posts near-invisible for non-Premium. Threads = 3x engagement vs single tweets (use 4-8 tweets with visuals). Premium = 2-4x visibility boost. Native video priority over external links.',
     placeholderTopic: 'hot takes',
     toneOptions: ['Hot Take', 'Thread/Educational', 'Witty', 'News/Commentary', 'Personal Update'],
     defaultTone: 'Hot Take',

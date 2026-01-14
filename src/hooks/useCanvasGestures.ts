@@ -109,7 +109,7 @@ export function useCanvasGestures(options: CanvasGestureOptions): CanvasGestureR
         onZoomChange?.(clampedZoom, centerX, centerY);
       }
     },
-    [zoom, setZoom, minZoom, maxZoom, onZoomChange, enableHaptics]
+    [zoom, setZoom, minZoom, maxZoom, onZoomChange, enableHaptics],
   );
 
   /**
@@ -120,7 +120,7 @@ export function useCanvasGestures(options: CanvasGestureOptions): CanvasGestureR
       // Pan is currently informational - parent can use onPanChange to implement viewport panning
       onPanChange?.(deltaX, deltaY);
     },
-    [onPanChange]
+    [onPanChange],
   );
 
   /**
@@ -137,7 +137,7 @@ export function useCanvasGestures(options: CanvasGestureOptions): CanvasGestureR
         triggerHaptic('TAP');
       }
     },
-    [zoom, enableHaptics]
+    [zoom, enableHaptics],
   );
 
   /**
@@ -150,7 +150,7 @@ export function useCanvasGestures(options: CanvasGestureOptions): CanvasGestureR
         triggerHaptic('DROP');
       }
     },
-    [enableHaptics]
+    [enableHaptics],
   );
 
   // Use the core touch gestures hook
@@ -165,7 +165,8 @@ export function useCanvasGestures(options: CanvasGestureOptions): CanvasGestureR
   });
 
   // Determine if this is a single touch (for element dragging)
-  const isSingleTouch = gestureState.touchCount === 1 && gestureState.gestureType === 'single-touch';
+  const isSingleTouch =
+    gestureState.touchCount === 1 && gestureState.gestureType === 'single-touch';
   const isGesturing = gestureState.isGesturing && gestureState.touchCount >= 2;
 
   return {

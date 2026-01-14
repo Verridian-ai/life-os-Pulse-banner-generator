@@ -149,7 +149,7 @@ export interface UseChatPersistenceReturn {
       model_used?: string;
       tokens_used?: number;
       response_time_ms?: number;
-    }
+    },
   ) => Promise<void>;
   /** Start a new conversation (resets state) */
   startNewConversation: () => void;

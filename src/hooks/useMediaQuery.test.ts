@@ -82,11 +82,13 @@ describe('useMediaQuery', () => {
   it('updates when media query changes', () => {
     let changeHandler: ((event: MediaQueryListEvent) => void) | null = null;
 
-    addEventListenerMock.mockImplementation((event: string, handler: (event: MediaQueryListEvent) => void) => {
-      if (event === 'change') {
-        changeHandler = handler;
-      }
-    });
+    addEventListenerMock.mockImplementation(
+      (event: string, handler: (event: MediaQueryListEvent) => void) => {
+        if (event === 'change') {
+          changeHandler = handler;
+        }
+      },
+    );
 
     matchMediaMock.mockReturnValue({
       matches: false,
@@ -109,10 +111,9 @@ describe('useMediaQuery', () => {
   });
 
   it('resubscribes when query changes', () => {
-    const { rerender } = renderHook(
-      ({ query }) => useMediaQuery(query),
-      { initialProps: { query: '(max-width: 767px)' } }
-    );
+    const { rerender } = renderHook(({ query }) => useMediaQuery(query), {
+      initialProps: { query: '(max-width: 767px)' },
+    });
 
     // Initial render: matchMedia is called in useState initializer and useEffect
     const initialCalls = matchMediaMock.mock.calls.length;

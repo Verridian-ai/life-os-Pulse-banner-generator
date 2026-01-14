@@ -56,7 +56,8 @@ export function StudioCanvas({ platformConfig, onFormatChange }: StudioCanvasPro
   // If canvas is empty OR if the current background is a default asset from ANOTHER platform, update it.
   React.useEffect(() => {
     if (platformConfig.defaultBackground) {
-      const isDefaultAsset = bgImage && bgImage.includes('/assets/branding/') && bgImage.includes('_default.png');
+      const isDefaultAsset =
+        bgImage && bgImage.includes('/assets/branding/') && bgImage.includes('_default.png');
       const isWrongPlatformDefault = isDefaultAsset && bgImage !== platformConfig.defaultBackground;
 
       if (!bgImage || isWrongPlatformDefault) {
@@ -77,8 +78,8 @@ export function StudioCanvas({ platformConfig, onFormatChange }: StudioCanvasPro
   const handleZoomReset = () => setZoom(1.0);
 
   // Placeholder handlers
-  const handleProfileFaceEnhance = async () => { };
-  const handleProfileRemoveBg = async () => { };
+  const handleProfileFaceEnhance = async () => {};
+  const handleProfileRemoveBg = async () => {};
 
   // Profile upload handler - triggers file input for profile picture
   const handleProfileUpload = useCallback(() => {
@@ -114,69 +115,67 @@ export function StudioCanvas({ platformConfig, onFormatChange }: StudioCanvasPro
         {/* Canvas Header */}
         <div className='w-full mb-6 flex flex-wrap justify-between items-center gap-4'>
           {/* Platform-Filtered Format Selector */}
-          <PlatformFormatSelector
-            platformConfig={platformConfig}
-            onFormatChange={onFormatChange}
-          />
+          <PlatformFormatSelector platformConfig={platformConfig} onFormatChange={onFormatChange} />
 
           {/* Quick Actions */}
           <div className='flex items-center gap-2'>
             {/* Zoom Controls (Desktop) */}
             <div className='hidden md:flex items-center bg-zinc-800 rounded-xl p-1 mr-2'>
               <button
-                type="button"
+                type='button'
                 onClick={handleZoomOut}
                 className='w-8 h-8 flex items-center justify-center text-zinc-400 hover:text-white transition'
-                title="Zoom Out"
+                title='Zoom Out'
               >
                 <span className='material-icons text-sm'>remove</span>
               </button>
               <button
-                type="button"
+                type='button'
                 onClick={handleZoomReset}
                 className='px-2 text-xs font-bold text-zinc-300 min-w-[3rem] text-center'
-                title="Reset Zoom"
+                title='Reset Zoom'
               >
                 {Math.round(zoom * 100)}%
               </button>
               <button
-                type="button"
+                type='button'
                 onClick={handleZoomIn}
                 className='w-8 h-8 flex items-center justify-center text-zinc-400 hover:text-white transition'
-                title="Zoom In"
+                title='Zoom In'
               >
                 <span className='material-icons text-sm'>add</span>
               </button>
             </div>
 
             <button
-              type="button"
+              type='button'
               onClick={() => setShowSafeZones(!showSafeZones)}
-              className={`min-h-[44px] px-4 py-2 rounded-xl flex items-center gap-2 transition ${showSafeZones
-                ? 'bg-purple-600 text-white'
-                : 'bg-zinc-800 text-zinc-400 hover:text-white'
-                }`}
-              title="Toggle Safe Zones"
+              className={`min-h-[44px] px-4 py-2 rounded-xl flex items-center gap-2 transition ${
+                showSafeZones
+                  ? 'bg-purple-600 text-white'
+                  : 'bg-zinc-800 text-zinc-400 hover:text-white'
+              }`}
+              title='Toggle Safe Zones'
             >
               <span className='material-icons text-lg'>visibility</span>
               <span className='text-xs font-medium hidden sm:inline'>Safe Zones</span>
             </button>
 
             <button
-              type="button"
+              type='button'
               onClick={() => setShowSnapshots(true)}
               className='min-h-[44px] px-4 py-2 rounded-xl flex items-center gap-2 transition bg-zinc-800 text-zinc-400 hover:text-white hover:bg-zinc-700'
-              title="Load Snapshot"
+              title='Load Snapshot'
             >
               <span className='material-icons text-lg'>folder_open</span>
               <span className='text-xs font-medium hidden sm:inline'>Load</span>
             </button>
 
             <button
-              type="button"
+              type='button'
               onClick={handleSaveSnapshot}
               className='min-h-[44px] px-4 py-2 rounded-xl flex items-center gap-2 transition bg-zinc-800 text-zinc-400 hover:text-white hover:bg-zinc-700'
-              title="Save Snapshot"
+              title='Save Snapshot'
             >
               <span className='material-icons text-lg'>save</span>
               <span className='text-xs font-medium hidden sm:inline'>Save</span>
@@ -185,7 +184,13 @@ export function StudioCanvas({ platformConfig, onFormatChange }: StudioCanvasPro
         </div>
 
         <div className='w-full flex justify-start md:justify-center'>
-          <Suspense fallback={<div className="flex-1 flex items-center justify-center"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div></div>}>
+          <Suspense
+            fallback={
+              <div className='flex-1 flex items-center justify-center'>
+                <div className='animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500'></div>
+              </div>
+            }
+          >
             <BannerCanvas
               ref={canvasRef}
               canvasWidth={canvasFormat.width}

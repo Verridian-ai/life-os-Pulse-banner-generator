@@ -44,7 +44,9 @@ export const BrandConsistencyPanel: React.FC<BrandConsistencyPanelProps> = ({
       updateBrandProfile(extracted);
       toast.success('Brand profile extracted successfully!');
     } catch (error: unknown) {
-      toast.error(`Failed to extract brand: ${error instanceof Error ? error.message : 'Unknown error'}`);
+      toast.error(
+        `Failed to extract brand: ${error instanceof Error ? error.message : 'Unknown error'}`,
+      );
     } finally {
       setIsExtracting(false);
     }
@@ -239,21 +241,24 @@ export const BrandConsistencyPanel: React.FC<BrandConsistencyPanelProps> = ({
             {/* Consistency Result */}
             {consistencyResult && (
               <div
-                className={`rounded-lg p-3 border ${consistencyResult.consistent
-                  ? 'bg-green-900/20 border-green-500/30'
-                  : 'bg-orange-900/20 border-orange-500/30'
-                  }`}
+                className={`rounded-lg p-3 border ${
+                  consistencyResult.consistent
+                    ? 'bg-green-900/20 border-green-500/30'
+                    : 'bg-orange-900/20 border-orange-500/30'
+                }`}
               >
                 <div className='flex items-center justify-between mb-2'>
                   <span
-                    className={`text-sm font-bold ${consistencyResult.consistent ? 'text-green-300' : 'text-orange-300'
-                      }`}
+                    className={`text-sm font-bold ${
+                      consistencyResult.consistent ? 'text-green-300' : 'text-orange-300'
+                    }`}
                   >
                     {consistencyResult.consistent ? 'Brand Consistent ✓' : 'Needs Improvement'}
                   </span>
                   <span
-                    className={`text-lg font-black ${consistencyResult.consistent ? 'text-green-400' : 'text-orange-400'
-                      }`}
+                    className={`text-lg font-black ${
+                      consistencyResult.consistent ? 'text-green-400' : 'text-orange-400'
+                    }`}
                   >
                     {consistencyResult.score}/100
                   </span>

@@ -106,7 +106,8 @@ export function drawTextElement(
   // Apply letter spacing if supported
   const letterSpacing = el.letterSpacing ?? 0;
   if ('letterSpacing' in ctx) {
-    (ctx as CanvasRenderingContext2D & { letterSpacing: string }).letterSpacing = `${letterSpacing}px`;
+    (ctx as CanvasRenderingContext2D & { letterSpacing: string }).letterSpacing =
+      `${letterSpacing}px`;
   }
 
   // Get display text

@@ -44,15 +44,20 @@ const CanvasEditor: React.FC = () => {
   } = useCanvas();
 
   // Safe zone warnings - reactive detection of elements in danger zones
-  const { warnings, hasWarnings, dangerCount, warningCount, snapToSafe } = useSafeZoneWarnings(elements, canvasFormatId);
+  const { warnings, hasWarnings, dangerCount, warningCount, snapToSafe } = useSafeZoneWarnings(
+    elements,
+    canvasFormatId,
+  );
 
   // Handler for auto-snap to safe position
   const handleSnapToSafe = React.useCallback(
-    (element: typeof elements[number]) => {
+    (element: (typeof elements)[number]) => {
       snapToSafe(element, updateElement);
-      toast.success(`"${element.type === 'text' ? element.content.slice(0, 20) : 'Element'}" moved to safe zone`);
+      toast.success(
+        `"${element.type === 'text' ? element.content.slice(0, 20) : 'Element'}" moved to safe zone`,
+      );
     },
-    [snapToSafe, updateElement, toast]
+    [snapToSafe, updateElement, toast],
   );
 
   // Handler for re-optimizing layout (manual trigger)
@@ -64,7 +69,9 @@ const CanvasEditor: React.FC = () => {
 
     if (result.repositionedCount > 0) {
       setElements(result.optimizedElements);
-      toast.success(`${result.repositionedCount} element${result.repositionedCount > 1 ? 's' : ''} moved to safe zones`);
+      toast.success(
+        `${result.repositionedCount} element${result.repositionedCount > 1 ? 's' : ''} moved to safe zones`,
+      );
     } else {
       toast.info('All elements are already in safe zones');
     }
@@ -82,8 +89,8 @@ const CanvasEditor: React.FC = () => {
   const handleZoomReset = () => setZoom(1.0);
 
   // Placeholder handlers to satisfy JSX - functionality moved to panels/context but kept for compatibility
-  const handleProfileFaceEnhance = async () => { };
-  const handleProfileRemoveBg = async () => { };
+  const handleProfileFaceEnhance = async () => {};
+  const handleProfileRemoveBg = async () => {};
 
   const handleAddText = () => {
     const newEl = {
@@ -114,7 +121,9 @@ const CanvasEditor: React.FC = () => {
             setElements={setElements}
             onOptimize={(result) => {
               if (result.repositionedCount > 0) {
-                toast.success(`${result.repositionedCount} element${result.repositionedCount > 1 ? 's' : ''} auto-repositioned to safe zones`);
+                toast.success(
+                  `${result.repositionedCount} element${result.repositionedCount > 1 ? 's' : ''} auto-repositioned to safe zones`,
+                );
               }
             }}
           />
@@ -124,54 +133,57 @@ const CanvasEditor: React.FC = () => {
             {/* Zoom Controls (Desktop) */}
             <div className='hidden md:flex items-center bg-zinc-800 rounded-xl p-1 mr-2'>
               <button
-                type="button"
+                type='button'
                 onClick={handleZoomOut}
                 className='w-8 h-8 flex items-center justify-center text-zinc-400 hover:text-white transition'
-                title="Zoom Out"
+                title='Zoom Out'
               >
                 <span className='material-icons text-sm'>remove</span>
               </button>
               <button
-                type="button"
+                type='button'
                 onClick={handleZoomReset}
                 className='px-2 text-xs font-bold text-zinc-300 min-w-[3rem] text-center'
-                title="Reset Zoom"
+                title='Reset Zoom'
               >
                 {Math.round(zoom * 100)}%
               </button>
               <button
-                type="button"
+                type='button'
                 onClick={handleZoomIn}
                 className='w-8 h-8 flex items-center justify-center text-zinc-400 hover:text-white transition'
-                title="Zoom In"
+                title='Zoom In'
               >
                 <span className='material-icons text-sm'>add</span>
               </button>
             </div>
 
             <button
-              type="button"
+              type='button'
               onClick={() => setShowSafeZones(!showSafeZones)}
-              className={`min-h-[44px] px-4 py-2 rounded-xl flex items-center gap-2 transition relative ${showSafeZones
-                ? 'bg-purple-600 text-white'
-                : 'bg-zinc-800 text-zinc-400 hover:text-white'
-                }`}
-              title="Toggle Safe Zones"
+              className={`min-h-[44px] px-4 py-2 rounded-xl flex items-center gap-2 transition relative ${
+                showSafeZones
+                  ? 'bg-purple-600 text-white'
+                  : 'bg-zinc-800 text-zinc-400 hover:text-white'
+              }`}
+              title='Toggle Safe Zones'
             >
               <span className='material-icons text-lg'>visibility</span>
               <span className='text-xs font-medium hidden sm:inline'>Safe Zones</span>
               {/* Warning Badge - Shows when elements are in danger zones */}
               {hasWarnings && !showSafeZones && (
-                <span className={`absolute -top-1 -right-1 w-5 h-5 flex items-center justify-center text-[10px] font-bold rounded-full ${
-                  dangerCount > 0 ? 'bg-red-500 text-white' : 'bg-yellow-500 text-black'
-                }`}>
+                <span
+                  className={`absolute -top-1 -right-1 w-5 h-5 flex items-center justify-center text-[10px] font-bold rounded-full ${
+                    dangerCount > 0 ? 'bg-red-500 text-white' : 'bg-yellow-500 text-black'
+                  }`}
+                >
                   {dangerCount + warningCount}
                 </span>
               )}
             </button>
 
             <button
-              type="button"
+              type='button'
               onClick={handleReoptimizeLayout}
               disabled={elements.length === 0}
               className={`min-h-[44px] px-4 py-2 rounded-xl flex items-center gap-2 transition ${
@@ -179,27 +191,27 @@ const CanvasEditor: React.FC = () => {
                   ? 'bg-zinc-800/50 text-zinc-600 cursor-not-allowed'
                   : 'bg-emerald-700/50 text-emerald-200 hover:bg-emerald-600/50 border border-emerald-500/30'
               }`}
-              title="Re-optimize Layout for Safe Zones"
+              title='Re-optimize Layout for Safe Zones'
             >
               <span className='material-icons text-lg'>auto_fix_high</span>
               <span className='text-xs font-medium hidden sm:inline'>Optimize</span>
             </button>
 
             <button
-              type="button"
+              type='button'
               onClick={() => setShowSnapshots(true)}
               className='min-h-[44px] px-4 py-2 rounded-xl flex items-center gap-2 transition bg-zinc-800 text-zinc-400 hover:text-white hover:bg-zinc-700'
-              title="Load Snapshot"
+              title='Load Snapshot'
             >
               <span className='material-icons text-lg'>folder_open</span>
               <span className='text-xs font-medium hidden sm:inline'>Load</span>
             </button>
 
             <button
-              type="button"
+              type='button'
               onClick={handleSaveSnapshot}
               className='min-h-[44px] px-4 py-2 rounded-xl flex items-center gap-2 transition bg-zinc-800 text-zinc-400 hover:text-white hover:bg-zinc-700'
-              title="Save Snapshot"
+              title='Save Snapshot'
             >
               <span className='material-icons text-lg'>save</span>
               <span className='text-xs font-medium hidden sm:inline'>Save</span>
@@ -231,20 +243,21 @@ const CanvasEditor: React.FC = () => {
 
           {/* Floating Warning Indicator - Compact badge near canvas */}
           {showSafeZones && hasWarnings && (
-            <div className="absolute bottom-4 right-4 z-20 animate-pulse">
-              <div className={`flex items-center gap-2 px-3 py-2 rounded-xl shadow-lg border ${
-                dangerCount > 0
-                  ? 'bg-red-900/90 border-red-500/50 text-red-200'
-                  : 'bg-yellow-900/90 border-yellow-500/50 text-yellow-200'
-              }`}>
-                <span className="material-icons text-sm">
+            <div className='absolute bottom-4 right-4 z-20 animate-pulse'>
+              <div
+                className={`flex items-center gap-2 px-3 py-2 rounded-xl shadow-lg border ${
+                  dangerCount > 0
+                    ? 'bg-red-900/90 border-red-500/50 text-red-200'
+                    : 'bg-yellow-900/90 border-yellow-500/50 text-yellow-200'
+                }`}
+              >
+                <span className='material-icons text-sm'>
                   {dangerCount > 0 ? 'error' : 'warning'}
                 </span>
-                <span className="text-xs font-medium">
+                <span className='text-xs font-medium'>
                   {dangerCount > 0
                     ? `${dangerCount} element${dangerCount > 1 ? 's' : ''} in danger zone`
-                    : `${warningCount} element${warningCount > 1 ? 's' : ''} near edge`
-                  }
+                    : `${warningCount} element${warningCount > 1 ? 's' : ''} near edge`}
                 </span>
               </div>
             </div>
@@ -253,7 +266,7 @@ const CanvasEditor: React.FC = () => {
 
         {/* Safe Zone Warnings - Only show when safe zones are visible and there are warnings */}
         {showSafeZones && hasWarnings && (
-          <div className="w-full mt-4">
+          <div className='w-full mt-4'>
             <SafeZoneWarningPanel
               warnings={warnings}
               elements={elements}
@@ -275,42 +288,44 @@ const CanvasEditor: React.FC = () => {
         {isMobile && (
           <div className='fixed bottom-20 left-1/2 -translate-x-1/2 z-40 bg-zinc-900/90 backdrop-blur-md border border-white/10 rounded-2xl p-2 flex gap-2 shadow-2xl'>
             <button
-              type="button"
+              type='button'
               onClick={undo}
               className='w-11 h-11 flex items-center justify-center bg-zinc-800 rounded-xl text-white'
-              title="Undo (Ctrl+Z)"
+              title='Undo (Ctrl+Z)'
             >
               <span className='material-icons'>undo</span>
             </button>
             <button
-              type="button"
+              type='button'
               onClick={redo}
               className='w-11 h-11 flex items-center justify-center bg-zinc-800 rounded-xl text-white'
-              title="Redo (Ctrl+Shift+Z)"
+              title='Redo (Ctrl+Shift+Z)'
             >
               <span className='material-icons'>redo</span>
             </button>
             <div className='w-px bg-white/10 mx-1' />
             <button
-              type="button"
+              type='button'
               onClick={handleAddText}
               className='w-11 h-11 flex items-center justify-center bg-blue-600 rounded-xl text-white'
-              title="Add Text"
+              title='Add Text'
             >
               <span className='material-icons'>text_fields</span>
             </button>
             <button
-              type="button"
+              type='button'
               onClick={() => setShowSafeZones(!showSafeZones)}
               className={`w-11 h-11 flex items-center justify-center rounded-xl transition relative ${showSafeZones ? 'bg-purple-600 text-white' : 'bg-zinc-800 text-zinc-400'}`}
-              title="Toggle Safe Zones (Ctrl+;)"
+              title='Toggle Safe Zones (Ctrl+;)'
             >
               <span className='material-icons'>visibility</span>
               {/* Mobile Warning Badge */}
               {hasWarnings && !showSafeZones && (
-                <span className={`absolute -top-1 -right-1 w-4 h-4 flex items-center justify-center text-[9px] font-bold rounded-full ${
-                  dangerCount > 0 ? 'bg-red-500 text-white' : 'bg-yellow-500 text-black'
-                }`}>
+                <span
+                  className={`absolute -top-1 -right-1 w-4 h-4 flex items-center justify-center text-[9px] font-bold rounded-full ${
+                    dangerCount > 0 ? 'bg-red-500 text-white' : 'bg-yellow-500 text-black'
+                  }`}
+                >
                   {dangerCount + warningCount}
                 </span>
               )}

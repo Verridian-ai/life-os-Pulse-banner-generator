@@ -20,7 +20,14 @@ vi.mock('./safeZoneUtils', () => ({
       .map((el: BannerElement) => ({
         elementId: el.id,
         elementName: el.type === 'text' ? el.content.slice(0, 20) : 'Image',
-        zone: { label: 'Profile Overlap', type: 'circle', x: 100, y: format.height, width: 200, height: 200 },
+        zone: {
+          label: 'Profile Overlap',
+          type: 'circle',
+          x: 100,
+          y: format.height,
+          width: 200,
+          height: 200,
+        },
         dangerLevel: 'danger',
         overlapPercentage: 50,
         message: 'Element overlaps with profile zone',
@@ -40,7 +47,15 @@ const linkedInBanner: CanvasFormat = {
   height: 396,
   aspectRatio: '4:1',
   safeZones: [
-    { type: 'circle', label: 'Profile Overlap', x: 166, y: 396, width: 168, height: 168, radius: 84 },
+    {
+      type: 'circle',
+      label: 'Profile Overlap',
+      x: 166,
+      y: 396,
+      width: 168,
+      height: 168,
+      radius: 84,
+    },
   ],
   description: 'LinkedIn profile banner',
   icon: 'badge',

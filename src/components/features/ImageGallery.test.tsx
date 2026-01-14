@@ -15,8 +15,11 @@ vi.mock('../../services/database', () => ({
 // Mock react-virtualized-auto-sizer to provide dimensions for react-window
 // Note: vi.mock is hoisted, so we must define the mock inline
 vi.mock('react-virtualized-auto-sizer', () => {
-  const MockAutoSizer = ({ children }: { children: (size: { width: number; height: number }) => React.ReactNode }) =>
-    children({ width: 800, height: 600 });
+  const MockAutoSizer = ({
+    children,
+  }: {
+    children: (size: { width: number; height: number }) => React.ReactNode;
+  }) => children({ width: 800, height: 600 });
   return {
     default: MockAutoSizer,
     AutoSizer: MockAutoSizer,
@@ -25,7 +28,12 @@ vi.mock('react-virtualized-auto-sizer', () => {
 
 // Mock react-window to render items directly without virtualization
 vi.mock('react-window', () => ({
-  FixedSizeGrid: ({ children: ChildComponent, columnCount, rowCount, itemData }: {
+  FixedSizeGrid: ({
+    children: ChildComponent,
+    columnCount,
+    rowCount,
+    itemData,
+  }: {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     children: React.FC<any>;
     columnCount: number;
@@ -35,10 +43,18 @@ vi.mock('react-window', () => ({
     const items: React.ReactElement[] = [];
     for (let row = 0; row < rowCount; row++) {
       for (let col = 0; col < columnCount; col++) {
-        items.push(<ChildComponent key={`${row}-${col}`} columnIndex={col} rowIndex={row} style={{}} data={itemData} />);
+        items.push(
+          <ChildComponent
+            key={`${row}-${col}`}
+            columnIndex={col}
+            rowIndex={row}
+            style={{}}
+            data={itemData}
+          />,
+        );
       }
     }
-    return <div data-testid="virtualized-grid">{items}</div>;
+    return <div data-testid='virtualized-grid'>{items}</div>;
   },
 }));
 
@@ -72,7 +88,7 @@ describe('ImageGallery', () => {
 
   it('should render loading state initially', () => {
     vi.mocked(database.getUserImages).mockImplementation(
-      () => new Promise(() => { }), // Never resolves to keep loading
+      () => new Promise(() => {}), // Never resolves to keep loading
     );
 
     render(

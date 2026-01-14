@@ -23,7 +23,7 @@ export async function testOpenRouterKey(apiKey: string): Promise<{
     const response = await fetch('https://openrouter.ai/api/v1/models', {
       method: 'GET',
       headers: {
-        'Authorization': `Bearer ${apiKey}`,
+        Authorization: `Bearer ${apiKey}`,
         'HTTP-Referer': window.location.origin, // Required by OpenRouter
         'X-Title': 'NanoBanna Pro', // Required by OpenRouter
       },
@@ -72,7 +72,7 @@ export async function testReplicateKey(apiKey: string): Promise<{
     const response = await fetch('/api/replicate/v1/models', {
       method: 'GET',
       headers: {
-        'Authorization': `Token ${apiKey}`,
+        Authorization: `Token ${apiKey}`,
       },
     });
 
@@ -99,7 +99,10 @@ export async function testReplicateKey(apiKey: string): Promise<{
  * Validate API key format without making API calls
  * Useful for quick client-side validation before testing
  */
-export function validateKeyFormat(provider: 'openrouter' | 'replicate', apiKey: string): {
+export function validateKeyFormat(
+  provider: 'openrouter' | 'replicate',
+  apiKey: string,
+): {
   valid: boolean;
   error?: string;
 } {

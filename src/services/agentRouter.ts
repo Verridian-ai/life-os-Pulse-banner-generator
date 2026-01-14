@@ -1,6 +1,6 @@
 /**
  * Agent Router - Routes voice commands to specialized agents
- * 
+ *
  * This module provides intelligent routing of user commands to the most
  * appropriate specialized agent based on command type and context.
  */
@@ -106,10 +106,7 @@ const COMMAND_CAPABILITY_MAP: Record<string, string[]> = {
  * Route a command to the most appropriate agent
  * Platform-specific agents take priority when a platform context is provided
  */
-export function routeCommand(
-  commandName: string,
-  context?: CommandRouteContext
-): RouteResult {
+export function routeCommand(commandName: string, context?: CommandRouteContext): RouteResult {
   // PRIORITY 1: If platform specified, try platform-specialist agent first
   if (context?.platform) {
     const platformAgentId = PLATFORM_AGENT_MAP[context.platform];
@@ -117,8 +114,9 @@ export function routeCommand(
 
     if (platformAgent) {
       // Check if platform agent has this capability
-      const hasCapability = platformAgent.capabilities.includes(commandName) ||
-        platformAgent.capabilities.some(cap => commandName.includes(cap));
+      const hasCapability =
+        platformAgent.capabilities.includes(commandName) ||
+        platformAgent.capabilities.some((cap) => commandName.includes(cap));
 
       if (hasCapability) {
         return {
@@ -180,10 +178,7 @@ export function getPlatformAgent(platform: PlatformType): AgentDefinition | unde
 /**
  * Route a natural language query to the best agent
  */
-export function routeQuery(
-  query: string,
-  _context?: CommandRouteContext
-): RouteResult {
+export function routeQuery(query: string, _context?: CommandRouteContext): RouteResult {
   const suggestions = getAgentSuggestions(query);
 
   if (suggestions.length === 0) {
@@ -223,4 +218,3 @@ export function getAgentSystemPrompt(agentId: string): string {
 export function getAgentsForCapability(capability: string): AgentDefinition[] {
   return AGENT_REGISTRY.filter((a) => a.capabilities.includes(capability));
 }
-

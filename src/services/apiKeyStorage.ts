@@ -23,8 +23,6 @@ export interface UserAPIKeys {
   hasProductKeys?: boolean;
 }
 
-
-
 /**
  * Get user's API keys from Neon via Backend API
  * SECURITY: Keys are masked (****xxxx) for display. Server uses actual keys for API calls.
@@ -34,7 +32,9 @@ export async function getUserAPIKeys(): Promise<UserAPIKeys> {
 
   try {
     // Call the backend API to get user's API keys
-    const response = await api.get<{ apiKeys: ApiKeysResponse; hasProductKeys?: boolean }>('/api/user/api-keys');
+    const response = await api.get<{ apiKeys: ApiKeysResponse; hasProductKeys?: boolean }>(
+      '/api/user/api-keys',
+    );
 
     if (response) {
       console.log('[API Keys] ✓ Loaded keys from Neon (masked for display)');
@@ -65,7 +65,6 @@ export async function getUserAPIKeys(): Promise<UserAPIKeys> {
 
     console.log('[API Keys] No keys found in database');
     return getEnvFallbackKeys();
-
   } catch (error) {
     console.error('[API Keys] Unexpected error:', error);
     return getEnvFallbackKeys();
@@ -80,7 +79,9 @@ export async function getUserAPIKeys(): Promise<UserAPIKeys> {
  * Get Voice API Key (Ephemeral Token)
  * SECURITY: Fetches a short-lived ephemeral token for real-time API.
  */
-export async function getVoiceAPIKey(): Promise<{ voiceKey: string } | { error: string; requiresKey?: boolean }> {
+export async function getVoiceAPIKey(): Promise<
+  { voiceKey: string } | { error: string; requiresKey?: boolean }
+> {
   console.log('[API Keys] getVoiceAPIKey() called');
 
   try {
@@ -123,7 +124,10 @@ export async function saveUserAPIKeys(
     };
 
     // Call the backend API to save user's API keys
-    const response = await api.post<{ success?: boolean; error?: string }>('/api/user/api-keys', dbKeys);
+    const response = await api.post<{ success?: boolean; error?: string }>(
+      '/api/user/api-keys',
+      dbKeys,
+    );
 
     if (response && (response.success === true || !response.error)) {
       console.log('[API Keys] ✓ Saved to Neon');
@@ -188,10 +192,10 @@ export function forceClearLegacyKeys(): void {
     'llm_model',
     'llm_image_model',
     'llm_magic_edit_model',
-    'llm_upscale_model'
+    'llm_upscale_model',
   ];
 
-  keysToRemove.forEach(key => localStorage.removeItem(key));
+  keysToRemove.forEach((key) => localStorage.removeItem(key));
   console.log('[API Keys] ✓ Cleared legacy keys from localStorage');
 }
 

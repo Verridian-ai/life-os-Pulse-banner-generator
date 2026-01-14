@@ -8,7 +8,12 @@
 import { useState, useCallback, RefObject } from 'react';
 import { BannerElement } from '../../../types';
 import { rotatePoint } from '../core/CanvasRenderer';
-import { isOverHandle, ResizeHandle, ElementRect, getCursorForHandle } from '../core/SelectionOverlay';
+import {
+  isOverHandle,
+  ResizeHandle,
+  ElementRect,
+  getCursorForHandle,
+} from '../core/SelectionOverlay';
 
 /** Types of drag operations */
 export type DragMode = 'move' | 'resize' | 'rotate';
@@ -66,9 +71,7 @@ export interface CanvasInteractionResult {
 /**
  * Hook for canvas element interaction handling
  */
-export function useCanvasInteraction(
-  options: CanvasInteractionOptions,
-): CanvasInteractionResult {
+export function useCanvasInteraction(options: CanvasInteractionOptions): CanvasInteractionResult {
   const {
     canvasRef,
     elements,
@@ -91,8 +94,10 @@ export function useCanvasInteraction(
       if (!canvas) return { x: 0, y: 0 };
 
       const rect = canvas.getBoundingClientRect();
-      const clientX = 'touches' in e ? e.touches[0]?.clientX ?? 0 : (e as React.MouseEvent).clientX;
-      const clientY = 'touches' in e ? e.touches[0]?.clientY ?? 0 : (e as React.MouseEvent).clientY;
+      const clientX =
+        'touches' in e ? (e.touches[0]?.clientX ?? 0) : (e as React.MouseEvent).clientX;
+      const clientY =
+        'touches' in e ? (e.touches[0]?.clientY ?? 0) : (e as React.MouseEvent).clientY;
 
       const scaleX = canvas.width / rect.width;
       const scaleY = canvas.height / rect.height;

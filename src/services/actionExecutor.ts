@@ -26,11 +26,7 @@ import {
   BatchUpdateElementsCommand,
   BatchMoveElementsCommand,
 } from './commands/canvasCommands';
-import {
-  NavigateToTabCommand,
-  UndoActionCommand,
-  RedoActionCommand,
-} from './commands/uiCommands';
+import { NavigateToTabCommand, UndoActionCommand, RedoActionCommand } from './commands/uiCommands';
 import {
   SuggestPromptsCommand,
   WriteEnhancedPromptCommand,
@@ -134,7 +130,7 @@ export class ActionExecutor {
     previewMode = false,
     getCanvasImage?: () => string | undefined,
     setGenPrompt?: SetGenPromptCallback,
-    canvasCallbacks?: CanvasCallbacks
+    canvasCallbacks?: CanvasCallbacks,
   ) {
     this.onUpdate = onUpdate;
     this.previewMode = previewMode;
@@ -264,13 +260,16 @@ export class ActionExecutor {
     if (schema) {
       const validationResult = schema.safeParse(toolCall.args);
       if (!validationResult.success) {
-        console.error(`[ActionExecutor] Invalid arguments for ${toolCall.name}:`, validationResult.error);
+        console.error(
+          `[ActionExecutor] Invalid arguments for ${toolCall.name}:`,
+          validationResult.error,
+        );
         return {
           success: false,
           error: `Invalid arguments: ${validationResult.error.message}`,
         };
       }
-      // Use validated arguments (though we still pass original args as commands expect specific types, 
+      // Use validated arguments (though we still pass original args as commands expect specific types,
       // Zod ensures they match structure)
     }
 

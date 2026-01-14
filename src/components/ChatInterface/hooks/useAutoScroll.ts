@@ -10,10 +10,7 @@ import type { UseAutoScrollReturn } from '../types';
  * @param loading - Loading state to monitor
  * @returns Object containing bottomRef to attach to scroll target element
  */
-export function useAutoScroll(
-  messages: ChatMessage[],
-  loading: boolean
-): UseAutoScrollReturn {
+export function useAutoScroll(messages: ChatMessage[], loading: boolean): UseAutoScrollReturn {
   const bottomRef = useRef<HTMLDivElement>(null);
 
   /**

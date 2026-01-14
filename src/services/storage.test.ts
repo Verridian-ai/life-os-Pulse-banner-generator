@@ -50,7 +50,9 @@ describe('storage service', () => {
         headers: { 'Content-Type': 'image/png' },
       });
 
-      expect(api.post).toHaveBeenCalledWith('/api/storage/confirm-upload', { filePath: mockFilePath });
+      expect(api.post).toHaveBeenCalledWith('/api/storage/confirm-upload', {
+        filePath: mockFilePath,
+      });
 
       expect(result).toEqual({
         data: { path: mockFilePath, fullPath: mockFilePath },

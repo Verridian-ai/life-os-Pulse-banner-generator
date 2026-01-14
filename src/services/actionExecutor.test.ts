@@ -111,12 +111,10 @@ describe('ActionExecutor', () => {
       });
 
       // Expect call with LinkedIn banner dimensions
-      expect(generateImage).toHaveBeenCalledWith(
-        expect.stringContaining('Test'),
-        [],
-        '2K',
-        { width: 1584, height: 396 }
-      );
+      expect(generateImage).toHaveBeenCalledWith(expect.stringContaining('Test'), [], '2K', {
+        width: 1584,
+        height: 396,
+      });
     });
   });
 

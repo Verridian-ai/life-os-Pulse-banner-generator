@@ -63,7 +63,9 @@ describe('useSafeZoneWarnings', () => {
         },
       ];
 
-      const { result } = renderHook(() => useSafeZoneWarnings(elements, 'linkedin_banner' as CanvasFormatId));
+      const { result } = renderHook(() =>
+        useSafeZoneWarnings(elements, 'linkedin_banner' as CanvasFormatId),
+      );
 
       expect(result.current.warnings).toHaveLength(0);
       expect(result.current.hasWarnings).toBe(false);
@@ -84,7 +86,9 @@ describe('useSafeZoneWarnings', () => {
         },
       ];
 
-      const { result } = renderHook(() => useSafeZoneWarnings(elements, 'linkedin_banner' as CanvasFormatId));
+      const { result } = renderHook(() =>
+        useSafeZoneWarnings(elements, 'linkedin_banner' as CanvasFormatId),
+      );
 
       expect(result.current.warnings.length).toBeGreaterThan(0);
       expect(result.current.hasWarnings).toBe(true);
@@ -103,7 +107,9 @@ describe('useSafeZoneWarnings', () => {
         },
       ];
 
-      const { result } = renderHook(() => useSafeZoneWarnings(elements, 'instagram_post' as CanvasFormatId));
+      const { result } = renderHook(() =>
+        useSafeZoneWarnings(elements, 'instagram_post' as CanvasFormatId),
+      );
 
       expect(result.current.warnings).toHaveLength(0);
       expect(result.current.hasWarnings).toBe(false);
@@ -133,7 +139,9 @@ describe('useSafeZoneWarnings', () => {
         },
       ];
 
-      const { result } = renderHook(() => useSafeZoneWarnings(elements, 'linkedin_banner' as CanvasFormatId));
+      const { result } = renderHook(() =>
+        useSafeZoneWarnings(elements, 'linkedin_banner' as CanvasFormatId),
+      );
 
       const dangerWarnings = result.current.getElementWarnings('danger-element');
       const safeWarnings = result.current.getElementWarnings('safe-element');
@@ -157,7 +165,9 @@ describe('useSafeZoneWarnings', () => {
         },
       ];
 
-      const { result } = renderHook(() => useSafeZoneWarnings(elements, 'linkedin_banner' as CanvasFormatId));
+      const { result } = renderHook(() =>
+        useSafeZoneWarnings(elements, 'linkedin_banner' as CanvasFormatId),
+      );
 
       const level = result.current.getElementDangerLevel('test-1');
 
@@ -177,7 +187,9 @@ describe('useSafeZoneWarnings', () => {
         },
       ];
 
-      const { result } = renderHook(() => useSafeZoneWarnings(elements, 'linkedin_banner' as CanvasFormatId));
+      const { result } = renderHook(() =>
+        useSafeZoneWarnings(elements, 'linkedin_banner' as CanvasFormatId),
+      );
 
       const level = result.current.getElementDangerLevel('safe-1');
 
@@ -199,7 +211,9 @@ describe('useSafeZoneWarnings', () => {
         },
       ];
 
-      const { result } = renderHook(() => useSafeZoneWarnings(elements, 'linkedin_banner' as CanvasFormatId));
+      const { result } = renderHook(() =>
+        useSafeZoneWarnings(elements, 'linkedin_banner' as CanvasFormatId),
+      );
 
       const safePos = result.current.getSafePosition(elements[0]);
 
@@ -223,7 +237,9 @@ describe('useSafeZoneWarnings', () => {
         },
       ];
 
-      const { result } = renderHook(() => useSafeZoneWarnings(elements, 'linkedin_banner' as CanvasFormatId));
+      const { result } = renderHook(() =>
+        useSafeZoneWarnings(elements, 'linkedin_banner' as CanvasFormatId),
+      );
 
       const safePos = result.current.getSafePosition(elements[0]);
 
@@ -247,16 +263,21 @@ describe('useSafeZoneWarnings', () => {
 
       const onUpdate = vi.fn();
 
-      const { result } = renderHook(() => useSafeZoneWarnings(elements, 'linkedin_banner' as CanvasFormatId));
+      const { result } = renderHook(() =>
+        useSafeZoneWarnings(elements, 'linkedin_banner' as CanvasFormatId),
+      );
 
       act(() => {
         result.current.snapToSafe(elements[0], onUpdate);
       });
 
-      expect(onUpdate).toHaveBeenCalledWith('test-1', expect.objectContaining({
-        x: expect.any(Number),
-        y: expect.any(Number),
-      }));
+      expect(onUpdate).toHaveBeenCalledWith(
+        'test-1',
+        expect.objectContaining({
+          x: expect.any(Number),
+          y: expect.any(Number),
+        }),
+      );
     });
 
     it('does not call onUpdate for element already in safe area', () => {
@@ -274,7 +295,9 @@ describe('useSafeZoneWarnings', () => {
 
       const onUpdate = vi.fn();
 
-      const { result } = renderHook(() => useSafeZoneWarnings(elements, 'linkedin_banner' as CanvasFormatId));
+      const { result } = renderHook(() =>
+        useSafeZoneWarnings(elements, 'linkedin_banner' as CanvasFormatId),
+      );
 
       act(() => {
         result.current.snapToSafe(elements[0], onUpdate);

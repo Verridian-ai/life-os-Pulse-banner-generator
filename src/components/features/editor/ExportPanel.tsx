@@ -17,11 +17,14 @@ const ExportPanel: React.FC = () => {
 
   return (
     <div className='bg-zinc-900/40 backdrop-blur-md p-6 rounded-3xl border border-white/10 shadow-xl flex flex-col justify-center items-center text-center relative group'>
-      <LinkedInPublishModal isOpen={showLinkedInModal} onClose={() => setShowLinkedInModal(false)} />
+      <LinkedInPublishModal
+        isOpen={showLinkedInModal}
+        onClose={() => setShowLinkedInModal(false)}
+      />
       {/* ... (rest of the panel content unchanged) */}
       <div className='relative z-10 w-full'>
         {/* ... (Header, Platform, Fit, Format unchanged) */}
-        
+
         {/* Export actions moved to bottom nav */}
       </div>
     </div>

@@ -11,7 +11,11 @@ vi.mock('../services/brandEngine', () => ({
 vi.mock('../services/modelRouter', () => ({
   getModelMetadata: vi.fn(() => ({
     'gpt-5.2': { id: 'gpt-5.2', name: 'GPT 5.2', provider: 'openrouter' },
-    'anthropic/claude-sonnet-4.5': { id: 'anthropic/claude-sonnet-4.5', name: 'Claude 4.5 Sonnet', provider: 'openrouter' },
+    'anthropic/claude-sonnet-4.5': {
+      id: 'anthropic/claude-sonnet-4.5',
+      name: 'Claude 4.5 Sonnet',
+      provider: 'openrouter',
+    },
   })),
   trackModelPerformance: vi.fn(),
 }));

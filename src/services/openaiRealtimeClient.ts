@@ -149,10 +149,16 @@ class AudioPlaybackQueue {
       const samplesRead = this.ringBuffer.pull(output);
 
       // Track underruns for debugging (only when we're supposed to be playing)
-      if (samplesRead < output.length && this.isPlaying && this.totalSamplesReceived > this.PRE_BUFFER_SAMPLES) {
+      if (
+        samplesRead < output.length &&
+        this.isPlaying &&
+        this.totalSamplesReceived > this.PRE_BUFFER_SAMPLES
+      ) {
         this.underrunCount++;
         if (this.underrunCount % 20 === 1) {
-          console.log(`[AudioPlayback] Buffer underrun #${this.underrunCount} (${this.ringBuffer.availableRead()} samples left)`);
+          console.log(
+            `[AudioPlayback] Buffer underrun #${this.underrunCount} (${this.ringBuffer.availableRead()} samples left)`,
+          );
         }
       }
     };
@@ -381,13 +387,20 @@ Available tools:
               {
                 type: 'function',
                 name: 'write_enhanced_prompt',
-                description: 'Enhance the user spoken prompt using AI and write it to the generation input field. Use this when the user describes a banner idea they want to create.',
+                description:
+                  'Enhance the user spoken prompt using AI and write it to the generation input field. Use this when the user describes a banner idea they want to create.',
                 parameters: {
                   type: 'object',
                   properties: {
                     prompt: { type: 'string', description: 'The rough prompt to enhance' },
-                    industry: { type: 'string', description: 'Optional industry context (e.g., tech, finance, healthcare)' },
-                    style: { type: 'string', description: 'Optional style (e.g., professional, creative, minimal)' },
+                    industry: {
+                      type: 'string',
+                      description: 'Optional industry context (e.g., tech, finance, healthcare)',
+                    },
+                    style: {
+                      type: 'string',
+                      description: 'Optional style (e.g., professional, creative, minimal)',
+                    },
                   },
                   required: ['prompt'],
                 },
@@ -399,8 +412,15 @@ Available tools:
                 parameters: {
                   type: 'object',
                   properties: {
-                    prompt: { type: 'string', description: 'The detailed prompt for image generation' },
-                    quality: { type: 'string', enum: ['1K', '2K', '4K'], description: 'Image quality level' },
+                    prompt: {
+                      type: 'string',
+                      description: 'The detailed prompt for image generation',
+                    },
+                    quality: {
+                      type: 'string',
+                      enum: ['1K', '2K', '4K'],
+                      description: 'Image quality level',
+                    },
                   },
                   required: ['prompt'],
                 },
@@ -412,7 +432,10 @@ Available tools:
                 parameters: {
                   type: 'object',
                   properties: {
-                    image_url: { type: 'string', description: 'Optional image URL. Uses canvas if not provided.' },
+                    image_url: {
+                      type: 'string',
+                      description: 'Optional image URL. Uses canvas if not provided.',
+                    },
                   },
                 },
               },
@@ -424,7 +447,11 @@ Available tools:
                   type: 'object',
                   properties: {
                     image_url: { type: 'string', description: 'The image URL to upscale' },
-                    mode: { type: 'string', enum: ['fast', 'balanced', 'best'], description: 'Upscale mode' },
+                    mode: {
+                      type: 'string',
+                      enum: ['fast', 'balanced', 'best'],
+                      description: 'Upscale mode',
+                    },
                   },
                   required: ['image_url'],
                 },
@@ -448,7 +475,10 @@ Available tools:
                 parameters: {
                   type: 'object',
                   properties: {
-                    image_url: { type: 'string', description: 'The image URL with faces to enhance' },
+                    image_url: {
+                      type: 'string',
+                      description: 'The image URL with faces to enhance',
+                    },
                   },
                   required: ['image_url'],
                 },
@@ -457,12 +487,20 @@ Available tools:
               {
                 type: 'function',
                 name: 'magic_edit',
-                description: 'Edit or transform the current canvas image using a text prompt. Use this when user wants to modify, change, or transform aspects of the image like "make the background blue", "add a sunset", "change the lighting", "make it look more professional". This is powerful for creative edits.',
+                description:
+                  'Edit or transform the current canvas image using a text prompt. Use this when user wants to modify, change, or transform aspects of the image like "make the background blue", "add a sunset", "change the lighting", "make it look more professional". This is powerful for creative edits.',
                 parameters: {
                   type: 'object',
                   properties: {
-                    prompt: { type: 'string', description: 'The edit instruction describing what to change (e.g., "make the background a sunset", "add warm lighting")' },
-                    base_image: { type: 'string', description: 'Optional image URL. Uses current canvas image if not provided.' },
+                    prompt: {
+                      type: 'string',
+                      description:
+                        'The edit instruction describing what to change (e.g., "make the background a sunset", "add warm lighting")',
+                    },
+                    base_image: {
+                      type: 'string',
+                      description: 'Optional image URL. Uses current canvas image if not provided.',
+                    },
                   },
                   required: ['prompt'],
                 },
@@ -470,18 +508,23 @@ Available tools:
               {
                 type: 'function',
                 name: 'analyze_image',
-                description: 'Analyze the current canvas image and suggest creative edit prompts or new generation ideas. Use when user asks for suggestions, ideas, or wants to know what edits would look good.',
+                description:
+                  'Analyze the current canvas image and suggest creative edit prompts or new generation ideas. Use when user asks for suggestions, ideas, or wants to know what edits would look good.',
                 parameters: {
                   type: 'object',
                   properties: {
-                    image_url: { type: 'string', description: 'Optional image URL. Uses current canvas image if not provided.' },
+                    image_url: {
+                      type: 'string',
+                      description: 'Optional image URL. Uses current canvas image if not provided.',
+                    },
                   },
                 },
               },
               {
                 type: 'function',
                 name: 'analyze_banner',
-                description: 'Analyze the current banner design and provide professional improvement suggestions. Use when user wants feedback, critique, or ideas to make their banner better.',
+                description:
+                  'Analyze the current banner design and provide professional improvement suggestions. Use when user wants feedback, critique, or ideas to make their banner better.',
                 parameters: {
                   type: 'object',
                   properties: {},
@@ -490,12 +533,19 @@ Available tools:
               {
                 type: 'function',
                 name: 'compare_images',
-                description: 'Compare the current canvas image with a reference image or another image version. Analyzes composition, colors, and effectiveness side-by-side.',
+                description:
+                  'Compare the current canvas image with a reference image or another image version. Analyzes composition, colors, and effectiveness side-by-side.',
                 parameters: {
                   type: 'object',
                   properties: {
-                    reference_image: { type: 'string', description: 'URL of the reference image to compare against.' },
-                    target_image: { type: 'string', description: 'Optional URL of the target image (defaults to current canvas).' },
+                    reference_image: {
+                      type: 'string',
+                      description: 'URL of the reference image to compare against.',
+                    },
+                    target_image: {
+                      type: 'string',
+                      description: 'Optional URL of the target image (defaults to current canvas).',
+                    },
                   },
                   required: ['reference_image'],
                 },
@@ -503,12 +553,21 @@ Available tools:
               {
                 type: 'function',
                 name: 'batch_upscale',
-                description: 'Upscale multiple images in sequence. Use when user wants to upscale a batch or list of images.',
+                description:
+                  'Upscale multiple images in sequence. Use when user wants to upscale a batch or list of images.',
                 parameters: {
                   type: 'object',
                   properties: {
-                    image_urls: { type: 'array', items: { type: 'string' }, description: 'List of image URLs to upscale' },
-                    mode: { type: 'string', enum: ['fast', 'balanced', 'best'], description: 'Upscale mode' },
+                    image_urls: {
+                      type: 'array',
+                      items: { type: 'string' },
+                      description: 'List of image URLs to upscale',
+                    },
+                    mode: {
+                      type: 'string',
+                      enum: ['fast', 'balanced', 'best'],
+                      description: 'Upscale mode',
+                    },
                   },
                   required: ['image_urls'],
                 },
@@ -516,11 +575,16 @@ Available tools:
               {
                 type: 'function',
                 name: 'batch_remove_background',
-                description: 'Remove background from multiple images in sequence. Use when user wants to process a batch of images.',
+                description:
+                  'Remove background from multiple images in sequence. Use when user wants to process a batch of images.',
                 parameters: {
                   type: 'object',
                   properties: {
-                    image_urls: { type: 'array', items: { type: 'string' }, description: 'List of image URLs to process' },
+                    image_urls: {
+                      type: 'array',
+                      items: { type: 'string' },
+                      description: 'List of image URLs to process',
+                    },
                   },
                   required: ['image_urls'],
                 },
@@ -529,7 +593,8 @@ Available tools:
               {
                 type: 'function',
                 name: 'add_text_element',
-                description: 'Add a text element to the canvas banner. Use this when user wants to add text, a title, name, tagline, or any text content to their banner.',
+                description:
+                  'Add a text element to the canvas banner. Use this when user wants to add text, a title, name, tagline, or any text content to their banner.',
                 parameters: {
                   type: 'object',
                   properties: {
@@ -537,8 +602,14 @@ Available tools:
                     x: { type: 'number', description: 'X position (default: center at 792)' },
                     y: { type: 'number', description: 'Y position (default: center at 198)' },
                     fontSize: { type: 'number', description: 'Font size in pixels (default: 48)' },
-                    color: { type: 'string', description: 'Text color in hex format (default: #ffffff)' },
-                    fontFamily: { type: 'string', description: 'Font family name (default: Inter)' },
+                    color: {
+                      type: 'string',
+                      description: 'Text color in hex format (default: #ffffff)',
+                    },
+                    fontFamily: {
+                      type: 'string',
+                      description: 'Font family name (default: Inter)',
+                    },
                   },
                   required: ['text'],
                 },
@@ -546,14 +617,16 @@ Available tools:
               {
                 type: 'function',
                 name: 'update_element',
-                description: 'Update properties of an existing canvas element like changing text, color, size, or position.',
+                description:
+                  'Update properties of an existing canvas element like changing text, color, size, or position.',
                 parameters: {
                   type: 'object',
                   properties: {
                     element_id: { type: 'string', description: 'The ID of the element to update' },
                     properties: {
                       type: 'object',
-                      description: 'Properties to update (e.g., content, color, fontSize, x, y, fontFamily)',
+                      description:
+                        'Properties to update (e.g., content, color, fontSize, x, y, fontFamily)',
                     },
                   },
                   required: ['element_id', 'properties'],
@@ -574,7 +647,8 @@ Available tools:
               {
                 type: 'function',
                 name: 'list_elements',
-                description: 'List all current elements on the canvas. Use this to see what elements exist before updating or deleting.',
+                description:
+                  'List all current elements on the canvas. Use this to see what elements exist before updating or deleting.',
                 parameters: {
                   type: 'object',
                   properties: {},
@@ -584,11 +658,16 @@ Available tools:
               {
                 type: 'function',
                 name: 'navigate_to_tab',
-                description: 'Navigate to a different tab in the application. Use "studio" for design editing, "gallery" for saved designs, "brainstorm" for chat and ideation.',
+                description:
+                  'Navigate to a different tab in the application. Use "studio" for design editing, "gallery" for saved designs, "brainstorm" for chat and ideation.',
                 parameters: {
                   type: 'object',
                   properties: {
-                    tab: { type: 'string', enum: ['studio', 'gallery', 'brainstorm'], description: 'The tab to navigate to' },
+                    tab: {
+                      type: 'string',
+                      enum: ['studio', 'gallery', 'brainstorm'],
+                      description: 'The tab to navigate to',
+                    },
                   },
                   required: ['tab'],
                 },
@@ -597,7 +676,8 @@ Available tools:
               {
                 type: 'function',
                 name: 'undo_action',
-                description: 'Undo the last canvas action. Use when user wants to undo, go back, or revert.',
+                description:
+                  'Undo the last canvas action. Use when user wants to undo, go back, or revert.',
                 parameters: {
                   type: 'object',
                   properties: {},
@@ -606,7 +686,8 @@ Available tools:
               {
                 type: 'function',
                 name: 'redo_action',
-                description: 'Redo a previously undone action. Use when user wants to redo or restore an action.',
+                description:
+                  'Redo a previously undone action. Use when user wants to redo or restore an action.',
                 parameters: {
                   type: 'object',
                   properties: {},
@@ -683,7 +764,9 @@ Available tools:
       }
 
       // Convert to base64 (slice to exact size needed)
-      const base64 = this.arrayBufferToBase64((this.inputPcm16Buffer.buffer as ArrayBuffer).slice(0, inputData.length * 2));
+      const base64 = this.arrayBufferToBase64(
+        (this.inputPcm16Buffer.buffer as ArrayBuffer).slice(0, inputData.length * 2),
+      );
 
       // Track send time for latency estimation
       this.lastPingTime = Date.now();
@@ -751,7 +834,9 @@ Available tools:
         if (this.playbackQueue) {
           const metrics = this.playbackQueue.getMetrics();
           const durationSec = (metrics.totalReceived / 24000).toFixed(1);
-          console.log(`[OpenAI Realtime] Audio metrics: ${durationSec}s received, ${metrics.bufferedSamples} buffered, ${metrics.underruns} underruns`);
+          console.log(
+            `[OpenAI Realtime] Audio metrics: ${durationSec}s received, ${metrics.bufferedSamples} buffered, ${metrics.underruns} underruns`,
+          );
         }
         break;
 

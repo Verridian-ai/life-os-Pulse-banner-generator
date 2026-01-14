@@ -20,7 +20,10 @@ const AssetsPanel: React.FC = () => {
   const { authUser } = useAuth();
   const [showProfileEditor, setShowProfileEditor] = useState(false);
 
-  const handleLocalUploadEnhanced = async (e: React.ChangeEvent<HTMLInputElement>, type: 'background' | 'ref' | 'profile') => {
+  const handleLocalUploadEnhanced = async (
+    e: React.ChangeEvent<HTMLInputElement>,
+    type: 'background' | 'ref' | 'profile',
+  ) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
@@ -30,7 +33,7 @@ const AssetsPanel: React.FC = () => {
         prompt: 'Uploaded Image',
         model_used: 'upload',
         generation_type: 'upload',
-        tags: [type]
+        tags: [type],
       }).catch(console.error);
     }
 
@@ -233,9 +236,7 @@ const AssetsPanel: React.FC = () => {
                   {profilePic ? (
                     <img src={profilePic} alt='profile' className='w-full h-full object-cover' />
                   ) : (
-                    <span className='material-icons text-zinc-600 text-3xl'>
-                      person
-                    </span>
+                    <span className='material-icons text-zinc-600 text-3xl'>person</span>
                   )}
                   <label className='absolute inset-0 bg-black/60 opacity-0 group-hover/profile:opacity-100 flex items-center justify-center cursor-pointer transition'>
                     <span className='material-icons text-white text-xs'>edit</span>
@@ -257,7 +258,7 @@ const AssetsPanel: React.FC = () => {
               {/* New Perfect & Edit Trigger */}
               {profilePic && (
                 <button
-                  type="button"
+                  type='button'
                   onClick={() => setShowProfileEditor(true)}
                   className='w-full py-2 mt-2 bg-gradient-to-r from-blue-900/50 to-purple-900/50 border border-blue-500/30 hover:border-blue-400 text-blue-200 hover:text-white rounded-lg text-[10px] font-black uppercase tracking-wider transition flex items-center justify-center gap-2 shadow-lg group-hover:shadow-blue-500/20'
                 >
@@ -330,7 +331,6 @@ const AssetsPanel: React.FC = () => {
         onClose={() => setShowProfileEditor(false)}
         initialImage={profilePic}
       />
-
     </>
   );
 };

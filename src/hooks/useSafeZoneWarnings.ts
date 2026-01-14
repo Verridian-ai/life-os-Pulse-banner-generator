@@ -30,24 +30,24 @@ export interface UseSafeZoneWarningsResult {
   /** Calculate safe position for an element (auto-snap target) */
   getSafePosition: (element: BannerElement) => { x: number; y: number } | null;
   /** Move element to its safe position */
-  snapToSafe: (element: BannerElement, onUpdate: (id: string, updates: Partial<BannerElement>) => void) => void;
+  snapToSafe: (
+    element: BannerElement,
+    onUpdate: (id: string, updates: Partial<BannerElement>) => void,
+  ) => void;
 }
 
 export function useSafeZoneWarnings(
   elements: BannerElement[],
-  canvasFormatId: CanvasFormatId
+  canvasFormatId: CanvasFormatId,
 ): UseSafeZoneWarningsResult {
   // Get the format configuration
   const format = useMemo<CanvasFormat | null>(
     () => CANVAS_FORMATS[canvasFormatId] || null,
-    [canvasFormatId]
+    [canvasFormatId],
   );
 
   // Analyze all elements for safety issues
-  const warnings = useMemo(
-    () => analyzeElementSafety(elements, format),
-    [elements, format]
-  );
+  const warnings = useMemo(() => analyzeElementSafety(elements, format), [elements, format]);
 
   // Compute summary stats
   const { hasWarnings, dangerCount, warningCount } = useMemo(() => {
@@ -71,7 +71,7 @@ export function useSafeZoneWarnings(
     (elementId: string): SafeZoneWarning[] => {
       return warnings.filter((w) => w.elementId === elementId);
     },
-    [warnings]
+    [warnings],
   );
 
   // Get highest danger level for an element
@@ -88,7 +88,7 @@ export function useSafeZoneWarnings(
 
       return 'none';
     },
-    [warnings]
+    [warnings],
   );
 
   // Get safe position for an element
@@ -103,7 +103,7 @@ export function useSafeZoneWarnings(
       const warningWithSuggestion = elementWarnings.find((w) => w.suggestedPosition);
       return warningWithSuggestion?.suggestedPosition || null;
     },
-    [warnings, format]
+    [warnings, format],
   );
 
   // Move element to safe position
@@ -114,7 +114,7 @@ export function useSafeZoneWarnings(
         onUpdate(element.id, { x: safePos.x, y: safePos.y });
       }
     },
-    [getSafePosition]
+    [getSafePosition],
   );
 
   return {

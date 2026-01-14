@@ -66,37 +66,37 @@ describe('Header', () => {
 
   describe('Platform Indicator', () => {
     it('renders platform indicator for LinkedIn', () => {
-      render(<Header {...defaultProps} activePlatform="linkedin" />);
+      render(<Header {...defaultProps} activePlatform='linkedin' />);
 
       expect(screen.getByText('LinkedIn Studio')).toBeInTheDocument();
     });
 
     it('renders platform indicator for YouTube', () => {
-      render(<Header {...defaultProps} activePlatform="youtube" />);
+      render(<Header {...defaultProps} activePlatform='youtube' />);
 
       expect(screen.getByText('YouTube Studio')).toBeInTheDocument();
     });
 
     it('renders platform indicator for Instagram', () => {
-      render(<Header {...defaultProps} activePlatform="instagram" />);
+      render(<Header {...defaultProps} activePlatform='instagram' />);
 
       expect(screen.getByText('Instagram Studio')).toBeInTheDocument();
     });
 
     it('renders platform indicator for Facebook', () => {
-      render(<Header {...defaultProps} activePlatform="facebook" />);
+      render(<Header {...defaultProps} activePlatform='facebook' />);
 
       expect(screen.getByText('Facebook Studio')).toBeInTheDocument();
     });
 
     it('renders platform indicator for TikTok', () => {
-      render(<Header {...defaultProps} activePlatform="tiktok" />);
+      render(<Header {...defaultProps} activePlatform='tiktok' />);
 
       expect(screen.getByText('TikTok Studio')).toBeInTheDocument();
     });
 
     it('renders platform indicator for X', () => {
-      render(<Header {...defaultProps} activePlatform="x" />);
+      render(<Header {...defaultProps} activePlatform='x' />);
 
       expect(screen.getByText('X Studio')).toBeInTheDocument();
     });
@@ -189,7 +189,7 @@ describe('Header', () => {
       render(<Header {...defaultProps} />);
 
       const buttons = screen.getAllByRole('button');
-      buttons.forEach(button => {
+      buttons.forEach((button) => {
         expect(button).toHaveAttribute('type', 'button');
       });
     });

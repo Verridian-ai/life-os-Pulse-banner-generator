@@ -13,30 +13,33 @@ import { validatePrompt } from '../utils/inputValidation';
  * @returns Enhanced prompt optimized for LinkedIn banner generation
  */
 export const enhancePrompt = async (
-    rawPrompt: string,
-    context?: PromptEnhanceContext
+  rawPrompt: string,
+  context?: PromptEnhanceContext,
 ): Promise<{ enhancedPrompt: string; originalPrompt: string }> => {
-    const prompt = validatePrompt(rawPrompt);
-    // Generate cache key combining prompt and context
-    const cacheKey = `enhance_${prompt}_${JSON.stringify(context || {})}`;
+  const prompt = validatePrompt(rawPrompt);
+  // Generate cache key combining prompt and context
+  const cacheKey = `enhance_${prompt}_${JSON.stringify(context || {})}`;
 
-    // Check cache (with fuzzy matching)
-    const cached = aiCache.getSimilar(cacheKey);
-    if (cached) {
-        console.log('[Prompt Enhance] Using cached response');
-        return JSON.parse(cached);
-    }
+  // Check cache (with fuzzy matching)
+  const cached = aiCache.getSimilar(cacheKey);
+  if (cached) {
+    console.log('[Prompt Enhance] Using cached response');
+    return JSON.parse(cached);
+  }
 
-    console.log('[Prompt Enhance] Enhancing prompt:', prompt.substring(0, 50) + '...');
+  console.log('[Prompt Enhance] Enhancing prompt:', prompt.substring(0, 50) + '...');
 
-    const response = await api.post<{ enhancedPrompt: string; originalPrompt: string }>('/api/ai/prompt/enhance', {
-        prompt,
-        context
-    });
+  const response = await api.post<{ enhancedPrompt: string; originalPrompt: string }>(
+    '/api/ai/prompt/enhance',
+    {
+      prompt,
+      context,
+    },
+  );
 
-    // Cache the result
-    aiCache.set(cacheKey, JSON.stringify(response));
+  // Cache the result
+  aiCache.set(cacheKey, JSON.stringify(response));
 
-    console.log('[Prompt Enhance] ✅ Enhancement complete');
-    return response;
+  console.log('[Prompt Enhance] ✅ Enhancement complete');
+  return response;
 };

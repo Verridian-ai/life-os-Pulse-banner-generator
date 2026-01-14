@@ -67,26 +67,40 @@ const LiveActionPanel: React.FC<LiveActionPanelProps> = ({
   // Get tool icon (memoized with useCallback since these are pure functions)
   const getToolIcon = useCallback((toolName: string) => {
     switch (toolName) {
-      case 'generate_background': return 'auto_awesome';
-      case 'magic_edit': return 'edit';
-      case 'remove_background': return 'layers_clear';
-      case 'upscale_image': return 'hd';
-      case 'restore_image': return 'restore';
-      case 'enhance_face': return 'face_retouching_natural';
-      default: return 'build';
+      case 'generate_background':
+        return 'auto_awesome';
+      case 'magic_edit':
+        return 'edit';
+      case 'remove_background':
+        return 'layers_clear';
+      case 'upscale_image':
+        return 'hd';
+      case 'restore_image':
+        return 'restore';
+      case 'enhance_face':
+        return 'face_retouching_natural';
+      default:
+        return 'build';
     }
   }, []);
 
   // Get tool display name (memoized with useCallback since these are pure functions)
   const getToolDisplayName = useCallback((toolName: string) => {
     switch (toolName) {
-      case 'generate_background': return 'Generate Background';
-      case 'magic_edit': return 'Magic Edit';
-      case 'remove_background': return 'Remove Background';
-      case 'upscale_image': return 'Upscale Image';
-      case 'restore_image': return 'Restore Image';
-      case 'enhance_face': return 'Enhance Face';
-      default: return toolName;
+      case 'generate_background':
+        return 'Generate Background';
+      case 'magic_edit':
+        return 'Magic Edit';
+      case 'remove_background':
+        return 'Remove Background';
+      case 'upscale_image':
+        return 'Upscale Image';
+      case 'restore_image':
+        return 'Restore Image';
+      case 'enhance_face':
+        return 'Enhance Face';
+      default:
+        return toolName;
     }
   }, []);
 
@@ -213,7 +227,9 @@ const LiveActionPanel: React.FC<LiveActionPanelProps> = ({
         className={`px-6 py-2 flex items-center justify-between border-b ${statusBarStyle.border} ${statusBarStyle.bg} transition-all duration-300`}
       >
         <div className='flex items-center gap-3'>
-          <div className={`w-3 h-3 rounded-full ${statusBarStyle.dot} transition-all duration-300`} />
+          <div
+            className={`w-3 h-3 rounded-full ${statusBarStyle.dot} transition-all duration-300`}
+          />
           {statusBarStyle.icon && (
             <span className={`material-icons text-sm ${statusBarStyle.iconClass}`}>
               {statusBarStyle.icon}
@@ -228,18 +244,21 @@ const LiveActionPanel: React.FC<LiveActionPanelProps> = ({
               <div className='flex items-end gap-0.5 h-4'>
                 {/* Bar 1 (always shown) */}
                 <div
-                  className={`w-1 h-1/3 transition-all duration-300 ${qualityIndicator.bars >= 1 ? qualityIndicator.color : 'bg-zinc-700'
-                    }`}
+                  className={`w-1 h-1/3 transition-all duration-300 ${
+                    qualityIndicator.bars >= 1 ? qualityIndicator.color : 'bg-zinc-700'
+                  }`}
                 />
                 {/* Bar 2 */}
                 <div
-                  className={`w-1 h-2/3 transition-all duration-300 ${qualityIndicator.bars >= 2 ? qualityIndicator.color : 'bg-zinc-700'
-                    }`}
+                  className={`w-1 h-2/3 transition-all duration-300 ${
+                    qualityIndicator.bars >= 2 ? qualityIndicator.color : 'bg-zinc-700'
+                  }`}
                 />
                 {/* Bar 3 */}
                 <div
-                  className={`w-1 h-full transition-all duration-300 ${qualityIndicator.bars >= 3 ? qualityIndicator.color : 'bg-zinc-700'
-                    }`}
+                  className={`w-1 h-full transition-all duration-300 ${
+                    qualityIndicator.bars >= 3 ? qualityIndicator.color : 'bg-zinc-700'
+                  }`}
                 />
               </div>
               <span className='text-[9px] font-bold uppercase tracking-wider text-zinc-400'>
@@ -266,7 +285,9 @@ const LiveActionPanel: React.FC<LiveActionPanelProps> = ({
                   className='flex items-center gap-1.5 px-2 py-0.5 bg-yellow-950/30 border border-yellow-600/30 rounded'
                   title={`No activity since ${timingInfo.lastActivity}`}
                 >
-                  <span className='material-icons text-xs text-yellow-500 animate-pulse'>warning</span>
+                  <span className='material-icons text-xs text-yellow-500 animate-pulse'>
+                    warning
+                  </span>
                   <span className='text-[9px] font-bold uppercase tracking-wider text-yellow-500'>
                     Idle {timingInfo.idleDuration}
                   </span>
@@ -321,8 +342,9 @@ const LiveActionPanel: React.FC<LiveActionPanelProps> = ({
                 >
                   {/* Avatar */}
                   <div
-                    className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold shrink-0 ${entry.role === 'user' ? 'bg-blue-600 text-white' : 'bg-purple-600 text-white'
-                      }`}
+                    className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold shrink-0 ${
+                      entry.role === 'user' ? 'bg-blue-600 text-white' : 'bg-purple-600 text-white'
+                    }`}
                   >
                     <span className='material-icons text-sm'>
                       {entry.role === 'user' ? 'person' : 'smart_toy'}
@@ -332,10 +354,11 @@ const LiveActionPanel: React.FC<LiveActionPanelProps> = ({
                   {/* Message Content */}
                   <div className={`flex-1 ${entry.role === 'user' ? 'text-right' : 'text-left'}`}>
                     <div
-                      className={`inline-block max-w-[80%] rounded-lg px-3 py-2 ${entry.role === 'user'
+                      className={`inline-block max-w-[80%] rounded-lg px-3 py-2 ${
+                        entry.role === 'user'
                           ? 'bg-blue-600/20 border border-blue-500/30 text-blue-100'
                           : 'bg-purple-600/20 border border-purple-500/30 text-purple-100'
-                        }`}
+                      }`}
                     >
                       <p className='text-xs font-medium'>{entry.text}</p>
 
@@ -408,7 +431,9 @@ const LiveActionPanel: React.FC<LiveActionPanelProps> = ({
             {/* Error Message */}
             {!pendingAction.result.success && (
               <div className='mb-3 p-2 bg-red-950/50 border border-red-500/30 rounded'>
-                <p className='text-[9px] sm:text-[10px] md:text-xs text-red-400 font-medium'>{pendingAction.result.error}</p>
+                <p className='text-[9px] sm:text-[10px] md:text-xs text-red-400 font-medium'>
+                  {pendingAction.result.error}
+                </p>
               </div>
             )}
 

@@ -31,7 +31,9 @@ export class LiveClient {
     _onToolCall?: (toolCall: ToolCall) => void,
     _onTranscript?: (entry: TranscriptEntry) => void,
   ) {
-    console.warn('[LiveClient] Connect called but feature is temporarily disabled due to SDK removal.');
+    console.warn(
+      '[LiveClient] Connect called but feature is temporarily disabled due to SDK removal.',
+    );
     onStatus(false);
     throw new Error('Live Audio feature is currently unavailable.');
   }

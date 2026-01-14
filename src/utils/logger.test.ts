@@ -156,7 +156,7 @@ describe('logPerformance', () => {
     expect(result).toBe('success');
     expect(consoleSpy).toHaveBeenCalledWith(
       '[DEBUG]',
-      expect.stringMatching(/\[Perf\] testOp completed in \d+\.\d+ms/)
+      expect.stringMatching(/\[Perf\] testOp completed in \d+\.\d+ms/),
     );
   });
 
@@ -167,13 +167,13 @@ describe('logPerformance', () => {
     await expect(
       logPerformance('failingOp', async () => {
         throw testError;
-      })
+      }),
     ).rejects.toThrow('test error');
 
     expect(errorSpy).toHaveBeenCalledWith(
       '[ERROR]',
       expect.stringMatching(/\[Perf\] failingOp failed after \d+\.\d+ms/),
-      testError
+      testError,
     );
   });
 });

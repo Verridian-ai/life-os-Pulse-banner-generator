@@ -136,9 +136,7 @@ describe('ChatInterface', () => {
     });
 
     it('should show API key error message on 401 unauthorized', async () => {
-      mockChat.mockRejectedValue(
-        new Error('Unauthorized: Invalid API key'),
-      );
+      mockChat.mockRejectedValue(new Error('Unauthorized: Invalid API key'));
 
       render(<ChatInterface onGenerateFromPrompt={mockOnGenerateFromPrompt} />);
 
@@ -156,9 +154,7 @@ describe('ChatInterface', () => {
     });
 
     it('should show quota exceeded error on 429 rate limit', async () => {
-      mockChat.mockRejectedValue(
-        new Error('Rate limit exceeded'),
-      );
+      mockChat.mockRejectedValue(new Error('Rate limit exceeded'));
 
       render(<ChatInterface onGenerateFromPrompt={mockOnGenerateFromPrompt} />);
 
@@ -175,9 +171,7 @@ describe('ChatInterface', () => {
     });
 
     it('should show network error message on connection failure', async () => {
-      mockChat.mockRejectedValue(
-        new Error('Network connection failed'),
-      );
+      mockChat.mockRejectedValue(new Error('Network connection failed'));
 
       render(<ChatInterface onGenerateFromPrompt={mockOnGenerateFromPrompt} />);
 
@@ -195,9 +189,7 @@ describe('ChatInterface', () => {
     });
 
     it('should show generic error message for unknown errors', async () => {
-      mockChat.mockRejectedValue(
-        new Error('Something went wrong'),
-      );
+      mockChat.mockRejectedValue(new Error('Something went wrong'));
 
       render(<ChatInterface onGenerateFromPrompt={mockOnGenerateFromPrompt} />);
 

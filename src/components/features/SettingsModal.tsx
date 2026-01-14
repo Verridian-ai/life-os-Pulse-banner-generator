@@ -6,7 +6,10 @@ import { useAuth } from '../../context/AuthContext';
 import { SubscriptionStatus } from '../../features/billing/components/SubscriptionStatus';
 import { PricingCards } from '../../features/billing/components/PricingCards';
 import { BillingHistory } from '../../features/billing/components/BillingHistory';
-import { getSubscription, type SubscriptionResponse } from '../../features/billing/services/billingApi';
+import {
+  getSubscription,
+  type SubscriptionResponse,
+} from '../../features/billing/services/billingApi';
 
 // Credit types
 interface UserCredits {
@@ -69,13 +72,25 @@ const UPSCALE_MODELS = [
 // Common Image Models - Moved outside component for consistency
 const IMAGE_MODELS = [
   // OpenRouter Models (Gemini)
-  { id: 'google/gemini-3-pro-image-preview', name: 'Nano Banana Pro (4K, Best Quality)', provider: 'openrouter' },
+  {
+    id: 'google/gemini-3-pro-image-preview',
+    name: 'Nano Banana Pro (4K, Best Quality)',
+    provider: 'openrouter',
+  },
   { id: 'google/gemini-2.5-flash-image', name: 'Nano Banana (2K, Fast)', provider: 'openrouter' },
 
   // Replicate Models - Latest 2025
   { id: 'ideogram-ai/ideogram-v3', name: 'Ideogram V3 (Best for Text)', provider: 'replicate' },
-  { id: 'stability-ai/stable-diffusion-3-large', name: 'SD3 Large (High Quality)', provider: 'replicate' },
-  { id: 'stability-ai/stable-diffusion-3-medium', name: 'SD3 Medium (Balanced)', provider: 'replicate' },
+  {
+    id: 'stability-ai/stable-diffusion-3-large',
+    name: 'SD3 Large (High Quality)',
+    provider: 'replicate',
+  },
+  {
+    id: 'stability-ai/stable-diffusion-3-medium',
+    name: 'SD3 Medium (Balanced)',
+    provider: 'replicate',
+  },
   { id: 'adirik/flux-cinestill', name: 'FLUX Cinestill (Cinematic)', provider: 'replicate' },
   { id: 'fofr/flux-realism', name: 'FLUX Realism (Photorealistic)', provider: 'replicate' },
   { id: 'black-forest-labs/flux-1.1-pro', name: 'FLUX 1.1 Pro (Premium)', provider: 'replicate' },
@@ -87,11 +102,7 @@ const IMAGE_MODELS = [
 const MAGIC_EDIT_MODELS = IMAGE_MODELS;
 
 // Connection Status Component
-const ConnectionStatus = ({
-  status,
-}: {
-  status: 'untested' | 'testing' | 'valid' | 'invalid';
-}) => {
+const ConnectionStatus = ({ status }: { status: 'untested' | 'testing' | 'valid' | 'invalid' }) => {
   const statusConfig = {
     untested: { icon: 'help_outline', color: 'text-zinc-500', text: 'Not tested' },
     testing: { icon: 'sync', color: 'text-yellow-500 animate-spin', text: 'Testing...' },
@@ -148,9 +159,9 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
   const [openRouterStatus, setOpenRouterStatus] = useState<
     'untested' | 'testing' | 'valid' | 'invalid'
   >('untested');
-  const [openaiStatus, setOpenaiStatus] = useState<
-    'untested' | 'testing' | 'valid' | 'invalid'
-  >('untested');
+  const [openaiStatus, setOpenaiStatus] = useState<'untested' | 'testing' | 'valid' | 'invalid'>(
+    'untested',
+  );
   const [replicateStatus, setReplicateStatus] = useState<
     'untested' | 'testing' | 'valid' | 'invalid'
   >('untested');
@@ -290,7 +301,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
       // Test OpenAI key by making a simple API call
       const response = await fetch('https://api.openai.com/v1/models', {
         headers: {
-          'Authorization': `Bearer ${openaiKey}`,
+          Authorization: `Bearer ${openaiKey}`,
         },
       });
 
@@ -390,9 +401,9 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
   return (
     <div
       className='fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4'
-      role="dialog"
-      aria-modal="true"
-      aria-labelledby="settings-modal-title"
+      role='dialog'
+      aria-modal='true'
+      aria-labelledby='settings-modal-title'
     >
       <div
         ref={modalRef}
@@ -402,13 +413,13 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
           type='button'
           onClick={onClose}
           className='absolute top-4 right-4 min-w-[44px] min-h-[44px] flex items-center justify-center text-zinc-500 hover:text-white hover:bg-white/10 rounded-full transition focus-ring'
-          aria-label="Close settings"
+          aria-label='Close settings'
         >
           <span className='material-icons'>close</span>
         </button>
 
         <h2
-          id="settings-modal-title"
+          id='settings-modal-title'
           className='text-xl font-black text-white uppercase tracking-wider mb-4 flex items-center gap-2'
         >
           <span className='material-icons text-purple-500'>settings</span>
@@ -420,10 +431,11 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
           <button
             type='button'
             onClick={() => setActiveTab('credits')}
-            className={`flex-1 py-2 px-3 rounded-xl text-xs font-bold uppercase tracking-wider transition ${activeTab === 'credits'
-              ? 'bg-purple-600 text-white'
-              : 'bg-zinc-800 text-zinc-400 hover:bg-zinc-700'
-              }`}
+            className={`flex-1 py-2 px-3 rounded-xl text-xs font-bold uppercase tracking-wider transition ${
+              activeTab === 'credits'
+                ? 'bg-purple-600 text-white'
+                : 'bg-zinc-800 text-zinc-400 hover:bg-zinc-700'
+            }`}
           >
             <span className='material-icons text-sm mr-1 align-middle'>payments</span>
             Credits
@@ -431,10 +443,11 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
           <button
             type='button'
             onClick={() => setActiveTab('billing')}
-            className={`flex-1 py-2 px-3 rounded-xl text-xs font-bold uppercase tracking-wider transition ${activeTab === 'billing'
-              ? 'bg-purple-600 text-white'
-              : 'bg-zinc-800 text-zinc-400 hover:bg-zinc-700'
-              }`}
+            className={`flex-1 py-2 px-3 rounded-xl text-xs font-bold uppercase tracking-wider transition ${
+              activeTab === 'billing'
+                ? 'bg-purple-600 text-white'
+                : 'bg-zinc-800 text-zinc-400 hover:bg-zinc-700'
+            }`}
           >
             <span className='material-icons text-sm mr-1 align-middle'>credit_card</span>
             Billing
@@ -442,10 +455,11 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
           <button
             type='button'
             onClick={() => setActiveTab('api-keys')}
-            className={`flex-1 py-2 px-3 rounded-xl text-xs font-bold uppercase tracking-wider transition ${activeTab === 'api-keys'
-              ? 'bg-purple-600 text-white'
-              : 'bg-zinc-800 text-zinc-400 hover:bg-zinc-700'
-              }`}
+            className={`flex-1 py-2 px-3 rounded-xl text-xs font-bold uppercase tracking-wider transition ${
+              activeTab === 'api-keys'
+                ? 'bg-purple-600 text-white'
+                : 'bg-zinc-800 text-zinc-400 hover:bg-zinc-700'
+            }`}
           >
             <span className='material-icons text-sm mr-1 align-middle'>key</span>
             Keys
@@ -490,7 +504,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
                         className='h-full bg-gradient-to-r from-purple-500 to-pink-500 transition-all duration-300 usage-bar'
                         data-usage-percent={Math.min(
                           100,
-                          (credits.lifetimeUsed / Math.max(1, credits.lifetimeGranted)) * 100
+                          (credits.lifetimeUsed / Math.max(1, credits.lifetimeGranted)) * 100,
                         )}
                       />
                     </div>
@@ -544,8 +558,9 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
                         >
                           <div className='flex items-center gap-2'>
                             <span
-                              className={`material-icons text-sm ${tx.amount > 0 ? 'text-green-500' : 'text-red-400'
-                                }`}
+                              className={`material-icons text-sm ${
+                                tx.amount > 0 ? 'text-green-500' : 'text-red-400'
+                              }`}
                             >
                               {tx.amount > 0 ? 'add_circle' : 'remove_circle'}
                             </span>
@@ -554,10 +569,12 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
                             </span>
                           </div>
                           <span
-                            className={`text-xs font-bold ${tx.amount > 0 ? 'text-green-400' : 'text-red-400'
-                              }`}
+                            className={`text-xs font-bold ${
+                              tx.amount > 0 ? 'text-green-400' : 'text-red-400'
+                            }`}
                           >
-                            {tx.amount > 0 ? '+' : ''}{tx.amount}
+                            {tx.amount > 0 ? '+' : ''}
+                            {tx.amount}
                           </span>
                         </div>
                       ))}
@@ -570,7 +587,9 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
                   <div className='bg-zinc-800/30 border border-white/5 rounded-xl p-4'>
                     <div className='flex items-center justify-between'>
                       <div>
-                        <p className='text-[10px] text-zinc-500 uppercase tracking-widest'>Current Plan</p>
+                        <p className='text-[10px] text-zinc-500 uppercase tracking-widest'>
+                          Current Plan
+                        </p>
                         <p className='text-white font-bold'>{tier.displayName || tier.name}</p>
                         <p className='text-[10px] text-zinc-500'>
                           {tier.monthlyCredits} credits/month
@@ -701,7 +720,9 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
                   ))}
                   <option value='custom'>+ Custom Model ID</option>
                 </select>
-                <span className='absolute right-4 top-1/2 -translate-y-1/2 text-zinc-500 pointer-events-none material-icons text-sm'>expand_more</span>
+                <span className='absolute right-4 top-1/2 -translate-y-1/2 text-zinc-500 pointer-events-none material-icons text-sm'>
+                  expand_more
+                </span>
               </div>
               {chatModel === 'custom' && (
                 <input
@@ -735,7 +756,9 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
                     </option>
                   ))}
                 </select>
-                <span className='absolute right-4 top-1/2 -translate-y-1/2 text-zinc-500 pointer-events-none material-icons text-sm'>expand_more</span>
+                <span className='absolute right-4 top-1/2 -translate-y-1/2 text-zinc-500 pointer-events-none material-icons text-sm'>
+                  expand_more
+                </span>
               </div>
               <p className='text-[9px] text-zinc-600 mt-2'>
                 Nano Banana Pro requires preview access. Falls back to Nano Banana if unavailable.
@@ -763,7 +786,9 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
                     </option>
                   ))}
                 </select>
-                <span className='absolute right-4 top-1/2 -translate-y-1/2 text-zinc-500 pointer-events-none material-icons text-sm'>expand_more</span>
+                <span className='absolute right-4 top-1/2 -translate-y-1/2 text-zinc-500 pointer-events-none material-icons text-sm'>
+                  expand_more
+                </span>
               </div>
             </div>
 
@@ -789,7 +814,9 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
                   <option value={0.5}>Test Mode (30s)</option>
                   <option value={0}>Disabled</option>
                 </select>
-                <span className='absolute right-4 top-1/2 -translate-y-1/2 text-zinc-500 pointer-events-none material-icons text-sm'>expand_more</span>
+                <span className='absolute right-4 top-1/2 -translate-y-1/2 text-zinc-500 pointer-events-none material-icons text-sm'>
+                  expand_more
+                </span>
               </div>
               <p className='text-[9px] text-zinc-600 mt-2'>
                 Automatically logout after inactivity to protect your account.
@@ -912,7 +939,9 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
                         </option>
                       ))}
                     </select>
-                    <span className='absolute right-4 top-1/2 -translate-y-1/2 text-zinc-500 pointer-events-none material-icons text-sm'>expand_more</span>
+                    <span className='absolute right-4 top-1/2 -translate-y-1/2 text-zinc-500 pointer-events-none material-icons text-sm'>
+                      expand_more
+                    </span>
                   </div>
                   <p className='text-[9px] text-zinc-600 mt-2'>
                     Real-ESRGAN for general upscaling, SwinIR for restoration, CodeFormer for faces

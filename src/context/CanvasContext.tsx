@@ -67,9 +67,7 @@ export const CanvasContext = {
   // while the actual implementation uses properly typed sub-contexts internally
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   Provider: ({ value, children }: { value: any; children: React.ReactNode }) => (
-    <CombinedCanvasProvider value={value}>
-      {children}
-    </CombinedCanvasProvider>
+    <CombinedCanvasProvider value={value}>{children}</CombinedCanvasProvider>
   ),
   Consumer: () => {
     throw new Error('CanvasContext.Consumer is not supported. Use useCanvas() hook instead.');

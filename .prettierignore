@@ -1,0 +1,125 @@
+# Dependencies
+node_modules/
+.pnpm-store/
+
+# Build outputs
+dist/
+build/
+.next/
+out/
+
+# Coverage reports
+coverage/
+.nyc_output/
+
+# Cache directories
+.cache/
+.turbo/
+.parcel-cache/
+
+# Environment files
+.env*
+!.env.example
+
+# Lock files
+package-lock.json
+yarn.lock
+pnpm-lock.yaml
+
+# Claude Code configuration and documentation
+.claude/
+CLAUDE.md
+
+# Documentation
+docs/
+*.md
+!README.md
+
+# Test results
+test-results/
+playwright-report/
+
+# Generated files
+*.generated.*
+src/constants/generated_*.ts
+
+# Server directory (separate Prettier config if needed)
+server/
+
+# Python
+cognee_agents/
+*.py
+__pycache__/
+.pytest_cache/
+.venv/
+
+# IDE and editor files
+.idea/
+.vscode/
+*.sublime-*
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Temporary files
+*.tmp
+*.temp
+tmpclaude-*
+
+# Assets and media
+public/assets/
+*.png
+*.jpg
+*.jpeg
+*.gif
+*.svg
+*.ico
+*.webp
+
+# Scripts that may have special formatting
+scripts/
+
+# CI/CD and Infrastructure
+.github/
+infrastructure/
+cloudbuild.yaml
+docker-compose*.yml
+cognee-service/
+
+# Product planning docs
+product-plan/
+product/
+
+# Demo files
+demo-screenshots/
+
+# Serena config
+.serena/
+
+# Root-level config files (may have special formatting)
+.mcp.json
+.auto-claude-security.json
+*.json
+!src/**/*.json
+!package.json
+
+# Extracted data
+extracted_*.json
+CUsers*.json
+
+# Test specs outside src
+*.spec.ts
+!src/**/*.spec.ts
+
+# Misc
+.worktrees/
+.git/
+*.min.js
+*.min.css

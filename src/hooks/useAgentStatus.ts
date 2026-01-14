@@ -39,7 +39,7 @@ export type UseAgentStatusReturn = UseAgentStatusState & UseAgentStatusActions;
  * ```
  */
 export function useAgentStatus(
-  options: { autoCheck?: boolean; interval?: number } = {}
+  options: { autoCheck?: boolean; interval?: number } = {},
 ): UseAgentStatusReturn {
   const { autoCheck = true, interval = 60000 } = options;
 

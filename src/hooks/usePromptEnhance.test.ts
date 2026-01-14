@@ -14,8 +14,8 @@ describe('usePromptEnhance', () => {
 
   beforeEach(async () => {
     vi.clearAllMocks();
-    consoleLogSpy = vi.spyOn(console, 'log').mockImplementation(() => { });
-    consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => { });
+    consoleLogSpy = vi.spyOn(console, 'log').mockImplementation(() => {});
+    consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
 
     // Get the mocked function
     const promptModule = await import('../services/promptService');

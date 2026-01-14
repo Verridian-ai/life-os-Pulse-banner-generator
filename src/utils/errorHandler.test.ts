@@ -1,9 +1,5 @@
 import { describe, it, expect, vi } from 'vitest';
-import {
-  classifyError,
-  getUserFriendlyMessage,
-  withRetry,
-} from './errorHandler';
+import { classifyError, getUserFriendlyMessage, withRetry } from './errorHandler';
 
 describe('Error Handler', () => {
   describe('classifyError', () => {

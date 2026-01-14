@@ -7,7 +7,7 @@ import {
   upscaleImage,
   removeBackground,
   restoreImage,
-  editImage
+  editImage,
 } from '../../services/imageEditService';
 
 import { useAI } from '../../context/AIContext';
@@ -74,32 +74,32 @@ const CHAIN_TEMPLATES: Array<{
   description: string;
   steps: Array<{ tool: ToolType; params: Record<string, string | number | boolean> }>;
 }> = [
-    {
-      name: 'Professional Polish',
-      description: 'Upscale, restore, and enhance',
-      steps: [
-        { tool: 'upscale' as ToolType, params: { quality: 'balanced' } },
-        { tool: 'restore' as ToolType, params: {} as Record<string, string | number | boolean> },
-        { tool: 'faceenhance' as ToolType, params: {} as Record<string, string | number | boolean> },
-      ],
-    },
-    {
-      name: 'Clean Background',
-      description: 'Remove BG and upscale',
-      steps: [
-        { tool: 'removebg' as ToolType, params: {} as Record<string, string | number | boolean> },
-        { tool: 'upscale' as ToolType, params: { quality: 'best' } },
-      ],
-    },
-    {
-      name: 'Quick Enhance',
-      description: 'Fast upscale and restore',
-      steps: [
-        { tool: 'upscale' as ToolType, params: { quality: 'fast' } },
-        { tool: 'restore' as ToolType, params: {} as Record<string, string | number | boolean> },
-      ],
-    },
-  ];
+  {
+    name: 'Professional Polish',
+    description: 'Upscale, restore, and enhance',
+    steps: [
+      { tool: 'upscale' as ToolType, params: { quality: 'balanced' } },
+      { tool: 'restore' as ToolType, params: {} as Record<string, string | number | boolean> },
+      { tool: 'faceenhance' as ToolType, params: {} as Record<string, string | number | boolean> },
+    ],
+  },
+  {
+    name: 'Clean Background',
+    description: 'Remove BG and upscale',
+    steps: [
+      { tool: 'removebg' as ToolType, params: {} as Record<string, string | number | boolean> },
+      { tool: 'upscale' as ToolType, params: { quality: 'best' } },
+    ],
+  },
+  {
+    name: 'Quick Enhance',
+    description: 'Fast upscale and restore',
+    steps: [
+      { tool: 'upscale' as ToolType, params: { quality: 'fast' } },
+      { tool: 'restore' as ToolType, params: {} as Record<string, string | number | boolean> },
+    ],
+  },
+];
 
 export const ToolChainBuilder: React.FC<ToolChainBuilderProps> = ({
   currentImage,
@@ -235,7 +235,10 @@ export const ToolChainBuilder: React.FC<ToolChainBuilderProps> = ({
             case 'generate': {
               const genPrompt = String(step.params.prompt || 'random image');
               // Generate replaces the current image completely with LinkedIn banner dimensions
-              currentResult = await generateImage(genPrompt, [], '4K', { width: 1584, height: 396 });
+              currentResult = await generateImage(genPrompt, [], '4K', {
+                width: 1584,
+                height: 396,
+              });
               break;
             }
 
@@ -252,7 +255,6 @@ export const ToolChainBuilder: React.FC<ToolChainBuilderProps> = ({
 
           // Step Success
           step.status = 'completed';
-
         } catch (stepError) {
           console.error(`Step ${i + 1} failed:`, stepError);
           step.status = 'failed';
@@ -274,7 +276,7 @@ export const ToolChainBuilder: React.FC<ToolChainBuilderProps> = ({
 
       const failedChain = { ...chain, status: 'failed' as const };
       // Find the running step and mark failed
-      const failedStep = failedChain.steps.find(s => s.status === 'running');
+      const failedStep = failedChain.steps.find((s) => s.status === 'running');
       if (failedStep) failedStep.status = 'failed';
 
       setActiveChain(failedChain);
@@ -282,7 +284,7 @@ export const ToolChainBuilder: React.FC<ToolChainBuilderProps> = ({
     } finally {
       setIsExecuting(false);
       // Don't auto-clear immediately so user can see result/status
-      // setTimeout(() => setActiveChain(null), 3000); 
+      // setTimeout(() => setActiveChain(null), 3000);
     }
   };
 

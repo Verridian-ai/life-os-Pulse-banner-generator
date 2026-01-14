@@ -25,18 +25,18 @@ Be specific and detailed. Return JSON format:
 }`;
 
     // We reuse the existing agent response function which handles OpenRouter + Vision
-    // We pass the prompt as the user transcript and the first image as screenshot, 
+    // We pass the prompt as the user transcript and the first image as screenshot,
     // but we need to modify generateAgentResponse to support multiple images if we want to be robust.
     // For now, we'll try to use the first image or refactor.
     // Actually, let's just make a direct call using the same pattern as generateDesignChatResponse.
 
     // Using generateAgentResponse signature: (transcript, screenshot, history)
-    // It only accepts one image. 
+    // It only accepts one image.
     // Let's rely on a new export from llm.ts or just inline the fetch here if needed?
     // Better: Helper in llm.ts was not exported.
     // Let's use generateDesignChatResponse which supports multiple images.
 
-    // Cyclic dependency risk? brandEngine -> llm -> brandEngine? 
+    // Cyclic dependency risk? brandEngine -> llm -> brandEngine?
     // llm.ts imports constants, types, utils. Doesn't seem to import brandEngine.
     // So safe to import from llm.
 

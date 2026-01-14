@@ -96,10 +96,7 @@ class AgentApiClient {
     this.baseUrl = baseUrl;
   }
 
-  private async request<T>(
-    endpoint: string,
-    options: RequestInit = {}
-  ): Promise<T> {
+  private async request<T>(endpoint: string, options: RequestInit = {}): Promise<T> {
     const url = `${this.baseUrl}${endpoint}`;
 
     const response = await fetch(url, {
@@ -129,7 +126,7 @@ class AgentApiClient {
    * Generate a new banner design
    */
   async generateBannerDesign(
-    request: BannerDesignRequest
+    request: BannerDesignRequest,
   ): Promise<AgentResponse<BannerDesignOutput>> {
     return this.request<AgentResponse<BannerDesignOutput>>('/agents/banner/design', {
       method: 'POST',
@@ -140,9 +137,7 @@ class AgentApiClient {
   /**
    * Get feedback on an existing banner design
    */
-  async getBannerFeedback(
-    request: BannerFeedbackRequest
-  ): Promise<AgentResponse<BannerFeedback>> {
+  async getBannerFeedback(request: BannerFeedbackRequest): Promise<AgentResponse<BannerFeedback>> {
     return this.request<AgentResponse<BannerFeedback>>('/agents/banner/feedback', {
       method: 'POST',
       body: JSON.stringify(request),
@@ -158,7 +153,7 @@ class AgentApiClient {
       agent_id?: string;
       user_id?: string;
       limit?: number;
-    } = {}
+    } = {},
   ): Promise<{ success: boolean; results: MemorySearchResult[] }> {
     const params = new URLSearchParams({
       query,
@@ -182,7 +177,7 @@ class AgentApiClient {
       category?: 'success' | 'failure' | 'preference' | 'insight';
       user_id?: string;
       metadata?: Record<string, unknown>;
-    } = {}
+    } = {},
   ): Promise<{ success: boolean; document_id: string }> {
     const params = new URLSearchParams({
       content,

@@ -23,7 +23,14 @@ export type {
 } from './types';
 
 // TODO: Export components (Phase 2)
-export { ChatHeader, ChatMessage, ChatInput, ConversationHistory, LoadingIndicator, ExecutingIndicator } from './components';
+export {
+  ChatHeader,
+  ChatMessage,
+  ChatInput,
+  ConversationHistory,
+  LoadingIndicator,
+  ExecutingIndicator,
+} from './components';
 
 // Export hooks (Phase 3)
 export { useChatPersistence } from './hooks/useChatPersistence';
@@ -32,7 +39,13 @@ export { useChatMessages } from './hooks/useChatMessages';
 export { useAutoScroll } from './hooks/useAutoScroll';
 
 // Export constants (Phase 4)
-export { BTN_BASE, BTN_BLUE_INACTIVE, BTN_BLUE_ACTIVE, BTN_NEU_WHITE, INITIAL_MESSAGE } from './constants';
+export {
+  BTN_BASE,
+  BTN_BLUE_INACTIVE,
+  BTN_BLUE_ACTIVE,
+  BTN_NEU_WHITE,
+  INITIAL_MESSAGE,
+} from './constants';
 
 // Export utilities (Phase 4)
 export { extractPrompts } from './utils';

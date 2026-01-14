@@ -86,12 +86,7 @@ export const PLATFORM_CONFIGS: Record<PlatformType, PlatformStudioConfig> = {
     displayName: 'YouTube Studio',
     brandColor: '#FF0000',
     brandGradient: 'from-red-600 to-red-700',
-    formats: [
-      'youtube_shorts',
-      'youtube_thumbnail',
-      'youtube_banner',
-      'youtube_endscreen',
-    ],
+    formats: ['youtube_shorts', 'youtube_thumbnail', 'youtube_banner', 'youtube_endscreen'],
     publishButton: {
       label: 'Upload to YouTube',
       icon: 'upload',
@@ -237,7 +232,7 @@ export function getPlatformConfig(platformId: PlatformType): PlatformStudioConfi
  */
 export function shouldShowProfileOverlay(
   platformId: PlatformType,
-  formatId: CanvasFormatId
+  formatId: CanvasFormatId,
 ): boolean {
   const config = PLATFORM_CONFIGS[platformId];
   return config.profileOverlayFormats.includes(formatId);

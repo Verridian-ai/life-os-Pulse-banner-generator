@@ -60,7 +60,6 @@ export default defineConfig(({ mode }) => {
       // Expose all VITE_* environment variables from both .env files and process.env (Vercel)
       // Note: Vite automatically exposes VITE_* variables.
       // Removing manual defines for keys to let Vite handle it automatically.
-
     },
     resolve: {
       alias: {
@@ -96,7 +95,15 @@ export default defineConfig(({ mode }) => {
       globals: true,
       environment: 'jsdom',
       setupFiles: './src/setupTests.ts',
-      exclude: ['**/node_modules/**', 'dist/**', '.idea/**', '.git/**', '.cache/**', '.auto-claude/**', '**/*.spec.ts'],
+      exclude: [
+        '**/node_modules/**',
+        'dist/**',
+        '.idea/**',
+        '.git/**',
+        '.cache/**',
+        '.auto-claude/**',
+        '**/*.spec.ts',
+      ],
       coverage: {
         provider: 'v8',
         reporter: ['text', 'json', 'html', 'lcov'],

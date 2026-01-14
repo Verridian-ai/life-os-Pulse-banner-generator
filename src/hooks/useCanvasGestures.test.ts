@@ -16,7 +16,7 @@ vi.mock('../utils/haptics', () => ({
 // Helper to create mock touch events
 function createTouchEvent(
   type: 'touchstart' | 'touchmove' | 'touchend',
-  touches: Array<{ identifier: number; clientX: number; clientY: number }>
+  touches: Array<{ identifier: number; clientX: number; clientY: number }>,
 ): React.TouchEvent {
   const touchList = {
     length: touches.length,
@@ -60,7 +60,7 @@ describe('useCanvasGestures', () => {
           zoom: 1,
           setZoom: mockSetZoom,
           canvasRef: mockCanvasRef,
-        })
+        }),
       );
 
       expect(result.current.gestureHandlers).toHaveProperty('onTouchStart');
@@ -74,7 +74,7 @@ describe('useCanvasGestures', () => {
           zoom: 1,
           setZoom: mockSetZoom,
           canvasRef: mockCanvasRef,
-        })
+        }),
       );
 
       expect(result.current.gestureState).toBeDefined();
@@ -92,7 +92,7 @@ describe('useCanvasGestures', () => {
           canvasRef: mockCanvasRef,
           minZoom: 0.5,
           maxZoom: 3.0,
-        })
+        }),
       );
 
       // Start pinch gesture
@@ -130,7 +130,7 @@ describe('useCanvasGestures', () => {
           canvasRef: mockCanvasRef,
           minZoom: 0.5,
           maxZoom: 3.0,
-        })
+        }),
       );
 
       // Start pinch gesture
@@ -169,7 +169,7 @@ describe('useCanvasGestures', () => {
           setZoom: mockSetZoom,
           canvasRef: mockCanvasRef,
           enabled: false,
-        })
+        }),
       );
 
       const touchStart = createTouchEvent('touchstart', [
@@ -190,7 +190,7 @@ describe('useCanvasGestures', () => {
           zoom: 1,
           setZoom: mockSetZoom,
           canvasRef: mockCanvasRef,
-        })
+        }),
       );
 
       const touchStart = createTouchEvent('touchstart', [
@@ -213,7 +213,7 @@ describe('useCanvasGestures', () => {
           zoom: 1,
           setZoom: mockSetZoom,
           canvasRef: mockCanvasRef,
-        })
+        }),
       );
 
       const touchStart = createTouchEvent('touchstart', [
@@ -234,7 +234,7 @@ describe('useCanvasGestures', () => {
           zoom: 1,
           setZoom: mockSetZoom,
           canvasRef: mockCanvasRef,
-        })
+        }),
       );
 
       const touchStart = createTouchEvent('touchstart', [
@@ -266,7 +266,7 @@ describe('useCanvasGestures', () => {
           setZoom: mockSetZoom,
           canvasRef: mockCanvasRef,
           onZoomChange,
-        })
+        }),
       );
 
       // Start pinch gesture
@@ -306,7 +306,7 @@ describe('useCanvasGestures', () => {
           zoom: 1,
           setZoom: mockSetZoom,
           canvasRef: mockCanvasRef,
-        })
+        }),
       );
 
       // Start a gesture

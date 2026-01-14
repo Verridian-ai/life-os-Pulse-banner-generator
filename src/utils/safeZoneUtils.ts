@@ -67,7 +67,7 @@ export function getElementBounds(element: BannerElement): ElementBounds {
  */
 function rectRectOverlap(
   elem: ElementBounds,
-  zone: SafeZoneConfig
+  zone: SafeZoneConfig,
 ): { overlaps: boolean; percentage: number } {
   const elemRight = elem.x + elem.width;
   const elemBottom = elem.y + elem.height;
@@ -75,8 +75,7 @@ function rectRectOverlap(
   const zoneBottom = zone.y + zone.height;
 
   // Check for no overlap
-  if (elem.x >= zoneRight || elemRight <= zone.x ||
-      elem.y >= zoneBottom || elemBottom <= zone.y) {
+  if (elem.x >= zoneRight || elemRight <= zone.x || elem.y >= zoneBottom || elemBottom <= zone.y) {
     return { overlaps: false, percentage: 0 };
   }
 
@@ -97,7 +96,7 @@ function rectRectOverlap(
  */
 function rectCircleOverlap(
   elem: ElementBounds,
-  zone: SafeZoneConfig
+  zone: SafeZoneConfig,
 ): { overlaps: boolean; percentage: number } {
   const radius = zone.radius || Math.min(zone.width, zone.height) / 2;
   const circleCenterX = zone.x;
@@ -132,7 +131,7 @@ function rectCircleOverlap(
  */
 export function checkZoneOverlap(
   element: BannerElement,
-  zone: SafeZoneConfig
+  zone: SafeZoneConfig,
 ): { overlaps: boolean; percentage: number } {
   const bounds = getElementBounds(element);
 
@@ -183,11 +182,9 @@ function generateWarningMessage(
   elementName: string,
   zone: SafeZoneConfig,
   overlapPercentage: number,
-  viewport: 'desktop' | 'mobile' | 'both'
+  viewport: 'desktop' | 'mobile' | 'both',
 ): string {
-  const viewportText = viewport === 'both'
-    ? 'on all devices'
-    : `on ${viewport}`;
+  const viewportText = viewport === 'both' ? 'on all devices' : `on ${viewport}`;
 
   if (overlapPercentage >= 75) {
     return `"${elementName}" is mostly hidden by ${zone.label} ${viewportText}`;
@@ -206,7 +203,7 @@ export function calculateSafePosition(
   element: BannerElement,
   zone: SafeZoneConfig,
   canvasWidth: number,
-  canvasHeight: number
+  canvasHeight: number,
 ): { x: number; y: number } {
   const bounds = getElementBounds(element);
 
@@ -241,7 +238,8 @@ export function calculateSafePosition(
     // Element bounds used for escape distance calculations
     const _elemRight = bounds.x + bounds.width;
     const _elemBottom = bounds.y + bounds.height;
-    void _elemRight; void _elemBottom; // Reserved for future edge-case handling
+    void _elemRight;
+    void _elemBottom; // Reserved for future edge-case handling
 
     // Calculate distances to each edge
     const escapeLeft = bounds.x - zone.x + bounds.width;
@@ -274,7 +272,7 @@ export function calculateSafePosition(
  */
 export function analyzeElementSafety(
   elements: BannerElement[],
-  format: CanvasFormat | null
+  format: CanvasFormat | null,
 ): SafeZoneWarning[] {
   if (!format || !format.safeZones || format.safeZones.length === 0) {
     return [];
@@ -292,16 +290,12 @@ export function analyzeElementSafety(
       if (overlaps && percentage > 0) {
         const viewport = getViewportAffected(zone);
         const dangerLevel = getDangerLevel(percentage);
-        const elementName = element.type === 'text'
-          ? element.content.slice(0, 20) + (element.content.length > 20 ? '...' : '')
-          : 'Image';
+        const elementName =
+          element.type === 'text'
+            ? element.content.slice(0, 20) + (element.content.length > 20 ? '...' : '')
+            : 'Image';
 
-        const suggestedPosition = calculateSafePosition(
-          element,
-          zone,
-          format.width,
-          format.height
-        );
+        const suggestedPosition = calculateSafePosition(element, zone, format.width, format.height);
 
         warnings.push({
           elementId: element.id,
@@ -333,5 +327,5 @@ export function getDangerZones(format: CanvasFormat | null): SafeZoneConfig[] {
  */
 export function getSafeContentZones(format: CanvasFormat | null): SafeZoneConfig[] {
   if (!format || !format.safeZones) return [];
-  return format.safeZones.filter(z => !isDangerZone(z));
+  return format.safeZones.filter((z) => !isDangerZone(z));
 }

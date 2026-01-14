@@ -6,16 +6,26 @@ import { getReplicateService } from '../replicate';
 export class GenerateBackgroundCommand implements Command {
   name = 'generate_background';
 
-  async execute(args: { prompt: string; quality?: string }, context: CommandContext): Promise<ActionResult> {
+  async execute(
+    args: { prompt: string; quality?: string },
+    context: CommandContext,
+  ): Promise<ActionResult> {
     const { prompt, quality = '2K' } = args;
 
     // Enhance prompt for single cohesive banner
     const bannerPrompt = `A single cohesive LinkedIn banner image, ultra-wide 4:1 aspect ratio, seamless professional design. ${prompt}. One unified scene, no panels, no divisions, no collage, no tiled sections.`;
 
-    console.log('[GenerateBackgroundCommand] Generating:', { originalPrompt: prompt, enhancedPrompt: bannerPrompt, quality });
+    console.log('[GenerateBackgroundCommand] Generating:', {
+      originalPrompt: prompt,
+      enhancedPrompt: bannerPrompt,
+      quality,
+    });
 
     try {
-      const imageUrl = await generateImage(bannerPrompt, [], quality as '1K' | '2K' | '4K', { width: 1584, height: 396 });
+      const imageUrl = await generateImage(bannerPrompt, [], quality as '1K' | '2K' | '4K', {
+        width: 1584,
+        height: 396,
+      });
 
       if (!imageUrl) {
         return { success: false, error: 'Image generation returned null' };
@@ -47,7 +57,10 @@ export class GenerateBackgroundCommand implements Command {
 export class MagicEditCommand implements Command {
   name = 'magic_edit';
 
-  async execute(args: { base_image: string; prompt: string; mask?: string }, context: CommandContext): Promise<ActionResult> {
+  async execute(
+    args: { base_image: string; prompt: string; mask?: string },
+    context: CommandContext,
+  ): Promise<ActionResult> {
     const { base_image, prompt, mask } = args;
     const imageUrl = base_image || context.getCanvasImage();
 
@@ -133,7 +146,10 @@ export class RemoveBackgroundCommand implements Command {
 export class UpscaleImageCommand implements Command {
   name = 'upscale_image';
 
-  async execute(args: { image_url: string; mode?: string }, context: CommandContext): Promise<ActionResult> {
+  async execute(
+    args: { image_url: string; mode?: string },
+    context: CommandContext,
+  ): Promise<ActionResult> {
     const { image_url, mode = 'balanced' } = args;
 
     console.log('[UpscaleImageCommand] Upscaling:', { image_url, mode });
@@ -238,7 +254,10 @@ export class EnhanceFaceCommand implements Command {
 export class BatchUpscaleCommand implements Command {
   name = 'batch_upscale';
 
-  async execute(args: { image_urls: string[]; mode?: string }, context: CommandContext): Promise<ActionResult> {
+  async execute(
+    args: { image_urls: string[]; mode?: string },
+    context: CommandContext,
+  ): Promise<ActionResult> {
     const { image_urls, mode = 'balanced' } = args;
     const results: string[] = [];
     const errors: string[] = [];

@@ -11,9 +11,7 @@ Object.defineProperty(window, 'matchMedia', {
   value: vi.fn().mockImplementation((query: string) => {
     // Parse max-width from query like "(max-width: 767px)"
     const maxWidthMatch = query.match(/max-width:\s*(\d+)px/);
-    const matches = maxWidthMatch
-      ? window.innerWidth <= parseInt(maxWidthMatch[1], 10)
-      : false;
+    const matches = maxWidthMatch ? window.innerWidth <= parseInt(maxWidthMatch[1], 10) : false;
 
     return {
       matches,
@@ -43,7 +41,7 @@ vi.mock('../ui/EnhanceButton', () => ({
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   EnhanceButton: ({ prompt, onEnhanced, showLabel }: any) => (
     <button
-      data-testid="enhance-button-mock"
+      data-testid='enhance-button-mock'
       onClick={() => onEnhanced('enhanced: ' + prompt)}
       disabled={!prompt}
     >
@@ -54,7 +52,7 @@ vi.mock('../ui/EnhanceButton', () => ({
 
 // Mock ImageToolsPanel
 vi.mock('./ImageToolsPanel', () => ({
-  ImageToolsPanel: () => <div data-testid="image-tools-panel">Image Tools Panel</div>,
+  ImageToolsPanel: () => <div data-testid='image-tools-panel'>Image Tools Panel</div>,
 }));
 
 // Mock usePromptEnhance hook
@@ -174,7 +172,7 @@ describe('GenerativeSidebar', () => {
     });
 
     it('displays the current prompt value', () => {
-      renderWithProvider(<GenerativeSidebar {...defaultProps} genPrompt="Test prompt" />);
+      renderWithProvider(<GenerativeSidebar {...defaultProps} genPrompt='Test prompt' />);
       const textarea = screen.getByPlaceholderText(/Describe your vision/i) as HTMLTextAreaElement;
       expect(textarea.value).toBe('Test prompt');
     });
@@ -199,7 +197,7 @@ describe('GenerativeSidebar', () => {
     });
 
     it('highlights the selected size', () => {
-      renderWithProvider(<GenerativeSidebar {...defaultProps} genSize="2K" />);
+      renderWithProvider(<GenerativeSidebar {...defaultProps} genSize='2K' />);
       const size2K = screen.getByText('2K');
       expect(size2K).toHaveClass('bg-zinc-700');
     });
@@ -266,7 +264,13 @@ describe('GenerativeSidebar', () => {
     it('calls onMagicPrompt when clicked', async () => {
       const user = userEvent.setup();
       const onMagicPrompt = vi.fn();
-      renderWithProvider(<GenerativeSidebar {...defaultProps} onMagicPrompt={onMagicPrompt} refImages={['image1.jpg']} />);
+      renderWithProvider(
+        <GenerativeSidebar
+          {...defaultProps}
+          onMagicPrompt={onMagicPrompt}
+          refImages={['image1.jpg']}
+        />,
+      );
 
       const magicPromptButton = screen.getByText('Magic Prompt');
       await user.click(magicPromptButton);
@@ -281,18 +285,24 @@ describe('GenerativeSidebar', () => {
     });
 
     it('is enabled when reference images are provided', () => {
-      renderWithProvider(<GenerativeSidebar {...defaultProps} refImages={['image1.jpg', 'image2.jpg']} />);
+      renderWithProvider(
+        <GenerativeSidebar {...defaultProps} refImages={['image1.jpg', 'image2.jpg']} />,
+      );
       const magicPromptButton = screen.getByText('Magic Prompt').closest('button');
       expect(magicPromptButton).not.toBeDisabled();
     });
 
     it('shows loading state during magic prompting', () => {
-      renderWithProvider(<GenerativeSidebar {...defaultProps} isMagicPrompting={true} refImages={['image1.jpg']} />);
+      renderWithProvider(
+        <GenerativeSidebar {...defaultProps} isMagicPrompting={true} refImages={['image1.jpg']} />,
+      );
       expect(screen.getByText('Analyzing...')).toBeInTheDocument();
     });
 
     it('disables button during magic prompting', () => {
-      renderWithProvider(<GenerativeSidebar {...defaultProps} isMagicPrompting={true} refImages={['image1.jpg']} />);
+      renderWithProvider(
+        <GenerativeSidebar {...defaultProps} isMagicPrompting={true} refImages={['image1.jpg']} />,
+      );
       const magicPromptButton = screen.getByText('Analyzing...').closest('button');
       expect(magicPromptButton).toBeDisabled();
     });
@@ -307,7 +317,7 @@ describe('GenerativeSidebar', () => {
     it('calls enhance function when clicked', async () => {
       const user = userEvent.setup();
       mockEnhance.mockClear();
-      renderWithProvider(<GenerativeSidebar {...defaultProps} genPrompt="test prompt" />);
+      renderWithProvider(<GenerativeSidebar {...defaultProps} genPrompt='test prompt' />);
 
       const enhanceButton = screen.getByText('Prompt Enhance');
       await user.click(enhanceButton);
@@ -319,24 +329,28 @@ describe('GenerativeSidebar', () => {
     });
 
     it('is disabled when prompt is empty', () => {
-      renderWithProvider(<GenerativeSidebar {...defaultProps} genPrompt="" />);
+      renderWithProvider(<GenerativeSidebar {...defaultProps} genPrompt='' />);
       const enhanceButton = screen.getByText('Prompt Enhance').closest('button');
       expect(enhanceButton).toBeDisabled();
     });
 
     it('is enabled when prompt has content', () => {
-      renderWithProvider(<GenerativeSidebar {...defaultProps} genPrompt="test prompt" />);
+      renderWithProvider(<GenerativeSidebar {...defaultProps} genPrompt='test prompt' />);
       const enhanceButton = screen.getByText('Prompt Enhance').closest('button');
       expect(enhanceButton).not.toBeDisabled();
     });
 
     it('shows loading state during enhancement', () => {
-      renderWithProvider(<GenerativeSidebar {...defaultProps} isEnhancing={true} genPrompt="test prompt" />);
+      renderWithProvider(
+        <GenerativeSidebar {...defaultProps} isEnhancing={true} genPrompt='test prompt' />,
+      );
       expect(screen.getByText('Enhancing...')).toBeInTheDocument();
     });
 
     it('disables button during enhancement', () => {
-      renderWithProvider(<GenerativeSidebar {...defaultProps} isEnhancing={true} genPrompt="test prompt" />);
+      renderWithProvider(
+        <GenerativeSidebar {...defaultProps} isEnhancing={true} genPrompt='test prompt' />,
+      );
       const enhanceButton = screen.getByText('Enhancing...').closest('button');
       expect(enhanceButton).toBeDisabled();
     });
@@ -436,9 +450,11 @@ describe('GenerativeSidebar', () => {
   describe('Suggestion Chips', () => {
     it('renders generation suggestions when provided', () => {
       const suggestions = ['Sunset over ocean', 'Mountain landscape', 'City skyline'];
-      renderWithProvider(<GenerativeSidebar {...defaultProps} generationSuggestions={suggestions} />);
+      renderWithProvider(
+        <GenerativeSidebar {...defaultProps} generationSuggestions={suggestions} />,
+      );
 
-      suggestions.forEach(suggestion => {
+      suggestions.forEach((suggestion) => {
         expect(screen.getByText(suggestion)).toBeInTheDocument();
       });
     });
@@ -447,7 +463,13 @@ describe('GenerativeSidebar', () => {
       const user = userEvent.setup();
       const setGenPrompt = vi.fn();
       const suggestions = ['Sunset over ocean'];
-      renderWithProvider(<GenerativeSidebar {...defaultProps} generationSuggestions={suggestions} setGenPrompt={setGenPrompt} />);
+      renderWithProvider(
+        <GenerativeSidebar
+          {...defaultProps}
+          generationSuggestions={suggestions}
+          setGenPrompt={setGenPrompt}
+        />,
+      );
 
       await user.click(screen.getByText('Sunset over ocean'));
       expect(setGenPrompt).toHaveBeenCalledWith('Sunset over ocean');
@@ -456,11 +478,13 @@ describe('GenerativeSidebar', () => {
     it('renders magic edit suggestions in edit mode', async () => {
       const user = userEvent.setup();
       const suggestions = ['Add a laptop', 'Change lighting'];
-      renderWithProvider(<GenerativeSidebar {...defaultProps} magicEditSuggestions={suggestions} />);
+      renderWithProvider(
+        <GenerativeSidebar {...defaultProps} magicEditSuggestions={suggestions} />,
+      );
 
       await user.click(screen.getByText('Edit'));
 
-      suggestions.forEach(suggestion => {
+      suggestions.forEach((suggestion) => {
         expect(screen.getByText(suggestion)).toBeInTheDocument();
       });
     });
@@ -469,7 +493,13 @@ describe('GenerativeSidebar', () => {
       const user = userEvent.setup();
       const setEditPrompt = vi.fn();
       const suggestions = ['Add a laptop'];
-      renderWithProvider(<GenerativeSidebar {...defaultProps} magicEditSuggestions={suggestions} setEditPrompt={setEditPrompt} />);
+      renderWithProvider(
+        <GenerativeSidebar
+          {...defaultProps}
+          magicEditSuggestions={suggestions}
+          setEditPrompt={setEditPrompt}
+        />,
+      );
 
       await user.click(screen.getByText('Edit'));
       await user.click(screen.getByText('Add a laptop'));
@@ -661,13 +691,17 @@ describe('GenerativeSidebar', () => {
     });
 
     it('shows spinner during magic prompting', () => {
-      renderWithProvider(<GenerativeSidebar {...defaultProps} isMagicPrompting={true} refImages={['img.jpg']} />);
+      renderWithProvider(
+        <GenerativeSidebar {...defaultProps} isMagicPrompting={true} refImages={['img.jpg']} />,
+      );
       const spinner = screen.getByText('Analyzing...').previousSibling;
       expect(spinner).toHaveClass('animate-spin');
     });
 
     it('shows spinner during enhancement', () => {
-      renderWithProvider(<GenerativeSidebar {...defaultProps} isEnhancing={true} genPrompt="test" />);
+      renderWithProvider(
+        <GenerativeSidebar {...defaultProps} isEnhancing={true} genPrompt='test' />,
+      );
       const spinner = screen.getByText('Enhancing...').previousSibling;
       expect(spinner).toHaveClass('animate-spin');
     });
@@ -713,7 +747,7 @@ describe('GenerativeSidebar', () => {
     });
 
     it('disables buttons appropriately', () => {
-      renderWithProvider(<GenerativeSidebar {...defaultProps} isGenerating={true} genPrompt="" />);
+      renderWithProvider(<GenerativeSidebar {...defaultProps} isGenerating={true} genPrompt='' />);
 
       const generateButton = screen.getByText('CREATING...').closest('button');
       expect(generateButton).toBeDisabled();
@@ -725,13 +759,13 @@ describe('GenerativeSidebar', () => {
 
   describe('Edge Cases', () => {
     it('handles empty string prompts', () => {
-      renderWithProvider(<GenerativeSidebar {...defaultProps} genPrompt="" />);
+      renderWithProvider(<GenerativeSidebar {...defaultProps} genPrompt='' />);
       const textarea = screen.getByPlaceholderText(/Describe your vision/i) as HTMLTextAreaElement;
       expect(textarea.value).toBe('');
     });
 
     it('handles whitespace-only prompts', () => {
-      renderWithProvider(<GenerativeSidebar {...defaultProps} genPrompt="   " />);
+      renderWithProvider(<GenerativeSidebar {...defaultProps} genPrompt='   ' />);
       const enhanceButton = screen.getByText('Prompt Enhance').closest('button');
       expect(enhanceButton).toBeDisabled();
     });

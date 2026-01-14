@@ -211,10 +211,10 @@ export function ProfileOverlay({
       onClick={!profilePic && profileOverlayConfig.interactive ? onProfileUpload : undefined}
     >
       {profilePic ? (
-        <div className="w-full h-full relative pointer-events-none">
+        <div className='w-full h-full relative pointer-events-none'>
           <img
             src={profilePic}
-            alt="Profile"
+            alt='Profile'
             className={`w-full h-full object-cover select-none ${
               profileDrag ? 'transition-none' : 'transition-transform duration-100 ease-out'
             }`}
@@ -223,54 +223,54 @@ export function ProfileOverlay({
             }}
           />
           {/* Action buttons - Appears on hover */}
-          <div className="absolute inset-0 bg-black/60 backdrop-blur-sm opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center pointer-events-auto">
+          <div className='absolute inset-0 bg-black/60 backdrop-blur-sm opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center pointer-events-auto'>
             <button
-              type="button"
+              type='button'
               onClick={handleFaceEnhance}
               disabled={isEnhancingProfile}
-              className="bg-gradient-to-br from-pink-600 to-pink-700 hover:from-pink-500 hover:to-pink-600 disabled:from-pink-800 disabled:to-pink-800 text-white font-bold py-2 px-4 rounded-xl transition flex items-center justify-center gap-2 text-xs shadow-lg"
-              title="Enhance face quality with AI"
+              className='bg-gradient-to-br from-pink-600 to-pink-700 hover:from-pink-500 hover:to-pink-600 disabled:from-pink-800 disabled:to-pink-800 text-white font-bold py-2 px-4 rounded-xl transition flex items-center justify-center gap-2 text-xs shadow-lg'
+              title='Enhance face quality with AI'
             >
               {isEnhancingProfile ? (
                 <>
-                  <span className="material-icons text-sm animate-spin">refresh</span>
+                  <span className='material-icons text-sm animate-spin'>refresh</span>
                   Enhancing...
                 </>
               ) : (
                 <>
-                  <span className="material-icons text-sm">face</span>
+                  <span className='material-icons text-sm'>face</span>
                   Face Enhance
                 </>
               )}
             </button>
 
             <button
-              type="button"
+              type='button'
               onClick={handleRemoveBg}
               disabled={isRemovingBgProfile}
-              className="bg-gradient-to-br from-indigo-600 to-indigo-700 hover:from-indigo-500 hover:to-indigo-600 disabled:from-indigo-800 disabled:to-indigo-800 text-white font-bold py-2 px-4 rounded-xl transition flex items-center justify-center gap-2 text-xs shadow-lg"
-              title="Remove Background"
+              className='bg-gradient-to-br from-indigo-600 to-indigo-700 hover:from-indigo-500 hover:to-indigo-600 disabled:from-indigo-800 disabled:to-indigo-800 text-white font-bold py-2 px-4 rounded-xl transition flex items-center justify-center gap-2 text-xs shadow-lg'
+              title='Remove Background'
             >
               {isRemovingBgProfile ? (
-                <span className="material-icons text-sm animate-spin">refresh</span>
+                <span className='material-icons text-sm animate-spin'>refresh</span>
               ) : (
-                <span className="material-icons text-sm">branding_watermark</span>
+                <span className='material-icons text-sm'>branding_watermark</span>
               )}
             </button>
           </div>
         </div>
       ) : (
-        <div className="w-full h-full flex flex-col items-center justify-center text-slate-400 font-bold text-center leading-tight select-none">
-          <span className="material-icons text-3xl block md:text-4xl lg:text-5xl mb-1">
+        <div className='w-full h-full flex flex-col items-center justify-center text-slate-400 font-bold text-center leading-tight select-none'>
+          <span className='material-icons text-3xl block md:text-4xl lg:text-5xl mb-1'>
             {profileOverlayConfig.interactive ? 'add_photo_alternate' : 'person'}
           </span>
-          <span className="text-[8px] md:text-[10px] lg:text-sm whitespace-nowrap px-2">
+          <span className='text-[8px] md:text-[10px] lg:text-sm whitespace-nowrap px-2'>
             {profileOverlayConfig.label}
           </span>
           {profileOverlayConfig.interactive ? (
-            <span className="mt-1 text-[8px] text-slate-500">Click to upload</span>
+            <span className='mt-1 text-[8px] text-slate-500'>Click to upload</span>
           ) : (
-            <div className="mt-2 text-[10px] text-slate-300 opacity-60">
+            <div className='mt-2 text-[10px] text-slate-300 opacity-60'>
               Ctrl+Scroll to Zoom
               <br />
               Drag to Move

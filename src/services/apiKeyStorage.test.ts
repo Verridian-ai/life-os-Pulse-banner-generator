@@ -343,10 +343,13 @@ describe('API Key Storage Service', () => {
 
       await migrateLocalStorageToNeon();
 
-      expect(api.post).toHaveBeenCalledWith('/api/user/api-keys', expect.objectContaining({
-        geminiApiKey: 'sk-gemini-only',
-        llmProvider: 'gemini',
-      }));
+      expect(api.post).toHaveBeenCalledWith(
+        '/api/user/api-keys',
+        expect.objectContaining({
+          geminiApiKey: 'sk-gemini-only',
+          llmProvider: 'gemini',
+        }),
+      );
     });
 
     it('should handle migration failures gracefully', async () => {

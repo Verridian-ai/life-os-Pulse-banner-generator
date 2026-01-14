@@ -41,7 +41,10 @@ type ElementsProviderProps = {
 };
 
 // Provider Component
-export function ElementsProvider({ children, value: initialValue }: ElementsProviderProps): React.ReactElement {
+export function ElementsProvider({
+  children,
+  value: initialValue,
+}: ElementsProviderProps): React.ReactElement {
   const [elements, setElements] = useState<BannerElement[]>([]);
   const [selectedElementId, setSelectedElementId] = useState<string | null>(null);
 

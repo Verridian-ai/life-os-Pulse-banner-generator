@@ -33,61 +33,60 @@ export class ErrorBoundary extends Component<Props, State> {
     if (this.state.hasError) {
       return (
         <div
-          className="fixed inset-0 z-[9999] flex items-center justify-center bg-stone-950 p-6 font-sans"
-          role="alert"
-          aria-live="assertive"
+          className='fixed inset-0 z-[9999] flex items-center justify-center bg-stone-950 p-6 font-sans'
+          role='alert'
+          aria-live='assertive'
         >
-          <div className="bg-stone-900 border border-white/10 rounded-3xl p-8 md:p-12 max-w-lg w-full shadow-[0_0_50px_rgba(0,0,0,0.5)] text-center space-y-6">
-
+          <div className='bg-stone-900 border border-white/10 rounded-3xl p-8 md:p-12 max-w-lg w-full shadow-[0_0_50px_rgba(0,0,0,0.5)] text-center space-y-6'>
             {/* Icon */}
-            <div className="inline-flex items-center justify-center w-20 h-20 rounded-full bg-orange-500/10 border border-orange-500/20 mb-2">
-              <span className="material-icons text-5xl text-orange-500">error_outline</span>
+            <div className='inline-flex items-center justify-center w-20 h-20 rounded-full bg-orange-500/10 border border-orange-500/20 mb-2'>
+              <span className='material-icons text-5xl text-orange-500'>error_outline</span>
             </div>
 
             {/* Content */}
-            <div className="space-y-2">
-              <h1 className="text-2xl md:text-3xl font-black uppercase tracking-tight text-white">
+            <div className='space-y-2'>
+              <h1 className='text-2xl md:text-3xl font-black uppercase tracking-tight text-white'>
                 Something unexpected happened
               </h1>
-              <p className="text-stone-400 text-sm md:text-base leading-relaxed">
+              <p className='text-stone-400 text-sm md:text-base leading-relaxed'>
                 We've logged this issue and are looking into it. Please try reloading the page.
               </p>
             </div>
 
             {/* Actions */}
-            <div className="space-y-3 pt-4">
+            <div className='space-y-3 pt-4'>
               <button
                 onClick={() => window.location.reload()}
                 className={`${BTN_PRIMARY} w-full py-4 flex items-center justify-center gap-2 touch-manipulation`}
               >
-                <span className="material-icons text-sm">refresh</span>
+                <span className='material-icons text-sm'>refresh</span>
                 Try Again
               </button>
 
               <a
-                href="/"
+                href='/'
                 className={`${BTN_SECONDARY} w-full py-4 flex items-center justify-center gap-2 touch-manipulation no-underline`}
               >
-                <span className="material-icons text-sm">dashboard</span>
+                <span className='material-icons text-sm'>dashboard</span>
                 Go to Dashboard
               </a>
             </div>
 
             {/* Debug Details */}
-            <div className="pt-6 border-t border-white/5">
+            <div className='pt-6 border-t border-white/5'>
               <button
-                onClick={() => this.setState(s => ({ showDetails: !s.showDetails }))}
-                className="text-xs text-stone-500 hover:text-stone-300 transition-colors uppercase tracking-widest font-bold flex items-center justify-center gap-2 mx-auto"
+                onClick={() => this.setState((s) => ({ showDetails: !s.showDetails }))}
+                className='text-xs text-stone-500 hover:text-stone-300 transition-colors uppercase tracking-widest font-bold flex items-center justify-center gap-2 mx-auto'
               >
                 {this.state.showDetails ? 'Hide' : 'Show'} Technical Details
-                <span className="material-icons text-[10px]">
+                <span className='material-icons text-[10px]'>
                   {this.state.showDetails ? 'expand_less' : 'expand_more'}
                 </span>
               </button>
 
               {this.state.showDetails && (
-                <div className="mt-4 text-left p-4 bg-black/50 rounded-xl overflow-auto max-h-60 border border-white/5">
-                  <pre className="text-[10px] text-red-400 font-mono whitespace-pre-wrap">
+                <div className='mt-4 text-left p-4 bg-black/50 rounded-xl overflow-auto max-h-60 border border-white/5'>
+                  <pre className='text-[10px] text-red-400 font-mono whitespace-pre-wrap'>
                     {this.state.error && this.state.error.toString()}
                     <br />
                     {this.state.errorInfo && this.state.errorInfo.componentStack}
@@ -97,10 +96,15 @@ export class ErrorBoundary extends Component<Props, State> {
             </div>
 
             {/* Support Link */}
-            <div className="text-xs text-stone-600">
-              Need help? <a href="mailto:support@nanobanna.com" className="text-orange-500 hover:text-orange-400 underline">Report Issue</a>
+            <div className='text-xs text-stone-600'>
+              Need help?{' '}
+              <a
+                href='mailto:support@nanobanna.com'
+                className='text-orange-500 hover:text-orange-400 underline'
+              >
+                Report Issue
+              </a>
             </div>
-
           </div>
         </div>
       );

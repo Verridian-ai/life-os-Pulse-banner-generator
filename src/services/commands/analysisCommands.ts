@@ -20,7 +20,10 @@ export class SuggestPromptsCommand implements Command {
 export class WriteEnhancedPromptCommand implements Command {
   name = 'write_enhanced_prompt';
 
-  async execute(args: { prompt: string; industry?: string; style?: string }, context: CommandContext): Promise<ActionResult> {
+  async execute(
+    args: { prompt: string; industry?: string; style?: string },
+    context: CommandContext,
+  ): Promise<ActionResult> {
     const { prompt, industry, style } = args;
 
     console.log('[WriteEnhancedPromptCommand] Enhancing:', { prompt, industry, style });
@@ -132,7 +135,10 @@ export class AnalyzeBannerCommand implements Command {
 export class CompareImagesCommand implements Command {
   name = 'compare_images';
 
-  async execute(args: { target_image?: string; reference_image?: string }, context: CommandContext): Promise<ActionResult> {
+  async execute(
+    args: { target_image?: string; reference_image?: string },
+    context: CommandContext,
+  ): Promise<ActionResult> {
     const targetImage = args.target_image || context.getCanvasImage();
     const referenceImage = args.reference_image; // In future, fallback to history
 
@@ -148,7 +154,8 @@ export class CompareImagesCommand implements Command {
     if (!referenceImage) {
       return {
         success: false,
-        error: 'No reference image provided. Please provide a reference image URL to compare against.',
+        error:
+          'No reference image provided. Please provide a reference image URL to compare against.',
       };
     }
 
@@ -215,7 +222,7 @@ export class BatchAnalyzeCommand implements Command {
             error: error instanceof Error ? error.message : 'Analysis failed',
           };
         }
-      })
+      }),
     );
 
     for (const result of settledResults) {
@@ -224,21 +231,25 @@ export class BatchAnalyzeCommand implements Command {
       }
     }
 
-    const successCount = results.filter(r => r.analysis !== null).length;
-    const errorCount = results.filter(r => r.error).length;
+    const successCount = results.filter((r) => r.analysis !== null).length;
+    const errorCount = results.filter((r) => r.error).length;
 
     console.log(`[BatchAnalyzeCommand] Complete: ${successCount} success, ${errorCount} errors`);
 
     return {
       success: successCount > 0,
-      result: JSON.stringify({
-        summary: {
-          total: image_urls.length,
-          success: successCount,
-          errors: errorCount,
+      result: JSON.stringify(
+        {
+          summary: {
+            total: image_urls.length,
+            success: successCount,
+            errors: errorCount,
+          },
+          results,
         },
-        results,
-      }, null, 2),
+        null,
+        2,
+      ),
       action: 'batch_analyze',
     };
   }
@@ -247,11 +258,14 @@ export class BatchAnalyzeCommand implements Command {
 export class BatchCompareCommand implements Command {
   name = 'batch_compare';
 
-  async execute(args: {
-    image_urls: string[];
-    reference_image: string;
-    criteria?: string;
-  }, _context: CommandContext): Promise<ActionResult> {
+  async execute(
+    args: {
+      image_urls: string[];
+      reference_image: string;
+      criteria?: string;
+    },
+    _context: CommandContext,
+  ): Promise<ActionResult> {
     const { image_urls, reference_image, criteria } = args;
 
     if (!image_urls || image_urls.length === 0) {
@@ -264,7 +278,8 @@ export class BatchCompareCommand implements Command {
     if (!reference_image) {
       return {
         success: false,
-        error: 'No reference image provided. Please provide a reference image URL to compare against.',
+        error:
+          'No reference image provided. Please provide a reference image URL to compare against.',
       };
     }
 
@@ -294,7 +309,7 @@ export class BatchCompareCommand implements Command {
             error: error instanceof Error ? error.message : 'Comparison failed',
           };
         }
-      })
+      }),
     );
 
     for (const result of settledResults) {
@@ -303,8 +318,8 @@ export class BatchCompareCommand implements Command {
       }
     }
 
-    const successCount = results.filter(r => r.comparison !== null).length;
-    const errorCount = results.filter(r => r.error).length;
+    const successCount = results.filter((r) => r.comparison !== null).length;
+    const errorCount = results.filter((r) => r.error).length;
 
     // Sort results by similarity if comparisons contain scores
     const sortedResults = results.sort((a, b) => {
@@ -317,16 +332,20 @@ export class BatchCompareCommand implements Command {
 
     return {
       success: successCount > 0,
-      result: JSON.stringify({
-        summary: {
-          total: image_urls.length,
-          success: successCount,
-          errors: errorCount,
-          referenceImage: reference_image,
-          criteria: criteria || 'default',
+      result: JSON.stringify(
+        {
+          summary: {
+            total: image_urls.length,
+            success: successCount,
+            errors: errorCount,
+            referenceImage: reference_image,
+            criteria: criteria || 'default',
+          },
+          results: sortedResults,
         },
-        results: sortedResults,
-      }, null, 2),
+        null,
+        2,
+      ),
       action: 'batch_compare',
     };
   }

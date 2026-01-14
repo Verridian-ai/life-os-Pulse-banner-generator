@@ -1,6 +1,14 @@
 // Auth Context - Global authentication state management
 
-import React, { createContext, useContext, useState, useEffect, useRef, useCallback, ReactNode } from 'react';
+import React, {
+  createContext,
+  useContext,
+  useState,
+  useEffect,
+  useRef,
+  useCallback,
+  ReactNode,
+} from 'react';
 import type { AppUser, AppSession } from '../services/auth';
 import {
   signUp as authSignUp,
@@ -8,7 +16,6 @@ import {
   signInWithGoogle as authSignInWithGoogle,
   signInWithGitHub as authSignInWithGitHub,
   signInWithMicrosoft as authSignInWithMicrosoft,
-
   signInWithSSO as authSignInWithSSO,
   signInWithAuthKit as authSignInWithAuthKit,
   sendMagicLink as authSendMagicLink,
@@ -73,8 +80,14 @@ interface AuthContextType {
   signInWithGitHub: (returnTo?: string) => Promise<{ error: Error | null }>;
   signInWithMicrosoft: (returnTo?: string) => Promise<{ error: Error | null }>;
   signInWithSSO: (domain?: string, returnTo?: string) => Promise<{ error: Error | null }>;
-  signInWithAuthKit: (returnTo?: string, screen?: 'sign-in' | 'sign-up') => Promise<{ error: Error | null }>;
-  sendMagicLink: (email: string, returnTo?: string) => Promise<{ success: boolean; error: Error | null }>;
+  signInWithAuthKit: (
+    returnTo?: string,
+    screen?: 'sign-in' | 'sign-up',
+  ) => Promise<{ error: Error | null }>;
+  sendMagicLink: (
+    email: string,
+    returnTo?: string,
+  ) => Promise<{ success: boolean; error: Error | null }>;
   signOut: () => Promise<{ error: Error | null }>;
   refreshProfile: () => Promise<void>;
   markOnboardingComplete: () => Promise<void>;
@@ -297,23 +310,26 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   }, [authUser]);
 
   // Sign out (internal helper)
-  const performSignOut = useCallback(async (reason?: string) => {
-    // Clear timers
-    if (idleTimerRef.current) clearTimeout(idleTimerRef.current);
-    if (warningTimerRef.current) clearTimeout(warningTimerRef.current);
+  const performSignOut = useCallback(
+    async (reason?: string) => {
+      // Clear timers
+      if (idleTimerRef.current) clearTimeout(idleTimerRef.current);
+      if (warningTimerRef.current) clearTimeout(warningTimerRef.current);
 
-    const { error } = await authSignOut();
-    if (!error) {
-      setAuthUser(null);
-      setUser(null);
-      setSession(null);
-      setShowTimeoutWarning(false);
-      if (reason) {
-        toast.info(reason);
+      const { error } = await authSignOut();
+      if (!error) {
+        setAuthUser(null);
+        setUser(null);
+        setSession(null);
+        setShowTimeoutWarning(false);
+        if (reason) {
+          toast.info(reason);
+        }
       }
-    }
-    return { error };
-  }, [toast]);
+      return { error };
+    },
+    [toast],
+  );
 
   // Reset timers
   const resetTimers = useCallback(() => {
@@ -327,7 +343,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     if (warningTimerRef.current) clearTimeout(warningTimerRef.current);
 
     const durationMs = timeoutDuration * 60 * 1000;
-    const warningTimeMs = Math.max(0, durationMs - (2 * 60 * 1000)); // 2 mins before
+    const warningTimeMs = Math.max(0, durationMs - 2 * 60 * 1000); // 2 mins before
 
     // Only set warning timer if duration is sufficient (> 2 mins)
     if (durationMs > 2 * 60 * 1000) {
@@ -466,8 +482,8 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       await updateUserPreferences({
         preferences: {
           ...existingApiPrefs,
-          session_timeout: minutes
-        }
+          session_timeout: minutes,
+        },
       });
 
       toast.success(`Session timeout set to ${minutes === 0 ? 'Disabled' : minutes + ' minutes'}`);
@@ -537,19 +553,28 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   };
 
   // Sign in with Enterprise SSO
-  const signInWithSSO = async (domain?: string, returnTo?: string): Promise<{ error: Error | null }> => {
+  const signInWithSSO = async (
+    domain?: string,
+    returnTo?: string,
+  ): Promise<{ error: Error | null }> => {
     const result = await authSignInWithSSO(domain, returnTo);
     return { error: result.error };
   };
 
   // Sign in with AuthKit (Hosted UI)
-  const signInWithAuthKit = async (returnTo?: string, screen?: 'sign-in' | 'sign-up'): Promise<{ error: Error | null }> => {
+  const signInWithAuthKit = async (
+    returnTo?: string,
+    screen?: 'sign-in' | 'sign-up',
+  ): Promise<{ error: Error | null }> => {
     const result = await authSignInWithAuthKit(returnTo, screen);
     return { error: result.error };
   };
 
   // Send Magic Link
-  const sendMagicLink = async (email: string, returnTo?: string): Promise<{ success: boolean; error: Error | null }> => {
+  const sendMagicLink = async (
+    email: string,
+    returnTo?: string,
+  ): Promise<{ success: boolean; error: Error | null }> => {
     const result = await authSendMagicLink(email, returnTo);
     return { success: result.success, error: result.error };
   };

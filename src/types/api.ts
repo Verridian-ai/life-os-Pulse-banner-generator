@@ -6,13 +6,7 @@
  * Union of all allowed request body types for type safety
  * Includes object type to accept any serializable object structure
  */
-export type RequestBody =
-  | Record<string, unknown>
-  | object
-  | FormData
-  | string
-  | null
-  | undefined;
+export type RequestBody = Record<string, unknown> | object | FormData | string | null | undefined;
 
 /**
  * User Profile Response

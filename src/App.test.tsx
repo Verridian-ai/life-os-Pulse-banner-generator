@@ -10,11 +10,11 @@ Object.defineProperty(window, 'matchMedia', {
     matches: false,
     media: query,
     onchange: null,
-    addListener: () => { }, // Deprecated
-    removeListener: () => { }, // Deprecated
-    addEventListener: () => { },
-    removeEventListener: () => { },
-    dispatchEvent: () => { },
+    addListener: () => {}, // Deprecated
+    removeListener: () => {}, // Deprecated
+    addEventListener: () => {},
+    removeEventListener: () => {},
+    dispatchEvent: () => {},
   }),
 });
 
@@ -29,7 +29,7 @@ describe('App', () => {
         <AuthProvider>
           <App />
         </AuthProvider>
-      </ToastProvider>
+      </ToastProvider>,
     );
     // Check for a known element, e.g., the sidebar title or something generic
     // Since App is complex and requires context which it provides itself, this should work.

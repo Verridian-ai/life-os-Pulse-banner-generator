@@ -36,7 +36,7 @@ export interface LayoutOptimizationResult {
 export function scaleElementsProportionally(
   elements: BannerElement[],
   oldFormat: CanvasFormat,
-  newFormat: CanvasFormat
+  newFormat: CanvasFormat,
 ): BannerElement[] {
   if (elements.length === 0) {
     return elements;
@@ -64,9 +64,7 @@ export function scaleElementsProportionally(
 
     // Scale font size with bounds
     if (el.fontSize !== undefined) {
-      scaled.fontSize = Math.round(
-        Math.max(12, Math.min(200, el.fontSize * avgRatio))
-      );
+      scaled.fontSize = Math.round(Math.max(12, Math.min(200, el.fontSize * avgRatio)));
     }
 
     return scaled;
@@ -85,7 +83,7 @@ export function scaleElementsProportionally(
  */
 export function validateAndFixSafeZones(
   elements: BannerElement[],
-  format: CanvasFormat
+  format: CanvasFormat,
 ): LayoutOptimizationResult {
   if (elements.length === 0) {
     return {
@@ -145,7 +143,7 @@ export function validateAndFixSafeZones(
 export function optimizeLayoutForFormat(
   elements: BannerElement[],
   oldFormat: CanvasFormat,
-  newFormat: CanvasFormat
+  newFormat: CanvasFormat,
 ): LayoutOptimizationResult {
   if (elements.length === 0) {
     return {

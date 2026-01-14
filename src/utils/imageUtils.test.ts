@@ -47,24 +47,27 @@ describe('imageUtils', () => {
     });
 
     // Mock Image constructor
-    vi.stubGlobal('Image', class MockImage {
-      width = 1000;
-      height = 500;
-      crossOrigin = '';
-      src = '';
-      onload: (() => void) | null = null;
-      onerror: ((error: unknown) => void) | null = null;
+    vi.stubGlobal(
+      'Image',
+      class MockImage {
+        width = 1000;
+        height = 500;
+        crossOrigin = '';
+        src = '';
+        onload: (() => void) | null = null;
+        onerror: ((error: unknown) => void) | null = null;
 
-      constructor() {
-        mockImageInstances.push(this as unknown as HTMLImageElement);
-        // Simulate async image loading
-        setTimeout(() => {
-          if (this.src && this.onload) {
-            this.onload();
-          }
-        }, 0);
-      }
-    });
+        constructor() {
+          mockImageInstances.push(this as unknown as HTMLImageElement);
+          // Simulate async image loading
+          setTimeout(() => {
+            if (this.src && this.onload) {
+              this.onload();
+            }
+          }, 0);
+        }
+      },
+    );
   });
 
   afterEach(() => {
@@ -92,20 +95,23 @@ describe('imageUtils', () => {
 
     it('rejects on image load error', async () => {
       // Override Image to simulate error
-      vi.stubGlobal('Image', class MockErrorImage {
-        crossOrigin = '';
-        src = '';
-        onload: (() => void) | null = null;
-        onerror: ((error: unknown) => void) | null = null;
+      vi.stubGlobal(
+        'Image',
+        class MockErrorImage {
+          crossOrigin = '';
+          src = '';
+          onload: (() => void) | null = null;
+          onerror: ((error: unknown) => void) | null = null;
 
-        constructor() {
-          setTimeout(() => {
-            if (this.onerror) {
-              this.onerror(new Error('Load failed'));
-            }
-          }, 0);
-        }
-      });
+          constructor() {
+            setTimeout(() => {
+              if (this.onerror) {
+                this.onerror(new Error('Load failed'));
+              }
+            }, 0);
+          }
+        },
+      );
 
       await expect(getImageDimensions('invalid-url')).rejects.toThrow('Failed to load image');
     });
@@ -119,42 +125,48 @@ describe('imageUtils', () => {
 
     it('returns false when dimensions match LinkedIn banner', async () => {
       // Override Image to return LinkedIn dimensions
-      vi.stubGlobal('Image', class MockLinkedInImage {
-        width = LINKEDIN_BANNER_WIDTH;
-        height = LINKEDIN_BANNER_HEIGHT;
-        crossOrigin = '';
-        src = '';
-        onload: (() => void) | null = null;
-        onerror: ((error: unknown) => void) | null = null;
+      vi.stubGlobal(
+        'Image',
+        class MockLinkedInImage {
+          width = LINKEDIN_BANNER_WIDTH;
+          height = LINKEDIN_BANNER_HEIGHT;
+          crossOrigin = '';
+          src = '';
+          onload: (() => void) | null = null;
+          onerror: ((error: unknown) => void) | null = null;
 
-        constructor() {
-          setTimeout(() => {
-            if (this.onload) {
-              this.onload();
-            }
-          }, 0);
-        }
-      });
+          constructor() {
+            setTimeout(() => {
+              if (this.onload) {
+                this.onload();
+              }
+            }, 0);
+          }
+        },
+      );
 
       const result = await needsResize('data:image/png;base64,test');
       expect(result).toBe(false);
     });
 
     it('returns true on error (assumes resize needed)', async () => {
-      vi.stubGlobal('Image', class MockErrorImage {
-        crossOrigin = '';
-        src = '';
-        onload: (() => void) | null = null;
-        onerror: ((error: unknown) => void) | null = null;
+      vi.stubGlobal(
+        'Image',
+        class MockErrorImage {
+          crossOrigin = '';
+          src = '';
+          onload: (() => void) | null = null;
+          onerror: ((error: unknown) => void) | null = null;
 
-        constructor() {
-          setTimeout(() => {
-            if (this.onerror) {
-              this.onerror(new Error('Load failed'));
-            }
-          }, 0);
-        }
-      });
+          constructor() {
+            setTimeout(() => {
+              if (this.onerror) {
+                this.onerror(new Error('Load failed'));
+              }
+            }, 0);
+          }
+        },
+      );
 
       const result = await needsResize('invalid-url');
       expect(result).toBe(true);
@@ -188,29 +200,32 @@ describe('imageUtils', () => {
       mockCanvas.getContext = vi.fn().mockReturnValue(null);
 
       await expect(
-        resizeToCanvasDimensions('data:image/png;base64,test', 800, 600)
+        resizeToCanvasDimensions('data:image/png;base64,test', 800, 600),
       ).rejects.toThrow('Failed to get canvas context');
     });
 
     it('rejects on image load error', async () => {
-      vi.stubGlobal('Image', class MockErrorImage {
-        crossOrigin = '';
-        src = '';
-        onload: (() => void) | null = null;
-        onerror: ((error: unknown) => void) | null = null;
+      vi.stubGlobal(
+        'Image',
+        class MockErrorImage {
+          crossOrigin = '';
+          src = '';
+          onload: (() => void) | null = null;
+          onerror: ((error: unknown) => void) | null = null;
 
-        constructor() {
-          setTimeout(() => {
-            if (this.onerror) {
-              this.onerror(new Error('Load failed'));
-            }
-          }, 0);
-        }
-      });
+          constructor() {
+            setTimeout(() => {
+              if (this.onerror) {
+                this.onerror(new Error('Load failed'));
+              }
+            }, 0);
+          }
+        },
+      );
 
-      await expect(
-        resizeToCanvasDimensions('invalid-url', 800, 600)
-      ).rejects.toThrow('Failed to load image for resizing');
+      await expect(resizeToCanvasDimensions('invalid-url', 800, 600)).rejects.toThrow(
+        'Failed to load image for resizing',
+      );
     });
   });
 
@@ -251,25 +266,28 @@ describe('imageUtils', () => {
       mockCanvas.getContext = vi.fn().mockReturnValue(null);
 
       await expect(urlToBase64('https://example.com/image.png')).rejects.toThrow(
-        'Failed to get canvas context'
+        'Failed to get canvas context',
       );
     });
 
     it('rejects on image load error', async () => {
-      vi.stubGlobal('Image', class MockErrorImage {
-        crossOrigin = '';
-        src = '';
-        onload: (() => void) | null = null;
-        onerror: ((error: unknown) => void) | null = null;
+      vi.stubGlobal(
+        'Image',
+        class MockErrorImage {
+          crossOrigin = '';
+          src = '';
+          onload: (() => void) | null = null;
+          onerror: ((error: unknown) => void) | null = null;
 
-        constructor() {
-          setTimeout(() => {
-            if (this.onerror) {
-              this.onerror(new Error('Load failed'));
-            }
-          }, 0);
-        }
-      });
+          constructor() {
+            setTimeout(() => {
+              if (this.onerror) {
+                this.onerror(new Error('Load failed'));
+              }
+            }, 0);
+          }
+        },
+      );
 
       await expect(urlToBase64('invalid-url')).rejects.toThrow('Failed to load image from URL');
     });
@@ -306,23 +324,26 @@ describe('imageUtils', () => {
     });
 
     it('rejects on image load error', async () => {
-      vi.stubGlobal('Image', class MockErrorImage {
-        crossOrigin = '';
-        src = '';
-        onload: (() => void) | null = null;
-        onerror: ((error: unknown) => void) | null = null;
+      vi.stubGlobal(
+        'Image',
+        class MockErrorImage {
+          crossOrigin = '';
+          src = '';
+          onload: (() => void) | null = null;
+          onerror: ((error: unknown) => void) | null = null;
 
-        constructor() {
-          setTimeout(() => {
-            if (this.onerror) {
-              this.onerror(new Error('Load failed'));
-            }
-          }, 0);
-        }
-      });
+          constructor() {
+            setTimeout(() => {
+              if (this.onerror) {
+                this.onerror(new Error('Load failed'));
+              }
+            }, 0);
+          }
+        },
+      );
 
       await expect(prepareForOutpainting('invalid-url')).rejects.toThrow(
-        'Failed to load image for outpainting prep'
+        'Failed to load image for outpainting prep',
       );
     });
   });

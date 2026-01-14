@@ -56,16 +56,13 @@ export function useChatMessages({
    */
   const actionExecutor = useMemo(
     () =>
-      new ActionExecutor(
-        (imageUrl, type) => {
-          console.log('[useChatMessages] Applying action result:', { imageUrl, type });
-          if (type === 'background') {
-            setBgImage(imageUrl);
-          }
-          // TODO: Handle profile updates if needed
-        },
-        false,
-      ),
+      new ActionExecutor((imageUrl, type) => {
+        console.log('[useChatMessages] Applying action result:', { imageUrl, type });
+        if (type === 'background') {
+          setBgImage(imageUrl);
+        }
+        // TODO: Handle profile updates if needed
+      }, false),
     [setBgImage],
   );
 
@@ -168,7 +165,7 @@ export function useChatMessages({
     // Ensure conversation exists and save user message (async, don't block)
     let activeConvId: string | null = null;
     if (userId) {
-      activeConvId = await persistenceRef.current?.ensureConversation(mode) || null;
+      activeConvId = (await persistenceRef.current?.ensureConversation(mode)) || null;
       if (activeConvId && persistenceRef.current) {
         // Save user message in background
         persistenceRef.current.saveMessage(activeConvId, 'user', userMsg, {
@@ -196,7 +193,10 @@ export function useChatMessages({
 
       if (mode === 'design') {
         // Use ChatAgent for design mode
-        const response = await chatAgent.chat(userMsg, currentImages.length > 0 ? currentImages : undefined);
+        const response = await chatAgent.chat(
+          userMsg,
+          currentImages.length > 0 ? currentImages : undefined,
+        );
 
         // Save assistant message if we have a conversation
         if (activeConvId && response && persistenceRef.current) {
@@ -256,13 +256,25 @@ export function useChatMessages({
       if (e instanceof Error) {
         const errorText = e.message.toLowerCase();
 
-        if (errorText.includes('api key') || errorText.includes('unauthorized') || errorText.includes('401')) {
+        if (
+          errorText.includes('api key') ||
+          errorText.includes('unauthorized') ||
+          errorText.includes('401')
+        ) {
           errorMessage =
             '⚠️ API KEY ERROR\n\nYour API key is invalid or expired. Please check your API keys in Settings (gear icon in the top-right corner).';
-        } else if (errorText.includes('quota') || errorText.includes('rate limit') || errorText.includes('429')) {
+        } else if (
+          errorText.includes('quota') ||
+          errorText.includes('rate limit') ||
+          errorText.includes('429')
+        ) {
           errorMessage =
             '⚠️ QUOTA EXCEEDED\n\nYour API quota has been exceeded or rate limit reached. Please try again later or check your API provider dashboard.';
-        } else if (errorText.includes('network') || errorText.includes('fetch') || errorText.includes('connection')) {
+        } else if (
+          errorText.includes('network') ||
+          errorText.includes('fetch') ||
+          errorText.includes('connection')
+        ) {
           errorMessage =
             '⚠️ NETWORK ERROR\n\nFailed to connect to the AI service. Please check your internet connection and try again.';
         } else {
@@ -297,4 +309,3 @@ export function useChatMessages({
     agentSuggestions,
   };
 }
-

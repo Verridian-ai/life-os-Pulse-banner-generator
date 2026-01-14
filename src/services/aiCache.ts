@@ -5,7 +5,7 @@ import {
   computeSimHash,
   hammingDistance,
   bigintToString,
-  stringToBigint
+  stringToBigint,
 } from '../utils/stringUtils';
 
 const DEFAULT_TTL = 1000 * 60 * 60; // 1 hour
@@ -69,7 +69,9 @@ export const aiCache = {
     }
 
     if (bestMatchKey && bestScore >= SIMILARITY_THRESHOLD) {
-      console.log(`[AI Cache] LSH hit: "${key.slice(0, 50)}..." matched (${(bestScore * 100).toFixed(1)}%)`);
+      console.log(
+        `[AI Cache] LSH hit: "${key.slice(0, 50)}..." matched (${(bestScore * 100).toFixed(1)}%)`,
+      );
       return aiCacheStorage.get<string>(bestMatchKey);
     }
 
@@ -94,6 +96,5 @@ export const aiCache = {
 
   clear: (): void => {
     aiCacheStorage.clear();
-  }
+  },
 };
-

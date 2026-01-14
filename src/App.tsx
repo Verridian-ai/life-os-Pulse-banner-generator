@@ -9,18 +9,34 @@ import { BottomNav } from './components/shell/BottomNav';
 import { useAdminAuth } from './features/admin/hooks/useAdminAuth';
 
 // New Signal UI components
-const DashboardPage = lazy(() => import('./pages/DashboardPage').then(m => ({ default: m.DashboardPage })));
+const DashboardPage = lazy(() =>
+  import('./pages/DashboardPage').then((m) => ({ default: m.DashboardPage })),
+);
 import type { PlatformType } from './components/dashboard';
 import { DashboardSkeleton } from './components/dashboard/DashboardSkeleton';
 
 // Lazy load heavy components for code splitting
 const ChatInterface = lazy(() => import('./components/ChatInterface'));
 const ImageGallery = lazy(() => import('./components/features/ImageGallery'));
-const TemplateLibrary = lazy(() => import('./components/features/TemplateLibrary').then(m => ({ default: m.TemplateLibrary })));
-const QuickGenerateWizard = lazy(() => import('./components/features/QuickGenerateWizard').then(m => ({ default: m.QuickGenerateWizard })));
-const UserPreferencesModal = lazy(() => import('./components/features/UserPreferencesModal').then(m => ({ default: m.UserPreferencesModal })));
-const AuthModal = lazy(() => import('./components/auth/AuthModal').then(m => ({ default: m.AuthModal })));
-const LinkedInContentStudio = lazy(() => import('./features/linkedin-posts').then(m => ({ default: m.LinkedInContentStudio })));
+const TemplateLibrary = lazy(() =>
+  import('./components/features/TemplateLibrary').then((m) => ({ default: m.TemplateLibrary })),
+);
+const QuickGenerateWizard = lazy(() =>
+  import('./components/features/QuickGenerateWizard').then((m) => ({
+    default: m.QuickGenerateWizard,
+  })),
+);
+const UserPreferencesModal = lazy(() =>
+  import('./components/features/UserPreferencesModal').then((m) => ({
+    default: m.UserPreferencesModal,
+  })),
+);
+const AuthModal = lazy(() =>
+  import('./components/auth/AuthModal').then((m) => ({ default: m.AuthModal })),
+);
+const LinkedInContentStudio = lazy(() =>
+  import('./features/linkedin-posts').then((m) => ({ default: m.LinkedInContentStudio })),
+);
 
 // Platform-specific studios - lazy loaded
 const LinkedInStudio = lazy(() => import('./components/studios/LinkedInStudio'));
@@ -31,35 +47,69 @@ const TikTokStudio = lazy(() => import('./components/studios/TikTokStudio'));
 const XStudio = lazy(() => import('./components/studios/XStudio'));
 
 // Admin pages (lazy loaded)
-const AdminDashboard = lazy(() => import('./features/admin').then(m => ({ default: m.AdminDashboard })));
-const AdminUsers = lazy(() => import('./features/admin').then(m => ({ default: m.AdminUsers })));
-const AdminAgents = lazy(() => import('./features/admin').then(m => ({ default: m.AdminAgents })));
-const AdminModels = lazy(() => import('./features/admin').then(m => ({ default: m.AdminModels })));
-const AdminObservability = lazy(() => import('./features/admin').then(m => ({ default: m.AdminObservability })));
-const AdminFinance = lazy(() => import('./features/admin').then(m => ({ default: m.AdminFinance })));
-const AdminAudit = lazy(() => import('./features/admin/pages/AdminAudit').then(m => ({ default: m.AdminAudit })));
-const AssetGenerator = lazy(() => import('./features/admin/AssetGenerator').then(m => ({ default: m.AssetGenerator })));
+const AdminDashboard = lazy(() =>
+  import('./features/admin').then((m) => ({ default: m.AdminDashboard })),
+);
+const AdminUsers = lazy(() => import('./features/admin').then((m) => ({ default: m.AdminUsers })));
+const AdminAgents = lazy(() =>
+  import('./features/admin').then((m) => ({ default: m.AdminAgents })),
+);
+const AdminModels = lazy(() =>
+  import('./features/admin').then((m) => ({ default: m.AdminModels })),
+);
+const AdminObservability = lazy(() =>
+  import('./features/admin').then((m) => ({ default: m.AdminObservability })),
+);
+const AdminFinance = lazy(() =>
+  import('./features/admin').then((m) => ({ default: m.AdminFinance })),
+);
+const AdminAudit = lazy(() =>
+  import('./features/admin/pages/AdminAudit').then((m) => ({ default: m.AdminAudit })),
+);
+const AssetGenerator = lazy(() =>
+  import('./features/admin/AssetGenerator').then((m) => ({ default: m.AssetGenerator })),
+);
 
 // Design System (lazy loaded)
-const DesignSystemPage = lazy(() => import('./features/design-system/DesignSystemPage').then(m => ({ default: m.DesignSystemPage })));
+const DesignSystemPage = lazy(() =>
+  import('./features/design-system/DesignSystemPage').then((m) => ({
+    default: m.DesignSystemPage,
+  })),
+);
 
 // Onboarding (lazy loaded)
-const OnboardingPage = lazy(() => import('./features/onboarding').then(m => ({ default: m.OnboardingPage })));
+const OnboardingPage = lazy(() =>
+  import('./features/onboarding').then((m) => ({ default: m.OnboardingPage })),
+);
 
 // Landing page (lazy loaded)
-const LandingPage = lazy(() => import('./features/landing').then(m => ({ default: m.LandingPage })));
+const LandingPage = lazy(() =>
+  import('./features/landing').then((m) => ({ default: m.LandingPage })),
+);
 
 // Auth pages (lazy loaded)
-const LoginPageAuthKit = lazy(() => import('./pages/auth/LoginPage').then(m => ({ default: m.LoginPage })));
-const SignupPageAuthKit = lazy(() => import('./pages/auth/SignupPage').then(m => ({ default: m.SignupPage })));
-const InvitePage = lazy(() => import('./pages/auth/InvitePage').then(m => ({ default: m.InvitePage })));
-const ResetPasswordPage = lazy(() => import('./pages/auth/ResetPasswordPage').then(m => ({ default: m.ResetPasswordPage })));
+const LoginPageAuthKit = lazy(() =>
+  import('./pages/auth/LoginPage').then((m) => ({ default: m.LoginPage })),
+);
+const SignupPageAuthKit = lazy(() =>
+  import('./pages/auth/SignupPage').then((m) => ({ default: m.SignupPage })),
+);
+const InvitePage = lazy(() =>
+  import('./pages/auth/InvitePage').then((m) => ({ default: m.InvitePage })),
+);
+const ResetPasswordPage = lazy(() =>
+  import('./pages/auth/ResetPasswordPage').then((m) => ({ default: m.ResetPasswordPage })),
+);
 
 import {
   ScreenReaderAnnouncerProvider,
   useAnnouncer,
 } from './components/accessibility/ScreenReaderAnnouncer';
-import { useKeyboardShortcuts, getDefaultShortcuts, useKeyboardShortcutsModal } from './hooks/useKeyboardShortcuts';
+import {
+  useKeyboardShortcuts,
+  getDefaultShortcuts,
+  useKeyboardShortcutsModal,
+} from './hooks/useKeyboardShortcuts';
 import { KeyboardShortcutsModal } from './components/features/KeyboardShortcutsModal';
 import { OnboardingTour } from './components/features/OnboardingTour';
 import { Tab, StudioMode, FORMAT_CATEGORIES } from './constants';
@@ -138,8 +188,8 @@ const AppContent = () => {
         duration: 10000,
         action: {
           label: 'RETRY',
-          onClick: () => voiceAgent.retry()
-        }
+          onClick: () => voiceAgent.retry(),
+        },
       });
       announce(`Voice error: ${voiceAgent.errorMessage}`, 'assertive');
     }
@@ -232,7 +282,7 @@ const AppContent = () => {
 
   const handleDuplicate = React.useCallback(() => {
     if (selectedElementId) {
-      const el = elements.find(e => e.id === selectedElementId);
+      const el = elements.find((e) => e.id === selectedElementId);
       if (el) {
         const duplicate = {
           ...el,
@@ -246,30 +296,33 @@ const AppContent = () => {
     }
   }, [selectedElementId, elements, addElement, announce]);
 
-  const handleZoom = React.useCallback((factor: number) => {
-    if (selectedElementId) {
-      const el = elements.find(e => e.id === selectedElementId);
-      if (el) {
-        if (el.type === 'text') {
-          const currentSize = el.fontSize || 48;
-          updateElement(el.id, { fontSize: Math.max(12, Math.round(currentSize * factor)) });
-        } else {
-          const currentW = el.width || 100;
-          const currentH = el.height || 100;
-          const newW = currentW * factor;
-          const newH = currentH * factor;
-          const dw = newW - currentW;
-          const dh = newH - currentH;
-          updateElement(el.id, {
-            width: newW,
-            height: newH,
-            x: el.x - dw / 2,
-            y: el.y - dh / 2
-          });
+  const handleZoom = React.useCallback(
+    (factor: number) => {
+      if (selectedElementId) {
+        const el = elements.find((e) => e.id === selectedElementId);
+        if (el) {
+          if (el.type === 'text') {
+            const currentSize = el.fontSize || 48;
+            updateElement(el.id, { fontSize: Math.max(12, Math.round(currentSize * factor)) });
+          } else {
+            const currentW = el.width || 100;
+            const currentH = el.height || 100;
+            const newW = currentW * factor;
+            const newH = currentH * factor;
+            const dw = newW - currentW;
+            const dh = newH - currentH;
+            updateElement(el.id, {
+              width: newW,
+              height: newH,
+              x: el.x - dw / 2,
+              y: el.y - dh / 2,
+            });
+          }
         }
       }
-    }
-  }, [selectedElementId, elements, updateElement]);
+    },
+    [selectedElementId, elements, updateElement],
+  );
 
   const handleToggleSafeZones = React.useCallback(() => {
     setShowSafeZones(!showSafeZones);
@@ -303,8 +356,8 @@ const AppContent = () => {
     setIsEditing(true);
     setTimeout(() => setIsEditing(false), 2000);
   };
-  const handleRemoveBg = () => { };
-  const handleUpscale = () => { };
+  const handleRemoveBg = () => {};
+  const handleUpscale = () => {};
 
   // Refresh handler
   const handleRefresh = React.useCallback(async () => {
@@ -314,7 +367,7 @@ const AppContent = () => {
       if (activeTab === Tab.STUDIO) {
         if (studioMode === StudioMode.MEDIA) {
           // Refresh gallery by incrementing refresh key to force re-mount
-          setRefreshKey(prev => prev + 1);
+          setRefreshKey((prev) => prev + 1);
           toast.info('Gallery refreshed');
         } else if (studioMode === StudioMode.CANVAS) {
           // Refresh canvas - could clear/reset canvas state if needed
@@ -332,8 +385,7 @@ const AppContent = () => {
       }
 
       // Simulate network delay for UX
-      await new Promise(resolve => setTimeout(resolve, 500));
-
+      await new Promise((resolve) => setTimeout(resolve, 500));
     } catch (error) {
       console.error('Refresh failed:', error);
       toast.error('Refresh failed');
@@ -343,80 +395,84 @@ const AppContent = () => {
   }, [activeTab, studioMode, toast]);
 
   // Keyboard shortcuts - intentionally excludes handler dependencies to prevent re-renders
-  const shortcuts = React.useMemo(() => getDefaultShortcuts({
-    onGenerate: () => {
-      if (!genPrompt.trim()) {
-        announce('Please enter a prompt first', 'assertive');
-        return;
-      }
-      handleGenerate();
-    },
-    onToggleHistory: () => {
-      setShowChatHistory((prev) => !prev);
-      announce(showChatHistory ? 'Chat history closed' : 'Chat history opened', 'polite');
-    },
-    onClosePanels: () => {
-      setShowChatHistory(false);
-      setShowPreferences(false);
-      closeModal();
-    },
-    onOpenSettings: () => {
-      setShowPreferences(true);
-      announce('Preferences opened', 'polite');
-    },
-    onSwitchToStudio: () => {
-      setActiveTab(Tab.STUDIO);
-      announce('Switched to Studio tab', 'polite');
-    },
-    onSwitchToGallery: () => {
-      setActiveTab(Tab.STUDIO);
-      setStudioMode(StudioMode.MEDIA);
-      announce('Switched to Gallery', 'polite');
-    },
-    onSwitchToBrainstorm: () => {
-      setActiveTab(Tab.BRAINSTORM);
-      announce('Switched to Brainstorm tab', 'polite');
-    },
-    onShowShortcuts: () => {
-      openModal();
-      announce('Keyboard shortcuts modal opened', 'polite');
-    },
-    onUndo: () => {
-      undo();
-      announce('Undo', 'polite');
-    },
-    onRedo: () => {
-      redo();
-      announce('Redo', 'polite');
-    },
-    onDelete: handleDelete,
-    onDuplicate: handleDuplicate,
-    onZoomIn: () => handleZoom(1.1),
-    onZoomOut: () => handleZoom(0.9),
-    onToggleSafeZones: handleToggleSafeZones,
-    onExport: handleExport,
-    onSave: () => {
-      // Basic save notification since we don't have a backend save project yet beyond gallery
-      toast.info('Design auto-saved to session');
-      announce('Design saved', 'polite');
-    },
-    onToggleVoice: toggleVoiceMode,
-  }), [
-    genPrompt,
-    showChatHistory,
-    announce,
-    openModal,
-    closeModal,
-    handleDelete,
-    handleDuplicate,
-    handleZoom,
-    handleToggleSafeZones,
-    handleExport,
-    toast,
-    toggleVoiceMode,
-    undo,
-    redo,
-  ]);
+  const shortcuts = React.useMemo(
+    () =>
+      getDefaultShortcuts({
+        onGenerate: () => {
+          if (!genPrompt.trim()) {
+            announce('Please enter a prompt first', 'assertive');
+            return;
+          }
+          handleGenerate();
+        },
+        onToggleHistory: () => {
+          setShowChatHistory((prev) => !prev);
+          announce(showChatHistory ? 'Chat history closed' : 'Chat history opened', 'polite');
+        },
+        onClosePanels: () => {
+          setShowChatHistory(false);
+          setShowPreferences(false);
+          closeModal();
+        },
+        onOpenSettings: () => {
+          setShowPreferences(true);
+          announce('Preferences opened', 'polite');
+        },
+        onSwitchToStudio: () => {
+          setActiveTab(Tab.STUDIO);
+          announce('Switched to Studio tab', 'polite');
+        },
+        onSwitchToGallery: () => {
+          setActiveTab(Tab.STUDIO);
+          setStudioMode(StudioMode.MEDIA);
+          announce('Switched to Gallery', 'polite');
+        },
+        onSwitchToBrainstorm: () => {
+          setActiveTab(Tab.BRAINSTORM);
+          announce('Switched to Brainstorm tab', 'polite');
+        },
+        onShowShortcuts: () => {
+          openModal();
+          announce('Keyboard shortcuts modal opened', 'polite');
+        },
+        onUndo: () => {
+          undo();
+          announce('Undo', 'polite');
+        },
+        onRedo: () => {
+          redo();
+          announce('Redo', 'polite');
+        },
+        onDelete: handleDelete,
+        onDuplicate: handleDuplicate,
+        onZoomIn: () => handleZoom(1.1),
+        onZoomOut: () => handleZoom(0.9),
+        onToggleSafeZones: handleToggleSafeZones,
+        onExport: handleExport,
+        onSave: () => {
+          // Basic save notification since we don't have a backend save project yet beyond gallery
+          toast.info('Design auto-saved to session');
+          announce('Design saved', 'polite');
+        },
+        onToggleVoice: toggleVoiceMode,
+      }),
+    [
+      genPrompt,
+      showChatHistory,
+      announce,
+      openModal,
+      closeModal,
+      handleDelete,
+      handleDuplicate,
+      handleZoom,
+      handleToggleSafeZones,
+      handleExport,
+      toast,
+      toggleVoiceMode,
+      undo,
+      redo,
+    ],
+  );
 
   useKeyboardShortcuts({
     shortcuts,
@@ -505,7 +561,10 @@ const AppContent = () => {
           onOpenAuth={() => setShowAuthModal(true)}
         />
         <Suspense fallback={null}>
-          <UserPreferencesModal isOpen={showPreferences} onClose={() => setShowPreferences(false)} />
+          <UserPreferencesModal
+            isOpen={showPreferences}
+            onClose={() => setShowPreferences(false)}
+          />
         </Suspense>
         <Suspense fallback={null}>
           <AuthModal
@@ -563,11 +622,7 @@ const AppContent = () => {
         isOpen={showInstructions}
         onClose={() => setShowInstructions(false)}
       />
-      <KeyboardShortcutsModal
-        isOpen={isModalOpen}
-        onClose={closeModal}
-        shortcuts={shortcuts}
-      />
+      <KeyboardShortcutsModal isOpen={isModalOpen} onClose={closeModal} shortcuts={shortcuts} />
       <Suspense fallback={null}>
         {showQuickGen && (
           <QuickGenerateWizard
@@ -586,20 +641,18 @@ const AppContent = () => {
 
         {activeTab === Tab.STUDIO && (
           <StudioShell
-            activeNavItem="studio"
+            activeNavItem='studio'
             isVoiceActive={isVoiceActive}
             onNavigate={(id) => {
               if (id === 'dashboard') handleBackToDashboard();
               else if (id === 'gallery') {
                 setActiveTab(Tab.STUDIO);
                 setStudioMode(StudioMode.MEDIA);
-              }
-              else if (id === 'brainstorm' || id === 'partner') setActiveTab(Tab.BRAINSTORM);
+              } else if (id === 'brainstorm' || id === 'partner') setActiveTab(Tab.BRAINSTORM);
               else if (id === 'studio') {
                 setActiveTab(Tab.STUDIO);
                 setStudioMode(StudioMode.CANVAS);
-              }
-              else if (id === 'quick-gen') handleGenerate();
+              } else if (id === 'quick-gen') handleGenerate();
               else if (id === 'voice') toggleVoiceMode();
               else if (id === 'help') openModal();
             }}
@@ -611,7 +664,13 @@ const AppContent = () => {
 
               {/* Canvas Mode - Platform-Specific Studios */}
               {studioMode === StudioMode.CANVAS && (
-                <Suspense fallback={<div className="flex-1 flex items-center justify-center"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div></div>}>
+                <Suspense
+                  fallback={
+                    <div className='flex-1 flex items-center justify-center'>
+                      <div className='animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500'></div>
+                    </div>
+                  }
+                >
                   {/* Route to platform-specific studio based on activePlatform */}
                   {activePlatform === 'linkedin' && (
                     <LinkedInStudio
@@ -738,27 +797,37 @@ const AppContent = () => {
 
               {/* LinkedIn Mode - Posts Studio */}
               {studioMode === StudioMode.LINKEDIN && (
-                <Suspense fallback={
-                  <div className="flex-1 p-8 space-y-6">
-                    <Skeleton height={40} width={200} />
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                      <Skeleton height={400} />
-                      <div className="space-y-4">
-                        <Skeleton height={100} />
-                        <Skeleton height={100} />
-                        <Skeleton height={100} />
+                <Suspense
+                  fallback={
+                    <div className='flex-1 p-8 space-y-6'>
+                      <Skeleton height={40} width={200} />
+                      <div className='grid grid-cols-1 md:grid-cols-2 gap-6'>
+                        <Skeleton height={400} />
+                        <div className='space-y-4'>
+                          <Skeleton height={100} />
+                          <Skeleton height={100} />
+                          <Skeleton height={100} />
+                        </div>
                       </div>
                     </div>
-                  </div>
-                }>
+                  }
+                >
                   <LinkedInContentStudio platform={activePlatform} />
                 </Suspense>
               )}
 
               {/* Template Library Mode */}
               {studioMode === StudioMode.TEMPLATES && (
-                <Suspense fallback={<div className="flex-1 p-8 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"><Skeleton height={250} /><Skeleton height={250} /><Skeleton height={250} /></div>}>
-                  <div className="flex-1 p-4 md:p-6 lg:p-8 overflow-hidden">
+                <Suspense
+                  fallback={
+                    <div className='flex-1 p-8 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6'>
+                      <Skeleton height={250} />
+                      <Skeleton height={250} />
+                      <Skeleton height={250} />
+                    </div>
+                  }
+                >
+                  <div className='flex-1 p-4 md:p-6 lg:p-8 overflow-hidden'>
                     <TemplateLibrary onClose={() => setStudioMode(StudioMode.CANVAS)} />
                   </div>
                 </Suspense>
@@ -766,12 +835,19 @@ const AppContent = () => {
 
               {/* Media Mode - Gallery */}
               {studioMode === StudioMode.MEDIA && (
-                <Suspense fallback={
-                  <div className="flex-1 p-8 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 overflow-hidden">
-                    {[...Array(8)].map((_, i) => <Skeleton height={200} key={i} />)}
-                  </div>
-                }>
-                  <ImageGallery key={refreshKey} onNavigateToStudio={() => setStudioMode(StudioMode.CANVAS)} />
+                <Suspense
+                  fallback={
+                    <div className='flex-1 p-8 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 overflow-hidden'>
+                      {[...Array(8)].map((_, i) => (
+                        <Skeleton height={200} key={i} />
+                      ))}
+                    </div>
+                  }
+                >
+                  <ImageGallery
+                    key={refreshKey}
+                    onNavigateToStudio={() => setStudioMode(StudioMode.CANVAS)}
+                  />
                 </Suspense>
               )}
             </div>
@@ -780,29 +856,31 @@ const AppContent = () => {
 
         {activeTab === Tab.BRAINSTORM && (
           <div className='flex-1 flex flex-col h-full relative z-10 p-3 sm:p-4 md:p-6 lg:p-8 overflow-hidden'>
-            <Suspense fallback={
-              <div className="flex-1 flex flex-col gap-4 p-6 bg-zinc-900/40 rounded-3xl border border-white/5">
-                <Skeleton height={40} width="100%" />
-                <div className="flex-1 flex flex-col gap-6 justify-end overflow-hidden py-4">
-                  <div className="flex gap-3">
-                    <Skeleton variant="circle" height={32} width={32} />
-                    <Skeleton height={60} width="60%" />
+            <Suspense
+              fallback={
+                <div className='flex-1 flex flex-col gap-4 p-6 bg-zinc-900/40 rounded-3xl border border-white/5'>
+                  <Skeleton height={40} width='100%' />
+                  <div className='flex-1 flex flex-col gap-6 justify-end overflow-hidden py-4'>
+                    <div className='flex gap-3'>
+                      <Skeleton variant='circle' height={32} width={32} />
+                      <Skeleton height={60} width='60%' />
+                    </div>
+                    <div className='flex gap-3 flex-row-reverse'>
+                      <Skeleton variant='circle' height={32} width={32} />
+                      <Skeleton height={80} width='50%' />
+                    </div>
+                    <div className='flex gap-3'>
+                      <Skeleton variant='circle' height={32} width={32} />
+                      <Skeleton height={100} width='70%' />
+                    </div>
                   </div>
-                  <div className="flex gap-3 flex-row-reverse">
-                    <Skeleton variant="circle" height={32} width={32} />
-                    <Skeleton height={80} width="50%" />
-                  </div>
-                  <div className="flex gap-3">
-                    <Skeleton variant="circle" height={32} width={32} />
-                    <Skeleton height={100} width="70%" />
+                  <div className='flex gap-2'>
+                    <Skeleton height={50} className='flex-1' />
+                    <Skeleton height={50} width={50} variant='circle' />
                   </div>
                 </div>
-                <div className="flex gap-2">
-                  <Skeleton height={50} className="flex-1" />
-                  <Skeleton height={50} width={50} variant="circle" />
-                </div>
-              </div>
-            }>
+              }
+            >
               <ChatInterface onGenerateFromPrompt={handleGenerate} />
             </Suspense>
           </div>
@@ -903,7 +981,13 @@ function AdminRouter(): React.ReactElement | null {
   // New Asset Generator Route
   if (path.startsWith('/admin/assets')) {
     return (
-      <Suspense fallback={<div className="bg-black text-white h-screen flex items-center justify-center">Loading Generator...</div>}>
+      <Suspense
+        fallback={
+          <div className='bg-black text-white h-screen flex items-center justify-center'>
+            Loading Generator...
+          </div>
+        }
+      >
         <AssetGenerator />
       </Suspense>
     );
@@ -926,12 +1010,12 @@ function AdminRouter(): React.ReactElement | null {
 
 function AdminLoadingFallback(): React.ReactElement {
   return (
-    <div className="min-h-screen bg-black flex items-center justify-center">
-      <div className="text-center">
-        <div className="inline-flex items-center justify-center w-16 h-16 bg-purple-600/20 rounded-2xl mb-4">
-          <span className="material-icons text-3xl text-purple-500 animate-spin">sync</span>
+    <div className='min-h-screen bg-black flex items-center justify-center'>
+      <div className='text-center'>
+        <div className='inline-flex items-center justify-center w-16 h-16 bg-purple-600/20 rounded-2xl mb-4'>
+          <span className='material-icons text-3xl text-purple-500 animate-spin'>sync</span>
         </div>
-        <p className="text-zinc-400 text-sm">Loading admin...</p>
+        <p className='text-zinc-400 text-sm'>Loading admin...</p>
       </div>
     </div>
   );
@@ -953,14 +1037,16 @@ function App() {
     return (
       <>
         <ToastContainer />
-        <Suspense fallback={
-          <div className="min-h-screen bg-zinc-950 flex items-center justify-center">
-            <div className="text-center">
-              <div className="w-16 h-16 border-4 border-purple-500 border-t-transparent rounded-full animate-spin mx-auto mb-4" />
-              <p className="text-zinc-400">Loading...</p>
+        <Suspense
+          fallback={
+            <div className='min-h-screen bg-zinc-950 flex items-center justify-center'>
+              <div className='text-center'>
+                <div className='w-16 h-16 border-4 border-purple-500 border-t-transparent rounded-full animate-spin mx-auto mb-4' />
+                <p className='text-zinc-400'>Loading...</p>
+              </div>
             </div>
-          </div>
-        }>
+          }
+        >
           {path === '/signup' ? <SignupPageAuthKit /> : <LoginPageAuthKit />}
         </Suspense>
       </>
@@ -972,14 +1058,16 @@ function App() {
     return (
       <>
         <ToastContainer />
-        <Suspense fallback={
-          <div className="min-h-screen bg-zinc-950 flex items-center justify-center">
-            <div className="text-center">
-              <div className="w-16 h-16 border-4 border-purple-500 border-t-transparent rounded-full animate-spin mx-auto mb-4" />
-              <p className="text-zinc-400">Processing invitation...</p>
+        <Suspense
+          fallback={
+            <div className='min-h-screen bg-zinc-950 flex items-center justify-center'>
+              <div className='text-center'>
+                <div className='w-16 h-16 border-4 border-purple-500 border-t-transparent rounded-full animate-spin mx-auto mb-4' />
+                <p className='text-zinc-400'>Processing invitation...</p>
+              </div>
             </div>
-          </div>
-        }>
+          }
+        >
           <InvitePage />
         </Suspense>
       </>
@@ -991,14 +1079,16 @@ function App() {
     return (
       <>
         <ToastContainer />
-        <Suspense fallback={
-          <div className="min-h-screen bg-zinc-950 flex items-center justify-center">
-            <div className="text-center">
-              <div className="w-16 h-16 border-4 border-purple-500 border-t-transparent rounded-full animate-spin mx-auto mb-4" />
-              <p className="text-zinc-400">Verifying reset link...</p>
+        <Suspense
+          fallback={
+            <div className='min-h-screen bg-zinc-950 flex items-center justify-center'>
+              <div className='text-center'>
+                <div className='w-16 h-16 border-4 border-purple-500 border-t-transparent rounded-full animate-spin mx-auto mb-4' />
+                <p className='text-zinc-400'>Verifying reset link...</p>
+              </div>
             </div>
-          </div>
-        }>
+          }
+        >
           <ResetPasswordPage />
         </Suspense>
       </>
@@ -1012,14 +1102,16 @@ function App() {
     return (
       <>
         <ToastContainer />
-        <Suspense fallback={
-          <div className="min-h-screen bg-zinc-950 flex items-center justify-center">
-            <div className="text-center">
-              <div className="w-16 h-16 border-4 border-purple-500 border-t-transparent rounded-full animate-spin mx-auto mb-4" />
-              <p className="text-zinc-400">Loading...</p>
+        <Suspense
+          fallback={
+            <div className='min-h-screen bg-zinc-950 flex items-center justify-center'>
+              <div className='text-center'>
+                <div className='w-16 h-16 border-4 border-purple-500 border-t-transparent rounded-full animate-spin mx-auto mb-4' />
+                <p className='text-zinc-400'>Loading...</p>
+              </div>
             </div>
-          </div>
-        }>
+          }
+        >
           <OnboardingPage pathSegment={pathSegment} />
         </Suspense>
       </>
@@ -1039,11 +1131,13 @@ function App() {
   // Render Design System page
   if (isDesignPath) {
     return (
-      <Suspense fallback={
-        <div className="min-h-screen bg-black flex items-center justify-center">
-          <div className="text-white">Loading Design System...</div>
-        </div>
-      }>
+      <Suspense
+        fallback={
+          <div className='min-h-screen bg-black flex items-center justify-center'>
+            <div className='text-white'>Loading Design System...</div>
+          </div>
+        }
+      >
         <DesignSystemPage />
       </Suspense>
     );
@@ -1085,10 +1179,10 @@ function MainAppRouter(): React.ReactElement {
   // Show loading while checking auth
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-zinc-950 flex items-center justify-center">
-        <div className="text-center">
-          <div className="w-16 h-16 border-4 border-purple-500 border-t-transparent rounded-full animate-spin mx-auto mb-4" />
-          <p className="text-zinc-400">Loading...</p>
+      <div className='min-h-screen bg-zinc-950 flex items-center justify-center'>
+        <div className='text-center'>
+          <div className='w-16 h-16 border-4 border-purple-500 border-t-transparent rounded-full animate-spin mx-auto mb-4' />
+          <p className='text-zinc-400'>Loading...</p>
         </div>
       </div>
     );
@@ -1097,17 +1191,23 @@ function MainAppRouter(): React.ReactElement {
   // Not authenticated - show landing page
   if (!isAuthenticated) {
     return (
-      <Suspense fallback={
-        <div className="min-h-screen bg-zinc-950 flex items-center justify-center">
-          <div className="text-center">
-            <div className="w-16 h-16 border-4 border-purple-500 border-t-transparent rounded-full animate-spin mx-auto mb-4" />
-            <p className="text-zinc-400">Loading...</p>
+      <Suspense
+        fallback={
+          <div className='min-h-screen bg-zinc-950 flex items-center justify-center'>
+            <div className='text-center'>
+              <div className='w-16 h-16 border-4 border-purple-500 border-t-transparent rounded-full animate-spin mx-auto mb-4' />
+              <p className='text-zinc-400'>Loading...</p>
+            </div>
           </div>
-        </div>
-      }>
+        }
+      >
         <LandingPage
-          onGetStarted={() => { window.location.href = '/signup'; }}
-          onSignIn={() => { window.location.href = '/login'; }}
+          onGetStarted={() => {
+            window.location.href = '/signup';
+          }}
+          onSignIn={() => {
+            window.location.href = '/login';
+          }}
         />
       </Suspense>
     );
@@ -1166,7 +1266,7 @@ function VoiceAgentWrapper({ children }: { children: React.ReactNode }) {
       }
       // Profile updates handled separately
     },
-    [setBgImage]
+    [setBgImage],
   );
 
   const canvasCallbacks = React.useMemo(
@@ -1181,14 +1281,11 @@ function VoiceAgentWrapper({ children }: { children: React.ReactNode }) {
       sendToBack,
       // setActiveTab will be registered by AppContent via registerTabSetter
     }),
-    [addElement, updateElement, deleteElement, elements, undo, redo, bringToFront, sendToBack]
+    [addElement, updateElement, deleteElement, elements, undo, redo, bringToFront, sendToBack],
   );
 
   return (
-    <VoiceAgentProvider
-      onUpdate={handleVoiceUpdate}
-      canvasCallbacks={canvasCallbacks}
-    >
+    <VoiceAgentProvider onUpdate={handleVoiceUpdate} canvasCallbacks={canvasCallbacks}>
       {children}
     </VoiceAgentProvider>
   );

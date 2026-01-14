@@ -9,7 +9,7 @@ export class SetProfilePictureCommand implements Command {
 
   execute(
     args: { image_url?: string; position?: 'left' | 'right' | 'center' },
-    context: CommandContext
+    context: CommandContext,
   ): ActionResult {
     const { image_url, position = 'left' } = args;
 
@@ -29,7 +29,8 @@ export class SetProfilePictureCommand implements Command {
       } else {
         return {
           success: true,
-          result: 'Please upload a profile picture using the upload button, or provide an image URL.',
+          result:
+            'Please upload a profile picture using the upload button, or provide an image URL.',
           action: 'set_profile_picture',
         };
       }
@@ -103,7 +104,7 @@ export class TransformProfileCommand implements Command {
 
   execute(
     args: { x?: number; y?: number; scale?: number; position?: 'left' | 'right' | 'center' },
-    context: CommandContext
+    context: CommandContext,
   ): ActionResult {
     const { x, y, scale, position } = args;
 
@@ -157,4 +158,3 @@ export class TransformProfileCommand implements Command {
     }
   }
 }
-

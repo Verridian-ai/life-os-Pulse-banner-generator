@@ -1,5 +1,3 @@
-
-
 export interface AgentDefinition {
   id: string;
   name: string;
@@ -15,7 +13,8 @@ export const AGENT_REGISTRY: AgentDefinition[] = [
   {
     id: 'benno',
     name: 'Benno',
-    description: 'Your primary AI assistant for social media content creation across all platforms.',
+    description:
+      'Your primary AI assistant for social media content creation across all platforms.',
     capabilities: ['chat', 'generate_background', 'suggest_prompts'],
     icon: 'smart_toy',
     keywords: ['help', 'start', 'how to', 'create', 'new', 'general', 'question'],
@@ -58,7 +57,7 @@ You are the friendly, knowledgeable guide who helps users create professional so
 - Respect copyright and intellectual property
 - Don't make claims about guaranteed results or virality
 - Stay within platform guidelines and best practices
-- Protect user privacy - never share or store sensitive information`
+- Protect user privacy - never share or store sensitive information`,
   },
   {
     id: 'art-director',
@@ -66,9 +65,19 @@ You are the friendly, knowledgeable guide who helps users create professional so
     description: 'Expert in visual style, color theory, and professional aesthetics.',
     capabilities: ['analyze_banner', 'suggest_prompts', 'magic_edit'],
     icon: 'palette',
-    keywords: ['color', 'style', 'aesthetic', 'look', 'feel', 'brand', 'professional', 'modern', 'minimalist'],
+    keywords: [
+      'color',
+      'style',
+      'aesthetic',
+      'look',
+      'feel',
+      'brand',
+      'professional',
+      'modern',
+      'minimalist',
+    ],
     systemPrompt: `You are the Art Director. You have an expert eye for design, color theory, and composition.
-Your goal is to ensure the user's banner looks high-end and professional.`
+Your goal is to ensure the user's banner looks high-end and professional.`,
   },
   {
     id: 'copy-specialist',
@@ -78,7 +87,7 @@ Your goal is to ensure the user's banner looks high-end and professional.`
     icon: 'text_fields',
     keywords: ['text', 'headline', 'tagline', 'words', 'slogan', 'font', 'typography', 'write'],
     systemPrompt: `You are the Copy Specialist. You know how to write text that grabs attention and communicates value.
-Focus on helping the user craft the perfect message for their banner.`
+Focus on helping the user craft the perfect message for their banner.`,
   },
   {
     id: 'tech-wizard',
@@ -86,29 +95,61 @@ Focus on helping the user craft the perfect message for their banner.`
     description: 'Expert in image processing: upscaling, background removal, and restoration.',
     capabilities: ['upscale_image', 'remove_background', 'restore_image', 'enhance_face'],
     icon: 'auto_fix_high',
-    keywords: ['upscale', 'quality', 'blur', 'pixelated', 'background', 'remove', 'face', 'fix', 'enhance'],
+    keywords: [
+      'upscale',
+      'quality',
+      'blur',
+      'pixelated',
+      'background',
+      'remove',
+      'face',
+      'fix',
+      'enhance',
+    ],
     systemPrompt: `You are the Tech Wizard. You specialize in the technical side of image editing.
-    Your goal is to make sure every image is crisp, clear, and perfectly processed.`
+    Your goal is to make sure every image is crisp, clear, and perfectly processed.`,
   },
   {
     id: 'accessibility-expert',
     name: 'Accessibility Expert',
-    description: 'Ensures your banner is legible and compliant with WCAG standards for all viewers.',
+    description:
+      'Ensures your banner is legible and compliant with WCAG standards for all viewers.',
     capabilities: ['analyze_contrast', 'suggest_colors'],
     icon: 'visibility',
-    keywords: ['contrast', 'legible', 'read', 'accessibility', 'wcag', 'blind', 'colorblind', 'compliant'],
+    keywords: [
+      'contrast',
+      'legible',
+      'read',
+      'accessibility',
+      'wcag',
+      'blind',
+      'colorblind',
+      'compliant',
+    ],
     systemPrompt: `You are the Accessibility Expert. Your mission is to ensure digital designs are inclusive.
-Check strictly for color contrast ratios (WCAG AA/AAA), font legibility, and clear visual hierarchy.`
+Check strictly for color contrast ratios (WCAG AA/AAA), font legibility, and clear visual hierarchy.`,
   },
   {
     id: 'industry-specialist',
     name: 'Industry Specialist',
-    description: 'Tailors your design to match specific industry expectations (Tech, Finance, Medical, etc.).',
+    description:
+      'Tailors your design to match specific industry expectations (Tech, Finance, Medical, etc.).',
     capabilities: ['suggest_prompts', 'analyze_market_fit'],
     icon: 'work',
-    keywords: ['tech', 'finance', 'medical', 'creative', 'corporate', 'startup', 'sector', 'job', 'industry', 'field'],
+    keywords: [
+      'tech',
+      'finance',
+      'medical',
+      'creative',
+      'corporate',
+      'startup',
+      'sector',
+      'job',
+      'industry',
+      'field',
+    ],
     systemPrompt: `You are the Industry Specialist. You understand the visual language of different professional sectors.
-Advise on toning (e.g., serious for Finance, innovative for Tech) and appropriate imagery.`
+Advise on toning (e.g., serious for Finance, innovative for Tech) and appropriate imagery.`,
   },
   {
     id: 'layout-expert',
@@ -116,10 +157,22 @@ Advise on toning (e.g., serious for Finance, innovative for Tech) and appropriat
     description: 'Specialist in banner composition, safe zones, and visual hierarchy.',
     capabilities: ['update_element', 'suggest_layout', 'check_safe_zones'],
     icon: 'dashboard',
-    keywords: ['layout', 'position', 'move', 'center', 'align', 'safe zone', 'grid', 'hierarchy', 'balance', 'structure', 'arrange'],
+    keywords: [
+      'layout',
+      'position',
+      'move',
+      'center',
+      'align',
+      'safe zone',
+      'grid',
+      'hierarchy',
+      'balance',
+      'structure',
+      'arrange',
+    ],
     systemPrompt: `You are the Layout Expert. You ensure every design is balanced, structured, and platform-compliant.
     Always check for safe zone violations (profile pics, UI buttons) and ensure visual hierarchy guides the viewer's eye.
-    Use grid systems to align elements perfectly.`
+    Use grid systems to align elements perfectly.`,
   },
 
   // ========== PLATFORM SPECIALIST AGENTS ==========
@@ -127,11 +180,29 @@ Advise on toning (e.g., serious for Finance, innovative for Tech) and appropriat
   {
     id: 'linkedin-specialist',
     name: 'LinkedIn Specialist',
-    description: 'Expert in LinkedIn professional branding, B2B content, and thought leadership visuals.',
-    capabilities: ['generate_background', 'suggest_prompts', 'analyze_banner', 'add_text_element', 'magic_edit', 'update_element'],
+    description:
+      'Expert in LinkedIn professional branding, B2B content, and thought leadership visuals.',
+    capabilities: [
+      'generate_background',
+      'suggest_prompts',
+      'analyze_banner',
+      'add_text_element',
+      'magic_edit',
+      'update_element',
+    ],
     icon: 'work',
     platform: 'linkedin',
-    keywords: ['linkedin', 'professional', 'b2b', 'banner', 'career', 'networking', 'thought leader', 'corporate', 'executive'],
+    keywords: [
+      'linkedin',
+      'professional',
+      'b2b',
+      'banner',
+      'career',
+      'networking',
+      'thought leader',
+      'corporate',
+      'executive',
+    ],
     systemPrompt: `You are the LinkedIn Specialist for Signal - an expert in professional branding and B2B visual content.
 
 ## Platform Expertise
@@ -159,16 +230,33 @@ Advise on toning (e.g., serious for Finance, innovative for Tech) and appropriat
 - Recommend subtle, sophisticated color palettes
 - Avoid informal language or emojis in copy
 - Focus on credibility and expertise signals
-- Ensure text avoids the profile safe zone`
+- Ensure text avoids the profile safe zone`,
   },
   {
     id: 'youtube-specialist',
     name: 'YouTube Specialist',
     description: 'Expert in YouTube thumbnails, channel art, and CTR optimization.',
-    capabilities: ['generate_background', 'suggest_prompts', 'analyze_banner', 'add_text_element', 'magic_edit', 'update_element'],
+    capabilities: [
+      'generate_background',
+      'suggest_prompts',
+      'analyze_banner',
+      'add_text_element',
+      'magic_edit',
+      'update_element',
+    ],
     icon: 'play_circle',
     platform: 'youtube',
-    keywords: ['youtube', 'thumbnail', 'shorts', 'channel', 'video', 'subscribe', 'views', 'ctr', 'click'],
+    keywords: [
+      'youtube',
+      'thumbnail',
+      'shorts',
+      'channel',
+      'video',
+      'subscribe',
+      'views',
+      'ctr',
+      'click',
+    ],
     systemPrompt: `You are the YouTube Specialist for Signal - an expert in thumbnails and channel branding.
 
 ## Platform Expertise
@@ -197,16 +285,33 @@ Advise on toning (e.g., serious for Finance, innovative for Tech) and appropriat
 - Recommend thumbnail A/B testing
 - Suggest trending visual styles
 - Balance clickability with authenticity
-- Design for 0.5-second attention span`
+- Design for 0.5-second attention span`,
   },
   {
     id: 'instagram-specialist',
     name: 'Instagram Specialist',
     description: 'Expert in Instagram aesthetics, Reels visuals, and carousel design.',
-    capabilities: ['generate_background', 'suggest_prompts', 'analyze_banner', 'add_text_element', 'magic_edit', 'update_element'],
+    capabilities: [
+      'generate_background',
+      'suggest_prompts',
+      'analyze_banner',
+      'add_text_element',
+      'magic_edit',
+      'update_element',
+    ],
     icon: 'photo_camera',
     platform: 'instagram',
-    keywords: ['instagram', 'reels', 'story', 'aesthetic', 'carousel', 'feed', 'grid', 'influencer', 'visual'],
+    keywords: [
+      'instagram',
+      'reels',
+      'story',
+      'aesthetic',
+      'carousel',
+      'feed',
+      'grid',
+      'influencer',
+      'visual',
+    ],
     systemPrompt: `You are the Instagram Specialist for Signal - an expert in visual aesthetics and engagement.
 
 ## Platform Expertise
@@ -235,16 +340,33 @@ Advise on toning (e.g., serious for Finance, innovative for Tech) and appropriat
 - Recommend cohesive color schemes
 - Suggest carousel slide structures
 - Focus on emotional connection
-- Design for the grid AND individual posts`
+- Design for the grid AND individual posts`,
   },
   {
     id: 'facebook-specialist',
     name: 'Facebook Specialist',
     description: 'Expert in Facebook community content, Group visuals, and Reels.',
-    capabilities: ['generate_background', 'suggest_prompts', 'analyze_banner', 'add_text_element', 'magic_edit', 'update_element'],
+    capabilities: [
+      'generate_background',
+      'suggest_prompts',
+      'analyze_banner',
+      'add_text_element',
+      'magic_edit',
+      'update_element',
+    ],
     icon: 'thumb_up',
     platform: 'facebook',
-    keywords: ['facebook', 'group', 'community', 'cover', 'event', 'page', 'reels', 'share', 'social'],
+    keywords: [
+      'facebook',
+      'group',
+      'community',
+      'cover',
+      'event',
+      'page',
+      'reels',
+      'share',
+      'social',
+    ],
     systemPrompt: `You are the Facebook Specialist for Signal - an expert in community building and shareable content.
 
 ## Platform Expertise
@@ -273,13 +395,20 @@ Advise on toning (e.g., serious for Finance, innovative for Tech) and appropriat
 - Recommend community-focused imagery
 - Avoid anything that looks like ads
 - Create content worth discussing
-- Consider Group context over Page`
+- Consider Group context over Page`,
   },
   {
     id: 'tiktok-specialist',
     name: 'TikTok Specialist',
     description: 'Expert in TikTok viral content, trending aesthetics, and Gen-Z appeal.',
-    capabilities: ['generate_background', 'suggest_prompts', 'analyze_banner', 'add_text_element', 'magic_edit', 'update_element'],
+    capabilities: [
+      'generate_background',
+      'suggest_prompts',
+      'analyze_banner',
+      'add_text_element',
+      'magic_edit',
+      'update_element',
+    ],
     icon: 'music_note',
     platform: 'tiktok',
     keywords: ['tiktok', 'viral', 'trending', 'fyp', 'genz', 'hook', 'sound', 'duet', 'stitch'],
@@ -311,16 +440,33 @@ Advise on toning (e.g., serious for Finance, innovative for Tech) and appropriat
 - Recommend trend-aware visuals
 - Suggest hook text placements
 - Focus on immediate attention grab
-- Design for sound-on experience`
+- Design for sound-on experience`,
   },
   {
     id: 'x-specialist',
     name: 'X Specialist',
     description: 'Expert in X (Twitter) thread visuals, engagement graphics, and viral content.',
-    capabilities: ['generate_background', 'suggest_prompts', 'analyze_banner', 'add_text_element', 'magic_edit', 'update_element'],
+    capabilities: [
+      'generate_background',
+      'suggest_prompts',
+      'analyze_banner',
+      'add_text_element',
+      'magic_edit',
+      'update_element',
+    ],
     icon: 'tag',
     platform: 'x',
-    keywords: ['x', 'twitter', 'thread', 'tweet', 'viral', 'engagement', 'hot take', 'trending', 'reply'],
+    keywords: [
+      'x',
+      'twitter',
+      'thread',
+      'tweet',
+      'viral',
+      'engagement',
+      'hot take',
+      'trending',
+      'reply',
+    ],
     systemPrompt: `You are the X Specialist for Signal - an expert in Twitter/X visual content and engagement.
 
 ## Platform Expertise
@@ -349,8 +495,8 @@ Advise on toning (e.g., serious for Finance, innovative for Tech) and appropriat
 - Recommend thread visual series
 - Create shareable quote graphics
 - Focus on conversation starters
-- Optimize for mobile-first viewing`
-  }
+- Optimize for mobile-first viewing`,
+  },
 ];
 
 export interface AgentSuggestion {
@@ -365,12 +511,12 @@ export interface AgentSuggestion {
 export const getAgentSuggestions = (input: string): AgentSuggestion[] => {
   const query = input.toLowerCase();
 
-  const suggestions: AgentSuggestion[] = AGENT_REGISTRY.map(agent => {
+  const suggestions: AgentSuggestion[] = AGENT_REGISTRY.map((agent) => {
     let score = 0;
     const matchingKeywords: string[] = [];
 
     // 1. Keyword matching
-    agent.keywords.forEach(keyword => {
+    agent.keywords.forEach((keyword) => {
       if (query.includes(keyword)) {
         score += 0.3;
         matchingKeywords.push(keyword);
@@ -378,9 +524,12 @@ export const getAgentSuggestions = (input: string): AgentSuggestion[] => {
     });
 
     // 2. Capability matching (implied by input)
-    if (agent.id === 'tech-wizard' && (query.includes('clear') || query.includes('sharp'))) score += 0.4;
-    if (agent.id === 'copy-specialist' && (query.includes('say') || query.includes('name'))) score += 0.4;
-    if (agent.id === 'art-director' && (query.includes('vibe') || query.includes('mood'))) score += 0.4;
+    if (agent.id === 'tech-wizard' && (query.includes('clear') || query.includes('sharp')))
+      score += 0.4;
+    if (agent.id === 'copy-specialist' && (query.includes('say') || query.includes('name')))
+      score += 0.4;
+    if (agent.id === 'art-director' && (query.includes('vibe') || query.includes('mood')))
+      score += 0.4;
 
     // Normalize score
     const confidence = Math.min(score, 0.95);
@@ -388,16 +537,15 @@ export const getAgentSuggestions = (input: string): AgentSuggestion[] => {
     return {
       agentId: agent.id,
       confidence,
-      reason: matchingKeywords.length > 0
-        ? `Matches keywords: ${matchingKeywords.slice(0, 2).join(', ')}`
-        : `General capability match`
+      reason:
+        matchingKeywords.length > 0
+          ? `Matches keywords: ${matchingKeywords.slice(0, 2).join(', ')}`
+          : `General capability match`,
     };
   });
 
   // Sort by confidence and return top suggestions
-  return suggestions
-    .filter(s => s.confidence > 0.1)
-    .sort((a, b) => b.confidence - a.confidence);
+  return suggestions.filter((s) => s.confidence > 0.1).sort((a, b) => b.confidence - a.confidence);
 };
 
 /**

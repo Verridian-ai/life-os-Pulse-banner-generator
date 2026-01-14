@@ -88,7 +88,7 @@ function detectGestureType(
   prevP2: TouchPoint,
   currP1: TouchPoint,
   currP2: TouchPoint,
-  threshold: number
+  threshold: number,
 ): GestureType {
   const prevDist = getDistance(prevP1, prevP2);
   const currDist = getDistance(currP1, currP2);
@@ -218,7 +218,7 @@ export function useTouchGestures(options: TouchGestureOptions = {}) {
         }));
       }
     },
-    [enabled, getTouchPoints]
+    [enabled, getTouchPoints],
   );
 
   /**
@@ -241,7 +241,7 @@ export function useTouchGestures(options: TouchGestureOptions = {}) {
             prevP2,
             currP1,
             currP2,
-            pinchThreshold
+            pinchThreshold,
           );
 
           if (gestureTypeRef.current !== 'none') {
@@ -303,7 +303,7 @@ export function useTouchGestures(options: TouchGestureOptions = {}) {
         lastTouchesRef.current = [currP1, currP2];
       }
     },
-    [enabled, getTouchPoints, onPinch, onPan, onGestureStart, pinchThreshold]
+    [enabled, getTouchPoints, onPinch, onPan, onGestureStart, pinchThreshold],
   );
 
   /**
@@ -351,7 +351,7 @@ export function useTouchGestures(options: TouchGestureOptions = {}) {
         lastTouchesRef.current = [p1, p2];
       }
     },
-    [enabled, getTouchPoints, onGestureEnd]
+    [enabled, getTouchPoints, onGestureEnd],
   );
 
   /**

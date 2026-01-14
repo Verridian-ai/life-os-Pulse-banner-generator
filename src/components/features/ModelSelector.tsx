@@ -84,9 +84,21 @@ export const ModelSelector: React.FC<ModelSelectorProps> = ({ onModelChange }) =
       ];
     } else {
       models = [
-        { id: MODELS.openrouter.gpt52, name: 'GPT-5.2', description: 'Latest from OpenAI (Dec 2025)' },
-        { id: MODELS.openrouter.gpt52Pro, name: 'GPT-5.2 Pro', description: 'High-performance reasoning' },
-        { id: MODELS.openrouter.claude45Sonnet, name: 'Claude 4.5 Sonnet', description: 'Advanced reasoning & coding' },
+        {
+          id: MODELS.openrouter.gpt52,
+          name: 'GPT-5.2',
+          description: 'Latest from OpenAI (Dec 2025)',
+        },
+        {
+          id: MODELS.openrouter.gpt52Pro,
+          name: 'GPT-5.2 Pro',
+          description: 'High-performance reasoning',
+        },
+        {
+          id: MODELS.openrouter.claude45Sonnet,
+          name: 'Claude 4.5 Sonnet',
+          description: 'Advanced reasoning & coding',
+        },
         {
           id: MODELS.openrouter.minimaxM2,
           name: 'MiniMax M2 Plus',
@@ -99,20 +111,20 @@ export const ModelSelector: React.FC<ModelSelectorProps> = ({ onModelChange }) =
     if (stats && !autoSelect) {
       // Compare models based on balanced criteria
       const comparison = compareModelPerformance(
-        models.map(m => m.id),
+        models.map((m) => m.id),
         stats,
-        'balanced'
+        'balanced',
       );
 
       // Find best model
       const bestModelId = comparison[0]?.modelId;
 
-      return models.map(model => {
-        const result = comparison.find(c => c.modelId === model.id);
+      return models.map((model) => {
+        const result = comparison.find((c) => c.modelId === model.id);
         return {
           ...model,
           isRecommended: model.id === bestModelId,
-          reason: result?.reason
+          reason: result?.reason,
         };
       });
     }
@@ -158,12 +170,13 @@ export const ModelSelector: React.FC<ModelSelectorProps> = ({ onModelChange }) =
               {['gemini', 'openrouter'].map((p) => (
                 <button
                   key={p}
-                  type="button"
+                  type='button'
                   onClick={() => handleProviderChange(p as 'gemini' | 'openrouter')}
-                  className={`flex-1 py-2 px-4 rounded-lg text-sm font-bold transition ${provider === p
-                    ? 'bg-blue-600 text-white'
-                    : 'bg-zinc-800 text-zinc-400 hover:bg-zinc-700'
-                    }`}
+                  className={`flex-1 py-2 px-4 rounded-lg text-sm font-bold transition ${
+                    provider === p
+                      ? 'bg-blue-600 text-white'
+                      : 'bg-zinc-800 text-zinc-400 hover:bg-zinc-700'
+                  }`}
                 >
                   {p === 'gemini' ? 'Google Gemini' : 'OpenRouter'}
                 </button>
@@ -184,28 +197,29 @@ export const ModelSelector: React.FC<ModelSelectorProps> = ({ onModelChange }) =
                 {getFeaturedModels().map((model) => (
                   <button
                     key={model.id}
-                    type="button"
+                    type='button'
                     onClick={() => handleModelSelect(model.id)}
-                    className={`w-full text-left p-3 rounded-lg transition relative overflow-hidden ${modelOverride === model.id
-                      ? 'bg-blue-600 border border-blue-500'
-                      : 'bg-zinc-800 border border-white/10 hover:bg-zinc-700'
-                      }`}
+                    className={`w-full text-left p-3 rounded-lg transition relative overflow-hidden ${
+                      modelOverride === model.id
+                        ? 'bg-blue-600 border border-blue-500'
+                        : 'bg-zinc-800 border border-white/10 hover:bg-zinc-700'
+                    }`}
                   >
                     {/* Recommended Badge */}
                     {/* @ts-expect-error - property explicitly added in enhancement step */}
                     {model.isRecommended && (
-                      <div className="absolute top-0 right-0 bg-green-500 text-black text-[9px] font-bold px-2 py-0.5 rounded-bl-lg">
+                      <div className='absolute top-0 right-0 bg-green-500 text-black text-[9px] font-bold px-2 py-0.5 rounded-bl-lg'>
                         RECOMMENDED
                       </div>
                     )}
 
                     <div className='flex items-center justify-between'>
                       <div className='flex-1'>
-                        <div className="flex items-center gap-2">
+                        <div className='flex items-center gap-2'>
                           <h5 className='text-sm font-bold text-white'>{model.name}</h5>
                           {/* @ts-expect-error - property explicitly added in enhancement step */}
                           {model.reason && (
-                            <span className="text-[9px] px-1.5 py-0.5 rounded bg-white/10 text-zinc-300 border border-white/5">
+                            <span className='text-[9px] px-1.5 py-0.5 rounded bg-white/10 text-zinc-300 border border-white/5'>
                               {/* @ts-expect-error - property explicitly added in enhancement step */}
                               {model.reason}
                             </span>
@@ -230,12 +244,13 @@ export const ModelSelector: React.FC<ModelSelectorProps> = ({ onModelChange }) =
                       {openrouterModels.slice(4).map((model) => (
                         <button
                           key={model.id}
-                          type="button"
+                          type='button'
                           onClick={() => handleModelSelect(model.id)}
-                          className={`w-full text-left p-2 rounded text-xs transition ${modelOverride === model.id
-                            ? 'bg-blue-600 text-white'
-                            : 'bg-zinc-800 text-zinc-300 hover:bg-zinc-700'
-                            }`}
+                          className={`w-full text-left p-2 rounded text-xs transition ${
+                            modelOverride === model.id
+                              ? 'bg-blue-600 text-white'
+                              : 'bg-zinc-800 text-zinc-300 hover:bg-zinc-700'
+                          }`}
                         >
                           {model.name}
                         </button>

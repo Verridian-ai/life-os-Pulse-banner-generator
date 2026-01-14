@@ -13,19 +13,17 @@ export function OnboardingView() {
   };
 
   return (
-    <div className="bg-zinc-950 min-h-screen relative overflow-hidden">
+    <div className='bg-zinc-950 min-h-screen relative overflow-hidden'>
       {/* Ambient Background Effects */}
-      <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute -top-40 -left-40 w-80 h-80 bg-teal-500/20 rounded-full blur-3xl" />
-        <div className="absolute top-1/2 -right-40 w-96 h-96 bg-sky-500/15 rounded-full blur-3xl" />
-        <div className="absolute -bottom-40 left-1/3 w-72 h-72 bg-cyan-500/20 rounded-full blur-3xl" />
+      <div className='absolute inset-0 overflow-hidden pointer-events-none'>
+        <div className='absolute -top-40 -left-40 w-80 h-80 bg-teal-500/20 rounded-full blur-3xl' />
+        <div className='absolute top-1/2 -right-40 w-96 h-96 bg-sky-500/15 rounded-full blur-3xl' />
+        <div className='absolute -bottom-40 left-1/3 w-72 h-72 bg-cyan-500/20 rounded-full blur-3xl' />
       </div>
 
       {/* Content */}
-      <div className="relative z-10">
-        {step === 'welcome' && (
-          <WelcomeScreen onGetStarted={() => setStep('profile')} />
-        )}
+      <div className='relative z-10'>
+        {step === 'welcome' && <WelcomeScreen onGetStarted={() => setStep('profile')} />}
         {step === 'profile' && (
           <ProfileSetup
             currentStep={getStepIndex()}

@@ -5,7 +5,14 @@
  * Uses extracted modules for separation of concerns.
  */
 
-import React, { useRef, useEffect, useImperativeHandle, forwardRef, memo, useCallback } from 'react';
+import React, {
+  useRef,
+  useEffect,
+  useImperativeHandle,
+  forwardRef,
+  memo,
+  useCallback,
+} from 'react';
 import { BANNER_WIDTH, BANNER_HEIGHT, CanvasFormatId } from '../constants';
 import { BannerElement } from '../types';
 import type { ProfileOverlayConfig } from './studios/config/platformConfig';
@@ -144,7 +151,15 @@ const BannerCanvasComponent = forwardRef<BannerCanvasHandle, BannerCanvasProps>(
           drawSelectionOverlay(ctx, elementRectsRef.current[selectedElementId]);
         }
       },
-      [backgroundImage, elements, getCachedImage, canvasWidth, canvasHeight, canvasFormatId, selectedElementId],
+      [
+        backgroundImage,
+        elements,
+        getCachedImage,
+        canvasWidth,
+        canvasHeight,
+        canvasFormatId,
+        selectedElementId,
+      ],
     );
 
     // Expose generateStageImage to parent
@@ -224,7 +239,7 @@ const BannerCanvasComponent = forwardRef<BannerCanvasHandle, BannerCanvasProps>(
 
     return (
       <div
-        className="w-full relative shadow-2xl rounded-lg bg-slate-800 mb-20 group"
+        className='w-full relative shadow-2xl rounded-lg bg-slate-800 mb-20 group'
         style={{ aspectRatio: `${canvasWidth}/${canvasHeight}` }}
         onWheel={handleCanvasWheel}
         onMouseMove={handleMouseMove}

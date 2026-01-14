@@ -7,10 +7,7 @@ import type { ActionResult } from '../actionExecutor';
 export class ToggleSafeZonesCommand implements Command {
   name = 'toggle_safe_zones';
 
-  execute(
-    args: { show?: boolean },
-    context: CommandContext
-  ): ActionResult {
+  execute(args: { show?: boolean }, context: CommandContext): ActionResult {
     const { show } = args;
 
     console.log('[ToggleSafeZonesCommand] Toggling safe zones:', { show });
@@ -46,10 +43,7 @@ export class ToggleSafeZonesCommand implements Command {
 export class ResetCanvasCommand implements Command {
   name = 'reset_canvas';
 
-  execute(
-    args: { keep_background?: boolean },
-    context: CommandContext
-  ): ActionResult {
+  execute(args: { keep_background?: boolean }, context: CommandContext): ActionResult {
     const { keep_background = false } = args;
 
     console.log('[ResetCanvasCommand] Resetting canvas:', { keep_background });
@@ -96,7 +90,7 @@ export class SetZoomCommand implements Command {
 
   execute(
     args: { level?: number; action?: 'in' | 'out' | 'fit' | 'reset' },
-    context: CommandContext
+    context: CommandContext,
   ): ActionResult {
     const { level, action } = args;
 
@@ -184,4 +178,3 @@ export class CenterCanvasCommand implements Command {
     }
   }
 }
-

@@ -16,7 +16,7 @@ describe('useKeyboardShortcuts', () => {
     vi.clearAllMocks();
     addEventListenerSpy = vi.spyOn(document, 'addEventListener');
     removeEventListenerSpy = vi.spyOn(document, 'removeEventListener');
-    consoleLogSpy = vi.spyOn(console, 'log').mockImplementation(() => { });
+    consoleLogSpy = vi.spyOn(console, 'log').mockImplementation(() => {});
   });
 
   afterEach(() => {
@@ -321,14 +321,11 @@ describe('useKeyboardShortcuts', () => {
     const handler1 = vi.fn();
     const handler2 = vi.fn();
 
-    const { rerender } = renderHook(
-      ({ shortcuts }) => useKeyboardShortcuts({ shortcuts }),
-      {
-        initialProps: {
-          shortcuts: [{ key: 'g', ctrl: true, callback: handler1, description: 'Generate' }],
-        },
+    const { rerender } = renderHook(({ shortcuts }) => useKeyboardShortcuts({ shortcuts }), {
+      initialProps: {
+        shortcuts: [{ key: 'g', ctrl: true, callback: handler1, description: 'Generate' }],
       },
-    );
+    });
 
     // Trigger first shortcut
     act(() => {

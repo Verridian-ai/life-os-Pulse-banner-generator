@@ -11,7 +11,7 @@ export class ApplyTemplateCommand implements Command {
 
   execute(
     args: { template_id?: string; template_name?: string },
-    context: CommandContext
+    context: CommandContext,
   ): ActionResult {
     const { template_id, template_name } = args;
 
@@ -22,8 +22,8 @@ export class ApplyTemplateCommand implements Command {
     if (template_id) {
       template = BANNER_TEMPLATES.find((t) => t.id === template_id);
     } else if (template_name) {
-      template = BANNER_TEMPLATES.find(
-        (t) => t.title.toLowerCase().includes(template_name.toLowerCase())
+      template = BANNER_TEMPLATES.find((t) =>
+        t.title.toLowerCase().includes(template_name.toLowerCase()),
       );
     }
 
@@ -94,9 +94,7 @@ export class ListTemplatesCommand implements Command {
     let templates = BANNER_TEMPLATES;
 
     if (industry) {
-      templates = templates.filter(
-        (t) => t.industry.toLowerCase() === industry.toLowerCase()
-      );
+      templates = templates.filter((t) => t.industry.toLowerCase() === industry.toLowerCase());
     }
 
     if (templates.length === 0) {
@@ -138,7 +136,7 @@ export class SearchTemplatesCommand implements Command {
       (t) =>
         t.title.toLowerCase().includes(query.toLowerCase()) ||
         t.description.toLowerCase().includes(query.toLowerCase()) ||
-        t.industry.toLowerCase().includes(query.toLowerCase())
+        t.industry.toLowerCase().includes(query.toLowerCase()),
     );
 
     if (results.length === 0) {
@@ -161,4 +159,3 @@ export class SearchTemplatesCommand implements Command {
     };
   }
 }
-

@@ -82,7 +82,8 @@ export function diagnoseVoiceError(errorMessage: string, errorCode?: string): Er
     return {
       title: 'API Key Error',
       description: 'Your OpenAI API key is missing or invalid.',
-      solution: 'Please add a valid OpenAI API key in Settings. You can create one at platform.openai.com.',
+      solution:
+        'Please add a valid OpenAI API key in Settings. You can create one at platform.openai.com.',
       actionLink: {
         text: 'Open Settings',
         opensSettings: true,
@@ -125,12 +126,15 @@ export function diagnoseVoiceError(errorMessage: string, errorCode?: string): Er
   ) {
     // Try to extract wait time from error message
     const waitMatch = msg.match(/(\d+)\s*(second|minute|hour)/);
-    const waitTime = waitMatch ? `${waitMatch[1]} ${waitMatch[2]}${waitMatch[1] !== '1' ? 's' : ''}` : 'a moment';
+    const waitTime = waitMatch
+      ? `${waitMatch[1]} ${waitMatch[2]}${waitMatch[1] !== '1' ? 's' : ''}`
+      : 'a moment';
 
     return {
       title: 'Rate Limit Exceeded',
       description: `You've made too many requests to OpenAI. Please wait ${waitTime} before trying again.`,
-      solution: 'Rate limits are set by OpenAI to prevent abuse. Retry in a few moments or upgrade your OpenAI plan for higher limits.',
+      solution:
+        'Rate limits are set by OpenAI to prevent abuse. Retry in a few moments or upgrade your OpenAI plan for higher limits.',
       actionLink: {
         text: 'View Rate Limits',
         url: 'https://platform.openai.com/settings/organization/limits',
@@ -151,16 +155,21 @@ export function diagnoseVoiceError(errorMessage: string, errorCode?: string): Er
     // Detect browser
     const isChrome = navigator.userAgent.includes('Chrome');
     const isFirefox = navigator.userAgent.includes('Firefox');
-    const isSafari = navigator.userAgent.includes('Safari') && !navigator.userAgent.includes('Chrome');
+    const isSafari =
+      navigator.userAgent.includes('Safari') && !navigator.userAgent.includes('Chrome');
     const isEdge = navigator.userAgent.includes('Edg');
 
-    let instructions = 'Click the lock icon in your browser\'s address bar and enable microphone access.';
+    let instructions =
+      "Click the lock icon in your browser's address bar and enable microphone access.";
     if (isChrome || isEdge) {
-      instructions = 'Click the camera/microphone icon in the address bar (or the lock icon) and allow microphone access.';
+      instructions =
+        'Click the camera/microphone icon in the address bar (or the lock icon) and allow microphone access.';
     } else if (isFirefox) {
-      instructions = 'Click the microphone icon with a line through it in the address bar and select "Allow".';
+      instructions =
+        'Click the microphone icon with a line through it in the address bar and select "Allow".';
     } else if (isSafari) {
-      instructions = 'Go to Safari > Settings > Websites > Microphone and allow access for this site.';
+      instructions =
+        'Go to Safari > Settings > Websites > Microphone and allow access for this site.';
     }
 
     return {
@@ -184,8 +193,9 @@ export function diagnoseVoiceError(errorMessage: string, errorCode?: string): Er
   ) {
     return {
       title: 'Connection Failed',
-      description: 'Unable to connect to OpenAI\'s voice service. This may be a network issue.',
-      solution: 'Check your internet connection and try again. If the problem persists, OpenAI\'s servers may be experiencing issues.',
+      description: "Unable to connect to OpenAI's voice service. This may be a network issue.",
+      solution:
+        "Check your internet connection and try again. If the problem persists, OpenAI's servers may be experiencing issues.",
       actionLink: {
         text: 'Check OpenAI Status',
         url: 'https://status.openai.com/',
@@ -200,22 +210,20 @@ export function diagnoseVoiceError(errorMessage: string, errorCode?: string): Er
     return {
       title: 'Browser Security Block',
       description: 'Your browser blocked the connection due to security restrictions.',
-      solution: 'Try using Chrome, Edge, or Firefox. Safari and some privacy extensions may block voice connections.',
+      solution:
+        'Try using Chrome, Edge, or Firefox. Safari and some privacy extensions may block voice connections.',
       category: 'browser',
       retryable: false,
     };
   }
 
   // Browser Compatibility
-  if (
-    msg.includes('not supported') ||
-    msg.includes('unavailable') ||
-    msg.includes('browser')
-  ) {
+  if (msg.includes('not supported') || msg.includes('unavailable') || msg.includes('browser')) {
     return {
       title: 'Browser Not Supported',
       description: 'Your browser may not support the voice features required by Benno.',
-      solution: 'Please use a modern browser like Chrome, Edge, or Firefox for the best experience.',
+      solution:
+        'Please use a modern browser like Chrome, Edge, or Firefox for the best experience.',
       category: 'browser',
       retryable: false,
     };
@@ -236,8 +244,9 @@ export function diagnoseVoiceError(errorMessage: string, errorCode?: string): Er
   ) {
     return {
       title: 'Server Error',
-      description: 'OpenAI\'s servers are experiencing issues or are temporarily unavailable.',
-      solution: 'This is usually temporary. Wait a few moments and try again. Check OpenAI\'s status page for updates.',
+      description: "OpenAI's servers are experiencing issues or are temporarily unavailable.",
+      solution:
+        "This is usually temporary. Wait a few moments and try again. Check OpenAI's status page for updates.",
       actionLink: {
         text: 'Check OpenAI Status',
         url: 'https://status.openai.com/',
@@ -250,8 +259,10 @@ export function diagnoseVoiceError(errorMessage: string, errorCode?: string): Er
   // Generic/Unknown Errors
   return {
     title: 'Connection Error',
-    description: errorMessage || 'An unexpected error occurred while connecting to the voice agent.',
-    solution: 'Try disconnecting and reconnecting. If the problem persists, check your API key and internet connection.',
+    description:
+      errorMessage || 'An unexpected error occurred while connecting to the voice agent.',
+    solution:
+      'Try disconnecting and reconnecting. If the problem persists, check your API key and internet connection.',
     actionLink: {
       text: 'Open Settings',
       opensSettings: true,

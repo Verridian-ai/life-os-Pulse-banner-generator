@@ -81,7 +81,9 @@ export function EnhanceButton({
     >
       {isEnhancing ? (
         <>
-          <div className={`border-2 border-current/30 border-t-current rounded-full animate-spin ${size === 'xs' ? 'w-2 h-2' : size === 'sm' ? 'w-3 h-3' : 'w-4 h-4'}`} />
+          <div
+            className={`border-2 border-current/30 border-t-current rounded-full animate-spin ${size === 'xs' ? 'w-2 h-2' : size === 'sm' ? 'w-3 h-3' : 'w-4 h-4'}`}
+          />
           {showLabel && <span>Enhancing...</span>}
         </>
       ) : (

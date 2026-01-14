@@ -77,8 +77,6 @@ export const AIProvider: React.FC<AIProviderProps> = ({ children }) => {
     setAvailableModels(models);
   }, []);
 
-
-
   // Persist edit history
   useEffect(() => {
     try {
@@ -121,13 +119,13 @@ export const AIProvider: React.FC<AIProviderProps> = ({ children }) => {
     const updated = brandProfile
       ? { ...brandProfile, ...updates, lastUpdated: Date.now() }
       : ({
-        ...updates,
-        colors: updates.colors || [],
-        fonts: updates.fonts || [],
-        styleKeywords: updates.styleKeywords || [],
-        lastUpdated: Date.now(),
-        version: 1,
-      } as BrandProfile);
+          ...updates,
+          colors: updates.colors || [],
+          fonts: updates.fonts || [],
+          styleKeywords: updates.styleKeywords || [],
+          lastUpdated: Date.now(),
+          version: 1,
+        } as BrandProfile);
 
     setBrandProfile(updated);
     saveBrandProfile(updated);

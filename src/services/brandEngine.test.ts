@@ -69,7 +69,7 @@ describe('Brand Engine Service', () => {
 
       expect(generateDesignChatResponse).toHaveBeenCalledWith(
         expect.stringContaining('Analyze these images to extract brand identity'),
-        mockImages
+        mockImages,
       );
       expect(result.colors).toHaveLength(2);
       expect(result.colors![0].hex).toBe('#1E3A8A');
@@ -287,7 +287,7 @@ describe('Brand Engine Service', () => {
 
       expect(generateDesignChatResponse).toHaveBeenCalledWith(
         expect.stringContaining('Analyze this image against the brand guidelines'),
-        [imageBase64]
+        [imageBase64],
       );
       expect(result.consistent).toBe(true);
       expect(result.score).toBe(85);

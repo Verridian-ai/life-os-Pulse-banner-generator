@@ -60,11 +60,7 @@ export function lerp(start: number, end: number, factor: number): number {
 /**
  * Spring physics calculation
  */
-function springStep(
-  value: SpringValue,
-  config: SpringConfig,
-  deltaTime: number
-): SpringValue {
+function springStep(value: SpringValue, config: SpringConfig, deltaTime: number): SpringValue {
   const { tension, friction, mass } = config;
   const { current, velocity, target } = value;
 
@@ -92,10 +88,7 @@ function springStep(
  * Check if spring animation is at rest
  */
 function isAtRest(value: SpringValue, threshold = 0.001): boolean {
-  return (
-    Math.abs(value.current - value.target) < threshold &&
-    Math.abs(value.velocity) < threshold
-  );
+  return Math.abs(value.current - value.target) < threshold && Math.abs(value.velocity) < threshold;
 }
 
 /**
@@ -103,7 +96,7 @@ function isAtRest(value: SpringValue, threshold = 0.001): boolean {
  */
 export function useSpring(
   initialValue: number,
-  config: SpringConfig | keyof typeof SPRING_PRESETS = 'smooth'
+  config: SpringConfig | keyof typeof SPRING_PRESETS = 'smooth',
 ) {
   const springConfig = typeof config === 'string' ? SPRING_PRESETS[config] : config;
 
@@ -139,15 +132,18 @@ export function useSpring(
     animateRef.current = animate;
   }, [animate]);
 
-  const set = useCallback((newTarget: number) => {
-    springRef.current.target = newTarget;
-    lastTimeRef.current = null;
+  const set = useCallback(
+    (newTarget: number) => {
+      springRef.current.target = newTarget;
+      lastTimeRef.current = null;
 
-    if (rafRef.current) {
-      cancelAnimationFrame(rafRef.current);
-    }
-    rafRef.current = requestAnimationFrame(animate);
-  }, [animate]);
+      if (rafRef.current) {
+        cancelAnimationFrame(rafRef.current);
+      }
+      rafRef.current = requestAnimationFrame(animate);
+    },
+    [animate],
+  );
 
   const setImmediate = useCallback((newValue: number) => {
     if (rafRef.current) {
@@ -177,7 +173,7 @@ export function useSpring(
  */
 export function useLerp(
   initialValue: number,
-  factor: number | keyof typeof LERP_FACTORS = 'cursor'
+  factor: number | keyof typeof LERP_FACTORS = 'cursor',
 ) {
   const lerpFactor = typeof factor === 'string' ? LERP_FACTORS[factor] : factor;
 
@@ -204,14 +200,17 @@ export function useLerp(
     animateRef.current = animate;
   }, [animate]);
 
-  const set = useCallback((newTarget: number) => {
-    targetRef.current = newTarget;
+  const set = useCallback(
+    (newTarget: number) => {
+      targetRef.current = newTarget;
 
-    if (rafRef.current) {
-      cancelAnimationFrame(rafRef.current);
-    }
-    rafRef.current = requestAnimationFrame(animate);
-  }, [animate]);
+      if (rafRef.current) {
+        cancelAnimationFrame(rafRef.current);
+      }
+      rafRef.current = requestAnimationFrame(animate);
+    },
+    [animate],
+  );
 
   useEffect(() => {
     return () => {
@@ -230,20 +229,26 @@ export function useLerp(
 export function useSpringXY(
   initialX: number,
   initialY: number,
-  config: SpringConfig | keyof typeof SPRING_PRESETS = 'smooth'
+  config: SpringConfig | keyof typeof SPRING_PRESETS = 'smooth',
 ) {
   const x = useSpring(initialX, config);
   const y = useSpring(initialY, config);
 
-  const set = useCallback((newX: number, newY: number) => {
-    x.set(newX);
-    y.set(newY);
-  }, [x, y]);
+  const set = useCallback(
+    (newX: number, newY: number) => {
+      x.set(newX);
+      y.set(newY);
+    },
+    [x, y],
+  );
 
-  const setImmediate = useCallback((newX: number, newY: number) => {
-    x.setImmediate(newX);
-    y.setImmediate(newY);
-  }, [x, y]);
+  const setImmediate = useCallback(
+    (newX: number, newY: number) => {
+      x.setImmediate(newX);
+      y.setImmediate(newY);
+    },
+    [x, y],
+  );
 
   return {
     x: x.value,

@@ -8,7 +8,10 @@
  */
 
 import { AGENT_REGISTRY, AgentDefinition } from './agentRegistry';
-import { getPlatformPostsConfig, type PlatformPostsConfig } from '@/features/linkedin-posts/config/platformPostsConfig';
+import {
+  getPlatformPostsConfig,
+  type PlatformPostsConfig,
+} from '@/features/linkedin-posts/config/platformPostsConfig';
 import type { PlatformType } from '@/components/studios/config/platformConfig';
 
 // API URL from environment
@@ -53,7 +56,7 @@ const CACHE_TTL_MS = 5 * 60 * 1000;
 export async function searchAgentKnowledge(
   query: string,
   agentId: string,
-  limit = 3
+  limit = 3,
 ): Promise<CogneeSearchResult[]> {
   try {
     const response = await fetch(`${API_URL}/api/cognee/search`, {
@@ -105,7 +108,7 @@ export async function getAgentContextDocuments(agentId: string): Promise<CogneeS
  */
 export async function queryAgentKnowledge(
   question: string,
-  agentId: string
+  agentId: string,
 ): Promise<CogneeQueryResult | null> {
   try {
     const response = await fetch(`${API_URL}/api/cognee/query`, {
@@ -138,7 +141,7 @@ export async function queryAgentKnowledge(
 export async function getEnrichedAgentContext(
   agentId: string,
   platform?: PlatformType,
-  userQuery?: string
+  userQuery?: string,
 ): Promise<EnrichedAgentContext> {
   // Check cache first
   const cacheKey = `${agentId}:${platform || 'none'}:${userQuery || 'default'}`;
@@ -212,7 +215,7 @@ export async function getEnrichedAgentContext(
 function composeEnrichedPrompt(
   agent: AgentDefinition,
   platformConfig: PlatformPostsConfig | null,
-  knowledgeContext: string
+  knowledgeContext: string,
 ): string {
   let enrichedPrompt = agent.systemPrompt;
 
@@ -229,10 +232,16 @@ function composeEnrichedPrompt(
 - Algorithm Tip: ${platformConfig.algorithmTip}
 
 ### Content Tips
-${platformConfig.contentTips.slice(0, 4).map((tip) => `- ${tip}`).join('\n')}
+${platformConfig.contentTips
+  .slice(0, 4)
+  .map((tip) => `- ${tip}`)
+  .join('\n')}
 
 ### Avoid
-${platformConfig.avoidList.slice(0, 3).map((item) => `- ${item}`).join('\n')}`;
+${platformConfig.avoidList
+  .slice(0, 3)
+  .map((item) => `- ${item}`)
+  .join('\n')}`;
   }
 
   // Add knowledge context if available
@@ -255,7 +264,7 @@ Use this knowledge to inform your responses when relevant.`;
  */
 function createFallbackContext(
   agent: AgentDefinition,
-  platform?: PlatformType
+  platform?: PlatformType,
 ): EnrichedAgentContext {
   let platformConfig: PlatformPostsConfig | null = null;
   if (platform) {

@@ -91,7 +91,12 @@ export interface Toast {
 /**
  * Connection state for voice agent
  */
-export type ConnectionState = 'disconnected' | 'connecting' | 'connected' | 'disconnecting' | 'error';
+export type ConnectionState =
+  | 'disconnected'
+  | 'connecting'
+  | 'connected'
+  | 'disconnecting'
+  | 'error';
 
 /**
  * Connection quality levels for voice agent

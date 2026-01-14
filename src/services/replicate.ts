@@ -1,4 +1,3 @@
-
 // Replicate API Service - Updated to use backend proxy endpoints
 // This simplifies key management and ensures consistent model usage.
 
@@ -22,7 +21,10 @@ export class ReplicateService {
       // Pass the API key if we have one, otherwise backend uses fallback
       const payload = { ...body, replicateKey: this.apiKey };
 
-      const response = await api.post<{ url: string; error?: string }>(`/api/replicate/${endpoint}`, payload);
+      const response = await api.post<{ url: string; error?: string }>(
+        `/api/replicate/${endpoint}`,
+        payload,
+      );
 
       this.onProgress?.(50); // Processing...
 
@@ -56,23 +58,32 @@ export class ReplicateService {
   /**
    * Inpaint an image (Stable Diffusion Inpainting)
    */
-  async inpaint(image: string, mask: string, prompt: string, negativePrompt?: string): Promise<string> {
+  async inpaint(
+    image: string,
+    mask: string,
+    prompt: string,
+    negativePrompt?: string,
+  ): Promise<string> {
     return this.callEndpoint('inpaint', {
       image,
       mask,
       prompt,
-      negative_prompt: negativePrompt
+      negative_prompt: negativePrompt,
     });
   }
 
   /**
    * Enhance quality / Upscale (Real-ESRGAN/Upscale)
    */
-  async upscale(image: string, _quality: ReplicateQuality = 'balanced', faceEnhance: boolean = false): Promise<string> {
+  async upscale(
+    image: string,
+    _quality: ReplicateQuality = 'balanced',
+    faceEnhance: boolean = false,
+  ): Promise<string> {
     return this.callEndpoint('upscale', {
       image,
       scale: 2, // Standard 2x for quality enhancement
-      face_enhance: faceEnhance
+      face_enhance: faceEnhance,
     });
   }
 
@@ -99,7 +110,9 @@ export class ReplicateService {
 }
 
 // Helper function to get Replicate service instance
-export const getReplicateService = async (onProgress?: (progress: number) => void): Promise<ReplicateService> => {
+export const getReplicateService = async (
+  onProgress?: (progress: number) => void,
+): Promise<ReplicateService> => {
   // Import here to avoid circular dependency
   const { getUserAPIKeys } = await import('./apiKeyStorage');
   const keys = await getUserAPIKeys();

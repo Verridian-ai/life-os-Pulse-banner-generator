@@ -36,7 +36,10 @@ type LayerProviderProps = {
 };
 
 // Provider Component
-export function LayerProvider({ children, value: initialValue }: LayerProviderProps): React.ReactElement {
+export function LayerProvider({
+  children,
+  value: initialValue,
+}: LayerProviderProps): React.ReactElement {
   // Use useContext directly to avoid throwing and allow conditional behavior
   const elementsContext = React.useContext(ElementsContext);
   const setElements = elementsContext?.setElements;

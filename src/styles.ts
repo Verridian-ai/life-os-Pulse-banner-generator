@@ -84,11 +84,9 @@ export const ADMIN_SELECT =
   'px-3 py-1.5 bg-stone-900 border border-white/10 rounded-lg text-white text-sm focus:outline-none focus:border-purple-500 focus:ring-1 focus:ring-purple-500/50 transition-all cursor-pointer';
 
 // Glass panel styles with stone neutrals
-export const GLASS_PANEL =
-  'bg-stone-900/50 backdrop-blur-xl border border-white/5 rounded-2xl';
+export const GLASS_PANEL = 'bg-stone-900/50 backdrop-blur-xl border border-white/5 rounded-2xl';
 
-export const GLASS_PANEL_LIGHT =
-  'bg-white/5 backdrop-blur-xl border border-white/10 rounded-2xl';
+export const GLASS_PANEL_LIGHT = 'bg-white/5 backdrop-blur-xl border border-white/10 rounded-2xl';
 
 export const DROPDOWN_PANEL =
   'absolute top-full right-0 mt-2 w-56 bg-stone-900 border border-white/10 rounded-xl shadow-2xl z-50 overflow-hidden';

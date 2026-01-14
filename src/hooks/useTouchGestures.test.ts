@@ -9,7 +9,7 @@ import { useTouchGestures } from './useTouchGestures';
 // Helper to create mock touch events
 function createTouchEvent(
   type: 'touchstart' | 'touchmove' | 'touchend',
-  touches: Array<{ identifier: number; clientX: number; clientY: number }>
+  touches: Array<{ identifier: number; clientX: number; clientY: number }>,
 ): React.TouchEvent {
   const touchList = {
     length: touches.length,
@@ -187,9 +187,7 @@ describe('useTouchGestures', () => {
     it('calls onGestureStart when gesture begins', () => {
       const onGestureStart = vi.fn();
       const onPinch = vi.fn();
-      const { result } = renderHook(() =>
-        useTouchGestures({ onGestureStart, onPinch })
-      );
+      const { result } = renderHook(() => useTouchGestures({ onGestureStart, onPinch }));
 
       // Start two-finger touch
       const touchStart = createTouchEvent('touchstart', [
@@ -217,9 +215,7 @@ describe('useTouchGestures', () => {
     it('calls onGestureEnd when gesture ends', () => {
       const onGestureEnd = vi.fn();
       const onPinch = vi.fn();
-      const { result } = renderHook(() =>
-        useTouchGestures({ onGestureEnd, onPinch })
-      );
+      const { result } = renderHook(() => useTouchGestures({ onGestureEnd, onPinch }));
 
       // Start two-finger touch
       const touchStart = createTouchEvent('touchstart', [
@@ -242,9 +238,7 @@ describe('useTouchGestures', () => {
       });
 
       // End gesture (one finger lifted)
-      const touchEnd = createTouchEvent('touchend', [
-        { identifier: 0, clientX: 50, clientY: 100 },
-      ]);
+      const touchEnd = createTouchEvent('touchend', [{ identifier: 0, clientX: 50, clientY: 100 }]);
 
       act(() => {
         result.current.handlers.onTouchEnd(touchEnd);
@@ -257,9 +251,7 @@ describe('useTouchGestures', () => {
   describe('enabled option', () => {
     it('does not process gestures when disabled', () => {
       const onPinch = vi.fn();
-      const { result } = renderHook(() =>
-        useTouchGestures({ onPinch, enabled: false })
-      );
+      const { result } = renderHook(() => useTouchGestures({ onPinch, enabled: false }));
 
       const touchStart = createTouchEvent('touchstart', [
         { identifier: 0, clientX: 100, clientY: 100 },

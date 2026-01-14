@@ -20,21 +20,11 @@ export interface UseAgentMemoryState {
 export interface UseAgentMemoryActions {
   search: (
     query: string,
-    options?: { agentId?: string; limit?: number }
+    options?: { agentId?: string; limit?: number },
   ) => Promise<MemorySearchResult[]>;
-  storePreference: (
-    content: string,
-    agentId?: string
-  ) => Promise<string | null>;
-  storeInsight: (
-    content: string,
-    agentId?: string
-  ) => Promise<string | null>;
-  storeFeedback: (
-    content: string,
-    success: boolean,
-    agentId?: string
-  ) => Promise<string | null>;
+  storePreference: (content: string, agentId?: string) => Promise<string | null>;
+  storeInsight: (content: string, agentId?: string) => Promise<string | null>;
+  storeFeedback: (content: string, success: boolean, agentId?: string) => Promise<string | null>;
   cognify: (agentId: string) => Promise<boolean>;
   clearError: () => void;
   clearResults: () => void;
@@ -73,7 +63,7 @@ export function useAgentMemory(): UseAgentMemoryReturn {
   const search = useCallback(
     async (
       query: string,
-      options: { agentId?: string; limit?: number } = {}
+      options: { agentId?: string; limit?: number } = {},
     ): Promise<MemorySearchResult[]> => {
       setState((s) => ({ ...s, isSearching: true, error: null }));
 
@@ -111,14 +101,14 @@ export function useAgentMemory(): UseAgentMemoryReturn {
         return [];
       }
     },
-    [user]
+    [user],
   );
 
   const storeLearning = useCallback(
     async (
       content: string,
       category: 'preference' | 'insight' | 'success' | 'failure',
-      agentId: string = 'banner_design'
+      agentId: string = 'banner_design',
     ): Promise<string | null> => {
       if (!user?.id) {
         setState((s) => ({ ...s, error: 'User not authenticated' }));
@@ -158,32 +148,28 @@ export function useAgentMemory(): UseAgentMemoryReturn {
         return null;
       }
     },
-    [user]
+    [user],
   );
 
   const storePreference = useCallback(
     async (content: string, agentId?: string): Promise<string | null> => {
       return storeLearning(content, 'preference', agentId);
     },
-    [storeLearning]
+    [storeLearning],
   );
 
   const storeInsight = useCallback(
     async (content: string, agentId?: string): Promise<string | null> => {
       return storeLearning(content, 'insight', agentId);
     },
-    [storeLearning]
+    [storeLearning],
   );
 
   const storeFeedback = useCallback(
-    async (
-      content: string,
-      success: boolean,
-      agentId?: string
-    ): Promise<string | null> => {
+    async (content: string, success: boolean, agentId?: string): Promise<string | null> => {
       return storeLearning(content, success ? 'success' : 'failure', agentId);
     },
-    [storeLearning]
+    [storeLearning],
   );
 
   const cognify = useCallback(async (agentId: string): Promise<boolean> => {

@@ -180,10 +180,7 @@ export function createLogger(tag: string): TaggedLogger {
  *   return await api.getUser(userId);
  * });
  */
-export async function logPerformance<T>(
-  label: string,
-  fn: () => Promise<T>
-): Promise<T> {
+export async function logPerformance<T>(label: string, fn: () => Promise<T>): Promise<T> {
   if (!shouldLog('debug')) {
     return fn();
   }

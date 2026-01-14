@@ -28,12 +28,10 @@ export const ConversationHistory: React.FC<ConversationHistoryProps> = ({
     <div className='absolute right-0 top-14 w-80 max-h-96 overflow-y-auto bg-zinc-900 border border-white/10 rounded-2xl shadow-2xl z-50'>
       {/* Header */}
       <div className='p-3 border-b border-white/10 flex items-center justify-between'>
-        <span className='text-sm font-bold text-zinc-300 uppercase tracking-wider'>Chat History</span>
-        <button
-          type="button"
-          onClick={onClose}
-          className='text-zinc-500 hover:text-white'
-        >
+        <span className='text-sm font-bold text-zinc-300 uppercase tracking-wider'>
+          Chat History
+        </span>
+        <button type='button' onClick={onClose} className='text-zinc-500 hover:text-white'>
           <span className='material-icons text-sm'>close</span>
         </button>
       </div>
@@ -45,9 +43,7 @@ export const ConversationHistory: React.FC<ConversationHistoryProps> = ({
         </div>
       ) : conversations.length === 0 ? (
         /* Empty State */
-        <div className='p-4 text-center text-zinc-500 text-sm'>
-          No conversations yet
-        </div>
+        <div className='p-4 text-center text-zinc-500 text-sm'>No conversations yet</div>
       ) : (
         /* Conversation List */
         <div className='p-2 space-y-1'>
@@ -61,13 +57,8 @@ export const ConversationHistory: React.FC<ConversationHistoryProps> = ({
               }`}
             >
               {/* Conversation Info - Click to load */}
-              <div
-                onClick={() => onLoadConversation(conv.id)}
-                className='flex-1 min-w-0'
-              >
-                <div className='text-sm font-medium text-white truncate'>
-                  {conv.title}
-                </div>
+              <div onClick={() => onLoadConversation(conv.id)} className='flex-1 min-w-0'>
+                <div className='text-sm font-medium text-white truncate'>{conv.title}</div>
                 <div className='text-xs text-zinc-500'>
                   {new Date(conv.lastMessageAt).toLocaleDateString()}
                 </div>
@@ -75,7 +66,7 @@ export const ConversationHistory: React.FC<ConversationHistoryProps> = ({
 
               {/* Delete Button - Hidden until hover */}
               <button
-                type="button"
+                type='button'
                 onClick={(e) => {
                   e.stopPropagation();
                   if (confirm('Delete this conversation?')) {

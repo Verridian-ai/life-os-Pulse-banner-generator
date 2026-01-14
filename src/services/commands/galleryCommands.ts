@@ -16,7 +16,7 @@ export class SaveDesignCommand implements Command {
 
   async execute(
     args: { title: string; description?: string; is_public?: boolean },
-    context: CommandContext
+    context: CommandContext,
   ): Promise<ActionResult> {
     const { title, description = '', is_public = false } = args;
 
@@ -71,7 +71,7 @@ export class LoadDesignCommand implements Command {
 
   async execute(
     args: { design_id?: string; name?: string },
-    context: CommandContext
+    context: CommandContext,
   ): Promise<ActionResult> {
     const { design_id, name } = args;
 
@@ -85,9 +85,7 @@ export class LoadDesignCommand implements Command {
       } else if (name) {
         // Search by name
         const designs = await getUserDesigns();
-        design = designs.find(
-          (d) => d.title.toLowerCase() === name.toLowerCase()
-        );
+        design = designs.find((d) => d.title.toLowerCase() === name.toLowerCase());
       }
 
       if (!design) {
@@ -114,7 +112,9 @@ export class LoadDesignCommand implements Command {
             context.canvasCallbacks.deleteElement?.(el.id);
           });
           canvasData.elements.forEach((el) => {
-            context.canvasCallbacks.addElement?.(el as Parameters<NonNullable<typeof context.canvasCallbacks.addElement>>[0]);
+            context.canvasCallbacks.addElement?.(
+              el as Parameters<NonNullable<typeof context.canvasCallbacks.addElement>>[0],
+            );
           });
         }
       }
@@ -179,7 +179,7 @@ export class ExportDesignCommand implements Command {
 
   execute(
     args: { format?: 'png' | 'jpg' | 'webp' | 'json'; quality?: number; title?: string },
-    context: CommandContext
+    context: CommandContext,
   ): ActionResult {
     const { format = 'png', quality = 0.9, title = 'design' } = args;
 
@@ -338,7 +338,7 @@ export class SearchDesignsCommand implements Command {
 
   async execute(
     args: { query: string; tags?: string[] },
-    _context: CommandContext
+    _context: CommandContext,
   ): Promise<ActionResult> {
     const { query, tags } = args;
 
@@ -379,4 +379,3 @@ export class SearchDesignsCommand implements Command {
     }
   }
 }
-

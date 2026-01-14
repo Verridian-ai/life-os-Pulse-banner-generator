@@ -29,34 +29,34 @@ import { Toast } from './Toast';
  * @returns Container div with all active toasts
  */
 export function ToastContainer() {
-    const { toasts, removeToast } = useToastContext();
+  const { toasts, removeToast } = useToastContext();
 
-    // Keyboard accessibility: Global Escape key listener dismisses most recent dismissible toast
-    // This prevents multiple toasts from being dismissed simultaneously
-    useEffect(() => {
-        const handleKeyDown = (event: KeyboardEvent) => {
-            if (event.key === 'Escape') {
-                // Find the most recent dismissible toast (last in array)
-                const dismissibleToast = [...toasts].reverse().find((toast) => toast.dismissible);
-                if (dismissibleToast) {
-                    event.preventDefault();
-                    removeToast(dismissibleToast.id);
-                }
-            }
-        };
+  // Keyboard accessibility: Global Escape key listener dismisses most recent dismissible toast
+  // This prevents multiple toasts from being dismissed simultaneously
+  useEffect(() => {
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') {
+        // Find the most recent dismissible toast (last in array)
+        const dismissibleToast = [...toasts].reverse().find((toast) => toast.dismissible);
+        if (dismissibleToast) {
+          event.preventDefault();
+          removeToast(dismissibleToast.id);
+        }
+      }
+    };
 
-        window.addEventListener('keydown', handleKeyDown);
-        return () => window.removeEventListener('keydown', handleKeyDown);
-    }, [toasts, removeToast]);
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [toasts, removeToast]);
 
-    // Don't render anything if no toasts are active
-    if (toasts.length === 0) {
-        return null;
-    }
+  // Don't render anything if no toasts are active
+  if (toasts.length === 0) {
+    return null;
+  }
 
-    return (
-        <div
-            className="
+  return (
+    <div
+      className='
         fixed top-16 md:top-20 left-1/2 -translate-x-1/2
         z-[60]
         flex flex-col gap-3
@@ -64,22 +64,22 @@ export function ToastContainer() {
         pointer-events-none
         transition-all duration-300 ease-out
         motion-reduce:transition-none
-      "
-        >
-            {toasts.map((toast) => (
-                <div
-                    key={toast.id}
-                    className="
+      '
+    >
+      {toasts.map((toast) => (
+        <div
+          key={toast.id}
+          className='
             pointer-events-auto
             transition-all duration-300 ease-out
             motion-reduce:transition-none
-          "
-                >
-                    <Toast toast={toast} onDismiss={removeToast} />
-                </div>
-            ))}
+          '
+        >
+          <Toast toast={toast} onDismiss={removeToast} />
         </div>
-    );
+      ))}
+    </div>
+  );
 }
 
 export default ToastContainer;

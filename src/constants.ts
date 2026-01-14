@@ -888,13 +888,25 @@ export const FORMAT_CATEGORIES = {
     label: 'LinkedIn',
     icon: 'work',
     color: 'blue',
-    formats: ['linkedin_portrait', 'linkedin_carousel', 'linkedin_post', 'linkedin_banner', 'linkedin_company_banner'] as CanvasFormatId[],
+    formats: [
+      'linkedin_portrait',
+      'linkedin_carousel',
+      'linkedin_post',
+      'linkedin_banner',
+      'linkedin_company_banner',
+    ] as CanvasFormatId[],
   },
   facebook: {
     label: 'Facebook',
     icon: 'facebook',
     color: 'indigo',
-    formats: ['facebook_story', 'facebook_post', 'facebook_cover', 'facebook_event', 'facebook_group'] as CanvasFormatId[],
+    formats: [
+      'facebook_story',
+      'facebook_post',
+      'facebook_cover',
+      'facebook_event',
+      'facebook_group',
+    ] as CanvasFormatId[],
   },
   x: {
     label: 'X',
@@ -906,13 +918,24 @@ export const FORMAT_CATEGORIES = {
     label: 'Instagram',
     icon: 'camera_alt',
     color: 'pink',
-    formats: ['instagram_reels', 'instagram_story', 'instagram_portrait', 'instagram_post', 'instagram_avatar'] as CanvasFormatId[],
+    formats: [
+      'instagram_reels',
+      'instagram_story',
+      'instagram_portrait',
+      'instagram_post',
+      'instagram_avatar',
+    ] as CanvasFormatId[],
   },
   youtube: {
     label: 'YouTube',
     icon: 'smart_display',
     color: 'red',
-    formats: ['youtube_shorts', 'youtube_thumbnail', 'youtube_banner', 'youtube_endscreen'] as CanvasFormatId[],
+    formats: [
+      'youtube_shorts',
+      'youtube_thumbnail',
+      'youtube_banner',
+      'youtube_endscreen',
+    ] as CanvasFormatId[],
   },
   tiktok: {
     label: 'TikTok',
@@ -947,7 +970,13 @@ export const INPAINT_TEXT_BOX_PRESETS: TextBoxPreset[] = [
   { id: 'headline', label: 'Headline', width: 800, height: 80, useCase: 'Main title text' },
   { id: 'subheadline', label: 'Subheadline', width: 600, height: 60, useCase: 'Supporting text' },
   { id: 'caption', label: 'Caption', width: 400, height: 40, useCase: 'Small captions' },
-  { id: 'cta_button', label: 'CTA Button', width: 200, height: 50, useCase: 'Call-to-action buttons' },
+  {
+    id: 'cta_button',
+    label: 'CTA Button',
+    width: 200,
+    height: 50,
+    useCase: 'Call-to-action buttons',
+  },
   { id: 'name_plate', label: 'Name Plate', width: 300, height: 60, useCase: 'Name/title combos' },
   { id: 'logo_area', label: 'Logo Area', width: 150, height: 150, useCase: 'Logo placement' },
   { id: 'quote_box', label: 'Quote Box', width: 500, height: 100, useCase: 'Testimonials/quotes' },
@@ -1103,9 +1132,9 @@ export enum Tab {
 
 // Sub-navigation modes within Studio tab
 export enum StudioMode {
-  CANVAS = 'canvas',      // Banner design (current STUDIO functionality)
-  LINKEDIN = 'linkedin',  // LinkedIn Content Studio
-  MEDIA = 'media',        // Gallery/Media library
+  CANVAS = 'canvas', // Banner design (current STUDIO functionality)
+  LINKEDIN = 'linkedin', // LinkedIn Content Studio
+  MEDIA = 'media', // Gallery/Media library
   TEMPLATES = 'templates', // Template Library
 }
 
@@ -1322,7 +1351,8 @@ export const REPLICATE_VIDEO_MODELS: Record<VideoModelId, VideoModelMetadata> = 
       loop: false,
       resolution4K: false,
     },
-    description: 'Professional video with advanced camera controls. Best for marketing and product demos.',
+    description:
+      'Professional video with advanced camera controls. Best for marketing and product demos.',
     costPerSecond: 0.032,
   },
   luma: {
@@ -1358,7 +1388,8 @@ export const REPLICATE_VIDEO_MODELS: Record<VideoModelId, VideoModelMetadata> = 
       loop: false,
       resolution4K: true, // Supports 4K output
     },
-    description: 'Google flagship model with 4K support. Best for high-quality professional content.',
+    description:
+      'Google flagship model with 4K support. Best for high-quality professional content.',
     costPerSecond: 0.045,
   },
   hailuo: {
@@ -1402,7 +1433,7 @@ export const KLING_CAMERA_MOTIONS = [
   { id: 'crane_down', label: 'Crane Down', description: 'Crane shot downward' },
 ] as const;
 
-export type KlingCameraMotion = typeof KLING_CAMERA_MOTIONS[number]['id'];
+export type KlingCameraMotion = (typeof KLING_CAMERA_MOTIONS)[number]['id'];
 
 // Image generation models available for selection
 export const IMAGE_MODELS = [

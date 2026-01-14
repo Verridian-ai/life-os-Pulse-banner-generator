@@ -42,9 +42,9 @@ export const useFocusTrap = (isOpen: boolean, onClose: () => void) => {
 
     // Find all focusable elements
     const focusableElements = modalElement.querySelectorAll(
-      'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
+      'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])',
     );
-    
+
     if (focusableElements.length === 0) return;
 
     const firstElement = focusableElements[0] as HTMLElement;

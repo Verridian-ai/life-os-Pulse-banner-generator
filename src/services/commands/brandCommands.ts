@@ -14,10 +14,7 @@ import {
 export class ExtractBrandCommand implements Command {
   name = 'extract_brand';
 
-  async execute(
-    args: { save_as?: string },
-    context: CommandContext
-  ): Promise<ActionResult> {
+  async execute(args: { save_as?: string }, context: CommandContext): Promise<ActionResult> {
     const { save_as } = args;
 
     console.log('[ExtractBrandCommand] Extracting brand from canvas');
@@ -114,10 +111,14 @@ export class CheckBrandConsistencyCommand implements Command {
       const textElements = elements.filter((el) => el.type === 'text');
       textElements.forEach((el) => {
         if (el.fontFamily && !brandFontNames.includes(el.fontFamily)) {
-          issues.push(`Text "${el.content?.substring(0, 20)}..." uses non-brand font "${el.fontFamily}"`);
+          issues.push(
+            `Text "${el.content?.substring(0, 20)}..." uses non-brand font "${el.fontFamily}"`,
+          );
         }
         if (el.color && !brandColorHexes.includes(el.color)) {
-          issues.push(`Text "${el.content?.substring(0, 20)}..." uses non-brand color "${el.color}"`);
+          issues.push(
+            `Text "${el.content?.substring(0, 20)}..." uses non-brand color "${el.color}"`,
+          );
         }
       });
 
@@ -152,7 +153,7 @@ export class ApplyBrandProfileCommand implements Command {
 
   async execute(
     args: { profile_name?: string; profile_id?: string },
-    context: CommandContext
+    context: CommandContext,
   ): Promise<ActionResult> {
     const { profile_name, profile_id } = args;
 
@@ -165,13 +166,14 @@ export class ApplyBrandProfileCommand implements Command {
       if (profile_id) {
         profile = profiles.find((p) => p.id === profile_id);
       } else if (profile_name) {
-        profile = profiles.find(
-          (p) => p.name.toLowerCase().includes(profile_name.toLowerCase())
-        );
+        profile = profiles.find((p) => p.name.toLowerCase().includes(profile_name.toLowerCase()));
       }
 
       if (!profile) {
-        const available = profiles.slice(0, 3).map((p) => `"${p.name}"`).join(', ');
+        const available = profiles
+          .slice(0, 3)
+          .map((p) => `"${p.name}"`)
+          .join(', ');
         return {
           success: false,
           error: `Brand profile not found. Available: ${available || 'None - create one first'}`,
@@ -254,4 +256,3 @@ export class ListBrandProfilesCommand implements Command {
     }
   }
 }
-

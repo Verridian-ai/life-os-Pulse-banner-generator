@@ -116,27 +116,51 @@ const LayersPanel: React.FC = () => {
                   <div className='flex gap-0.5 bg-white/5 rounded-lg p-0.5'>
                     <button
                       type='button'
-                      onClick={() => updateElement(el.id, { fontWeight: el.fontWeight === '700' ? '400' : '700' })}
+                      onClick={() =>
+                        updateElement(el.id, {
+                          fontWeight: el.fontWeight === '700' ? '400' : '700',
+                        })
+                      }
                       className={`min-w-[36px] sm:min-w-[40px] min-h-[36px] sm:min-h-[40px] rounded-md flex items-center justify-center text-sm sm:text-base font-black ${
-                        el.fontWeight === '700' || el.fontWeight === '800' || el.fontWeight === '900'
+                        el.fontWeight === '700' ||
+                        el.fontWeight === '800' ||
+                        el.fontWeight === '900'
                           ? 'bg-purple-600 text-white'
                           : 'text-zinc-400 active:bg-white/10'
                       }`}
-                    >B</button>
+                    >
+                      B
+                    </button>
                     <button
                       type='button'
-                      onClick={() => updateElement(el.id, { fontStyle: el.fontStyle === 'italic' ? 'normal' : 'italic' })}
+                      onClick={() =>
+                        updateElement(el.id, {
+                          fontStyle: el.fontStyle === 'italic' ? 'normal' : 'italic',
+                        })
+                      }
                       className={`min-w-[36px] sm:min-w-[40px] min-h-[36px] sm:min-h-[40px] rounded-md flex items-center justify-center text-sm sm:text-base italic ${
-                        el.fontStyle === 'italic' ? 'bg-purple-600 text-white' : 'text-zinc-400 active:bg-white/10'
+                        el.fontStyle === 'italic'
+                          ? 'bg-purple-600 text-white'
+                          : 'text-zinc-400 active:bg-white/10'
                       }`}
-                    >I</button>
+                    >
+                      I
+                    </button>
                     <button
                       type='button'
-                      onClick={() => updateElement(el.id, { textDecoration: el.textDecoration === 'underline' ? 'none' : 'underline' })}
+                      onClick={() =>
+                        updateElement(el.id, {
+                          textDecoration: el.textDecoration === 'underline' ? 'none' : 'underline',
+                        })
+                      }
                       className={`min-w-[36px] sm:min-w-[40px] min-h-[36px] sm:min-h-[40px] rounded-md flex items-center justify-center text-sm sm:text-base underline ${
-                        el.textDecoration?.includes('underline') ? 'bg-purple-600 text-white' : 'text-zinc-400 active:bg-white/10'
+                        el.textDecoration?.includes('underline')
+                          ? 'bg-purple-600 text-white'
+                          : 'text-zinc-400 active:bg-white/10'
                       }`}
-                    >U</button>
+                    >
+                      U
+                    </button>
                   </div>
                   <input
                     type='color'
@@ -153,10 +177,14 @@ const LayersPanel: React.FC = () => {
                         key={align}
                         onClick={() => updateElement(el.id, { textAlign: align })}
                         className={`min-w-[36px] sm:min-w-[40px] min-h-[36px] sm:min-h-[40px] rounded-md flex items-center justify-center ${
-                          (el.textAlign || 'left') === align ? 'bg-purple-600 text-white' : 'text-zinc-400 active:bg-white/10'
+                          (el.textAlign || 'left') === align
+                            ? 'bg-purple-600 text-white'
+                            : 'text-zinc-400 active:bg-white/10'
                         }`}
                       >
-                        <span className='material-icons text-base sm:text-lg'>format_align_{align}</span>
+                        <span className='material-icons text-base sm:text-lg'>
+                          format_align_{align}
+                        </span>
                       </button>
                     ))}
                   </div>
@@ -172,7 +200,9 @@ const LayersPanel: React.FC = () => {
                     {(Object.keys(groupedFonts) as FontCategory[]).map((category) => (
                       <optgroup key={category} label={FONT_CATEGORY_LABELS[category]}>
                         {groupedFonts[category].map((font) => (
-                          <option key={font} value={font}>{font}</option>
+                          <option key={font} value={font}>
+                            {font}
+                          </option>
                         ))}
                       </optgroup>
                     ))}
@@ -183,7 +213,11 @@ const LayersPanel: React.FC = () => {
                       min='8'
                       max='200'
                       value={el.fontSize || 60}
-                      onChange={(e) => updateElement(el.id, { fontSize: Math.max(8, parseInt(e.target.value) || 60) })}
+                      onChange={(e) =>
+                        updateElement(el.id, {
+                          fontSize: Math.max(8, parseInt(e.target.value) || 60),
+                        })
+                      }
                       className='w-full min-h-[36px] sm:min-h-[40px] bg-transparent text-[10px] sm:text-xs font-bold text-zinc-300 text-center focus:outline-none'
                     />
                     <span className='text-[8px] sm:text-[9px] text-zinc-500 pr-2'>px</span>
@@ -197,16 +231,24 @@ const LayersPanel: React.FC = () => {
                     onClick={() => centerElement(el.id, 'horizontal')}
                     className='flex-1 min-h-[36px] sm:min-h-[40px] bg-zinc-800 rounded-lg flex items-center justify-center gap-1 text-zinc-400 active:bg-zinc-700 border border-white/5'
                   >
-                    <span className='material-icons text-base sm:text-lg'>align_horizontal_center</span>
-                    <span className='text-[9px] sm:text-[10px] font-bold hidden sm:inline'>Center H</span>
+                    <span className='material-icons text-base sm:text-lg'>
+                      align_horizontal_center
+                    </span>
+                    <span className='text-[9px] sm:text-[10px] font-bold hidden sm:inline'>
+                      Center H
+                    </span>
                   </button>
                   <button
                     type='button'
                     onClick={() => centerElement(el.id, 'vertical')}
                     className='flex-1 min-h-[36px] sm:min-h-[40px] bg-zinc-800 rounded-lg flex items-center justify-center gap-1 text-zinc-400 active:bg-zinc-700 border border-white/5'
                   >
-                    <span className='material-icons text-base sm:text-lg'>align_vertical_center</span>
-                    <span className='text-[9px] sm:text-[10px] font-bold hidden sm:inline'>Center V</span>
+                    <span className='material-icons text-base sm:text-lg'>
+                      align_vertical_center
+                    </span>
+                    <span className='text-[9px] sm:text-[10px] font-bold hidden sm:inline'>
+                      Center V
+                    </span>
                   </button>
                   <button
                     type='button'
@@ -222,7 +264,9 @@ const LayersPanel: React.FC = () => {
                     className='min-w-[36px] sm:min-w-[40px] min-h-[36px] sm:min-h-[40px] bg-zinc-800 rounded-lg flex items-center justify-center text-zinc-400 active:bg-zinc-700 border border-white/5'
                     title='Send to Back'
                   >
-                    <span className='material-icons text-base sm:text-lg'>vertical_align_bottom</span>
+                    <span className='material-icons text-base sm:text-lg'>
+                      vertical_align_bottom
+                    </span>
                   </button>
                 </div>
               </div>
@@ -237,16 +281,24 @@ const LayersPanel: React.FC = () => {
                     onClick={() => centerElement(el.id, 'horizontal')}
                     className='flex-1 min-h-[36px] sm:min-h-[40px] bg-zinc-800 rounded-lg flex items-center justify-center gap-1 text-zinc-400 active:bg-zinc-700 border border-white/5'
                   >
-                    <span className='material-icons text-base sm:text-lg'>align_horizontal_center</span>
-                    <span className='text-[9px] sm:text-[10px] font-bold hidden sm:inline'>Center H</span>
+                    <span className='material-icons text-base sm:text-lg'>
+                      align_horizontal_center
+                    </span>
+                    <span className='text-[9px] sm:text-[10px] font-bold hidden sm:inline'>
+                      Center H
+                    </span>
                   </button>
                   <button
                     type='button'
                     onClick={() => centerElement(el.id, 'vertical')}
                     className='flex-1 min-h-[36px] sm:min-h-[40px] bg-zinc-800 rounded-lg flex items-center justify-center gap-1 text-zinc-400 active:bg-zinc-700 border border-white/5'
                   >
-                    <span className='material-icons text-base sm:text-lg'>align_vertical_center</span>
-                    <span className='text-[9px] sm:text-[10px] font-bold hidden sm:inline'>Center V</span>
+                    <span className='material-icons text-base sm:text-lg'>
+                      align_vertical_center
+                    </span>
+                    <span className='text-[9px] sm:text-[10px] font-bold hidden sm:inline'>
+                      Center V
+                    </span>
                   </button>
                   <button
                     type='button'
@@ -262,7 +314,9 @@ const LayersPanel: React.FC = () => {
                     className='min-w-[36px] sm:min-w-[40px] min-h-[36px] sm:min-h-[40px] bg-zinc-800 rounded-lg flex items-center justify-center text-zinc-400 active:bg-zinc-700 border border-white/5'
                     title='Send to Back'
                   >
-                    <span className='material-icons text-base sm:text-lg'>vertical_align_bottom</span>
+                    <span className='material-icons text-base sm:text-lg'>
+                      vertical_align_bottom
+                    </span>
                   </button>
                 </div>
               </div>

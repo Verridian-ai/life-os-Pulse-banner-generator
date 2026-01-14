@@ -9,7 +9,9 @@ export type OperationType = 'text' | 'vision' | 'reasoning' | 'image_gen' | 'ima
 /**
  * Track model performance metric
  */
-export const trackModelPerformance = (metric: Omit<import('../types/ai').PerformanceMetric, 'timestamp'> & { timestamp?: number }) => {
+export const trackModelPerformance = (
+  metric: Omit<import('../types/ai').PerformanceMetric, 'timestamp'> & { timestamp?: number },
+) => {
   try {
     const fullMetric: import('../types/ai').PerformanceMetric = {
       timestamp: Date.now(),
@@ -19,7 +21,8 @@ export const trackModelPerformance = (metric: Omit<import('../types/ai').Perform
     // Get existing metrics
     // We use a specific key 'performance_log' within the model metrics namespace
     const EXISTING_KEY = 'performance_log';
-    const logs = modelMetricsStorage.get<import('../types/ai').PerformanceMetric[]>(EXISTING_KEY) || [];
+    const logs =
+      modelMetricsStorage.get<import('../types/ai').PerformanceMetric[]>(EXISTING_KEY) || [];
     const updated = [...logs, fullMetric].slice(-1000); // Keep last 1000
     modelMetricsStorage.set(EXISTING_KEY, updated);
 
@@ -394,7 +397,10 @@ export const compareModelPerformance = (
       case 'balanced':
       default:
         score =
-          normalizedQuality * 0.4 + normalizedTime * 0.3 + normalizedCost * 0.2 + normalizedSuccess * 0.1;
+          normalizedQuality * 0.4 +
+          normalizedTime * 0.3 +
+          normalizedCost * 0.2 +
+          normalizedSuccess * 0.1;
         break;
     }
 
@@ -428,6 +434,3 @@ export const compareModelPerformance = (
       ranking: index + 1,
     }));
 };
-
-
-

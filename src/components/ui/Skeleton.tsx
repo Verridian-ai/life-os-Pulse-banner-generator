@@ -32,12 +32,10 @@ export const Skeleton: React.FC<SkeletonProps> = ({
   variant = 'rect',
   animation = 'shimmer',
   width,
-  height
+  height,
 }) => {
   // Animation classes - shimmer uses CSS class, pulse uses Tailwind
-  const animationClasses = animation === 'shimmer'
-    ? 'skeleton'
-    : 'animate-pulse bg-white/5';
+  const animationClasses = animation === 'shimmer' ? 'skeleton' : 'animate-pulse bg-white/5';
 
   // Shape classes based on variant
   const shapeClasses = {
@@ -55,7 +53,7 @@ export const Skeleton: React.FC<SkeletonProps> = ({
     <div
       className={`${animationClasses} ${shapeClasses[variant]} ${className}`}
       style={style}
-      aria-hidden="true"
+      aria-hidden='true'
     />
   );
 };
@@ -65,14 +63,14 @@ export const Skeleton: React.FC<SkeletonProps> = ({
  * Uses shimmer animation for premium loading experience
  */
 export const ImageCardSkeleton: React.FC = () => (
-  <div className="rounded-xl overflow-hidden bg-zinc-900/50 border border-white/5 h-full flex flex-col">
+  <div className='rounded-xl overflow-hidden bg-zinc-900/50 border border-white/5 h-full flex flex-col'>
     {/* Image thumbnail skeleton */}
-    <Skeleton className="aspect-video w-full rounded-none" />
+    <Skeleton className='aspect-video w-full rounded-none' />
     {/* Metadata skeleton */}
-    <div className="p-4 space-y-2">
-      <Skeleton variant="text" width="40%" />
-      <Skeleton variant="text" width="90%" />
-      <Skeleton variant="text" width="70%" />
+    <div className='p-4 space-y-2'>
+      <Skeleton variant='text' width='40%' />
+      <Skeleton variant='text' width='90%' />
+      <Skeleton variant='text' width='70%' />
     </div>
   </div>
 );

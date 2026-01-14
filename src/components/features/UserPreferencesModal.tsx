@@ -49,9 +49,9 @@ export const UserPreferencesModal: React.FC<UserPreferencesModalProps> = ({ isOp
   return (
     <div
       className='fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4'
-      role="dialog"
-      aria-modal="true"
-      aria-labelledby="preferences-modal-title"
+      role='dialog'
+      aria-modal='true'
+      aria-labelledby='preferences-modal-title'
     >
       <div
         ref={modalRef}
@@ -61,13 +61,13 @@ export const UserPreferencesModal: React.FC<UserPreferencesModalProps> = ({ isOp
           type='button'
           onClick={onClose}
           className='absolute top-4 right-4 min-w-[44px] min-h-[44px] flex items-center justify-center text-zinc-500 hover:text-white hover:bg-white/10 rounded-full transition focus-ring'
-          aria-label="Close preferences"
+          aria-label='Close preferences'
         >
           <span className='material-icons'>close</span>
         </button>
 
         <h2
-          id="preferences-modal-title"
+          id='preferences-modal-title'
           className='text-xl font-black text-white uppercase tracking-wider mb-6 flex items-center gap-2'
         >
           <span className='material-icons text-sky-500'>tune</span>
@@ -88,9 +88,7 @@ export const UserPreferencesModal: React.FC<UserPreferencesModalProps> = ({ isOp
                     (user?.email || authUser?.email)?.split('@')[0] ||
                     'User'}
                 </p>
-                <p className='text-xs text-zinc-400 truncate'>
-                  {user?.email || authUser?.email}
-                </p>
+                <p className='text-xs text-zinc-400 truncate'>{user?.email || authUser?.email}</p>
               </div>
             </div>
           </div>

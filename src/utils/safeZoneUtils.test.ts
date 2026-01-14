@@ -147,16 +147,37 @@ describe('safeZoneUtils', () => {
 
   describe('isDangerZone', () => {
     it('identifies danger zones by label', () => {
-      expect(isDangerZone({ label: 'Danger Zone', type: 'rect', x: 0, y: 0, width: 100, height: 100 })).toBe(true);
-      expect(isDangerZone({ label: 'Dead Zone', type: 'rect', x: 0, y: 0, width: 100, height: 100 })).toBe(true);
-      expect(isDangerZone({ label: 'Profile Overlap', type: 'rect', x: 0, y: 0, width: 100, height: 100 })).toBe(true);
-      expect(isDangerZone({ label: 'UI Overlap', type: 'rect', x: 0, y: 0, width: 100, height: 100 })).toBe(true);
-      expect(isDangerZone({ label: 'Cover Photo', type: 'rect', x: 0, y: 0, width: 100, height: 100 })).toBe(true);
+      expect(
+        isDangerZone({ label: 'Danger Zone', type: 'rect', x: 0, y: 0, width: 100, height: 100 }),
+      ).toBe(true);
+      expect(
+        isDangerZone({ label: 'Dead Zone', type: 'rect', x: 0, y: 0, width: 100, height: 100 }),
+      ).toBe(true);
+      expect(
+        isDangerZone({
+          label: 'Profile Overlap',
+          type: 'rect',
+          x: 0,
+          y: 0,
+          width: 100,
+          height: 100,
+        }),
+      ).toBe(true);
+      expect(
+        isDangerZone({ label: 'UI Overlap', type: 'rect', x: 0, y: 0, width: 100, height: 100 }),
+      ).toBe(true);
+      expect(
+        isDangerZone({ label: 'Cover Photo', type: 'rect', x: 0, y: 0, width: 100, height: 100 }),
+      ).toBe(true);
     });
 
     it('identifies safe zones by label', () => {
-      expect(isDangerZone({ label: 'Safe Zone', type: 'rect', x: 0, y: 0, width: 100, height: 100 })).toBe(false);
-      expect(isDangerZone({ label: 'Content Area', type: 'rect', x: 0, y: 0, width: 100, height: 100 })).toBe(false);
+      expect(
+        isDangerZone({ label: 'Safe Zone', type: 'rect', x: 0, y: 0, width: 100, height: 100 }),
+      ).toBe(false);
+      expect(
+        isDangerZone({ label: 'Content Area', type: 'rect', x: 0, y: 0, width: 100, height: 100 }),
+      ).toBe(false);
     });
   });
 
@@ -179,15 +200,42 @@ describe('safeZoneUtils', () => {
 
   describe('getViewportAffected', () => {
     it('identifies mobile-specific zones', () => {
-      expect(getViewportAffected({ label: 'Mobile Danger', type: 'rect', x: 0, y: 0, width: 100, height: 100 })).toBe('mobile');
+      expect(
+        getViewportAffected({
+          label: 'Mobile Danger',
+          type: 'rect',
+          x: 0,
+          y: 0,
+          width: 100,
+          height: 100,
+        }),
+      ).toBe('mobile');
     });
 
     it('identifies desktop-specific zones', () => {
-      expect(getViewportAffected({ label: 'Desktop UI', type: 'rect', x: 0, y: 0, width: 100, height: 100 })).toBe('desktop');
+      expect(
+        getViewportAffected({
+          label: 'Desktop UI',
+          type: 'rect',
+          x: 0,
+          y: 0,
+          width: 100,
+          height: 100,
+        }),
+      ).toBe('desktop');
     });
 
     it('defaults to both for generic zones', () => {
-      expect(getViewportAffected({ label: 'Danger Zone', type: 'rect', x: 0, y: 0, width: 100, height: 100 })).toBe('both');
+      expect(
+        getViewportAffected({
+          label: 'Danger Zone',
+          type: 'rect',
+          x: 0,
+          y: 0,
+          width: 100,
+          height: 100,
+        }),
+      ).toBe('both');
     });
   });
 
@@ -223,9 +271,9 @@ describe('safeZoneUtils', () => {
       // New position should be outside zone or at edge
       expect(
         safePos.x >= zone.x + zone.width ||
-        safePos.x + bounds.width <= zone.x ||
-        safePos.y >= zone.y + zone.height ||
-        safePos.y + bounds.height <= zone.y
+          safePos.x + bounds.width <= zone.x ||
+          safePos.y >= zone.y + zone.height ||
+          safePos.y + bounds.height <= zone.y,
       ).toBe(true);
     });
 

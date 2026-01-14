@@ -13,7 +13,7 @@ export const APIKeyInstructionsModal: React.FC<APIKeyInstructionsModalProps> = (
   defaultTab,
 }) => {
   const [activeService, setActiveService] = useState<'openrouter' | 'replicate'>(
-    defaultTab || 'openrouter'
+    defaultTab || 'openrouter',
   );
 
   // Use Focus Trap
@@ -22,18 +22,18 @@ export const APIKeyInstructionsModal: React.FC<APIKeyInstructionsModalProps> = (
   if (!isOpen) return null;
 
   return (
-    <div 
+    <div
       className='fixed inset-0 z-50 flex items-center justify-center bg-black/90 backdrop-blur-sm p-3 sm:p-4 overflow-y-auto'
-      role="dialog"
-      aria-modal="true"
-      aria-labelledby="api-instructions-title"
+      role='dialog'
+      aria-modal='true'
+      aria-labelledby='api-instructions-title'
     >
-      <div 
+      <div
         ref={modalRef}
         className='bg-zinc-900 border border-white/10 rounded-2xl md:rounded-3xl p-4 sm:p-6 md:p-8 w-full max-w-lg md:max-w-2xl shadow-2xl relative my-4 md:my-8 max-h-[95vh] overflow-y-auto'
       >
         <button
-          type="button"
+          type='button'
           onClick={onClose}
           className='absolute top-3 right-3 md:top-4 md:right-4 text-zinc-500 hover:text-white transition z-10 min-w-[44px] min-h-[44px] flex items-center justify-center'
           aria-label='Close instructions'
@@ -45,22 +45,22 @@ export const APIKeyInstructionsModal: React.FC<APIKeyInstructionsModalProps> = (
           <div className='inline-flex items-center justify-center w-12 h-12 md:w-16 md:h-16 bg-gradient-to-br from-purple-600 to-blue-600 rounded-xl md:rounded-2xl mb-3 md:mb-4'>
             <span className='material-icons text-2xl md:text-3xl text-white'>key</span>
           </div>
-          <h2 
-            id="api-instructions-title"
+          <h2
+            id='api-instructions-title'
             className='text-xl sm:text-2xl md:text-3xl font-black text-white uppercase tracking-wider mb-2'
           >
             Get Your Free API Keys
           </h2>
           <p className='text-xs sm:text-sm text-zinc-400 max-w-2xl mx-auto px-2'>
-            This app uses AI services that require API keys. Follow these simple steps to get started
-            with <span className='text-purple-400 font-bold'>free credits</span>!
+            This app uses AI services that require API keys. Follow these simple steps to get
+            started with <span className='text-purple-400 font-bold'>free credits</span>!
           </p>
         </div>
 
         {/* Service Tabs */}
         <div className='flex bg-zinc-950 p-1 rounded-lg md:rounded-xl border border-white/5 mb-4 md:mb-6 max-w-md mx-auto'>
           <button
-            type="button"
+            type='button'
             onClick={() => setActiveService('openrouter')}
             className={`flex-1 py-2 md:py-3 rounded-md md:rounded-lg text-[10px] sm:text-xs font-bold uppercase tracking-wider transition min-h-[44px] ${
               activeService === 'openrouter'
@@ -73,7 +73,7 @@ export const APIKeyInstructionsModal: React.FC<APIKeyInstructionsModalProps> = (
             <span className='sm:hidden'>OpenR.</span>
           </button>
           <button
-            type="button"
+            type='button'
             onClick={() => setActiveService('replicate')}
             className={`flex-1 py-2 md:py-3 rounded-md md:rounded-lg text-[10px] sm:text-xs font-bold uppercase tracking-wider transition min-h-[44px] ${
               activeService === 'replicate'
@@ -92,7 +92,9 @@ export const APIKeyInstructionsModal: React.FC<APIKeyInstructionsModalProps> = (
             {/* What it's for */}
             <div className='bg-purple-500/10 border border-purple-500/20 rounded-xl md:rounded-2xl p-3 md:p-4'>
               <div className='flex items-start gap-2 md:gap-3'>
-                <span className='material-icons text-purple-400 text-lg md:text-xl mt-0.5 shrink-0'>info</span>
+                <span className='material-icons text-purple-400 text-lg md:text-xl mt-0.5 shrink-0'>
+                  info
+                </span>
                 <div>
                   <h3 className='text-xs sm:text-sm font-bold text-purple-400 uppercase tracking-wide mb-1'>
                     What OpenRouter Does
@@ -146,7 +148,9 @@ export const APIKeyInstructionsModal: React.FC<APIKeyInstructionsModalProps> = (
                     2
                   </div>
                   <div className='flex-1 min-w-0'>
-                    <h4 className='text-xs sm:text-sm font-bold text-white mb-1 md:mb-2'>Add Free Credits ($5)</h4>
+                    <h4 className='text-xs sm:text-sm font-bold text-white mb-1 md:mb-2'>
+                      Add Free Credits ($5)
+                    </h4>
                     <p className='text-[11px] sm:text-xs text-zinc-400 mb-2 md:mb-3 leading-relaxed'>
                       Click <span className='font-bold'>Credits</span> in the top menu, then{' '}
                       <span className='font-bold'>Add Credit</span>. You'll get{' '}
@@ -173,16 +177,22 @@ export const APIKeyInstructionsModal: React.FC<APIKeyInstructionsModalProps> = (
                     3
                   </div>
                   <div className='flex-1 min-w-0'>
-                    <h4 className='text-xs sm:text-sm font-bold text-white mb-1 md:mb-2'>Get Your API Key</h4>
+                    <h4 className='text-xs sm:text-sm font-bold text-white mb-1 md:mb-2'>
+                      Get Your API Key
+                    </h4>
                     <p className='text-[11px] sm:text-xs text-zinc-400 mb-2 md:mb-3 leading-relaxed'>
                       Click <span className='font-bold'>Keys</span> in the top menu, then{' '}
-                      <span className='font-bold'>Create Key</span>. Give it a name like "Nano Banana
-                      Pro App" and copy the key.
+                      <span className='font-bold'>Create Key</span>. Give it a name like "Nano
+                      Banana Pro App" and copy the key.
                     </p>
-                                    <div className='bg-yellow-500/10 border border-yellow-500/20 rounded-md md:rounded-lg p-2 md:p-3 flex items-start gap-2'>
-                                      <span className='material-icons text-yellow-400 text-sm shrink-0 mt-0.5'>warning</span>
-                                      <p className='text-[10px] sm:text-xs text-yellow-300 leading-relaxed'>                        Your key starts with <span className='font-mono break-all'>sk-or-v1-</span>. Keep it
-                        secure and never share it publicly!
+                    <div className='bg-yellow-500/10 border border-yellow-500/20 rounded-md md:rounded-lg p-2 md:p-3 flex items-start gap-2'>
+                      <span className='material-icons text-yellow-400 text-sm shrink-0 mt-0.5'>
+                        warning
+                      </span>
+                      <p className='text-[10px] sm:text-xs text-yellow-300 leading-relaxed'>
+                        {' '}
+                        Your key starts with <span className='font-mono break-all'>sk-or-v1-</span>.
+                        Keep it secure and never share it publicly!
                       </p>
                     </div>
                   </div>
@@ -198,12 +208,15 @@ export const APIKeyInstructionsModal: React.FC<APIKeyInstructionsModalProps> = (
                   <div className='flex-1'>
                     <h4 className='text-sm font-bold text-white mb-2'>Add Key to This App</h4>
                     <p className='text-xs text-zinc-400 mb-3'>
-                      Click the <span className='material-icons text-xs align-middle'>settings</span>{' '}
-                      Settings icon in the top right corner, paste your OpenRouter API key, and click{' '}
+                      Click the{' '}
+                      <span className='material-icons text-xs align-middle'>settings</span> Settings
+                      icon in the top right corner, paste your OpenRouter API key, and click{' '}
                       <span className='font-bold'>Save</span>.
                     </p>
                     <div className='bg-blue-500/10 border border-blue-500/20 rounded-lg p-3 flex items-start gap-2'>
-                      <span className='material-icons text-blue-400 text-sm mt-0.5'>check_circle</span>
+                      <span className='material-icons text-blue-400 text-sm mt-0.5'>
+                        check_circle
+                      </span>
                       <p className='text-xs text-blue-300'>
                         Your key is stored securely and only you can access it. Start generating
                         beautiful LinkedIn banners!
@@ -222,7 +235,9 @@ export const APIKeyInstructionsModal: React.FC<APIKeyInstructionsModalProps> = (
             {/* What it's for */}
             <div className='bg-blue-500/10 border border-blue-500/20 rounded-xl md:rounded-2xl p-3 md:p-4'>
               <div className='flex items-start gap-2 md:gap-3'>
-                <span className='material-icons text-blue-400 text-lg md:text-xl mt-0.5 shrink-0'>info</span>
+                <span className='material-icons text-blue-400 text-lg md:text-xl mt-0.5 shrink-0'>
+                  info
+                </span>
                 <div>
                   <h3 className='text-xs sm:text-sm font-bold text-blue-400 uppercase tracking-wide mb-1'>
                     What Replicate Does
@@ -250,7 +265,9 @@ export const APIKeyInstructionsModal: React.FC<APIKeyInstructionsModalProps> = (
                     1
                   </div>
                   <div className='flex-1 min-w-0'>
-                    <h4 className='text-xs sm:text-sm font-bold text-white mb-1 md:mb-2'>Visit Replicate and Sign Up</h4>
+                    <h4 className='text-xs sm:text-sm font-bold text-white mb-1 md:mb-2'>
+                      Visit Replicate and Sign Up
+                    </h4>
                     <p className='text-[11px] sm:text-xs text-zinc-400 mb-2 md:mb-3 leading-relaxed'>
                       Go to{' '}
                       <a
@@ -274,10 +291,12 @@ export const APIKeyInstructionsModal: React.FC<APIKeyInstructionsModalProps> = (
                     2
                   </div>
                   <div className='flex-1 min-w-0'>
-                    <h4 className='text-xs sm:text-sm font-bold text-white mb-1 md:mb-2'>Add Billing (Get Free Credits)</h4>
+                    <h4 className='text-xs sm:text-sm font-bold text-white mb-1 md:mb-2'>
+                      Add Billing (Get Free Credits)
+                    </h4>
                     <p className='text-[11px] sm:text-xs text-zinc-400 mb-2 md:mb-3 leading-relaxed'>
-                      Click <span className='font-bold'>Billing</span> in the settings. Add a payment
-                      method to unlock{' '}
+                      Click <span className='font-bold'>Billing</span> in the settings. Add a
+                      payment method to unlock{' '}
                       <span className='text-green-400 font-bold'>$5 free credits</span> (enough for
                       ~100-200 operations).
                     </p>
@@ -286,8 +305,8 @@ export const APIKeyInstructionsModal: React.FC<APIKeyInstructionsModalProps> = (
                         monetization_on
                       </span>
                       <p className='text-[10px] sm:text-xs text-green-300 leading-relaxed'>
-                        <span className='font-bold'>Cost:</span> ~$0.02-0.05 per image upscale/enhancement.
-                        Very affordable for professional results!
+                        <span className='font-bold'>Cost:</span> ~$0.02-0.05 per image
+                        upscale/enhancement. Very affordable for professional results!
                       </p>
                     </div>
                   </div>
@@ -301,7 +320,9 @@ export const APIKeyInstructionsModal: React.FC<APIKeyInstructionsModalProps> = (
                     3
                   </div>
                   <div className='flex-1 min-w-0'>
-                    <h4 className='text-xs sm:text-sm font-bold text-white mb-1 md:mb-2'>Get Your API Token</h4>
+                    <h4 className='text-xs sm:text-sm font-bold text-white mb-1 md:mb-2'>
+                      Get Your API Token
+                    </h4>
                     <p className='text-[11px] sm:text-xs text-zinc-400 mb-2 md:mb-3 leading-relaxed'>
                       Go to{' '}
                       <a
@@ -314,9 +335,14 @@ export const APIKeyInstructionsModal: React.FC<APIKeyInstructionsModalProps> = (
                       </a>
                       , then click <span className='font-bold'>Create Token</span>. Copy the token.
                     </p>
-                                    <div className='bg-yellow-500/10 border border-yellow-500/20 rounded-md md:rounded-lg p-2 md:p-3 flex items-start gap-2'>
-                                      <span className='material-icons text-yellow-400 text-sm shrink-0 mt-0.5'>warning</span>
-                                      <p className='text-[10px] sm:text-xs text-yellow-300 leading-relaxed'>                        Your token starts with <span className='font-mono break-all'>r8_</span>. Keep it secure!
+                    <div className='bg-yellow-500/10 border border-yellow-500/20 rounded-md md:rounded-lg p-2 md:p-3 flex items-start gap-2'>
+                      <span className='material-icons text-yellow-400 text-sm shrink-0 mt-0.5'>
+                        warning
+                      </span>
+                      <p className='text-[10px] sm:text-xs text-yellow-300 leading-relaxed'>
+                        {' '}
+                        Your token starts with <span className='font-mono break-all'>r8_</span>.
+                        Keep it secure!
                       </p>
                     </div>
                   </div>
@@ -330,14 +356,19 @@ export const APIKeyInstructionsModal: React.FC<APIKeyInstructionsModalProps> = (
                     4
                   </div>
                   <div className='flex-1 min-w-0'>
-                    <h4 className='text-xs sm:text-sm font-bold text-white mb-1 md:mb-2'>Add Token to This App</h4>
+                    <h4 className='text-xs sm:text-sm font-bold text-white mb-1 md:mb-2'>
+                      Add Token to This App
+                    </h4>
                     <p className='text-[11px] sm:text-xs text-zinc-400 mb-2 md:mb-3 leading-relaxed'>
-                      Click the <span className='material-icons text-xs align-middle'>settings</span>{' '}
-                      Settings icon, paste your Replicate API token, and click{' '}
+                      Click the{' '}
+                      <span className='material-icons text-xs align-middle'>settings</span> Settings
+                      icon, paste your Replicate API token, and click{' '}
                       <span className='font-bold'>Save</span>.
                     </p>
                     <div className='bg-blue-500/10 border border-blue-500/20 rounded-lg p-3 flex items-start gap-2'>
-                      <span className='material-icons text-blue-400 text-sm mt-0.5'>check_circle</span>
+                      <span className='material-icons text-blue-400 text-sm mt-0.5'>
+                        check_circle
+                      </span>
                       <p className='text-xs text-blue-300'>
                         You can now upscale images, remove backgrounds, and enhance faces with AI!
                       </p>

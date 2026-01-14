@@ -16,12 +16,7 @@ import {
 } from './components';
 
 // Import extracted hooks
-import {
-  useChatPersistence,
-  useFileAttachment,
-  useChatMessages,
-  useAutoScroll,
-} from './hooks';
+import { useChatPersistence, useFileAttachment, useChatMessages, useAutoScroll } from './hooks';
 
 // Import types
 import type { ChatInterfaceProps, UseChatPersistenceReturn } from './types';
@@ -140,11 +135,7 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({ onGenerateFromPrompt }) =
       {/* Messages */}
       <div className='flex-1 overflow-y-auto p-4 md:p-6 space-y-6 scrollbar-hide'>
         {chatMessages.messages.map((message, index) => (
-          <ChatMessage
-            key={index}
-            message={message}
-            onGenerateFromPrompt={onGenerateFromPrompt}
-          />
+          <ChatMessage key={index} message={message} onGenerateFromPrompt={onGenerateFromPrompt} />
         ))}
 
         {/* Loading indicator */}
@@ -167,7 +158,7 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({ onGenerateFromPrompt }) =
             {chatMessages.agentSuggestions.map((s) => (
               <button
                 key={s.agentId}
-                type="button"
+                type='button'
                 className='px-3 py-1.5 rounded-full bg-purple-600/20 border border-purple-500/30 text-purple-300 text-[10px] font-black uppercase tracking-wider whitespace-nowrap flex items-center gap-1.5 hover:bg-purple-600/30 transition'
               >
                 <span className='material-icons text-xs'>bolt</span>

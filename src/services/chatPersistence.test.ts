@@ -149,7 +149,9 @@ describe('Chat Persistence Service', () => {
 
       await getConversations({ mode: 'voice', includeArchived: true, limit: 10 });
 
-      expect(api.get).toHaveBeenCalledWith('/api/chat/conversations?mode=voice&archived=true&limit=10');
+      expect(api.get).toHaveBeenCalledWith(
+        '/api/chat/conversations?mode=voice&archived=true&limit=10',
+      );
     });
 
     it('should return empty array on error', async () => {
@@ -210,7 +212,10 @@ describe('Chat Persistence Service', () => {
 
       vi.mocked(api.patch).mockResolvedValue({ conversation: mockUpdatedConversation });
 
-      const result = await updateConversation('conv-123', { title: 'Updated Title', isPinned: true });
+      const result = await updateConversation('conv-123', {
+        title: 'Updated Title',
+        isPinned: true,
+      });
 
       expect(api.patch).toHaveBeenCalledWith('/api/chat/conversations/conv-123', {
         title: 'Updated Title',
@@ -266,7 +271,9 @@ describe('Chat Persistence Service', () => {
 
       const result = await archiveConversation('conv-123');
 
-      expect(api.patch).toHaveBeenCalledWith('/api/chat/conversations/conv-123', { isArchived: true });
+      expect(api.patch).toHaveBeenCalledWith('/api/chat/conversations/conv-123', {
+        isArchived: true,
+      });
       expect(result?.isArchived).toBe(true);
     });
   });
@@ -294,7 +301,9 @@ describe('Chat Persistence Service', () => {
       const result = await togglePinConversation('conv-123');
 
       expect(api.get).toHaveBeenCalledWith('/api/chat/conversations/conv-123');
-      expect(api.patch).toHaveBeenCalledWith('/api/chat/conversations/conv-123', { isPinned: true });
+      expect(api.patch).toHaveBeenCalledWith('/api/chat/conversations/conv-123', {
+        isPinned: true,
+      });
       expect(result).toBe(true);
     });
 
@@ -571,7 +580,10 @@ describe('Chat Persistence Service', () => {
       const result = await saveConversationExport('conv-123');
 
       expect(uploadImage).toHaveBeenCalled();
-      expect(getPublicUrl).toHaveBeenCalledWith('exports/conversation_conv-123.json', 'chat-exports');
+      expect(getPublicUrl).toHaveBeenCalledWith(
+        'exports/conversation_conv-123.json',
+        'chat-exports',
+      );
       expect(result).toBe('https://storage.example.com/exports/conversation_conv-123.json');
     });
 

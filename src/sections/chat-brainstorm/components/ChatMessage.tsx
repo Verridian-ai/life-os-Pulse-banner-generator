@@ -26,10 +26,15 @@ export function ChatMessage({ message }: ChatMessageProps) {
         }`}
       >
         {isUser ? (
-          <span className="text-sm font-semibold text-white">U</span>
+          <span className='text-sm font-semibold text-white'>U</span>
         ) : (
-          <svg className="w-4 h-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+          <svg className='w-4 h-4 text-white' fill='none' viewBox='0 0 24 24' stroke='currentColor'>
+            <path
+              strokeLinecap='round'
+              strokeLinejoin='round'
+              strokeWidth={2}
+              d='M13 10V3L4 14h7v7l9-11h-7z'
+            />
           </svg>
         )}
       </div>
@@ -38,13 +43,13 @@ export function ChatMessage({ message }: ChatMessageProps) {
       <div className={`max-w-[80%] ${isUser ? 'text-right' : ''}`}>
         {/* Attachments */}
         {message.attachments && message.attachments.length > 0 && (
-          <div className="mb-2">
+          <div className='mb-2'>
             {message.attachments.map((attachment, i) => (
               <img
                 key={i}
                 src={attachment.url}
-                alt="Attachment"
-                className="max-w-xs rounded-xl border border-white/10 shadow-[0_4px_20px_rgba(0,0,0,0.3)]"
+                alt='Attachment'
+                className='max-w-xs rounded-xl border border-white/10 shadow-[0_4px_20px_rgba(0,0,0,0.3)]'
               />
             ))}
           </div>
@@ -58,11 +63,11 @@ export function ChatMessage({ message }: ChatMessageProps) {
               : 'bg-white/5 backdrop-blur-xl border border-white/10 text-zinc-100 rounded-tl-sm shadow-[inset_0_1px_1px_rgba(255,255,255,0.1)]'
           }`}
         >
-          <p className="text-sm whitespace-pre-wrap">{message.content}</p>
+          <p className='text-sm whitespace-pre-wrap'>{message.content}</p>
         </div>
 
         {/* Timestamp */}
-        <p className="text-xs text-zinc-600 mt-1">
+        <p className='text-xs text-zinc-600 mt-1'>
           {message.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
         </p>
       </div>

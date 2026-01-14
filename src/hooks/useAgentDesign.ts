@@ -30,11 +30,11 @@ export interface UseAgentDesignState {
 export interface UseAgentDesignActions {
   generateDesign: (
     prompt: string,
-    options?: Partial<Omit<BannerDesignRequest, 'prompt' | 'user_id'>>
+    options?: Partial<Omit<BannerDesignRequest, 'prompt' | 'user_id'>>,
   ) => Promise<BannerDesignOutput | null>;
   getFeedback: (
     prompt: string,
-    existingDesign: Record<string, unknown>
+    existingDesign: Record<string, unknown>,
   ) => Promise<BannerFeedback | null>;
   clearError: () => void;
   reset: () => void;
@@ -77,7 +77,7 @@ export function useAgentDesign(): UseAgentDesignReturn {
   const generateDesign = useCallback(
     async (
       prompt: string,
-      options: Partial<Omit<BannerDesignRequest, 'prompt' | 'user_id'>> = {}
+      options: Partial<Omit<BannerDesignRequest, 'prompt' | 'user_id'>> = {},
     ): Promise<BannerDesignOutput | null> => {
       if (!user?.id) {
         setState((s) => ({ ...s, error: 'User not authenticated' }));
@@ -126,13 +126,13 @@ export function useAgentDesign(): UseAgentDesignReturn {
         return null;
       }
     },
-    [user, session]
+    [user, session],
   );
 
   const getFeedback = useCallback(
     async (
       prompt: string,
-      existingDesign: Record<string, unknown>
+      existingDesign: Record<string, unknown>,
     ): Promise<BannerFeedback | null> => {
       if (!user?.id) {
         setState((s) => ({ ...s, error: 'User not authenticated' }));
@@ -149,8 +149,7 @@ export function useAgentDesign(): UseAgentDesignReturn {
           existing_design: existingDesign,
         };
 
-        const response: AgentResponse<BannerFeedback> =
-          await agentApi.getBannerFeedback(request);
+        const response: AgentResponse<BannerFeedback> = await agentApi.getBannerFeedback(request);
 
         if (response.success && response.output) {
           setState((s) => ({
@@ -181,7 +180,7 @@ export function useAgentDesign(): UseAgentDesignReturn {
         return null;
       }
     },
-    [user, session]
+    [user, session],
   );
 
   const clearError = useCallback(() => {

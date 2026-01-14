@@ -7,7 +7,10 @@ import {
 } from '../../../constants';
 import { useCanvasState } from '../../../context/canvas/CanvasStateContext';
 import { BTN_NEU_SOLID } from '../../../styles';
-import { optimizeLayoutForFormat, type LayoutOptimizationResult } from '../../../utils/layoutScalingUtils';
+import {
+  optimizeLayoutForFormat,
+  type LayoutOptimizationResult,
+} from '../../../utils/layoutScalingUtils';
 import type { BannerElement } from '../../../types';
 
 // Platform logo paths
@@ -21,14 +24,17 @@ const PLATFORM_LOGOS: Record<string, string> = {
 };
 
 // Platform color mapping with enhanced glass effects
-const PLATFORM_COLORS: Record<string, {
-  bg: string;
-  border: string;
-  text: string;
-  active: string;
-  glow: string;
-  iconBg: string;
-}> = {
+const PLATFORM_COLORS: Record<
+  string,
+  {
+    bg: string;
+    border: string;
+    text: string;
+    active: string;
+    glow: string;
+    iconBg: string;
+  }
+> = {
   linkedin: {
     bg: 'from-blue-600/15 to-blue-800/10',
     border: 'border-blue-500/20 hover:border-blue-400/40',
@@ -88,7 +94,7 @@ interface CanvasFormatSelectorProps {
 
 // Get all format IDs in order for keyboard navigation
 const getAllFormatIds = (): CanvasFormatId[] => {
-  return Object.values(FORMAT_CATEGORIES).flatMap(cat => cat.formats);
+  return Object.values(FORMAT_CATEGORIES).flatMap((cat) => cat.formats);
 };
 
 export function CanvasFormatSelector({
@@ -150,57 +156,63 @@ export function CanvasFormatSelector({
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, [isOpen, handleClose]);
 
-  const handleFormatSelect = useCallback((formatId: CanvasFormatId) => {
-    if (formatId === canvasFormatId) {
-      handleClose();
-      return;
-    }
-    setShowConfirmDialog(formatId);
-  }, [canvasFormatId, handleClose]);
+  const handleFormatSelect = useCallback(
+    (formatId: CanvasFormatId) => {
+      if (formatId === canvasFormatId) {
+        handleClose();
+        return;
+      }
+      setShowConfirmDialog(formatId);
+    },
+    [canvasFormatId, handleClose],
+  );
 
   // Keyboard navigation
-  const handleKeyDown = useCallback((e: React.KeyboardEvent) => {
-    if (!isOpen) {
-      if (e.key === 'Enter' || e.key === ' ' || e.key === 'ArrowDown') {
-        e.preventDefault();
-        handleOpen();
-      }
-      return;
-    }
-
-    switch (e.key) {
-      case 'Escape':
-        e.preventDefault();
-        handleClose();
-        break;
-      case 'ArrowDown':
-        e.preventDefault();
-        setFocusedIndex(prev => (prev + 1) % allFormatIds.length);
-        break;
-      case 'ArrowUp':
-        e.preventDefault();
-        setFocusedIndex(prev => (prev - 1 + allFormatIds.length) % allFormatIds.length);
-        break;
-      case 'Home':
-        e.preventDefault();
-        setFocusedIndex(0);
-        break;
-      case 'End':
-        e.preventDefault();
-        setFocusedIndex(allFormatIds.length - 1);
-        break;
-      case 'Tab':
-        handleClose();
-        break;
-      case 'Enter':
-      case ' ':
-        e.preventDefault();
-        if (focusedIndex >= 0) {
-          handleFormatSelect(allFormatIds[focusedIndex]);
+  const handleKeyDown = useCallback(
+    (e: React.KeyboardEvent) => {
+      if (!isOpen) {
+        if (e.key === 'Enter' || e.key === ' ' || e.key === 'ArrowDown') {
+          e.preventDefault();
+          handleOpen();
         }
-        break;
-    }
-  }, [isOpen, focusedIndex, allFormatIds, handleOpen, handleClose, handleFormatSelect]);
+        return;
+      }
+
+      switch (e.key) {
+        case 'Escape':
+          e.preventDefault();
+          handleClose();
+          break;
+        case 'ArrowDown':
+          e.preventDefault();
+          setFocusedIndex((prev) => (prev + 1) % allFormatIds.length);
+          break;
+        case 'ArrowUp':
+          e.preventDefault();
+          setFocusedIndex((prev) => (prev - 1 + allFormatIds.length) % allFormatIds.length);
+          break;
+        case 'Home':
+          e.preventDefault();
+          setFocusedIndex(0);
+          break;
+        case 'End':
+          e.preventDefault();
+          setFocusedIndex(allFormatIds.length - 1);
+          break;
+        case 'Tab':
+          handleClose();
+          break;
+        case 'Enter':
+        case ' ':
+          e.preventDefault();
+          if (focusedIndex >= 0) {
+            handleFormatSelect(allFormatIds[focusedIndex]);
+          }
+          break;
+      }
+    },
+    [isOpen, focusedIndex, allFormatIds, handleOpen, handleClose, handleFormatSelect],
+  );
 
   const confirmFormatChange = () => {
     if (showConfirmDialog) {
@@ -225,25 +237,28 @@ export function CanvasFormatSelector({
     setShowConfirmDialog(null);
   };
 
-  const setItemRef = useCallback((formatId: CanvasFormatId) => (el: HTMLButtonElement | null) => {
-    if (el) {
-      itemRefs.current.set(formatId, el);
-    } else {
-      itemRefs.current.delete(formatId);
-    }
-  }, []);
+  const setItemRef = useCallback(
+    (formatId: CanvasFormatId) => (el: HTMLButtonElement | null) => {
+      if (el) {
+        itemRefs.current.set(formatId, el);
+      } else {
+        itemRefs.current.delete(formatId);
+      }
+    },
+    [],
+  );
 
   const colors = PLATFORM_COLORS[canvasFormat.platform] || PLATFORM_COLORS.linkedin;
 
   return (
-    <div className="relative">
+    <div className='relative'>
       {/* Current Format Button */}
       <button
         ref={buttonRef}
-        type="button"
-        onClick={() => isOpen ? handleClose() : handleOpen()}
+        type='button'
+        onClick={() => (isOpen ? handleClose() : handleOpen())}
         onKeyDown={handleKeyDown}
-        aria-haspopup="listbox"
+        aria-haspopup='listbox'
         aria-expanded={isOpen}
         aria-label={`Canvas format: ${canvasFormat.name}, ${canvasFormat.width} by ${canvasFormat.height} pixels. Press Enter to change.`}
         className={`
@@ -261,24 +276,26 @@ export function CanvasFormatSelector({
         `}
       >
         {/* Platform Icon with glow */}
-        <div className={`w-8 h-8 sm:w-9 sm:h-9 rounded-xl ${colors.iconBg} flex items-center justify-center transition-transform group-hover:scale-110`}>
+        <div
+          className={`w-8 h-8 sm:w-9 sm:h-9 rounded-xl ${colors.iconBg} flex items-center justify-center transition-transform group-hover:scale-110`}
+        >
           {PLATFORM_LOGOS[canvasFormat.platform] ? (
             <img
               src={PLATFORM_LOGOS[canvasFormat.platform]}
-              alt=""
-              className="w-4 h-4 sm:w-5 sm:h-5 object-contain"
+              alt=''
+              className='w-4 h-4 sm:w-5 sm:h-5 object-contain'
             />
           ) : (
-            <span className="material-icons text-base sm:text-lg">{canvasFormat.icon}</span>
+            <span className='material-icons text-base sm:text-lg'>{canvasFormat.icon}</span>
           )}
         </div>
 
         {/* Format Info */}
-        <div className="text-left min-w-0 flex-1">
-          <p className="text-[10px] sm:text-xs font-black uppercase tracking-wide sm:tracking-wider truncate">
+        <div className='text-left min-w-0 flex-1'>
+          <p className='text-[10px] sm:text-xs font-black uppercase tracking-wide sm:tracking-wider truncate'>
             {canvasFormat.name}
           </p>
-          <p className="text-[9px] sm:text-[10px] opacity-60 font-medium">
+          <p className='text-[9px] sm:text-[10px] opacity-60 font-medium'>
             {canvasFormat.width} × {canvasFormat.height}
           </p>
         </div>
@@ -296,16 +313,16 @@ export function CanvasFormatSelector({
         <>
           {/* Backdrop with blur */}
           <div
-            className="fixed inset-0 z-40 bg-black/20 backdrop-blur-[2px]"
+            className='fixed inset-0 z-40 bg-black/20 backdrop-blur-[2px]'
             onClick={handleClose}
-            aria-hidden="true"
+            aria-hidden='true'
           />
 
           {/* Menu with glass effect */}
           <div
             ref={menuRef}
-            role="listbox"
-            aria-label="Select canvas format"
+            role='listbox'
+            aria-label='Select canvas format'
             onKeyDown={handleKeyDown}
             className={`
               absolute top-full mt-2 z-50
@@ -323,35 +340,39 @@ export function CanvasFormatSelector({
             onAnimationEnd={() => setIsAnimating(false)}
           >
             {/* Scroll container */}
-            <div className="overflow-y-auto max-h-[60vh] sm:max-h-[calc(70vh-1rem)] p-2 sm:p-3 scrollbar-thin scrollbar-thumb-white/10 scrollbar-track-transparent">
+            <div className='overflow-y-auto max-h-[60vh] sm:max-h-[calc(70vh-1rem)] p-2 sm:p-3 scrollbar-thin scrollbar-thumb-white/10 scrollbar-track-transparent'>
               {Object.entries(FORMAT_CATEGORIES).map(([platformKey, category]) => {
                 const platformColors = PLATFORM_COLORS[platformKey] || PLATFORM_COLORS.linkedin;
 
                 return (
-                  <div key={platformKey} className="mb-3 last:mb-0">
+                  <div key={platformKey} className='mb-3 last:mb-0'>
                     {/* Platform Header */}
-                    <div className={`flex items-center gap-2 px-2 sm:px-3 py-2 rounded-xl ${platformColors.iconBg} mb-2`}>
+                    <div
+                      className={`flex items-center gap-2 px-2 sm:px-3 py-2 rounded-xl ${platformColors.iconBg} mb-2`}
+                    >
                       {PLATFORM_LOGOS[platformKey] ? (
                         <img
                           src={PLATFORM_LOGOS[platformKey]}
-                          alt=""
-                          className="w-4 h-4 object-contain"
+                          alt=''
+                          className='w-4 h-4 object-contain'
                         />
                       ) : (
                         <span className={`material-icons text-sm ${platformColors.text}`}>
                           {category.icon}
                         </span>
                       )}
-                      <span className={`text-[10px] sm:text-xs font-black uppercase tracking-widest ${platformColors.text}`}>
+                      <span
+                        className={`text-[10px] sm:text-xs font-black uppercase tracking-widest ${platformColors.text}`}
+                      >
                         {category.label}
                       </span>
-                      <span className="text-[9px] text-zinc-500 ml-auto">
+                      <span className='text-[9px] text-zinc-500 ml-auto'>
                         {category.formats.length} formats
                       </span>
                     </div>
 
                     {/* Format Options Grid */}
-                    <div className="space-y-1">
+                    <div className='space-y-1'>
                       {category.formats.map((formatId) => {
                         const format = CANVAS_FORMATS[formatId];
                         const isActive = formatId === canvasFormatId;
@@ -361,8 +382,8 @@ export function CanvasFormatSelector({
                           <button
                             key={formatId}
                             ref={setItemRef(formatId)}
-                            type="button"
-                            role="option"
+                            type='button'
+                            role='option'
                             aria-selected={isActive ? 'true' : 'false'}
                             tabIndex={isFocused ? 0 : -1}
                             onClick={() => handleFormatSelect(formatId)}
@@ -372,31 +393,44 @@ export function CanvasFormatSelector({
                               flex items-center gap-3
                               transition-all duration-150 ease-out
                               touch-manipulation
-                              ${isActive
-                                ? `bg-gradient-to-br ${platformColors.active} text-white shadow-lg ring-2 ring-white/20`
-                                : `bg-white/[0.03] hover:bg-white/[0.08] text-zinc-300 hover:text-white`
+                              ${
+                                isActive
+                                  ? `bg-gradient-to-br ${platformColors.active} text-white shadow-lg ring-2 ring-white/20`
+                                  : `bg-white/[0.03] hover:bg-white/[0.08] text-zinc-300 hover:text-white`
                               }
                               ${isFocused && !isActive ? 'ring-2 ring-white/30 bg-white/[0.06]' : ''}
                             `}
                           >
                             {/* Format Icon */}
-                            <div className={`w-9 h-9 rounded-lg flex items-center justify-center shrink-0 ${isActive ? 'bg-white/20' : 'bg-white/5'}`}>
-                              <span className={`material-icons text-lg ${isActive ? 'text-white' : platformColors.text}`}>
+                            <div
+                              className={`w-9 h-9 rounded-lg flex items-center justify-center shrink-0 ${isActive ? 'bg-white/20' : 'bg-white/5'}`}
+                            >
+                              <span
+                                className={`material-icons text-lg ${isActive ? 'text-white' : platformColors.text}`}
+                              >
                                 {format.icon}
                               </span>
                             </div>
 
                             {/* Format Details */}
-                            <div className="flex-1 text-left min-w-0">
-                              <p className={`text-xs font-bold truncate ${isActive ? 'text-white' : ''}`}>
+                            <div className='flex-1 text-left min-w-0'>
+                              <p
+                                className={`text-xs font-bold truncate ${isActive ? 'text-white' : ''}`}
+                              >
                                 {format.name}
                               </p>
-                              <div className="flex items-center gap-1.5 mt-0.5">
-                                <span className={`text-[10px] font-medium ${isActive ? 'text-white/70' : 'text-zinc-500'}`}>
+                              <div className='flex items-center gap-1.5 mt-0.5'>
+                                <span
+                                  className={`text-[10px] font-medium ${isActive ? 'text-white/70' : 'text-zinc-500'}`}
+                                >
                                   {format.width} × {format.height}
                                 </span>
-                                <span className={`w-1 h-1 rounded-full ${isActive ? 'bg-white/40' : 'bg-zinc-600'}`} />
-                                <span className={`text-[10px] ${isActive ? 'text-white/70' : 'text-zinc-500'}`}>
+                                <span
+                                  className={`w-1 h-1 rounded-full ${isActive ? 'bg-white/40' : 'bg-zinc-600'}`}
+                                />
+                                <span
+                                  className={`text-[10px] ${isActive ? 'text-white/70' : 'text-zinc-500'}`}
+                                >
                                   {format.aspectRatio}
                                 </span>
                               </div>
@@ -404,7 +438,7 @@ export function CanvasFormatSelector({
 
                             {/* Check Icon */}
                             {isActive && (
-                              <span className="material-icons text-base text-white/90 shrink-0">
+                              <span className='material-icons text-base text-white/90 shrink-0'>
                                 check_circle
                               </span>
                             )}
@@ -418,15 +452,15 @@ export function CanvasFormatSelector({
             </div>
 
             {/* Bottom hint */}
-            <div className="hidden sm:flex items-center justify-center gap-4 px-3 py-2 border-t border-white/5 bg-black/20">
-              <span className="text-[9px] text-zinc-500 flex items-center gap-1">
-                <kbd className="px-1 py-0.5 bg-white/10 rounded text-[8px]">↑↓</kbd> Navigate
+            <div className='hidden sm:flex items-center justify-center gap-4 px-3 py-2 border-t border-white/5 bg-black/20'>
+              <span className='text-[9px] text-zinc-500 flex items-center gap-1'>
+                <kbd className='px-1 py-0.5 bg-white/10 rounded text-[8px]'>↑↓</kbd> Navigate
               </span>
-              <span className="text-[9px] text-zinc-500 flex items-center gap-1">
-                <kbd className="px-1 py-0.5 bg-white/10 rounded text-[8px]">Enter</kbd> Select
+              <span className='text-[9px] text-zinc-500 flex items-center gap-1'>
+                <kbd className='px-1 py-0.5 bg-white/10 rounded text-[8px]'>Enter</kbd> Select
               </span>
-              <span className="text-[9px] text-zinc-500 flex items-center gap-1">
-                <kbd className="px-1 py-0.5 bg-white/10 rounded text-[8px]">Esc</kbd> Close
+              <span className='text-[9px] text-zinc-500 flex items-center gap-1'>
+                <kbd className='px-1 py-0.5 bg-white/10 rounded text-[8px]'>Esc</kbd> Close
               </span>
             </div>
           </div>
@@ -436,47 +470,52 @@ export function CanvasFormatSelector({
       {/* Confirmation Dialog */}
       {showConfirmDialog && (
         <div
-          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm animate-in fade-in duration-150"
-          role="alertdialog"
-          aria-modal="true"
-          aria-labelledby="confirm-dialog-title"
-          aria-describedby="confirm-dialog-description"
+          className='fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm animate-in fade-in duration-150'
+          role='alertdialog'
+          aria-modal='true'
+          aria-labelledby='confirm-dialog-title'
+          aria-describedby='confirm-dialog-description'
         >
-          <div className="bg-zinc-900/95 backdrop-blur-xl border border-white/10 rounded-3xl shadow-2xl p-5 sm:p-6 max-w-md w-full animate-in zoom-in-95 slide-in-from-bottom-4 duration-200">
+          <div className='bg-zinc-900/95 backdrop-blur-xl border border-white/10 rounded-3xl shadow-2xl p-5 sm:p-6 max-w-md w-full animate-in zoom-in-95 slide-in-from-bottom-4 duration-200'>
             {/* Header with icon */}
-            <div className="flex items-start gap-4 mb-4">
-              <div className="w-12 h-12 rounded-2xl bg-yellow-500/20 flex items-center justify-center shrink-0">
-                <span className="material-icons text-yellow-400 text-2xl">swap_horiz</span>
+            <div className='flex items-start gap-4 mb-4'>
+              <div className='w-12 h-12 rounded-2xl bg-yellow-500/20 flex items-center justify-center shrink-0'>
+                <span className='material-icons text-yellow-400 text-2xl'>swap_horiz</span>
               </div>
               <div>
-                <h3 id="confirm-dialog-title" className="text-white font-bold text-lg">
+                <h3 id='confirm-dialog-title' className='text-white font-bold text-lg'>
                   Change Canvas Format?
                 </h3>
-                <p className="text-zinc-400 text-sm mt-1">
-                  This will resize your canvas
-                </p>
+                <p className='text-zinc-400 text-sm mt-1'>This will resize your canvas</p>
               </div>
             </div>
 
             {/* Format comparison */}
-            <div id="confirm-dialog-description" className="bg-black/30 rounded-2xl p-4 mb-5 space-y-3">
+            <div
+              id='confirm-dialog-description'
+              className='bg-black/30 rounded-2xl p-4 mb-5 space-y-3'
+            >
               {/* From */}
-              <div className="flex items-center gap-3">
-                <div className={`w-8 h-8 rounded-lg ${colors.iconBg} flex items-center justify-center`}>
-                  <span className={`material-icons text-sm ${colors.text}`}>{canvasFormat.icon}</span>
+              <div className='flex items-center gap-3'>
+                <div
+                  className={`w-8 h-8 rounded-lg ${colors.iconBg} flex items-center justify-center`}
+                >
+                  <span className={`material-icons text-sm ${colors.text}`}>
+                    {canvasFormat.icon}
+                  </span>
                 </div>
-                <div className="flex-1 min-w-0">
-                  <p className="text-xs text-zinc-500">From</p>
-                  <p className="text-sm text-white font-medium truncate">{canvasFormat.name}</p>
+                <div className='flex-1 min-w-0'>
+                  <p className='text-xs text-zinc-500'>From</p>
+                  <p className='text-sm text-white font-medium truncate'>{canvasFormat.name}</p>
                 </div>
-                <span className="text-[10px] text-zinc-500">
+                <span className='text-[10px] text-zinc-500'>
                   {canvasFormat.width} × {canvasFormat.height}
                 </span>
               </div>
 
               {/* Arrow */}
-              <div className="flex justify-center">
-                <span className="material-icons text-zinc-600 text-lg">arrow_downward</span>
+              <div className='flex justify-center'>
+                <span className='material-icons text-zinc-600 text-lg'>arrow_downward</span>
               </div>
 
               {/* To */}
@@ -484,15 +523,19 @@ export function CanvasFormatSelector({
                 const newFormat = CANVAS_FORMATS[showConfirmDialog];
                 const newColors = PLATFORM_COLORS[newFormat.platform] || PLATFORM_COLORS.linkedin;
                 return (
-                  <div className="flex items-center gap-3">
-                    <div className={`w-8 h-8 rounded-lg ${newColors.iconBg} flex items-center justify-center`}>
-                      <span className={`material-icons text-sm ${newColors.text}`}>{newFormat.icon}</span>
+                  <div className='flex items-center gap-3'>
+                    <div
+                      className={`w-8 h-8 rounded-lg ${newColors.iconBg} flex items-center justify-center`}
+                    >
+                      <span className={`material-icons text-sm ${newColors.text}`}>
+                        {newFormat.icon}
+                      </span>
                     </div>
-                    <div className="flex-1 min-w-0">
-                      <p className="text-xs text-zinc-500">To</p>
-                      <p className="text-sm text-white font-medium truncate">{newFormat.name}</p>
+                    <div className='flex-1 min-w-0'>
+                      <p className='text-xs text-zinc-500'>To</p>
+                      <p className='text-sm text-white font-medium truncate'>{newFormat.name}</p>
                     </div>
-                    <span className="text-[10px] text-zinc-500">
+                    <span className='text-[10px] text-zinc-500'>
                       {newFormat.width} × {newFormat.height}
                     </span>
                   </div>
@@ -501,27 +544,28 @@ export function CanvasFormatSelector({
             </div>
 
             {/* Info note */}
-            <p className="text-zinc-500 text-xs mb-5 flex items-start gap-2">
-              <span className="material-icons text-sm text-emerald-500 mt-0.5">auto_fix_high</span>
+            <p className='text-zinc-500 text-xs mb-5 flex items-start gap-2'>
+              <span className='material-icons text-sm text-emerald-500 mt-0.5'>auto_fix_high</span>
               <span>
-                Your elements will be automatically scaled and repositioned to safe zones for the new dimensions.
+                Your elements will be automatically scaled and repositioned to safe zones for the
+                new dimensions.
               </span>
             </p>
 
             {/* Actions */}
-            <div className="flex gap-3">
+            <div className='flex gap-3'>
               <button
-                type="button"
+                type='button'
                 onClick={cancelFormatChange}
                 className={`${BTN_NEU_SOLID} flex-1 rounded-xl text-sm`}
               >
                 Cancel
               </button>
               <button
-                type="button"
+                type='button'
                 onClick={confirmFormatChange}
                 autoFocus
-                className="flex-1 min-h-[44px] px-4 rounded-xl bg-gradient-to-br from-yellow-500 to-orange-500 text-white font-bold text-sm uppercase tracking-wider hover:brightness-110 hover:scale-[1.02] active:scale-[0.98] transition-all shadow-lg shadow-yellow-500/20"
+                className='flex-1 min-h-[44px] px-4 rounded-xl bg-gradient-to-br from-yellow-500 to-orange-500 text-white font-bold text-sm uppercase tracking-wider hover:brightness-110 hover:scale-[1.02] active:scale-[0.98] transition-all shadow-lg shadow-yellow-500/20'
               >
                 Change Format
               </button>

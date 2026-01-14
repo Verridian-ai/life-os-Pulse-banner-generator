@@ -25,7 +25,12 @@
  */
 import React, { createContext, useContext, useState, useCallback, useRef, useEffect } from 'react';
 import { OpenAIRealtimeClient, ToolCall, TranscriptEntry } from '@/services/openaiRealtimeClient';
-import { ActionExecutor, ActionResult, OnUpdateCallback, CanvasCallbacks } from '@/services/actionExecutor';
+import {
+  ActionExecutor,
+  ActionResult,
+  OnUpdateCallback,
+  CanvasCallbacks,
+} from '@/services/actionExecutor';
 import { getVoiceAPIKey } from '@/services/apiKeyStorage';
 import { routeCommand, RouteResult } from '@/services/agentRouter';
 import type { PlatformType } from '@/components/studios/config/platformConfig';
@@ -99,7 +104,10 @@ interface VoiceAgentContextType {
   /** Register a prompt setter callback from child components */
   registerPromptSetter: (setter: (prompt: string) => void) => void;
   /** Register tab and studio mode navigation callbacks */
-  registerTabSetter: (setActiveTab: (tab: Tab) => void, setStudioMode?: (mode: StudioMode) => void) => void;
+  registerTabSetter: (
+    setActiveTab: (tab: Tab) => void,
+    setStudioMode?: (mode: StudioMode) => void,
+  ) => void;
   /** Register current platform for platform-aware agent routing */
   registerPlatform: (platform: PlatformType) => void;
 }
@@ -125,7 +133,13 @@ interface VoiceAgentProviderProps {
   activePlatform?: PlatformType;
 }
 
-export function VoiceAgentProvider({ children, onUpdate, setGenPrompt, canvasCallbacks, activePlatform }: VoiceAgentProviderProps) {
+export function VoiceAgentProvider({
+  children,
+  onUpdate,
+  setGenPrompt,
+  canvasCallbacks,
+  activePlatform,
+}: VoiceAgentProviderProps) {
   // Configuration
   const MAX_RETRIES = 3;
 
@@ -185,15 +199,18 @@ export function VoiceAgentProvider({ children, onUpdate, setGenPrompt, canvasCal
   /**
    * Register tab navigation callbacks
    */
-  const registerTabSetter = useCallback((setActiveTab: (tab: Tab) => void, setStudioMode?: (mode: StudioMode) => void) => {
-    console.log('[VoiceAgentContext] Tab setter registered');
-    if (actionExecutorRef.current) {
-      actionExecutorRef.current.setCanvasCallbacks({
-        setActiveTab,
-        setStudioMode,
-      });
-    }
-  }, []);
+  const registerTabSetter = useCallback(
+    (setActiveTab: (tab: Tab) => void, setStudioMode?: (mode: StudioMode) => void) => {
+      console.log('[VoiceAgentContext] Tab setter registered');
+      if (actionExecutorRef.current) {
+        actionExecutorRef.current.setCanvasCallbacks({
+          setActiveTab,
+          setStudioMode,
+        });
+      }
+    },
+    [],
+  );
 
   /**
    * Register current platform for platform-aware agent routing
@@ -288,7 +305,7 @@ export function VoiceAgentProvider({ children, onUpdate, setGenPrompt, canvasCal
         true,
         undefined,
         promptSetterRef.current || undefined,
-        canvasCallbacks
+        canvasCallbacks,
       );
       actionExecutorRef.current = executor;
 
@@ -327,9 +344,14 @@ export function VoiceAgentProvider({ children, onUpdate, setGenPrompt, canvasCal
             platform: activePlatformRef.current,
           });
           setCurrentAgent(routeResult);
-          console.log('[VoiceAgentContext] Routed to agent:', routeResult.agent.name,
-            'Platform:', activePlatformRef.current || 'none',
-            'Confidence:', routeResult.confidence);
+          console.log(
+            '[VoiceAgentContext] Routed to agent:',
+            routeResult.agent.name,
+            'Platform:',
+            activePlatformRef.current || 'none',
+            'Confidence:',
+            routeResult.confidence,
+          );
 
           // Execute in preview mode (non-destructive, shows what will happen)
           setExecutingAction(true);
@@ -357,16 +379,18 @@ export function VoiceAgentProvider({ children, onUpdate, setGenPrompt, canvasCal
             // rapid speech or network hiccups. Skip entries with same role/text
             // that arrive within 2 seconds of each other.
             const lastEntry = prev[prev.length - 1];
-            if (lastEntry &&
+            if (
+              lastEntry &&
               lastEntry.role === entry.role &&
               lastEntry.text === entry.text &&
-              entry.timestamp - lastEntry.timestamp < 2000) {
+              entry.timestamp - lastEntry.timestamp < 2000
+            ) {
               console.log('[VoiceAgentContext] Skipping duplicate entry');
               return prev; // Skip duplicate
             }
             return [...prev, entry];
           });
-        }
+        },
       );
 
       connectingRef.current = false;
@@ -566,7 +590,9 @@ export function VoiceAgentProvider({ children, onUpdate, setGenPrompt, canvasCal
       const nextAttempt = retryCount + 1;
       const delay = getRetryDelay(nextAttempt);
 
-      console.log(`[VoiceAgentContext] Scheduling auto-retry ${nextAttempt}/${MAX_RETRIES} in ${delay}ms`);
+      console.log(
+        `[VoiceAgentContext] Scheduling auto-retry ${nextAttempt}/${MAX_RETRIES} in ${delay}ms`,
+      );
 
       retryTimeoutRef.current = setTimeout(async () => {
         console.log(`[VoiceAgentContext] Auto-retry attempt ${nextAttempt}/${MAX_RETRIES}`);

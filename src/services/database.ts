@@ -272,7 +272,10 @@ export const updateBrandProfile = async (
   updates: Partial<CreateBrandProfileRequest>,
 ): Promise<BrandProfile | null> => {
   try {
-    const response = await api.put<{ profile: BrandProfile }>(`/api/brand-profiles/${profileId}`, updates);
+    const response = await api.put<{ profile: BrandProfile }>(
+      `/api/brand-profiles/${profileId}`,
+      updates,
+    );
     return response?.profile || null;
   } catch (error) {
     console.error('[Database] Error updating brand profile:', error);
@@ -398,7 +401,10 @@ export const updateUserPreferences = async (
   preferences: Partial<Omit<UserPreferences, 'user_id' | 'updated_at'>>,
 ): Promise<UserPreferences | null> => {
   try {
-    const response = await api.put<{ preferences: UserPreferences }>('/api/user/preferences', preferences);
+    const response = await api.put<{ preferences: UserPreferences }>(
+      '/api/user/preferences',
+      preferences,
+    );
     return response?.preferences || null;
   } catch (error) {
     console.error('[Database] Error updating user preferences:', error);
@@ -419,7 +425,14 @@ export const createImage = async (data: {
   prompt?: string;
   model_used?: string;
   quality?: string;
-  generation_type?: 'generate' | 'edit' | 'upscale' | 'remove-bg' | 'restore' | 'face-enhance' | 'upload';
+  generation_type?:
+    | 'generate'
+    | 'edit'
+    | 'upscale'
+    | 'remove-bg'
+    | 'restore'
+    | 'face-enhance'
+    | 'upload';
   tags?: string[];
   project_id?: string;
   file_size_bytes?: number;
@@ -482,18 +495,20 @@ export const getUserImages = async (filters?: {
     params.append('limit', String(filters?.limit || 50));
     params.append('offset', String(filters?.offset || 0));
 
-    const response = await api.get<{ images: Array<{
-    id: string;
-    storage_url: string;
-    prompt: string;
-    model_used: string;
-    quality: string;
-    generation_type: string;
-    tags: string[];
-    created_at: string;
-    is_favorite: boolean;
-    file_name: string;
-  }> }>(`/api/images?${params.toString()}`);
+    const response = await api.get<{
+      images: Array<{
+        id: string;
+        storage_url: string;
+        prompt: string;
+        model_used: string;
+        quality: string;
+        generation_type: string;
+        tags: string[];
+        created_at: string;
+        is_favorite: boolean;
+        file_name: string;
+      }>;
+    }>(`/api/images?${params.toString()}`);
     console.log(`[Database] Retrieved ${response?.images?.length || 0} images`);
     return response?.images || [];
   } catch (error) {
@@ -552,18 +567,20 @@ export const searchImagesByTags = async (
   try {
     const params = new URLSearchParams();
     params.append('tags', tags.join(','));
-    const response = await api.get<{ images: Array<{
-    id: string;
-    storage_url: string;
-    prompt: string;
-    model_used: string;
-    quality: string;
-    generation_type: string;
-    tags: string[];
-    created_at: string;
-    is_favorite: boolean;
-    file_name: string;
-  }> }>(`/api/images/search?${params.toString()}`);
+    const response = await api.get<{
+      images: Array<{
+        id: string;
+        storage_url: string;
+        prompt: string;
+        model_used: string;
+        quality: string;
+        generation_type: string;
+        tags: string[];
+        created_at: string;
+        is_favorite: boolean;
+        file_name: string;
+      }>;
+    }>(`/api/images/search?${params.toString()}`);
     return response?.images || [];
   } catch (error) {
     console.error('[Database] Search images error:', error);

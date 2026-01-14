@@ -21,7 +21,7 @@ export const PromptLibrary: React.FC<PromptLibraryProps> = ({ onSelect, onClose 
 
     // 1. Filter by Category/Tab
     if (activeCategory === 'Favorites') {
-      result = result.filter(p => p.isFavorite);
+      result = result.filter((p) => p.isFavorite);
       result.sort((a, b) => b.lastUsedAt - a.lastUsedAt);
     } else if (activeCategory === 'Recent') {
       result.sort((a, b) => b.lastUsedAt - a.lastUsedAt);
@@ -35,10 +35,11 @@ export const PromptLibrary: React.FC<PromptLibraryProps> = ({ onSelect, onClose 
     // 2. Filter by Search
     if (searchQuery) {
       const q = searchQuery.toLowerCase();
-      result = result.filter(p =>
-        p.prompt.toLowerCase().includes(q) ||
-        p.title?.toLowerCase().includes(q) ||
-        p.tags.some(t => t.toLowerCase().includes(q))
+      result = result.filter(
+        (p) =>
+          p.prompt.toLowerCase().includes(q) ||
+          p.title?.toLowerCase().includes(q) ||
+          p.tags.some((t) => t.toLowerCase().includes(q)),
       );
     }
 
@@ -66,7 +67,11 @@ export const PromptLibrary: React.FC<PromptLibraryProps> = ({ onSelect, onClose 
           Prompt History
         </h3>
         {onClose && (
-          <button type="button" onClick={onClose} className='text-zinc-500 hover:text-white transition'>
+          <button
+            type='button'
+            onClick={onClose}
+            className='text-zinc-500 hover:text-white transition'
+          >
             <span className='material-icons text-sm'>close</span>
           </button>
         )}
@@ -83,13 +88,16 @@ export const PromptLibrary: React.FC<PromptLibraryProps> = ({ onSelect, onClose 
         />
 
         <div className='flex gap-2 overflow-x-auto pb-1 scrollbar-hide'>
-          {categories.map(cat => (
+          {categories.map((cat) => (
             <button
               key={cat}
-              type="button"
+              type='button'
               onClick={() => setActiveCategory(cat)}
-              className={`px-3 py-1.5 rounded-full text-[10px] font-bold uppercase tracking-wider whitespace-nowrap transition ${activeCategory === cat ? 'bg-purple-600 text-white' : 'bg-zinc-800 text-zinc-500 hover:text-zinc-300'
-                }`}
+              className={`px-3 py-1.5 rounded-full text-[10px] font-bold uppercase tracking-wider whitespace-nowrap transition ${
+                activeCategory === cat
+                  ? 'bg-purple-600 text-white'
+                  : 'bg-zinc-800 text-zinc-500 hover:text-zinc-300'
+              }`}
             >
               {cat}
             </button>
@@ -105,7 +113,7 @@ export const PromptLibrary: React.FC<PromptLibraryProps> = ({ onSelect, onClose 
             <p className='text-xs text-zinc-500'>No history found</p>
             {(searchQuery || activeCategory !== 'All') && (
               <button
-                type="button"
+                type='button'
                 onClick={() => {
                   setSearchQuery('');
                   setActiveCategory('All');
@@ -117,7 +125,7 @@ export const PromptLibrary: React.FC<PromptLibraryProps> = ({ onSelect, onClose 
             )}
           </div>
         ) : (
-          displayedPrompts.map(prompt => (
+          displayedPrompts.map((prompt) => (
             <div
               key={prompt.id}
               className='group bg-zinc-950/50 border border-white/5 hover:border-purple-500/30 rounded-xl p-3 transition-all cursor-pointer'
@@ -129,30 +137,32 @@ export const PromptLibrary: React.FC<PromptLibraryProps> = ({ onSelect, onClose 
                 </h4>
                 <div className='flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity'>
                   <button
-                    type="button"
+                    type='button'
                     onClick={(e) => handleToggleFavorite(prompt.id, e)}
                     className={`text-sm material-icons ${prompt.isFavorite ? 'text-pink-500' : 'text-zinc-600 hover:text-pink-400'}`}
-                    title="Toggle Favorite"
+                    title='Toggle Favorite'
                   >
                     {prompt.isFavorite ? 'favorite' : 'favorite_border'}
                   </button>
                   <button
-                    type="button"
+                    type='button'
                     onClick={(e) => handleDelete(prompt.id, e)}
                     className='text-sm material-icons text-zinc-600 hover:text-red-400'
-                    title="Delete"
+                    title='Delete'
                   >
                     delete
                   </button>
                 </div>
               </div>
-              <p className='text-[11px] text-zinc-300 line-clamp-2 leading-relaxed italic'>"{prompt.prompt}"</p>
+              <p className='text-[11px] text-zinc-300 line-clamp-2 leading-relaxed italic'>
+                "{prompt.prompt}"
+              </p>
               <div className='mt-2 flex items-center justify-between'>
                 <span className='text-[8px] text-zinc-600 font-bold uppercase'>
                   {new Date(prompt.lastUsedAt).toLocaleDateString()}
                 </span>
 
-                <div className="flex items-center gap-2">
+                <div className='flex items-center gap-2'>
                   {prompt.useCount > 1 && (
                     <span className='px-1.5 py-0.5 bg-zinc-800 rounded text-[8px] text-zinc-400 font-bold uppercase border border-white/5'>
                       Used {prompt.useCount}x

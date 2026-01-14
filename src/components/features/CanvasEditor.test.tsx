@@ -77,9 +77,9 @@ describe('CanvasEditor - Responsive Scaling', () => {
       constructor(callback: ResizeObserverCallback) {
         resizeObserverCallback = callback;
       }
-      observe() { }
-      disconnect() { }
-      unobserve() { }
+      observe() {}
+      disconnect() {}
+      unobserve() {}
     };
 
     // Mock window dimensions

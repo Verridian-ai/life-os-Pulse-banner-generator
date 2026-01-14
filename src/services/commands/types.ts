@@ -1,4 +1,9 @@
-import type { ActionResult, CanvasCallbacks, SetGenPromptCallback, OnUpdateCallback } from '../actionExecutor';
+import type {
+  ActionResult,
+  CanvasCallbacks,
+  SetGenPromptCallback,
+  OnUpdateCallback,
+} from '../actionExecutor';
 
 export interface CommandContext {
   onUpdate: OnUpdateCallback;
@@ -10,5 +15,8 @@ export interface CommandContext {
 
 export interface Command {
   name: string;
-  execute(args: Record<string, unknown>, context: CommandContext): Promise<ActionResult> | ActionResult;
+  execute(
+    args: Record<string, unknown>,
+    context: CommandContext,
+  ): Promise<ActionResult> | ActionResult;
 }

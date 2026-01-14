@@ -81,7 +81,8 @@ export const classifyError = (error: unknown): NetworkError => {
   if (message.includes('403') || message.includes('forbidden')) {
     return {
       name: 'PermissionError',
-      message: 'Access forbidden. Your API key may not have the required permissions or billing may not be enabled.',
+      message:
+        'Access forbidden. Your API key may not have the required permissions or billing may not be enabled.',
       type: 'api',
       retryable: false,
       originalError: error,
@@ -171,7 +172,7 @@ const DEFAULT_RETRY_OPTIONS: Required<Omit<RetryOptions, 'onRetry'>> = {
  */
 export const withRetry = async <T>(
   fn: () => Promise<T>,
-  options: RetryOptions = {}
+  options: RetryOptions = {},
 ): Promise<T> => {
   const { maxRetries, baseDelay, maxDelay } = { ...DEFAULT_RETRY_OPTIONS, ...options };
 
@@ -196,10 +197,10 @@ export const withRetry = async <T>(
       // Calculate delay with exponential backoff and jitter
       const delay = Math.min(
         maxDelay,
-        baseDelay * Math.pow(2, attempt - 1) * (0.5 + Math.random() * 0.5)
+        baseDelay * Math.pow(2, attempt - 1) * (0.5 + Math.random() * 0.5),
       );
 
-      await new Promise(resolve => setTimeout(resolve, delay));
+      await new Promise((resolve) => setTimeout(resolve, delay));
     }
   }
 };

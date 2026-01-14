@@ -25,8 +25,8 @@ export interface DeviceCapabilities {
   hasTouchscreen: boolean;
   hasMultiTouch: boolean;
   supportsHover: boolean;
-  hasCoarsePointer: boolean;  // Touch input
-  hasFinePointer: boolean;    // Mouse/trackpad
+  hasCoarsePointer: boolean; // Touch input
+  hasFinePointer: boolean; // Mouse/trackpad
 
   // Haptic feedback
   supportsHaptics: boolean;
@@ -44,8 +44,8 @@ export interface DeviceCapabilities {
 
   // Performance indicators
   isLowPowerMode: boolean;
-  deviceMemory: number | null;   // GB, null if not available
-  hardwareConcurrency: number;   // CPU cores
+  deviceMemory: number | null; // GB, null if not available
+  hardwareConcurrency: number; // CPU cores
 }
 
 /**
@@ -119,12 +119,15 @@ export function useDeviceCapabilities(): DeviceCapabilities {
   });
 
   // Compute static values once
-  const staticCapabilities = useMemo(() => ({
-    maxTouchPoints: getMaxTouchPoints(),
-    deviceMemory: getDeviceMemory(),
-    hardwareConcurrency: getHardwareConcurrency(),
-    supportsHaptics: isVibrationSupported(),
-  }), []);
+  const staticCapabilities = useMemo(
+    () => ({
+      maxTouchPoints: getMaxTouchPoints(),
+      deviceMemory: getDeviceMemory(),
+      hardwareConcurrency: getHardwareConcurrency(),
+      supportsHaptics: isVibrationSupported(),
+    }),
+    [],
+  );
 
   // Update safe area insets on mount and orientation change
   useEffect(() => {
@@ -145,12 +148,18 @@ export function useDeviceCapabilities(): DeviceCapabilities {
   }, []);
 
   // Derive color scheme preference
-  const prefersColorScheme: 'light' | 'dark' | 'no-preference' =
-    prefersDarkMode ? 'dark' : prefersLightMode ? 'light' : 'no-preference';
+  const prefersColorScheme: 'light' | 'dark' | 'no-preference' = prefersDarkMode
+    ? 'dark'
+    : prefersLightMode
+      ? 'light'
+      : 'no-preference';
 
   // Derive contrast preference
-  const prefersContrast: 'more' | 'less' | 'no-preference' =
-    prefersMoreContrast ? 'more' : prefersLessContrast ? 'less' : 'no-preference';
+  const prefersContrast: 'more' | 'less' | 'no-preference' = prefersMoreContrast
+    ? 'more'
+    : prefersLessContrast
+      ? 'less'
+      : 'no-preference';
 
   return {
     // Input methods

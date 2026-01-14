@@ -87,7 +87,10 @@ type ImageProviderProps = {
 };
 
 // Provider Component
-export function ImageProvider({ children, value: initialValue }: ImageProviderProps): React.ReactElement {
+export function ImageProvider({
+  children,
+  value: initialValue,
+}: ImageProviderProps): React.ReactElement {
   // Use useContext directly to avoid throwing and allow conditional behavior
   const canvasState = React.useContext(CanvasStateContext);
   const elementsContext = React.useContext(ElementsContext);

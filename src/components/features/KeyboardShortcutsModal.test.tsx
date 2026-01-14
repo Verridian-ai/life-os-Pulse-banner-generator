@@ -38,7 +38,7 @@ describe('KeyboardShortcutsModal', () => {
 
   it('renders nothing when isOpen is false', () => {
     const { container } = render(
-      <KeyboardShortcutsModal isOpen={false} onClose={vi.fn()} shortcuts={mockShortcuts} />
+      <KeyboardShortcutsModal isOpen={false} onClose={vi.fn()} shortcuts={mockShortcuts} />,
     );
     expect(container.firstChild).toBeNull();
   });

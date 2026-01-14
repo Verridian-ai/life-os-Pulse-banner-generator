@@ -3,19 +3,22 @@ import { api } from './api';
 export const uploadImage = async (userId: string, file: File, _bucket = 'user-data') => {
   try {
     // 1. Get Signed Upload URL from Backend
-    const { url, filePath } = await api.post<{ url: string; filePath: string }>('/api/storage/upload-url', {
-      filename: file.name,
-      contentType: file.type,
-      sizeBytes: file.size
-    });
+    const { url, filePath } = await api.post<{ url: string; filePath: string }>(
+      '/api/storage/upload-url',
+      {
+        filename: file.name,
+        contentType: file.type,
+        sizeBytes: file.size,
+      },
+    );
 
     // 2. Upload to GCS directly
     const uploadRes = await fetch(url, {
       method: 'PUT',
       body: file,
       headers: {
-        'Content-Type': file.type
-      }
+        'Content-Type': file.type,
+      },
     });
 
     if (!uploadRes.ok) {
@@ -27,9 +30,8 @@ export const uploadImage = async (userId: string, file: File, _bucket = 'user-da
 
     return {
       data: { path: filePath, fullPath: filePath },
-      error: null
+      error: null,
     };
-
   } catch (error) {
     console.error('Upload error:', error);
     return { data: null, error };

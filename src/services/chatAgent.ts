@@ -196,7 +196,8 @@ const TOOLS = [
           },
           role: {
             type: 'string',
-            description: 'The user\'s role (e.g., "software engineer", "sales manager", "designer")',
+            description:
+              'The user\'s role (e.g., "software engineer", "sales manager", "designer")',
           },
         },
         required: [],
@@ -225,7 +226,7 @@ export class ChatAgent {
     this.displayHistory = [
       {
         role: 'model',
-        text: 'Hi! I\'m Benno, your LinkedIn banner assistant. What kind of banner are you looking to create today?',
+        text: "Hi! I'm Benno, your LinkedIn banner assistant. What kind of banner are you looking to create today?",
       },
     ];
     this.onToolCall = config.onToolCall;
@@ -355,7 +356,8 @@ export class ChatAgent {
           return finalMessage.content;
         }
 
-        const defaultResponse = "I've completed the action. Let me know if you'd like any adjustments!";
+        const defaultResponse =
+          "I've completed the action. Let me know if you'd like any adjustments!";
 
         this.displayHistory.push({
           role: 'model',
@@ -387,8 +389,7 @@ export class ChatAgent {
       throw new Error('No content in assistant response');
     } catch (error) {
       console.error('[ChatAgent] Chat error:', error);
-      const errorMessage =
-        error instanceof Error ? error.message : 'An unexpected error occurred';
+      const errorMessage = error instanceof Error ? error.message : 'An unexpected error occurred';
 
       // Add error message to display history
       const errorText = `Sorry, I encountered an error: ${errorMessage}`;
@@ -472,7 +473,7 @@ export class ChatAgent {
     this.displayHistory = [
       {
         role: 'model',
-        text: 'Hi! I\'m Benno, your LinkedIn banner assistant. What kind of banner are you looking to create today?',
+        text: "Hi! I'm Benno, your LinkedIn banner assistant. What kind of banner are you looking to create today?",
       },
     ];
     this.notifyUpdate();

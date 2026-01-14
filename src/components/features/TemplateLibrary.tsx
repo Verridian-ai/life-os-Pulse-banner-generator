@@ -17,15 +17,17 @@ export const TemplateLibrary: React.FC<TemplateLibraryProps> = ({ onClose }) => 
   const [selectedPlatform, setSelectedPlatform] = useState('All');
   const toast = useToast();
 
-  const industries = ['All', ...new Set(BANNER_TEMPLATES.map(t => t.industry))];
+  const industries = ['All', ...new Set(BANNER_TEMPLATES.map((t) => t.industry))];
   const platforms = ['All', 'linkedin', 'facebook', 'x', 'instagram', 'youtube', 'tiktok'];
 
-  const filteredTemplates = BANNER_TEMPLATES.filter(t => {
-    const matchesSearch = t.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+  const filteredTemplates = BANNER_TEMPLATES.filter((t) => {
+    const matchesSearch =
+      t.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
       t.description.toLowerCase().includes(searchQuery.toLowerCase());
     const matchesIndustry = selectedIndustry === 'All' || t.industry === selectedIndustry;
     // Safe check if template has platform property (for backward compatibility if data didn't fully update)
-    const matchesPlatform = selectedPlatform === 'All' || (t.platform && t.platform === selectedPlatform);
+    const matchesPlatform =
+      selectedPlatform === 'All' || (t.platform && t.platform === selectedPlatform);
     return matchesSearch && matchesIndustry && matchesPlatform;
   });
 
@@ -33,7 +35,6 @@ export const TemplateLibrary: React.FC<TemplateLibraryProps> = ({ onClose }) => 
     // 1. Set background
     setBgImage(template.backgroundUrl);
     setPrompt(template.prompt); // Set the prompt for regeneration capability
-
 
     const elements = template.elements.map((el, i) => ({
       ...el,
@@ -78,12 +79,15 @@ export const TemplateLibrary: React.FC<TemplateLibraryProps> = ({ onClose }) => 
 
         {/* Platform Filter */}
         <div className='flex gap-2 overflow-x-auto pb-1 scrollbar-hide mb-2 border-b border-white/5 pb-4'>
-          {platforms.map(p => (
+          {platforms.map((p) => (
             <button
               key={p}
               onClick={() => setSelectedPlatform(p)}
-              className={`px-4 py-2 rounded-full text-xs font-black uppercase tracking-wider whitespace-nowrap transition flex items-center gap-2 ${selectedPlatform === p ? 'bg-white text-black' : 'bg-black/40 text-zinc-500 hover:text-white border border-white/10'
-                }`}
+              className={`px-4 py-2 rounded-full text-xs font-black uppercase tracking-wider whitespace-nowrap transition flex items-center gap-2 ${
+                selectedPlatform === p
+                  ? 'bg-white text-black'
+                  : 'bg-black/40 text-zinc-500 hover:text-white border border-white/10'
+              }`}
             >
               {p === 'All' ? 'ALL PLATFORMS' : p}
             </button>
@@ -92,12 +96,15 @@ export const TemplateLibrary: React.FC<TemplateLibraryProps> = ({ onClose }) => 
 
         {/* Industry Filter */}
         <div className='flex gap-2 overflow-x-auto pb-1 scrollbar-hide'>
-          {industries.map(ind => (
+          {industries.map((ind) => (
             <button
               key={ind}
               onClick={() => setSelectedIndustry(ind)}
-              className={`px-4 py-2 rounded-full text-xs font-bold uppercase tracking-wider whitespace-nowrap transition ${selectedIndustry === ind ? 'bg-blue-600 text-white' : 'bg-zinc-800 text-zinc-500 hover:text-zinc-300'
-                }`}
+              className={`px-4 py-2 rounded-full text-xs font-bold uppercase tracking-wider whitespace-nowrap transition ${
+                selectedIndustry === ind
+                  ? 'bg-blue-600 text-white'
+                  : 'bg-zinc-800 text-zinc-500 hover:text-zinc-300'
+              }`}
             >
               {ind}
             </button>
@@ -108,7 +115,7 @@ export const TemplateLibrary: React.FC<TemplateLibraryProps> = ({ onClose }) => 
       {/* Grid */}
       <div className='flex-1 overflow-y-auto p-6'>
         <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 pb-10'>
-          {filteredTemplates.map(template => (
+          {filteredTemplates.map((template) => (
             <div
               key={template.id}
               className='group bg-zinc-950/50 border border-white/5 hover:border-blue-500/30 rounded-2xl overflow-hidden transition-all duration-300 cursor-pointer flex flex-col'
@@ -131,7 +138,9 @@ export const TemplateLibrary: React.FC<TemplateLibraryProps> = ({ onClose }) => 
               </div>
               <div className='p-4'>
                 <h3 className='text-sm font-black text-white uppercase mb-1'>{template.title}</h3>
-                <p className='text-[11px] text-zinc-500 line-clamp-2 leading-relaxed'>{template.description}</p>
+                <p className='text-[11px] text-zinc-500 line-clamp-2 leading-relaxed'>
+                  {template.description}
+                </p>
               </div>
             </div>
           ))}

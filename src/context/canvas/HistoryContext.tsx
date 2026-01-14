@@ -47,7 +47,10 @@ type HistoryProviderProps = {
 };
 
 // Provider Component
-export function HistoryProvider({ children, value: initialValue }: HistoryProviderProps): React.ReactElement {
+export function HistoryProvider({
+  children,
+  value: initialValue,
+}: HistoryProviderProps): React.ReactElement {
   // Access sibling contexts for state management
   const { bgImage, setBgImage, canvasFormatId, setCanvasFormatId } = useCanvasState();
   const { elements, setElements } = useElements();
@@ -58,15 +61,15 @@ export function HistoryProvider({ children, value: initialValue }: HistoryProvid
     saveSnapshot: _saveSnapshot,
     deleteSnapshot,
     renameSnapshot,
-    updateSnapshot: _updateSnapshot
+    updateSnapshot: _updateSnapshot,
   } = useCanvasSnapshots();
 
   const [imageHistory, setImageHistory] = useState<string[]>([]);
   const [historyIndex, setHistoryIndex] = useState<number>(-1);
 
   // Computed history flags
-  const canUndo = (initialValue?.canUndo ?? historyIndex > 0);
-  const canRedo = (initialValue?.canRedo ?? historyIndex < imageHistory.length - 1);
+  const canUndo = initialValue?.canUndo ?? historyIndex > 0;
+  const canRedo = initialValue?.canRedo ?? historyIndex < imageHistory.length - 1;
 
   // Add image to history
   const addToHistory = useCallback(
@@ -110,23 +113,32 @@ export function HistoryProvider({ children, value: initialValue }: HistoryProvid
   }, [canRedo, historyIndex, imageHistory, setBgImage]);
 
   // Snapshot Actions
-  const saveCurrentSnapshot = useCallback((name: string) => {
-    _saveSnapshot(name, bgImage, elements, canvasFormatId);
-  }, [bgImage, elements, canvasFormatId, _saveSnapshot]);
+  const saveCurrentSnapshot = useCallback(
+    (name: string) => {
+      _saveSnapshot(name, bgImage, elements, canvasFormatId);
+    },
+    [bgImage, elements, canvasFormatId, _saveSnapshot],
+  );
 
-  const restoreSnapshot = useCallback((snapshot: SnapshotRecord) => {
-    setBgImage(snapshot.bgImage);
-    setElements(snapshot.elements);
-    // Only set format if it exists in snapshot (backward compatibility)
-    if (snapshot.canvasFormatId) {
-      setCanvasFormatId(snapshot.canvasFormatId);
-    }
-    console.log('[History] Restored snapshot:', snapshot.name);
-  }, [setBgImage, setElements, setCanvasFormatId]);
+  const restoreSnapshot = useCallback(
+    (snapshot: SnapshotRecord) => {
+      setBgImage(snapshot.bgImage);
+      setElements(snapshot.elements);
+      // Only set format if it exists in snapshot (backward compatibility)
+      if (snapshot.canvasFormatId) {
+        setCanvasFormatId(snapshot.canvasFormatId);
+      }
+      console.log('[History] Restored snapshot:', snapshot.name);
+    },
+    [setBgImage, setElements, setCanvasFormatId],
+  );
 
-  const updateSnapshot = useCallback((id: string) => {
-    _updateSnapshot(id, bgImage, elements, canvasFormatId);
-  }, [bgImage, elements, canvasFormatId, _updateSnapshot]);
+  const updateSnapshot = useCallback(
+    (id: string) => {
+      _updateSnapshot(id, bgImage, elements, canvasFormatId);
+    },
+    [bgImage, elements, canvasFormatId, _updateSnapshot],
+  );
 
   const value: HistoryContextType = {
     imageHistory,

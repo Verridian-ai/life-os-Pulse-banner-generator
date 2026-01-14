@@ -31,7 +31,7 @@ export const useErrorMetrics = () => {
     // Listen for new errors being tracked
     const handleTracked = () => loadMetrics();
     window.addEventListener('error-tracked', handleTracked);
-    
+
     return () => window.removeEventListener('error-tracked', handleTracked);
   }, [loadMetrics]);
 
@@ -41,8 +41,8 @@ export const useErrorMetrics = () => {
 
     const errorCountByType: Record<string, number> = {};
     const errorCountByContext: Record<string, number> = {};
-    
-    metrics.forEach(m => {
+
+    metrics.forEach((m) => {
       errorCountByType[m.type] = (errorCountByType[m.type] || 0) + 1;
       if (m.context) {
         errorCountByContext[m.context] = (errorCountByContext[m.context] || 0) + 1;
@@ -51,7 +51,7 @@ export const useErrorMetrics = () => {
 
     // Calculate rates (errors per hour/day if needed, but for now just counts)
     const totalErrors = metrics.length;
-    
+
     // Sort types by frequency
     const topErrorTypes = Object.entries(errorCountByType)
       .sort(([, a], [, b]) => b - a)

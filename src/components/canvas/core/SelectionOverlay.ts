@@ -34,10 +34,7 @@ export interface ElementRect {
  * @param ctx - Canvas 2D rendering context
  * @param rect - Element bounding rectangle
  */
-export function drawSelectionOverlay(
-  ctx: CanvasRenderingContext2D,
-  rect: ElementRect,
-): void {
+export function drawSelectionOverlay(ctx: CanvasRenderingContext2D, rect: ElementRect): void {
   const rotation = rect.rotation || 0;
   const angleRad = (rotation * Math.PI) / 180;
   const cx = rect.x + rect.w / 2;
@@ -104,11 +101,7 @@ export function drawSelectionOverlay(
  * @param rect - Element bounding rectangle
  * @returns Handle type if over a handle, null otherwise
  */
-export function isOverHandle(
-  x: number,
-  y: number,
-  rect: ElementRect,
-): ResizeHandle | null {
+export function isOverHandle(x: number, y: number, rect: ElementRect): ResizeHandle | null {
   const cx = rect.x + rect.w / 2;
   const cy = rect.y + rect.h / 2;
   const angleRad = ((rect.rotation || 0) * Math.PI) / 180;

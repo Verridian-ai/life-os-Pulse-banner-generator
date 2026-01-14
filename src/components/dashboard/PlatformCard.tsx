@@ -6,14 +6,7 @@
  */
 
 import React, { useState } from 'react';
-import {
-  Linkedin,
-  Youtube,
-  Instagram,
-  Facebook,
-  Twitter,
-  Music2,
-} from 'lucide-react';
+import { Linkedin, Youtube, Instagram, Facebook, Twitter, Music2 } from 'lucide-react';
 
 export type PlatformType = 'linkedin' | 'youtube' | 'instagram' | 'facebook' | 'tiktok' | 'x';
 
@@ -24,17 +17,20 @@ interface PlatformCardProps {
   isLoading?: boolean;
 }
 
-const platformConfig: Record<PlatformType, {
-  name: string;
-  description: string;
-  icon: React.ElementType;
-  color: string;
-  iconColor: string;
-  bgGradient: string;
-  hoverGlow: string;
-  borderColor: string;
-  image: string;
-}> = {
+const platformConfig: Record<
+  PlatformType,
+  {
+    name: string;
+    description: string;
+    icon: React.ElementType;
+    color: string;
+    iconColor: string;
+    bgGradient: string;
+    hoverGlow: string;
+    borderColor: string;
+    image: string;
+  }
+> = {
   linkedin: {
     name: 'LinkedIn',
     description: 'Professional',
@@ -103,7 +99,12 @@ const platformConfig: Record<PlatformType, {
   },
 };
 
-export function PlatformCard({ platform, onClick, className = '', isLoading = false }: PlatformCardProps) {
+export function PlatformCard({
+  platform,
+  onClick,
+  className = '',
+  isLoading = false,
+}: PlatformCardProps) {
   const config = platformConfig[platform];
   const Icon = config.icon;
   const [imageLoaded, setImageLoaded] = useState(false);
@@ -111,8 +112,10 @@ export function PlatformCard({ platform, onClick, className = '', isLoading = fa
 
   if (isLoading) {
     return (
-      <div className={`aspect-[4/5] bg-zinc-900 border border-white/10 rounded-2xl overflow-hidden animate-pulse ${className}`}>
-        <div className="w-full h-full bg-gradient-to-b from-zinc-800 to-zinc-900" />
+      <div
+        className={`aspect-[4/5] bg-zinc-900 border border-white/10 rounded-2xl overflow-hidden animate-pulse ${className}`}
+      >
+        <div className='w-full h-full bg-gradient-to-b from-zinc-800 to-zinc-900' />
       </div>
     );
   }
@@ -120,15 +123,15 @@ export function PlatformCard({ platform, onClick, className = '', isLoading = fa
   return (
     <button
       onClick={onClick}
-      type="button"
+      type='button'
       className={`aspect-[4/5] bg-zinc-900 border ${config.borderColor} rounded-2xl p-4 flex flex-col items-start justify-end group transition-all duration-300 relative overflow-hidden hover:-translate-y-2 hover:shadow-2xl ${config.hoverGlow} focus:outline-none focus:ring-2 focus:ring-sky-500/50 focus:ring-offset-2 focus:ring-offset-zinc-950 ${className}`}
     >
       {/* Background gradient overlay - stronger gradient for better text contrast */}
-      <div className="absolute inset-0 bg-gradient-to-b from-transparent via-black/20 to-black/95 z-[1]" />
+      <div className='absolute inset-0 bg-gradient-to-b from-transparent via-black/20 to-black/95 z-[1]' />
 
       {/* Shimmer effect on hover */}
-      <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-700 z-[2] pointer-events-none">
-        <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/5 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000" />
+      <div className='absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-700 z-[2] pointer-events-none'>
+        <div className='absolute inset-0 bg-gradient-to-r from-transparent via-white/5 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000' />
       </div>
 
       {/* 3D Platform Image - Full Cover */}
@@ -145,37 +148,48 @@ export function PlatformCard({ platform, onClick, className = '', isLoading = fa
       {/* Fallback gradient background when image fails */}
       {(imageError || !imageLoaded) && (
         <div
-          className="absolute inset-0 bg-gradient-to-br from-zinc-800 to-zinc-900"
+          className='absolute inset-0 bg-gradient-to-br from-zinc-800 to-zinc-900'
           style={{
-            background: `linear-gradient(135deg, ${config.color}15 0%, ${config.color}05 50%, transparent 100%)`
+            background: `linear-gradient(135deg, ${config.color}15 0%, ${config.color}05 50%, transparent 100%)`,
           }}
         />
       )}
 
       {/* Glow effect on hover - more vibrant */}
       <div
-        className="absolute inset-0 opacity-0 group-hover:opacity-40 transition-opacity duration-500 blur-3xl z-0"
+        className='absolute inset-0 opacity-0 group-hover:opacity-40 transition-opacity duration-500 blur-3xl z-0'
         style={{ backgroundColor: config.color }}
       />
 
       {/* Content */}
-      <div className="relative z-10 w-full">
+      <div className='relative z-10 w-full'>
         {/* Icon badge - improved design */}
-        <div className={`w-11 h-11 rounded-xl ${config.bgGradient} backdrop-blur-xl border border-white/20 flex items-center justify-center mb-3 shadow-xl group-hover:scale-110 group-hover:shadow-2xl transition-all duration-300`}>
+        <div
+          className={`w-11 h-11 rounded-xl ${config.bgGradient} backdrop-blur-xl border border-white/20 flex items-center justify-center mb-3 shadow-xl group-hover:scale-110 group-hover:shadow-2xl transition-all duration-300`}
+        >
           <Icon className={`w-5 h-5 ${config.iconColor}`} />
         </div>
 
         {/* Text - improved spacing and styling */}
-        <div className="space-y-0.5">
-          <span className="text-sm font-bold text-white block drop-shadow-lg tracking-tight">{config.name}</span>
-          <span className="text-[11px] text-zinc-400 font-medium tracking-wide">{config.description}</span>
+        <div className='space-y-0.5'>
+          <span className='text-sm font-bold text-white block drop-shadow-lg tracking-tight'>
+            {config.name}
+          </span>
+          <span className='text-[11px] text-zinc-400 font-medium tracking-wide'>
+            {config.description}
+          </span>
         </div>
 
         {/* Subtle arrow indicator on hover */}
-        <div className="absolute right-0 bottom-0 opacity-0 group-hover:opacity-100 transition-all duration-300 transform translate-x-2 group-hover:translate-x-0">
-          <div className="w-8 h-8 rounded-full bg-white/10 backdrop-blur flex items-center justify-center">
-            <svg className="w-4 h-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+        <div className='absolute right-0 bottom-0 opacity-0 group-hover:opacity-100 transition-all duration-300 transform translate-x-2 group-hover:translate-x-0'>
+          <div className='w-8 h-8 rounded-full bg-white/10 backdrop-blur flex items-center justify-center'>
+            <svg
+              className='w-4 h-4 text-white'
+              fill='none'
+              viewBox='0 0 24 24'
+              stroke='currentColor'
+            >
+              <path strokeLinecap='round' strokeLinejoin='round' strokeWidth={2} d='M9 5l7 7-7 7' />
             </svg>
           </div>
         </div>

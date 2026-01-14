@@ -29,9 +29,9 @@ export type DeviceType = 'phone' | 'phablet' | 'tablet' | 'laptop' | 'desktop';
 
 export interface BreakpointState {
   // Primary boolean helpers (most common)
-  isMobile: boolean;        // < 768px
-  isTablet: boolean;        // 768px - 1023px
-  isDesktop: boolean;       // >= 1024px
+  isMobile: boolean; // < 768px
+  isTablet: boolean; // 768px - 1023px
+  isDesktop: boolean; // >= 1024px
 
   // Orientation helpers
   isLandscape: boolean;
@@ -39,17 +39,17 @@ export interface BreakpointState {
   isPhoneLandscape: boolean; // Landscape with constrained height (< 500px)
 
   // Detailed device detection
-  isPhone: boolean;         // < 600px
-  isPhablet: boolean;       // 428px - 599px
-  isTabletSm: boolean;      // 600px - 767px
-  isTabletMd: boolean;      // 768px - 833px
-  isTabletLg: boolean;      // 834px - 1023px
-  isLaptop: boolean;        // 1024px - 1439px
-  isLargeDesktop: boolean;  // >= 1440px
+  isPhone: boolean; // < 600px
+  isPhablet: boolean; // 428px - 599px
+  isTabletSm: boolean; // 600px - 767px
+  isTabletMd: boolean; // 768px - 833px
+  isTabletLg: boolean; // 834px - 1023px
+  isLaptop: boolean; // 1024px - 1439px
+  isLargeDesktop: boolean; // >= 1440px
 
   // Touch detection (uses pointer media query)
   hasCoarsePointer: boolean; // Touch device
-  hasFinePointer: boolean;   // Mouse/trackpad
+  hasFinePointer: boolean; // Mouse/trackpad
 
   // Current breakpoint category
   breakpoint: BreakpointCategory;
@@ -91,12 +91,12 @@ export function useBreakpoint(): BreakpointState {
   const deviceType: DeviceType = isLargeDesktop
     ? 'desktop'
     : isLaptop
-    ? 'laptop'
-    : isTablet
-    ? 'tablet'
-    : isPhablet
-    ? 'phablet'
-    : 'phone';
+      ? 'laptop'
+      : isTablet
+        ? 'tablet'
+        : isPhablet
+          ? 'phablet'
+          : 'phone';
 
   return {
     isMobile,

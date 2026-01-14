@@ -24,7 +24,7 @@ export const resizeToCanvasDimensions = async (
   options: {
     quality?: number;
     fit?: 'cover' | 'contain' | 'fill';
-  } = {}
+  } = {},
 ): Promise<string> => {
   const { quality = 0.95, fit = 'cover' } = options;
 
@@ -47,8 +47,14 @@ export const resizeToCanvasDimensions = async (
         ctx.imageSmoothingEnabled = true;
         ctx.imageSmoothingQuality = 'high';
 
-        let sx = 0, sy = 0, sw = img.width, sh = img.height;
-        let dx = 0, dy = 0, dw = targetWidth, dh = targetHeight;
+        let sx = 0,
+          sy = 0,
+          sw = img.width,
+          sh = img.height;
+        let dx = 0,
+          dy = 0,
+          dw = targetWidth,
+          dh = targetHeight;
 
         if (fit === 'cover') {
           const sourceRatio = img.width / img.height;
@@ -80,7 +86,15 @@ export const resizeToCanvasDimensions = async (
         ctx.drawImage(img, sx, sy, sw, sh, dx, dy, dw, dh);
         const resizedDataUrl = canvas.toDataURL('image/png', quality);
 
-        console.log('[ImageUtils] Resized image to', targetWidth, 'x', targetHeight, 'using', fit, 'mode');
+        console.log(
+          '[ImageUtils] Resized image to',
+          targetWidth,
+          'x',
+          targetHeight,
+          'using',
+          fit,
+          'mode',
+        );
         resolve(resizedDataUrl);
       } catch (error) {
         console.error('[ImageUtils] Canvas resize error:', error);
@@ -112,7 +126,7 @@ export const resizeToLinkedInBanner = async (
     height?: number;
     quality?: number;
     fit?: 'cover' | 'contain' | 'fill';
-  } = {}
+  } = {},
 ): Promise<string> => {
   const {
     width = LINKEDIN_BANNER_WIDTH,
@@ -143,8 +157,14 @@ export const resizeToLinkedInBanner = async (
         ctx.imageSmoothingQuality = 'high';
 
         // Calculate source and destination dimensions based on fit mode
-        let sx = 0, sy = 0, sw = img.width, sh = img.height;
-        let dx = 0, dy = 0, dw = width, dh = height;
+        let sx = 0,
+          sy = 0,
+          sw = img.width,
+          sh = img.height;
+        let dx = 0,
+          dy = 0,
+          dw = width,
+          dh = height;
 
         if (fit === 'cover') {
           // Scale to cover entire canvas, cropping if necessary (center crop)
@@ -208,7 +228,9 @@ export const resizeToLinkedInBanner = async (
 /**
  * Get image dimensions from a data URL or image URL
  */
-export const getImageDimensions = (imageSource: string): Promise<{ width: number; height: number }> => {
+export const getImageDimensions = (
+  imageSource: string,
+): Promise<{ width: number; height: number }> => {
   return new Promise((resolve, reject) => {
     const img = new Image();
     img.crossOrigin = 'anonymous';
@@ -271,7 +293,7 @@ export const urlToBase64 = async (url: string): Promise<string> => {
 export const prepareForOutpainting = async (
   imageSource: string,
   width: number = LINKEDIN_BANNER_WIDTH,
-  height: number = LINKEDIN_BANNER_HEIGHT
+  height: number = LINKEDIN_BANNER_HEIGHT,
 ): Promise<{ image: string; mask: string }> => {
   return new Promise((resolve, reject) => {
     const img = new Image();
@@ -293,7 +315,10 @@ export const prepareForOutpainting = async (
         // Draw image "contained"
         const sourceRatio = img.width / img.height;
         const targetRatio = width / height;
-        let dx = 0, dy = 0, dw = width, dh = height;
+        let dx = 0,
+          dy = 0,
+          dw = width,
+          dh = height;
 
         if (sourceRatio > targetRatio) {
           // Source is wider than target

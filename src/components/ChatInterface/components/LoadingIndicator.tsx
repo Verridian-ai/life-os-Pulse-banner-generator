@@ -14,9 +14,7 @@ export const LoadingIndicator: React.FC<LoadingIndicatorProps> = ({ message }) =
         <div className='w-2 h-2 bg-purple-500 rounded-full animate-bounce'></div>
         <div className='w-2 h-2 bg-purple-500 rounded-full animate-bounce [animation-delay:0.2s]'></div>
         <div className='w-2 h-2 bg-purple-500 rounded-full animate-bounce [animation-delay:0.4s]'></div>
-        {message && (
-          <span className='ml-2 text-sm text-zinc-400 font-medium'>{message}</span>
-        )}
+        {message && <span className='ml-2 text-sm text-zinc-400 font-medium'>{message}</span>}
       </div>
     </div>
   );

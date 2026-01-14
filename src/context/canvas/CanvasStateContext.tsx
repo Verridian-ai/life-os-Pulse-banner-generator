@@ -1,7 +1,12 @@
 import React, { createContext, useContext, useState, useRef, ReactNode, useMemo } from 'react';
 
 import { BannerCanvasHandle } from '../../components/BannerCanvas';
-import { CANVAS_FORMATS, DEFAULT_CANVAS_FORMAT, type CanvasFormatId, type CanvasFormat } from '../../constants';
+import {
+  CANVAS_FORMATS,
+  DEFAULT_CANVAS_FORMAT,
+  type CanvasFormatId,
+  type CanvasFormat,
+} from '../../constants';
 
 /**
  * CanvasStateContext - Core canvas state management
@@ -51,7 +56,10 @@ type CanvasStateProviderProps = {
 };
 
 // Provider Component
-export function CanvasStateProvider({ children, value: initialValue }: CanvasStateProviderProps): React.ReactElement {
+export function CanvasStateProvider({
+  children,
+  value: initialValue,
+}: CanvasStateProviderProps): React.ReactElement {
   const canvasRef = useRef<BannerCanvasHandle | null>(null);
 
   const [bgImage, setBgImage] = useState<string | null>(null);

@@ -22,14 +22,24 @@ interface StudioShellProps {
   isVoiceActive?: boolean;
 }
 
-export function StudioShell({ children, onNavigate, onCreateNew, activeNavItem = 'studio', isVoiceActive = false }: StudioShellProps) {
+export function StudioShell({
+  children,
+  onNavigate,
+  onCreateNew,
+  activeNavItem = 'studio',
+  isVoiceActive = false,
+}: StudioShellProps) {
   // Navigation items: Studio, Quick Gen, Partner, Voice, Help
   const navigationItems: NavigationItem[] = [
-    { id: 'studio', label: 'Studio', icon: <FileEdit className="w-5 h-5" /> },
-    { id: 'quick-gen', label: 'Quick Gen', icon: <Zap className="w-5 h-5" /> },
-    { id: 'partner', label: 'Partner', icon: <Sparkles className="w-5 h-5" /> },
-    { id: 'voice', label: '', icon: <Mic className={`w-5 h-5 ${isVoiceActive ? 'text-yellow-400' : ''}`} /> },
-    { id: 'help', label: '', icon: <HelpCircle className="w-5 h-5" /> },
+    { id: 'studio', label: 'Studio', icon: <FileEdit className='w-5 h-5' /> },
+    { id: 'quick-gen', label: 'Quick Gen', icon: <Zap className='w-5 h-5' /> },
+    { id: 'partner', label: 'Partner', icon: <Sparkles className='w-5 h-5' /> },
+    {
+      id: 'voice',
+      label: '',
+      icon: <Mic className={`w-5 h-5 ${isVoiceActive ? 'text-yellow-400' : ''}`} />,
+    },
+    { id: 'help', label: '', icon: <HelpCircle className='w-5 h-5' /> },
   ];
 
   return (
@@ -43,7 +53,7 @@ export function StudioShell({ children, onNavigate, onCreateNew, activeNavItem =
         activeItemId={activeNavItem}
         onNavigate={onNavigate}
         onCreateNew={onCreateNew}
-        className=""
+        className=''
       />
     </>
   );

@@ -133,8 +133,6 @@ describe('ImageToolsPanel - Layer Selection', () => {
     );
   });
 
-
-
   it('should auto-detect when text layer is selected (not image)', async () => {
     const contextWithTextLayer = {
       ...mockCanvasContext,
