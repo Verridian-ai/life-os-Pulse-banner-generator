@@ -221,14 +221,25 @@ authRouter.get('/check-username', async (c) => {
 
 // GET CURRENT USER (Session Validation)
 authRouter.get('/me', async (c) => {
-  const sessionId = lucia.readSessionCookie(c.req.header('Cookie') ?? '');
+  const cookieHeader = c.req.header('Cookie') ?? '';
+  const sessionId = lucia.readSessionCookie(cookieHeader);
+
+  console.log('[Auth /me] Cookie header present:', !!cookieHeader);
+  console.log('[Auth /me] Cookie header length:', cookieHeader.length);
+  console.log('[Auth /me] Session ID found:', !!sessionId);
+
   if (!sessionId) {
+    console.log('[Auth /me] No session ID in cookie, returning null user');
     return c.json({ user: null }, 401);
   }
 
   const { session, user } = await lucia.validateSession(sessionId);
 
+  console.log('[Auth /me] Session valid:', !!session);
+  console.log('[Auth /me] User found:', !!user);
+
   if (!session) {
+    console.log('[Auth /me] Session invalid, clearing cookie');
     const sessionCookie = lucia.createBlankSessionCookie();
     c.header('Set-Cookie', sessionCookie.serialize(), { append: true });
     return c.json({ user: null }, 401);
@@ -239,6 +250,7 @@ authRouter.get('/me', async (c) => {
     c.header('Set-Cookie', sessionCookie.serialize(), { append: true });
   }
 
+  console.log('[Auth /me] Returning user:', user?.id);
   return c.json({ user });
 });
 
@@ -679,26 +691,26 @@ authRouter.get('/callback', async (c) => {
   const error = c.req.query('error');
   const errorDescription = c.req.query('error_description');
 
+  // Determine Frontend Origin (needed for all redirects)
+  const isProd = process.env.NODE_ENV === 'production';
+  const clientUrl =
+    process.env.CLIENT_URL ||
+    (isProd ? 'https://life-os-banner.verridian.ai' : 'http://127.0.0.1:5173');
+
   // Handle OAuth errors
   if (error) {
     console.error('[Auth] OAuth error:', error, errorDescription);
-    return c.redirect(`/?error=${encodeURIComponent(errorDescription || error)}`);
+    return c.redirect(`${clientUrl}/?error=${encodeURIComponent(errorDescription || error)}`);
   }
 
   if (!code) {
     console.error('[Auth] Missing authorization code in callback');
-    return c.redirect('/?error=missing_code');
+    return c.redirect(`${clientUrl}/?error=missing_code`);
   }
 
   // Default redirect location and provider
   let returnTo = '/dashboard';
   let provider: OAuthProvider = 'authkit';
-
-  // Determine Frontend Origin
-  const isProd = process.env.NODE_ENV === 'production';
-  const clientUrl =
-    process.env.CLIENT_URL ||
-    (isProd ? 'https://life-os-banner.verridian.ai' : 'http://127.0.0.1:5173');
 
   if (stateParam) {
     const state = parseOAuthState(stateParam);
@@ -717,24 +729,37 @@ authRouter.get('/callback', async (c) => {
   const ipAddress = c.req.header('x-forwarded-for')?.split(',')[0] || c.req.header('x-real-ip');
   const userAgent = c.req.header('user-agent');
 
+  console.log('[Auth /callback] Processing OAuth callback');
+  console.log('[Auth /callback] Provider:', provider);
+  console.log('[Auth /callback] Client URL:', clientUrl);
+
   const result = await handleOAuthCallback(code, provider, ipAddress, userAgent);
 
   if (!result.success) {
-    console.error('[Auth] OAuth callback failed:', result.error);
-    return c.redirect(`/?error=${encodeURIComponent(result.error || 'auth_failed')}`);
+    console.error('[Auth /callback] OAuth callback failed:', result.error);
+    return c.redirect(`${clientUrl}/?error=${encodeURIComponent(result.error || 'auth_failed')}`);
   }
+
+  console.log('[Auth /callback] OAuth success, user ID:', result.user?.id);
+  console.log('[Auth /callback] Is new user:', result.isNewUser);
+  console.log('[Auth /callback] Session ID:', result.session?.id);
 
   // Set session cookie
   if (result.session) {
     const sessionCookie = lucia.createSessionCookie(result.session.id);
-    c.header('Set-Cookie', sessionCookie.serialize(), { append: true });
+    const serializedCookie = sessionCookie.serialize();
+    console.log('[Auth /callback] Setting session cookie, length:', serializedCookie.length);
+    console.log('[Auth /callback] Cookie attributes:', serializedCookie.substring(0, 100) + '...');
+    c.header('Set-Cookie', serializedCookie, { append: true });
   }
 
   // If new user, redirect to onboarding (use absolute URL)
   if (result.isNewUser) {
+    console.log('[Auth /callback] Redirecting new user to onboarding');
     return c.redirect(`${clientUrl}/onboarding?welcome=true`);
   }
 
+  console.log('[Auth /callback] Redirecting existing user to:', returnTo);
   return c.redirect(returnTo);
 });
 
