@@ -1,11 +1,18 @@
 # Stage 1: Build Frontend
 FROM node:20-alpine AS frontend-builder
+
+# Install build dependencies for native modules (node-pty, etc.)
+RUN apk add --no-cache python3 make g++ linux-headers
+
 WORKDIR /app-frontend
 COPY package*.json ./
 RUN npm ci
 COPY . .
 
-# Build the frontend (Vite)
+# Build the frontend (Vite) - Set production environment variables
+ENV VITE_API_MODE=production
+ENV VITE_PROD_API_URL=https://life-os-banner.verridian.ai
+ENV VITE_ENVIRONMENT=production
 RUN npm run build
 
 # Stage 2: Backend & Runtime

@@ -53,13 +53,15 @@ jobs:
         run: npm run lint
 
       - name: Run tests
-        if: false  # Temporarily disabled - GenerativeSidebar tests need fixing
+        if: false # Temporarily disabled - GenerativeSidebar tests need fixing
         run: npx vitest run --passWithNoTests
 
       - name: Build verification
         run: npm run build
         env:
           VITE_ENVIRONMENT: production
+          VITE_API_MODE: production
+          VITE_PROD_API_URL: https://life-os-banner.verridian.ai
 
       - name: Get version
         id: version
@@ -98,7 +100,7 @@ jobs:
         run: cd server && npm install --legacy-peer-deps
 
       - name: Run Drizzle migrations
-        continue-on-error: true  # Don't block deployment if migration fails
+        continue-on-error: true # Don't block deployment if migration fails
         run: |
           if [ -z "$DATABASE_URL" ]; then
             echo "⚠️ DATABASE_URL not set, skipping migrations"
@@ -166,7 +168,8 @@ jobs:
             --cpu=1 \
             --min-instances=0 \
             --max-instances=20 \
-            --set-env-vars="NODE_ENV=production"
+            --set-env-vars="NODE_ENV=production,WORKOS_REDIRECT_URI=https://life-os-banner.verridian.ai/api/auth/callback,WORKOS_ORG_ID=org_01KETHAB24WTQT83FRYBETZGPW,CORS_ORIGIN=https://life-os-banner.verridian.ai" \
+            --set-secrets="DATABASE_URL=NEON_DATABASE_URL:latest,WORKOS_API_KEY=WORKOS_API_KEY:latest,WORKOS_CLIENT_ID=WORKOS_CLIENT_ID:latest,WORKOS_COOKIE_PASSWORD=WORKOS_COOKIE_PASSWORD:latest,OPENAI_API_KEY=OPENAI_API_KEY:latest"
 
           SERVICE_URL=$(gcloud run services describe ${{ env.CLOUD_RUN_SERVICE }} \
             --region=${{ env.GCP_REGION }} \
