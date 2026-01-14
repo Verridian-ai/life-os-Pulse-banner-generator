@@ -4,7 +4,8 @@ const LiveActionPanel = lazy(() => import('./components/features/LiveActionPanel
 import { APIKeyInstructionsModal } from './components/features/APIKeyInstructionsModal';
 
 // Mobile Navigation
-import { BottomNav } from './components/navigation';
+// Mobile Navigation
+import { BottomNav } from './components/shell/BottomNav';
 import { useAdminAuth } from './features/admin/hooks/useAdminAuth';
 
 // New Signal UI components

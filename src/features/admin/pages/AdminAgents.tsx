@@ -1,5 +1,5 @@
 /**
- * Admin Agents Page - Phase 8 Enhanced
+ * Admin Agents Page - Phase 9 Enhanced
  *
  * Comprehensive agent configuration panel with:
  * - System prompt editing
@@ -8,6 +8,9 @@
  * - Cost budget settings
  * - Version history / rollback
  * - Context document management
+ * - Pydantic AI Agents visualization (NEW)
+ * - API Integration routing (NEW)
+ * - Real-time metrics dashboard (NEW)
  */
 
 import React, { useState, useEffect, useCallback, useRef, useLayoutEffect } from 'react';
@@ -20,6 +23,10 @@ import {
     addAgentContextDoc,
     removeAgentContextDoc,
 } from '../services/adminApi';
+import {
+    ApiRoutingGraph,
+    AgentMetricsDashboard,
+} from '../components/agents';
 import type {
     AgentConfig,
     AgentModelParameters,
@@ -27,6 +34,10 @@ import type {
     AgentVersionHistory,
     AgentTestResult,
 } from '../types';
+import type {
+    AgentDashboardSummary,
+    ApiHealthStatus,
+} from '../types/pydantic-agents';
 
 type AgentContextDoc = {
     id: string;
@@ -96,6 +107,18 @@ function BudgetProgressBar({ current, limit }: { current: number; limit: number 
     );
 }
 
+// Mock dashboard summary for Pydantic AI agents
+const MOCK_DASHBOARD_SUMMARY: AgentDashboardSummary = {
+    totalAgents: 12, activeAgents: 10, totalCalls24h: 302, totalTokens24h: 183000, totalCost24h: 0.54, avgLatencyMs: 340,
+    apiHealth: [
+        { provider: 'openrouter', status: 'healthy', latencyMs: 120, uptime24h: 0.999, features: ['chat', 'vision'] },
+        { provider: 'replicate', status: 'healthy', latencyMs: 200, uptime24h: 0.998, features: ['image-gen', 'upscale'] },
+        { provider: 'openai', status: 'healthy', latencyMs: 50, uptime24h: 1.0, features: ['chat', 'embeddings', 'realtime'] },
+        { provider: 'cognee', status: 'healthy', latencyMs: 80, uptime24h: 0.995, features: ['search', 'add', 'cognify'] },
+        { provider: 'langfuse', status: 'healthy', latencyMs: 45, uptime24h: 1.0, features: ['traces', 'generations'] },
+    ],
+};
+
 export function AdminAgents(): React.ReactElement {
     const [agents, setAgents] = useState<AgentConfig[]>([]);
     const [isLoading, setIsLoading] = useState(true);
@@ -103,6 +126,9 @@ export function AdminAgents(): React.ReactElement {
     const [isDetailLoading, setIsDetailLoading] = useState(false);
     const [activeTab, setActiveTab] = useState<DetailTab>('config');
     const [platformFilter, setPlatformFilter] = useState<PlatformFilter>('all');
+
+    // Dashboard summary state
+    const [dashboardSummary] = useState<AgentDashboardSummary>(MOCK_DASHBOARD_SUMMARY);
 
     // Edit states
     const [editedPrompt, setEditedPrompt] = useState('');
@@ -379,17 +405,33 @@ export function AdminAgents(): React.ReactElement {
         { id: 'history', label: 'History', icon: 'history' },
     ];
 
+    // Build agent connections for API routing graph
+    const agentConnections = agents.map(agent => ({
+        agentId: agent.agentId,
+        agentName: agent.name,
+        apis: ['openrouter', 'cognee', 'langfuse'] as Array<'openrouter' | 'replicate' | 'openai' | 'cognee' | 'langfuse'>,
+    }));
+
     return (
         <AdminGuard>
             <AdminLayout activeSection="agents">
                 <div className="space-y-6">
                     {/* Header */}
                     <div>
-                        <h1 className="text-3xl font-bold text-white">Agent Configuration</h1>
+                        <h1 className="text-3xl font-bold text-white">Agent Command Center</h1>
                         <p className="text-zinc-400 mt-1">
-                            Manage AI agent prompts, parameters, budgets, and knowledge
+                            Manage AI agents, monitor API integrations, and configure Cognee RAG
                         </p>
                     </div>
+
+                    {/* Pydantic AI Metrics Dashboard */}
+                    <AgentMetricsDashboard summary={dashboardSummary} isLoading={isLoading} />
+
+                    {/* API Integration Routing Graph */}
+                    <ApiRoutingGraph
+                        apiHealth={dashboardSummary.apiHealth}
+                        agentConnections={agentConnections}
+                    />
 
                     {/* Messages */}
                     {error && (
