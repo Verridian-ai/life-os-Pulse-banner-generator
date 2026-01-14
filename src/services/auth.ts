@@ -17,6 +17,7 @@ export interface AppUser {
 }
 
 export interface AppSession {
+  id?: string;
   access_token: string;
   token_type: string;
   expires_in: number;
@@ -30,7 +31,12 @@ export type User = AppUser;
 export type Session = AppSession;
 
 // Auth events
-type AuthChangeEvent = 'SIGNED_IN' | 'SIGNED_OUT' | 'TOKEN_REFRESHED' | 'USER_UPDATED' | 'PASSWORD_RECOVERY';
+type AuthChangeEvent =
+  | 'SIGNED_IN'
+  | 'SIGNED_OUT'
+  | 'TOKEN_REFRESHED'
+  | 'USER_UPDATED'
+  | 'PASSWORD_RECOVERY';
 
 type AuthStateChangeCallback = (event: AuthChangeEvent, session: Session | null) => void;
 
@@ -45,14 +51,17 @@ function notifyListeners(event: AuthChangeEvent, session: Session | null) {
 export const signUp = async (
   email: string,
   password: string,
-  metadata?: { first_name?: string; last_name?: string; username?: string }
+  metadata?: { first_name?: string; last_name?: string; username?: string },
 ) => {
   try {
-    const res = await api.post<{ success: true; userId: string; error?: string }>('/api/auth/signup', {
-      email,
-      password,
-      metadata,
-    });
+    const res = await api.post<{ success: true; userId: string; error?: string }>(
+      '/api/auth/signup',
+      {
+        email,
+        password,
+        metadata,
+      },
+    );
     if (res.error) throw new Error(res.error);
 
     // In Lucia + this flow, user is logged in via cookie.
@@ -64,7 +73,6 @@ export const signUp = async (
       return { user, error: null };
     }
     return { user: { id: res.userId, email } as User, error: null };
-
   } catch (error) {
     return { user: null, error: error as Error };
   }
@@ -72,7 +80,11 @@ export const signUp = async (
 
 export const signIn = async (email: string, password: string) => {
   try {
-    const res = await api.post<{ success: true; user: { id: string; email: string }; error?: string }>('/api/auth/login', { email, password });
+    const res = await api.post<{
+      success: true;
+      user: { id: string; email: string };
+      error?: string;
+    }>('/api/auth/login', { email, password });
     if (res.error) throw new Error(res.error);
 
     const fullUser = await getCurrentUser();
@@ -107,7 +119,7 @@ export const getSession = async (): Promise<Session | null> => {
       token_type: 'bearer',
       expires_in: 3600,
       refresh_token: 'dummy-refresh',
-      user: res.user
+      user: res.user,
     };
 
     return session as unknown as Session;
@@ -175,7 +187,7 @@ export const signInWithGoogle = async (returnTo?: string) => {
     if (!status.enabled || !status.providers.includes('google')) {
       return {
         data: null,
-        error: new Error('Google Sign-In is not available')
+        error: new Error('Google Sign-In is not available'),
       };
     }
 
@@ -201,7 +213,7 @@ export const signInWithGitHub = async (returnTo?: string) => {
     if (!status.enabled || !status.providers.includes('github')) {
       return {
         data: null,
-        error: new Error('GitHub Sign-In is not available')
+        error: new Error('GitHub Sign-In is not available'),
       };
     }
 
@@ -226,7 +238,7 @@ export const signInWithMicrosoft = async (returnTo?: string) => {
     if (!status.enabled || !status.providers.includes('microsoft')) {
       return {
         data: null,
-        error: new Error('Microsoft Sign-In is not available')
+        error: new Error('Microsoft Sign-In is not available'),
       };
     }
 
@@ -251,7 +263,7 @@ export const signInWithSSO = async (domain?: string, returnTo?: string) => {
     if (!status.ssoEnabled) {
       return {
         data: null,
-        error: new Error('SSO is not available')
+        error: new Error('SSO is not available'),
       };
     }
 
@@ -274,7 +286,7 @@ export const sendMagicLink = async (email: string, returnTo?: string) => {
   try {
     const res = await api.post<{ success: boolean; message: string; error?: string }>(
       '/api/auth/magic-link',
-      { email, returnTo }
+      { email, returnTo },
     );
 
     if (res.error) {
@@ -284,6 +296,24 @@ export const sendMagicLink = async (email: string, returnTo?: string) => {
     return { success: true, message: res.message, error: null };
   } catch (error) {
     return { success: false, error: error as Error };
+  }
+};
+
+/**
+ * Sign in with WorkOS AuthKit (Hosted UI)
+ * Redirects to the AuthKit hosted authentication page
+ */
+export const signInWithAuthKit = async (returnTo?: string, screen?: 'sign-in' | 'sign-up') => {
+  try {
+    const params = new URLSearchParams({
+      ...(returnTo && { returnTo }),
+      ...(screen && { screen }),
+    });
+    window.location.href = `/api/auth/authkit/authorize?${params.toString()}`;
+
+    return { data: null, error: null };
+  } catch (error) {
+    return { data: null, error: error as Error };
   }
 };
 
@@ -314,7 +344,9 @@ export const getCurrentUserProfile = async () => {
 // Password Reset
 export const resetPassword = async (email: string) => {
   try {
-    const res = await api.post<{ success: true; error?: string }>('/api/auth/reset-password', { email });
+    const res = await api.post<{ success: true; error?: string }>('/api/auth/reset-password', {
+      email,
+    });
     if (res.error) throw new Error(res.error);
     return { error: null };
   } catch (error) {
@@ -347,9 +379,13 @@ export const validateUsernameFormat = (username: string): { isValid: boolean; er
 };
 
 // Check Username Availability
-export const checkUsernameAvailability = async (username: string): Promise<{ available: boolean; error?: string }> => {
+export const checkUsernameAvailability = async (
+  username: string,
+): Promise<{ available: boolean; error?: string }> => {
   try {
-    const res = await api.get<{ available: boolean; error?: string }>(`/api/auth/check-username?username=${encodeURIComponent(username)}`);
+    const res = await api.get<{ available: boolean; error?: string }>(
+      `/api/auth/check-username?username=${encodeURIComponent(username)}`,
+    );
     return { available: res.available ?? false, error: res.error };
   } catch (error) {
     return { available: false, error: error instanceof Error ? error.message : 'Unknown error' };
