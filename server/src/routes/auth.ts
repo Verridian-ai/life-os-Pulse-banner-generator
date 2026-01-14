@@ -221,6 +221,10 @@ authRouter.get('/check-username', async (c) => {
 
 // GET CURRENT USER (Session Validation)
 authRouter.get('/me', async (c) => {
+  console.log('===========================================');
+  console.log('[Auth /me] *** ME ENDPOINT HIT ***');
+  console.log('===========================================');
+
   const cookieHeader = c.req.header('Cookie') ?? '';
   const sessionId = lucia.readSessionCookie(cookieHeader);
 
@@ -682,7 +686,14 @@ authRouter.get('/magic-link/callback', async (c) => {
 // Generic OAuth callback (handles AuthKit and direct OAuth)
 // This is the primary callback endpoint that WorkOS redirects to
 authRouter.get('/callback', async (c) => {
+  console.log('===========================================');
+  console.log('[Auth /callback] *** CALLBACK ENDPOINT HIT ***');
+  console.log('[Auth /callback] Full URL:', c.req.url);
+  console.log('[Auth /callback] Query params:', JSON.stringify(Object.fromEntries(new URL(c.req.url).searchParams)));
+  console.log('===========================================');
+
   if (!WORKOS_ENABLED) {
+    console.log('[Auth /callback] WorkOS not enabled!');
     return c.json({ error: 'WorkOS is not configured' }, 503);
   }
 
