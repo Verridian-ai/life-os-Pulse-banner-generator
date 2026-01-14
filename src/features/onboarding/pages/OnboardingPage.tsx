@@ -33,7 +33,7 @@ import {
   WelcomeModal,
 } from '../components';
 import { getSubscription, type TierType } from '../../billing/services/billingApi';
-import type { ProfileFormData, PlatformType, ApiKeysFormData, DesignTemplate } from '../types';
+import type { ProfileFormData, PlatformType, DesignTemplate } from '../types';
 
 /**
  * Onboarding step identifiers
@@ -181,7 +181,7 @@ export function OnboardingPage({ pathSegment }: OnboardingPageProps): React.Reac
     };
 
     initOnboarding();
-  }, [authLoading, isAuthenticated, pathSegment]);
+  }, [authLoading, isAuthenticated, pathSegment, navigate]);
 
   /**
    * Navigate to the next step
@@ -195,7 +195,7 @@ export function OnboardingPage({ pathSegment }: OnboardingPageProps): React.Reac
       // Last step completed - finish onboarding
       handleComplete();
     }
-  }, [currentStep]);
+  }, [currentStep, handleComplete]);
 
   /**
    * Navigate to the previous step
@@ -225,7 +225,7 @@ export function OnboardingPage({ pathSegment }: OnboardingPageProps): React.Reac
       console.error('[Onboarding] Error skipping:', err);
       setError('Failed to complete onboarding. Please try again.');
     }
-  }, []);
+  }, [completeOnboarding]);
 
   /**
    * Complete onboarding and save data

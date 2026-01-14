@@ -23,9 +23,6 @@ export const AuthGuard: React.FC<AuthGuardProps> = ({ children }) => {
     );
   }
 
-  // TEMP: Auth Bypass for Mobile Screenshot Capture
-  return <>{children}</>;
-
   if (!isAuthenticated) {
     return <Navigate to='/' state={{ from: location }} replace />;
   }

@@ -33,11 +33,8 @@ import type {
     AgentCostBudget,
     AgentVersionHistory,
     AgentTestResult,
-} from '../types';
-import type {
     AgentDashboardSummary,
-    ApiHealthStatus,
-} from '../types/pydantic-agents';
+} from '../types';
 
 type AgentContextDoc = {
     id: string;

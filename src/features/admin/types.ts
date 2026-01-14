@@ -259,3 +259,22 @@ export type AgentTestResult = {
     error?: string;
     createdAt: string;
 };
+
+// Pydantic AI Agent Types (Phase 9)
+export type ApiHealthStatus = {
+    provider: 'openrouter' | 'replicate' | 'openai' | 'cognee' | 'langfuse';
+    status: 'healthy' | 'degraded' | 'down';
+    latencyMs: number;
+    uptime24h: number;
+    features?: string[];
+};
+
+export type AgentDashboardSummary = {
+    totalAgents: number;
+    activeAgents: number;
+    totalCalls24h: number;
+    totalTokens24h: number;
+    totalCost24h: number;
+    avgLatencyMs: number;
+    apiHealth: ApiHealthStatus[];
+};

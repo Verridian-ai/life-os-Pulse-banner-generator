@@ -23,9 +23,6 @@ import { Menu, Search, X, Mic, MicOff, Settings } from 'lucide-react';
 import { useSpring, EASING } from '@/hooks/useSpring';
 import type { ConnectionState } from '@/types';
 
-// TEMP: Hide UI for Screenshot Capture
-const HIDE_UI = true;
-
 export interface NavigationItem {
   id: string;
   label: string;
@@ -127,145 +124,143 @@ export function AppShell({
         Skip to main content
       </a>
       {/* Header */}
-      {!HIDE_UI && (
-        <header
-          className="fixed top-0 left-0 right-0 h-16 z-50 flex items-center justify-between px-4 lg:px-8"
+      <header
+        className="fixed top-0 left-0 right-0 h-16 z-50 flex items-center justify-between px-4 lg:px-8"
+        style={{
+          background: 'rgba(12, 10, 9, 0.8)',
+          backdropFilter: 'blur(20px) saturate(180%)',
+          WebkitBackdropFilter: 'blur(20px) saturate(180%)',
+          borderBottom: '1px solid rgba(255, 255, 255, 0.04)',
+        }}
+      >
+        {/* Subtle bottom gradient line */}
+        <div
+          className="absolute bottom-0 left-0 right-0 h-px"
           style={{
-            background: 'rgba(12, 10, 9, 0.8)',
-            backdropFilter: 'blur(20px) saturate(180%)',
-            WebkitBackdropFilter: 'blur(20px) saturate(180%)',
-            borderBottom: '1px solid rgba(255, 255, 255, 0.04)',
+            background:
+              'linear-gradient(to right, transparent, rgba(250, 204, 21, 0.2), transparent)',
           }}
-        >
-          {/* Subtle bottom gradient line */}
-          <div
-            className="absolute bottom-0 left-0 right-0 h-px"
-            style={{
-              background:
-                'linear-gradient(to right, transparent, rgba(250, 204, 21, 0.2), transparent)',
-            }}
-          />
+        />
 
-          {/* Left: Logo + Mobile Menu */}
-          <div className="flex items-center gap-3">
-            <button
-              className="lg:hidden p-2 -ml-2 rounded-xl text-stone-400 hover:text-white hover:bg-white/5 transition-all duration-200"
-              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              aria-label="Toggle menu"
-              style={{ transition: `all 200ms ${EASING.luxuryOut}` }}
+        {/* Left: Logo + Mobile Menu */}
+        <div className="flex items-center gap-3">
+          <button
+            className="lg:hidden p-2 -ml-2 rounded-xl text-stone-400 hover:text-white hover:bg-white/5 transition-all duration-200"
+            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+            aria-label="Toggle menu"
+            style={{ transition: `all 200ms ${EASING.luxuryOut}` }}
+          >
+            {mobileMenuOpen ? (
+              <X className="w-6 h-6" />
+            ) : (
+              <Menu className="w-6 h-6" />
+            )}
+          </button>
+
+          <a href="/" className="flex items-center gap-2.5 group">
+            <img
+              src="/assets/platforms/life os dark mode logo.png"
+              alt="Life OS"
+              className="h-8 w-auto transition-all duration-300 group-hover:scale-105"
+              style={{
+                filter: 'drop-shadow(0 4px 12px rgba(250, 204, 21, 0.3))',
+              }}
+            />
+          </a>
+        </div>
+
+        {/* Center: Search (Desktop) */}
+        {showSearch && (
+          <form onSubmit={handleSearch} className="flex-1 max-w-lg mx-6 hidden lg:block">
+            <div
+              className="relative transition-all duration-300"
+              style={{
+                transform: searchFocused ? 'scale(1.02)' : 'scale(1)',
+                transition: `transform 300ms ${EASING.luxuryOut}`,
+              }}
             >
-              {mobileMenuOpen ? (
-                <X className="w-6 h-6" />
-              ) : (
-                <Menu className="w-6 h-6" />
-              )}
-            </button>
-
-            <a href="/" className="flex items-center gap-2.5 group">
-              <img
-                src="/assets/platforms/life os dark mode logo.png"
-                alt="Life OS"
-                className="h-8 w-auto transition-all duration-300 group-hover:scale-105"
+              <Search
+                className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 transition-colors duration-200"
                 style={{
-                  filter: 'drop-shadow(0 4px 12px rgba(250, 204, 21, 0.3))',
+                  color: searchFocused ? '#facc15' : '#78716c',
                 }}
               />
-            </a>
-          </div>
-
-          {/* Center: Search (Desktop) */}
-          {showSearch && (
-            <form onSubmit={handleSearch} className="flex-1 max-w-lg mx-6 hidden lg:block">
-              <div
-                className="relative transition-all duration-300"
+              <input
+                type="text"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                onFocus={() => setSearchFocused(true)}
+                onBlur={() => setSearchFocused(false)}
+                placeholder="Search designs..."
+                className="w-full py-2.5 pl-11 pr-4 text-sm focus:outline-none transition-all duration-200 placeholder:text-stone-500"
                 style={{
-                  transform: searchFocused ? 'scale(1.02)' : 'scale(1)',
-                  transition: `transform 300ms ${EASING.luxuryOut}`,
-                }}
-              >
-                <Search
-                  className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 transition-colors duration-200"
-                  style={{
-                    color: searchFocused ? '#facc15' : '#78716c',
-                  }}
-                />
-                <input
-                  type="text"
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  onFocus={() => setSearchFocused(true)}
-                  onBlur={() => setSearchFocused(false)}
-                  placeholder="Search designs..."
-                  className="w-full py-2.5 pl-11 pr-4 text-sm focus:outline-none transition-all duration-200 placeholder:text-stone-500"
-                  style={{
-                    background: searchFocused
-                      ? 'rgba(28, 25, 23, 1)'
-                      : 'rgba(28, 25, 23, 0.8)',
-                    border: searchFocused
-                      ? '1px solid rgba(250, 204, 21, 0.4)'
-                      : '1px solid rgba(255, 255, 255, 0.08)',
-                    borderRadius: '12px',
-                    boxShadow: searchFocused
-                      ? '0 0 0 3px rgba(250, 204, 21, 0.1)'
-                      : 'none',
-                    transition: `all 200ms ${EASING.luxuryOut}`,
-                  }}
-                />
-                {searchQuery && (
-                  <button
-                    type="button"
-                    onClick={() => setSearchQuery('')}
-                    className="absolute right-4 top-1/2 -translate-y-1/2 p-1 rounded-full hover:bg-white/10 text-stone-500 hover:text-white transition-colors"
-                  >
-                    <X className="w-3.5 h-3.5" />
-                  </button>
-                )}
-              </div>
-            </form>
-          )}
-
-          {/* Right: User Menu */}
-          <div className="flex items-center gap-2">
-            {onOpenSettings && (
-              <button
-                onClick={onOpenSettings}
-                className="hidden md:flex w-10 h-10 rounded-xl items-center justify-center text-stone-400 hover:text-white transition-all"
-                style={{
-                  background: 'rgba(28, 25, 23, 0.8)',
-                  border: '1px solid rgba(255, 255, 255, 0.05)',
+                  background: searchFocused
+                    ? 'rgba(28, 25, 23, 1)'
+                    : 'rgba(28, 25, 23, 0.8)',
+                  border: searchFocused
+                    ? '1px solid rgba(250, 204, 21, 0.4)'
+                    : '1px solid rgba(255, 255, 255, 0.08)',
+                  borderRadius: '12px',
+                  boxShadow: searchFocused
+                    ? '0 0 0 3px rgba(250, 204, 21, 0.1)'
+                    : 'none',
                   transition: `all 200ms ${EASING.luxuryOut}`,
                 }}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.background = 'rgba(41, 37, 36, 1)';
-                  e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.1)';
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.background = 'rgba(28, 25, 23, 0.8)';
-                  e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.05)';
-                }}
-                aria-label="Settings"
-              >
-                <Settings className="w-5 h-5" />
-              </button>
-            )}
+              />
+              {searchQuery && (
+                <button
+                  type="button"
+                  onClick={() => setSearchQuery('')}
+                  className="absolute right-4 top-1/2 -translate-y-1/2 p-1 rounded-full hover:bg-white/10 text-stone-500 hover:text-white transition-colors"
+                >
+                  <X className="w-3.5 h-3.5" />
+                </button>
+              )}
+            </div>
+          </form>
+        )}
 
-            <UserMenu
-              user={
-                isAuthenticated
-                  ? {
-                    name: displayName,
-                    email: user?.email || authUser?.email,
-                    avatarUrl: user?.avatar_url,
-                  }
-                  : undefined
-              }
-              onSignIn={onOpenAuth}
-              onSignOut={signOut}
-              onOpenSettings={onOpenSettings}
-            />
-          </div>
-        </header>
-      )}
+        {/* Right: User Menu */}
+        <div className="flex items-center gap-2">
+          {onOpenSettings && (
+            <button
+              onClick={onOpenSettings}
+              className="hidden md:flex w-10 h-10 rounded-xl items-center justify-center text-stone-400 hover:text-white transition-all"
+              style={{
+                background: 'rgba(28, 25, 23, 0.8)',
+                border: '1px solid rgba(255, 255, 255, 0.05)',
+                transition: `all 200ms ${EASING.luxuryOut}`,
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.background = 'rgba(41, 37, 36, 1)';
+                e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.1)';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.background = 'rgba(28, 25, 23, 0.8)';
+                e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.05)';
+              }}
+              aria-label="Settings"
+            >
+              <Settings className="w-5 h-5" />
+            </button>
+          )}
+
+          <UserMenu
+            user={
+              isAuthenticated
+                ? {
+                  name: displayName,
+                  email: user?.email || authUser?.email,
+                  avatarUrl: user?.avatar_url,
+                }
+                : undefined
+            }
+            onSignIn={onOpenAuth}
+            onSignOut={signOut}
+            onOpenSettings={onOpenSettings}
+          />
+        </div>
+      </header>
 
       {/* Mobile Menu Overlay */}
       {mobileMenuOpen && (
@@ -315,15 +310,14 @@ export function AppShell({
       </main>
 
       {/* Bottom Navigation (Mobile) */}
-      {!HIDE_UI && (
-        <BottomNav
-          items={navigationItems}
-          activeItemId={activeItemId}
-          onNavigate={onNavigate}
-          onCreateNew={onCreateNew}
-          className="lg:hidden"
-        />
-      )}
+      <BottomNav
+        items={navigationItems}
+        activeItemId={activeItemId}
+        onNavigate={onNavigate}
+        onCreateNew={onCreateNew}
+        className="lg:hidden"
+      />
+
 
       {/* Floating Voice Agent Button */}
       {showVoiceAgent && onToggleVoice && (

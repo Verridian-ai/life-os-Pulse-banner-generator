@@ -1080,7 +1080,7 @@ function App() {
  * Main App Router - Decides between landing page and dashboard based on auth state
  */
 function MainAppRouter(): React.ReactElement {
-  const { isAuthenticated, isLoading, hasCompletedOnboarding } = useAuth();
+  const { isAuthenticated, isLoading } = useAuth();
 
   // Show loading while checking auth
   if (isLoading) {
@@ -1114,8 +1114,10 @@ function MainAppRouter(): React.ReactElement {
   }
 
   // Authenticated but hasn't completed onboarding - redirect to onboarding
+  // DISABLED: User requested onboarding should not run at all
+  /*
   if (!hasCompletedOnboarding) {
-    window.location.href = '/onboarding';
+    // window.location.href = '/onboarding';
     return (
       <div className="min-h-screen bg-zinc-950 flex items-center justify-center">
         <div className="text-center">
@@ -1125,6 +1127,7 @@ function MainAppRouter(): React.ReactElement {
       </div>
     );
   }
+  */
 
   // Authenticated and completed onboarding - show main app
   return (
