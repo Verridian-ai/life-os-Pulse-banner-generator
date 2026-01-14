@@ -89,6 +89,40 @@ const DEFAULT_BUDGET: AgentCostBudget = {
   isOverBudget: false,
 };
 
+// Available models by provider
+const AVAILABLE_MODELS = {
+  openrouter: [
+    { id: 'google/gemini-2.5-flash-preview', name: 'Gemini 2.5 Flash', cost: '$0.15/1M tokens' },
+    { id: 'google/gemini-2.0-flash-001', name: 'Gemini 2.0 Flash', cost: '$0.10/1M tokens' },
+    { id: 'anthropic/claude-sonnet-4', name: 'Claude Sonnet 4', cost: '$3.00/1M tokens' },
+    { id: 'anthropic/claude-3.5-sonnet', name: 'Claude 3.5 Sonnet', cost: '$3.00/1M tokens' },
+    { id: 'openai/gpt-4o', name: 'GPT-4o', cost: '$2.50/1M tokens' },
+    { id: 'openai/gpt-4o-mini', name: 'GPT-4o Mini', cost: '$0.15/1M tokens' },
+    { id: 'meta-llama/llama-3.3-70b-instruct', name: 'Llama 3.3 70B', cost: '$0.35/1M tokens' },
+    { id: 'deepseek/deepseek-r1', name: 'DeepSeek R1', cost: '$0.55/1M tokens' },
+    { id: 'qwen/qwen-2.5-72b-instruct', name: 'Qwen 2.5 72B', cost: '$0.35/1M tokens' },
+  ],
+  openai: [
+    { id: 'gpt-4o', name: 'GPT-4o', cost: '$2.50/1M tokens' },
+    { id: 'gpt-4o-mini', name: 'GPT-4o Mini', cost: '$0.15/1M tokens' },
+    { id: 'gpt-4-turbo', name: 'GPT-4 Turbo', cost: '$10.00/1M tokens' },
+    { id: 'o1-preview', name: 'o1 Preview', cost: '$15.00/1M tokens' },
+  ],
+  replicate: [
+    { id: 'stability-ai/sdxl', name: 'Stable Diffusion XL', cost: '$0.003/image' },
+    { id: 'black-forest-labs/flux-1.1-pro', name: 'FLUX 1.1 Pro', cost: '$0.04/image' },
+    { id: 'ideogram-ai/ideogram-v2', name: 'Ideogram V2', cost: '$0.08/image' },
+    { id: 'cjwbw/rembg', name: 'Background Removal', cost: '$0.001/image' },
+    { id: 'nightmareai/real-esrgan', name: 'Real-ESRGAN Upscaler', cost: '$0.002/image' },
+  ],
+};
+
+const PROVIDERS = [
+  { id: 'openrouter', name: 'OpenRouter', icon: 'hub', color: 'purple' },
+  { id: 'openai', name: 'OpenAI', icon: 'psychology', color: 'green' },
+  { id: 'replicate', name: 'Replicate', icon: 'image', color: 'blue' },
+];
+
 function BudgetProgressBar({
   current,
   limit,
@@ -172,6 +206,8 @@ export function AdminAgents(): React.ReactElement {
 
   // Edit states
   const [editedPrompt, setEditedPrompt] = useState('');
+  const [editedModel, setEditedModel] = useState('');
+  const [editedProvider, setEditedProvider] = useState('');
   const [editedParameters, setEditedParameters] =
     useState<AgentModelParameters>(DEFAULT_PARAMETERS);
   const [editedBudget, setEditedBudget] = useState<AgentCostBudget>(DEFAULT_BUDGET);
@@ -213,6 +249,8 @@ export function AdminAgents(): React.ReactElement {
       const detail = (await getAgentDetail(agent.agentId)) as unknown as AgentDetail;
       setSelectedAgent(detail);
       setEditedPrompt(detail.agent.systemPrompt || '');
+      setEditedModel(detail.agent.model || '');
+      setEditedProvider(detail.agent.provider || 'openrouter');
 
       // Parse parameters from agent config
       const params = (detail.agent.parameters as Partial<AgentModelParameters>) || {};
@@ -266,6 +304,8 @@ export function AdminAgents(): React.ReactElement {
       setError(null);
       await updateAgent(selectedAgent.agent.id, {
         systemPrompt: editedPrompt,
+        model: editedModel,
+        provider: editedProvider,
         parameters: editedParameters,
       });
       setSuccessMessage('Agent configuration saved');
@@ -668,18 +708,88 @@ export function AdminAgents(): React.ReactElement {
                   {/* Config Tab */}
                   {activeTab === 'config' && (
                     <div className='p-6 space-y-6'>
-                      {/* Model Settings */}
+                      {/* Model & Provider Selection */}
+                      <div className='bg-gradient-to-r from-purple-500/10 to-blue-500/10 border border-purple-500/20 rounded-xl p-4'>
+                        <h3 className='text-sm font-semibold text-white mb-4 flex items-center gap-2'>
+                          <span className='material-icons text-purple-400 text-lg'>
+                            model_training
+                          </span>
+                          Model Configuration
+                        </h3>
+                        <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
+                          {/* Provider Selection */}
+                          <div>
+                            <label
+                              htmlFor='provider-select'
+                              className='text-xs text-zinc-400 mb-2 block'
+                            >
+                              AI Provider
+                            </label>
+                            <select
+                              id='provider-select'
+                              value={editedProvider}
+                              onChange={(e) => {
+                                setEditedProvider(e.target.value);
+                                setEditedModel(''); // Reset model when provider changes
+                              }}
+                              className='w-full bg-black/40 border border-white/10 rounded-lg px-3 py-2.5 text-white text-sm focus:outline-none focus:border-purple-500'
+                            >
+                              <option value=''>Select provider...</option>
+                              {PROVIDERS.map((p) => (
+                                <option key={p.id} value={p.id}>
+                                  {p.name}
+                                </option>
+                              ))}
+                            </select>
+                          </div>
+                          {/* Model Selection */}
+                          <div>
+                            <label
+                              htmlFor='model-select'
+                              className='text-xs text-zinc-400 mb-2 block'
+                            >
+                              Model
+                            </label>
+                            <select
+                              id='model-select'
+                              value={editedModel}
+                              onChange={(e) => setEditedModel(e.target.value)}
+                              className='w-full bg-black/40 border border-white/10 rounded-lg px-3 py-2.5 text-white text-sm focus:outline-none focus:border-purple-500'
+                              disabled={!editedProvider}
+                            >
+                              <option value=''>Select model...</option>
+                              {editedProvider &&
+                                AVAILABLE_MODELS[
+                                  editedProvider as keyof typeof AVAILABLE_MODELS
+                                ]?.map((m) => (
+                                  <option key={m.id} value={m.id}>
+                                    {m.name} ({m.cost})
+                                  </option>
+                                ))}
+                            </select>
+                          </div>
+                        </div>
+                        {/* Current Model Display */}
+                        {editedModel && (
+                          <div className='mt-4 p-3 bg-black/30 rounded-lg'>
+                            <p className='text-xs text-zinc-500 mb-1'>Selected Model</p>
+                            <p className='text-white font-mono text-sm'>{editedModel}</p>
+                          </div>
+                        )}
+                      </div>
+
+                      {/* Quick Stats */}
                       <div className='grid grid-cols-2 md:grid-cols-4 gap-4'>
                         <div className='bg-black/30 rounded-xl p-4'>
-                          <p className='text-zinc-500 text-xs mb-1'>Model</p>
+                          <p className='text-zinc-500 text-xs mb-1'>Current Model</p>
                           <p className='text-white font-medium text-sm truncate'>
-                            {selectedAgent.agent.model || 'Default'}
+                            {selectedAgent.agent.model || 'Not configured'}
                           </p>
                         </div>
                         <div className='bg-black/30 rounded-xl p-4'>
-                          <p className='text-zinc-500 text-xs mb-1'>Provider</p>
+                          <p className='text-zinc-500 text-xs mb-1'>Current Provider</p>
                           <p className='text-white font-medium text-sm'>
-                            {selectedAgent.agent.provider || 'Default'}
+                            {selectedAgent.agent.provider || 'Not configured'}
                           </p>
                         </div>
                         <div className='bg-black/30 rounded-xl p-4'>
@@ -753,14 +863,25 @@ export function AdminAgents(): React.ReactElement {
                       {/* Actions */}
                       <div className='flex gap-3 pt-4 border-t border-white/5'>
                         <button
-                          onClick={() => setEditedPrompt(selectedAgent.agent.systemPrompt || '')}
+                          type='button'
+                          onClick={() => {
+                            setEditedPrompt(selectedAgent.agent.systemPrompt || '');
+                            setEditedModel(selectedAgent.agent.model || '');
+                            setEditedProvider(selectedAgent.agent.provider || 'openrouter');
+                          }}
                           className='px-4 py-2 bg-zinc-800 hover:bg-zinc-700 text-white rounded-lg font-medium transition'
                         >
                           Reset
                         </button>
                         <button
+                          type='button'
                           onClick={handleSave}
-                          disabled={isSaving || editedPrompt === selectedAgent.agent.systemPrompt}
+                          disabled={
+                            isSaving ||
+                            (editedPrompt === selectedAgent.agent.systemPrompt &&
+                              editedModel === (selectedAgent.agent.model || '') &&
+                              editedProvider === (selectedAgent.agent.provider || 'openrouter'))
+                          }
                           className='flex-1 px-4 py-2 bg-purple-600 hover:bg-purple-700 disabled:opacity-50 disabled:cursor-not-allowed text-white rounded-lg font-medium transition flex items-center justify-center gap-2'
                         >
                           {isSaving ? (

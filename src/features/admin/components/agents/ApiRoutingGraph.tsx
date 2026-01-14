@@ -16,39 +16,77 @@ type ApiRoutingGraphProps = {
   }>;
 };
 
-const API_ICONS: Record<string, string> = {
-  openrouter: 'hub',
-  replicate: 'image',
-  openai: 'psychology',
-  cognee: 'memory',
-  langfuse: 'analytics',
+type ApiStyle = {
+  icon: string;
+  bgClass: string;
+  borderClass: string;
+  iconClass: string;
+  badgeClass: string;
 };
 
-const API_COLORS: Record<string, string> = {
-  openrouter: 'purple',
-  replicate: 'blue',
-  openai: 'green',
-  cognee: 'cyan',
-  langfuse: 'amber',
+const API_STYLES: Record<string, ApiStyle> = {
+  openrouter: {
+    icon: 'hub',
+    bgClass: 'bg-purple-500/5',
+    borderClass: 'border-purple-500/20 hover:border-purple-500/40',
+    iconClass: 'text-purple-400',
+    badgeClass: 'bg-purple-500/20 text-purple-300',
+  },
+  replicate: {
+    icon: 'image',
+    bgClass: 'bg-blue-500/5',
+    borderClass: 'border-blue-500/20 hover:border-blue-500/40',
+    iconClass: 'text-blue-400',
+    badgeClass: 'bg-blue-500/20 text-blue-300',
+  },
+  openai: {
+    icon: 'psychology',
+    bgClass: 'bg-green-500/5',
+    borderClass: 'border-green-500/20 hover:border-green-500/40',
+    iconClass: 'text-green-400',
+    badgeClass: 'bg-green-500/20 text-green-300',
+  },
+  cognee: {
+    icon: 'memory',
+    bgClass: 'bg-cyan-500/5',
+    borderClass: 'border-cyan-500/20 hover:border-cyan-500/40',
+    iconClass: 'text-cyan-400',
+    badgeClass: 'bg-cyan-500/20 text-cyan-300',
+  },
+  langfuse: {
+    icon: 'analytics',
+    bgClass: 'bg-amber-500/5',
+    borderClass: 'border-amber-500/20 hover:border-amber-500/40',
+    iconClass: 'text-amber-400',
+    badgeClass: 'bg-amber-500/20 text-amber-300',
+  },
+};
+
+const DEFAULT_STYLE: ApiStyle = {
+  icon: 'api',
+  bgClass: 'bg-zinc-500/5',
+  borderClass: 'border-zinc-500/20 hover:border-zinc-500/40',
+  iconClass: 'text-zinc-400',
+  badgeClass: 'bg-zinc-500/20 text-zinc-300',
+};
+
+const getStatusDotClass = (status: string) => {
+  switch (status) {
+    case 'healthy':
+      return 'bg-emerald-500';
+    case 'degraded':
+      return 'bg-amber-500';
+    case 'down':
+      return 'bg-red-500';
+    default:
+      return 'bg-zinc-500';
+  }
 };
 
 export function ApiRoutingGraph({
   apiHealth,
   agentConnections,
 }: ApiRoutingGraphProps): React.ReactElement {
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case 'healthy':
-        return 'emerald';
-      case 'degraded':
-        return 'amber';
-      case 'down':
-        return 'red';
-      default:
-        return 'zinc';
-    }
-  };
-
   const getConnectedAgentCount = (provider: string) => {
     return agentConnections.filter((c) =>
       c.apis.includes(provider as 'openrouter' | 'replicate' | 'openai' | 'cognee' | 'langfuse'),
@@ -65,23 +103,22 @@ export function ApiRoutingGraph({
       </div>
       <div className='grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3'>
         {apiHealth.map((api) => {
-          const color = API_COLORS[api.provider] || 'zinc';
-          const statusColor = getStatusColor(api.status);
+          const style = API_STYLES[api.provider] || DEFAULT_STYLE;
           const connectedAgents = getConnectedAgentCount(api.provider);
 
           return (
             <div
               key={api.provider}
-              className={`bg-${color}-500/5 border border-${color}-500/20 rounded-xl p-4 hover:border-${color}-500/40 transition`}
+              className={`${style.bgClass} border ${style.borderClass} rounded-xl p-4 transition`}
             >
               <div className='flex items-center justify-between mb-3'>
                 <div className='flex items-center gap-2'>
-                  <span className={`material-icons text-${color}-400`}>
-                    {API_ICONS[api.provider] || 'api'}
-                  </span>
+                  <span className={`material-icons ${style.iconClass}`}>{style.icon}</span>
                   <span className='text-sm font-medium text-white capitalize'>{api.provider}</span>
                 </div>
-                <div className={`w-2 h-2 rounded-full bg-${statusColor}-500 animate-pulse`} />
+                <div
+                  className={`w-2 h-2 rounded-full ${getStatusDotClass(api.status)} animate-pulse`}
+                />
               </div>
               <div className='space-y-2 text-xs'>
                 <div className='flex justify-between text-zinc-400'>
@@ -101,7 +138,7 @@ export function ApiRoutingGraph({
                 {api.features?.slice(0, 3).map((feature) => (
                   <span
                     key={feature}
-                    className={`text-[9px] bg-${color}-500/20 text-${color}-300 px-1.5 py-0.5 rounded`}
+                    className={`text-[9px] ${style.badgeClass} px-1.5 py-0.5 rounded`}
                   >
                     {feature}
                   </span>

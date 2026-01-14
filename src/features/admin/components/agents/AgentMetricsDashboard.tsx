@@ -37,32 +37,55 @@ export function AgentMetricsDashboard({
       label: 'Active Agents',
       value: `${summary.activeAgents}/${summary.totalAgents}`,
       icon: 'smart_toy',
-      color: 'purple',
+      bgClass: 'bg-purple-500/5',
+      borderClass: 'border-purple-500/20 hover:border-purple-500/40',
+      iconClass: 'text-purple-400',
+      valueClass: 'text-purple-300',
     },
     {
       label: 'API Calls (24h)',
       value: summary.totalCalls24h.toLocaleString(),
       icon: 'api',
-      color: 'blue',
+      bgClass: 'bg-blue-500/5',
+      borderClass: 'border-blue-500/20 hover:border-blue-500/40',
+      iconClass: 'text-blue-400',
+      valueClass: 'text-blue-300',
     },
     {
       label: 'Tokens Used',
       value: `${(summary.totalTokens24h / 1000).toFixed(1)}k`,
       icon: 'token',
-      color: 'cyan',
+      bgClass: 'bg-cyan-500/5',
+      borderClass: 'border-cyan-500/20 hover:border-cyan-500/40',
+      iconClass: 'text-cyan-400',
+      valueClass: 'text-cyan-300',
     },
     {
       label: 'Cost (24h)',
       value: `$${summary.totalCost24h.toFixed(2)}`,
       icon: 'attach_money',
-      color: 'green',
+      bgClass: 'bg-green-500/5',
+      borderClass: 'border-green-500/20 hover:border-green-500/40',
+      iconClass: 'text-green-400',
+      valueClass: 'text-green-300',
     },
-    { label: 'Avg Latency', value: `${summary.avgLatencyMs}ms`, icon: 'speed', color: 'amber' },
+    {
+      label: 'Avg Latency',
+      value: `${summary.avgLatencyMs}ms`,
+      icon: 'speed',
+      bgClass: 'bg-amber-500/5',
+      borderClass: 'border-amber-500/20 hover:border-amber-500/40',
+      iconClass: 'text-amber-400',
+      valueClass: 'text-amber-300',
+    },
     {
       label: 'API Health',
       value: `${summary.apiHealth.filter((a) => a.status === 'healthy').length}/${summary.apiHealth.length}`,
       icon: 'health_and_safety',
-      color: 'emerald',
+      bgClass: 'bg-emerald-500/5',
+      borderClass: 'border-emerald-500/20 hover:border-emerald-500/40',
+      iconClass: 'text-emerald-400',
+      valueClass: 'text-emerald-300',
     },
   ];
 
@@ -79,15 +102,13 @@ export function AgentMetricsDashboard({
         {metrics.map((metric) => (
           <div
             key={metric.label}
-            className={`bg-${metric.color}-500/5 border border-${metric.color}-500/20 rounded-xl p-3 hover:border-${metric.color}-500/40 transition`}
+            className={`${metric.bgClass} border ${metric.borderClass} rounded-xl p-3 transition`}
           >
             <div className='flex items-center gap-2 mb-1'>
-              <span className={`material-icons text-${metric.color}-400 text-sm`}>
-                {metric.icon}
-              </span>
+              <span className={`material-icons ${metric.iconClass} text-sm`}>{metric.icon}</span>
               <span className='text-xs text-zinc-500'>{metric.label}</span>
             </div>
-            <p className={`text-lg font-bold text-${metric.color}-300`}>{metric.value}</p>
+            <p className={`text-lg font-bold ${metric.valueClass}`}>{metric.value}</p>
           </div>
         ))}
       </div>

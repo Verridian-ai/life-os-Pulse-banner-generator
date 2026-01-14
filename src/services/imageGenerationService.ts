@@ -1,4 +1,3 @@
-import { MODELS } from '../constants';
 import type { ImageEditTurn, BrandProfile } from '../types/ai';
 import { prepareForOutpainting, resizeToCanvasDimensions } from '../utils/imageUtils';
 import { api } from './api';
@@ -65,47 +64,51 @@ export const generateImage = async (
     console.log('[Image Gen] Auth check skipped - will use server product keys if available');
   }
 
-  // 1. Primary: Try Nano Banana Pro
+  // 1. Primary: Try Flux Schnell (Replicate)
+  // NOTE: OpenRouter does NOT support image generation - it's a chat completions proxy only.
+  // All image generation must go through Replicate.
   try {
-    console.log('[Image Gen] Attempting Nano Banana Pro (OpenRouter)...');
+    console.log('[Image Gen] Attempting Flux Schnell (Replicate)...');
     const response = await api.post<{ url: string; error?: string }>('/api/ai/image/generate', {
       prompt: enhancedPrompt,
-      model: MODELS.imageGen,
-      provider: 'openrouter',
+      model: 'black-forest-labs/flux-schnell',
+      provider: 'replicate',
       ...dimensions,
     });
 
     if (response.error) throw new Error(response.error);
     imageUrl = response.url;
-    console.log('[Image Gen] ✅ Nano Banana Pro success');
+    console.log('[Image Gen] ✅ Flux Schnell success');
   } catch {
-    console.warn('[Image Gen] ⚠️ Nano Banana Pro failed, falling back to Flux Schnell');
+    console.warn('[Image Gen] ⚠️ Flux Schnell failed, falling back to Flux Dev');
 
-    // 2. Fallback to Flux Schnell
+    // 2. First fallback: Flux Dev (higher quality, slower)
     try {
+      console.log('[Image Gen] Attempting Flux Dev fallback...');
       const response = await api.post<{ url: string; error?: string }>('/api/ai/image/generate', {
         prompt: enhancedPrompt,
-        model: 'black-forest-labs/flux-schnell',
+        model: 'black-forest-labs/flux-dev',
         provider: 'replicate',
         ...dimensions,
       });
 
       if (response.error) throw new Error(response.error);
       imageUrl = response.url;
-      console.log('[Image Gen] ✅ Flux Schnell fallback success');
+      console.log('[Image Gen] ✅ Flux Dev fallback success');
     } catch {
-      // 3. Last resort: Flux Dev
+      // 3. Last resort: Flux 1.1 Pro
       try {
+        console.log('[Image Gen] Attempting Flux 1.1 Pro fallback...');
         const response = await api.post<{ url: string; error?: string }>('/api/ai/image/generate', {
           prompt: enhancedPrompt,
-          model: 'black-forest-labs/flux-dev',
+          model: 'black-forest-labs/flux-1.1-pro',
           provider: 'replicate',
           ...dimensions,
         });
 
         if (response.error) throw new Error(response.error);
         imageUrl = response.url;
-        console.log('[Image Gen] ✅ Flux Dev fallback success');
+        console.log('[Image Gen] ✅ Flux 1.1 Pro fallback success');
       } catch {
         throw new Error(`Image generation failed across all providers.`);
       }
