@@ -41,13 +41,6 @@ export function LandingPage({ onGetStarted, onSignIn }: LandingPageProps): React
     return () => document.removeEventListener('click', handleAnchorClick);
   }, []);
 
-  const handleLearnMore = () => {
-    const featuresSection = document.getElementById('features');
-    if (featuresSection) {
-      featuresSection.scrollIntoView({ behavior: 'smooth' });
-    }
-  };
-
   const handleSelectPlatform = (platformId: string) => {
     // Store selected platform and redirect to signup
     sessionStorage.setItem('selectedPlatform', platformId);
@@ -112,7 +105,7 @@ export function LandingPage({ onGetStarted, onSignIn }: LandingPageProps): React
       {/* Main Content */}
       <main>
         {/* Hero Section */}
-        <HeroSection onGetStarted={onGetStarted} onLearnMore={handleLearnMore} />
+        <HeroSection />
 
         {/* Features Section */}
         <div id='features'>
