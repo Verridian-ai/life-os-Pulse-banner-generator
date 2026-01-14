@@ -8,7 +8,9 @@ import {
   signInWithGoogle as authSignInWithGoogle,
   signInWithGitHub as authSignInWithGitHub,
   signInWithMicrosoft as authSignInWithMicrosoft,
+
   signInWithSSO as authSignInWithSSO,
+  signInWithAuthKit as authSignInWithAuthKit,
   sendMagicLink as authSendMagicLink,
   getWorkosStatus,
   signOut as authSignOut,
@@ -30,6 +32,13 @@ interface WorkosStatus {
   magicLinkEnabled: boolean;
 }
 
+// Onboarding progress data type (exported for consumer use)
+export type OnboardingProgressData = {
+  step?: string;
+  platforms?: string[];
+  profile?: { firstName?: string; lastName?: string; username?: string };
+};
+
 interface AuthContextType {
   // Auth user (from session)
   authUser: AppUser | null;
@@ -39,6 +48,11 @@ interface AuthContextType {
   isLoading: boolean;
   isAuthenticated: boolean;
   hasCompletedOnboarding: boolean;
+
+  // Onboarding state (database-persisted)
+  onboardingCompleted: boolean;
+  onboardingStep: string;
+  preferredPlatforms: string[];
 
   // WorkOS status
   workosStatus: WorkosStatus;
@@ -59,10 +73,15 @@ interface AuthContextType {
   signInWithGitHub: (returnTo?: string) => Promise<{ error: Error | null }>;
   signInWithMicrosoft: (returnTo?: string) => Promise<{ error: Error | null }>;
   signInWithSSO: (domain?: string, returnTo?: string) => Promise<{ error: Error | null }>;
+  signInWithAuthKit: (returnTo?: string, screen?: 'sign-in' | 'sign-up') => Promise<{ error: Error | null }>;
   sendMagicLink: (email: string, returnTo?: string) => Promise<{ success: boolean; error: Error | null }>;
   signOut: () => Promise<{ error: Error | null }>;
   refreshProfile: () => Promise<void>;
   markOnboardingComplete: () => Promise<void>;
+
+  // Onboarding methods (database-persisted)
+  updateOnboardingProgress: (data: OnboardingProgressData) => Promise<void>;
+  completeOnboarding: () => Promise<void>;
 
   // Timeout settings
   updateTimeoutSettings: (minutes: number) => Promise<void>;
@@ -91,6 +110,11 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [isLoading, setIsLoading] = useState(true);
   const [hasCompletedOnboarding, setHasCompletedOnboarding] = useState(false);
 
+  // Onboarding state (database-persisted)
+  const [onboardingCompleted, setOnboardingCompleted] = useState(false);
+  const [onboardingStep, setOnboardingStep] = useState('welcome');
+  const [preferredPlatforms, setPreferredPlatforms] = useState<string[]>([]);
+
   // WorkOS state
   const [workosStatus, setWorkosStatus] = useState<WorkosStatus>({
     enabled: false,
@@ -115,25 +139,142 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         console.error('Failed to load user profile:', error);
         setUser(null);
         setHasCompletedOnboarding(false);
+        setOnboardingCompleted(false);
+        setOnboardingStep('welcome');
+        setPreferredPlatforms([]);
         return;
       }
       setUser(profile as User | null);
 
-      // Check if onboarding is complete (user has selected a plan or has any subscription)
-      // For now, check localStorage for onboarding completion flag
-      const onboardingComplete = localStorage.getItem('onboarding_complete') === 'true';
-      setHasCompletedOnboarding(onboardingComplete);
+      // Load onboarding state from API endpoint
+      try {
+        const apiUrl = import.meta.env.VITE_API_URL || '';
+        const onboardingResponse = await fetch(`${apiUrl}/api/user/onboarding`, {
+          method: 'GET',
+          credentials: 'include',
+        });
+
+        if (onboardingResponse.ok) {
+          const onboardingData = await onboardingResponse.json();
+          const isOnboardingComplete = onboardingData.onboardingCompleted || false;
+          setOnboardingCompleted(isOnboardingComplete);
+          setHasCompletedOnboarding(isOnboardingComplete);
+          setOnboardingStep(onboardingData.onboardingStep || 'welcome');
+          setPreferredPlatforms(onboardingData.preferredPlatforms || []);
+        } else {
+          // Fallback to profile data if onboarding endpoint fails
+          const profileData = profile as User & {
+            onboarding_completed?: boolean;
+            onboarding_step?: string;
+            preferred_platforms?: string[];
+          };
+
+          const isOnboardingComplete = profileData?.onboarding_completed || false;
+          setOnboardingCompleted(isOnboardingComplete);
+          setHasCompletedOnboarding(isOnboardingComplete);
+          setOnboardingStep(profileData?.onboarding_step || 'welcome');
+          setPreferredPlatforms(profileData?.preferred_platforms || []);
+        }
+      } catch (onboardingError) {
+        console.error('Failed to fetch onboarding status:', onboardingError);
+        // Fallback to profile data
+        const profileData = profile as User & {
+          onboarding_completed?: boolean;
+          onboarding_step?: string;
+          preferred_platforms?: string[];
+        };
+
+        const isOnboardingComplete = profileData?.onboarding_completed || false;
+        setOnboardingCompleted(isOnboardingComplete);
+        setHasCompletedOnboarding(isOnboardingComplete);
+        setOnboardingStep(profileData?.onboarding_step || 'welcome');
+        setPreferredPlatforms(profileData?.preferred_platforms || []);
+      }
     } catch (error) {
       console.error('Failed to load user profile:', error);
       setUser(null);
       setHasCompletedOnboarding(false);
+      setOnboardingCompleted(false);
+      setOnboardingStep('welcome');
+      setPreferredPlatforms([]);
     }
   };
 
-  // Mark onboarding as complete
-  const markOnboardingComplete = async () => {
-    localStorage.setItem('onboarding_complete', 'true');
-    setHasCompletedOnboarding(true);
+  // Mark onboarding as complete (legacy function - calls completeOnboarding)
+  const markOnboardingComplete = async (): Promise<void> => {
+    await completeOnboarding();
+  };
+
+  // Update onboarding progress (database-persisted)
+  const updateOnboardingProgress = async (data: OnboardingProgressData): Promise<void> => {
+    if (!authUser) {
+      console.error('No authenticated user for onboarding update');
+      return;
+    }
+
+    try {
+      const apiUrl = import.meta.env.VITE_API_URL || '';
+      const response = await fetch(`${apiUrl}/api/user/onboarding`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        credentials: 'include',
+        body: JSON.stringify({
+          step: data.step,
+          platforms: data.platforms,
+          profile: data.profile,
+        }),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        console.error('Failed to update onboarding progress:', errorData);
+        return;
+      }
+
+      // Update local state
+      if (data.step) setOnboardingStep(data.step);
+      if (data.platforms) setPreferredPlatforms(data.platforms);
+    } catch (error) {
+      console.error('Failed to update onboarding progress:', error);
+    }
+  };
+
+  // Complete onboarding (database-persisted)
+  const completeOnboarding = async (): Promise<void> => {
+    if (!authUser) {
+      console.error('No authenticated user for onboarding completion');
+      return;
+    }
+
+    try {
+      const apiUrl = import.meta.env.VITE_API_URL || '';
+      const response = await fetch(`${apiUrl}/api/user/onboarding`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        credentials: 'include',
+        body: JSON.stringify({
+          onboardingCompleted: true,
+          onboardingStep: 'complete',
+        }),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        console.error('Failed to complete onboarding:', errorData);
+        return;
+      }
+
+      // Update local state
+      setOnboardingCompleted(true);
+      setHasCompletedOnboarding(true);
+      setOnboardingStep('complete');
+    } catch (error) {
+      console.error('Failed to complete onboarding:', error);
+    }
   };
 
   // Fetch timeout preferences
@@ -177,9 +318,9 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   // Reset timers
   const resetTimers = useCallback(() => {
     if (!authUser || timeoutDuration <= 0) {
-        if (idleTimerRef.current) clearTimeout(idleTimerRef.current);
-        if (warningTimerRef.current) clearTimeout(warningTimerRef.current);
-        return;
+      if (idleTimerRef.current) clearTimeout(idleTimerRef.current);
+      if (warningTimerRef.current) clearTimeout(warningTimerRef.current);
+      return;
     }
 
     if (idleTimerRef.current) clearTimeout(idleTimerRef.current);
@@ -239,14 +380,15 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     };
   }, [authUser, timeoutDuration, resetTimers, showTimeoutWarning]);
 
-  // Load WorkOS status on mount
+  // Load WorkOS status on mount to enable OAuth providers
   useEffect(() => {
     const loadWorkosStatus = async () => {
       try {
         const status = await getWorkosStatus();
         setWorkosStatus(status);
+        console.log('[Auth] WorkOS status loaded:', status);
       } catch (error) {
-        console.error('Failed to load WorkOS status:', error);
+        console.error('[Auth] Failed to load WorkOS status:', error);
       }
     };
     loadWorkosStatus();
@@ -255,16 +397,23 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   // Initialize auth state
   useEffect(() => {
     const initAuth = async () => {
+      console.log('[AuthContext] Initializing auth state...');
+      console.log('[AuthContext] Current URL:', window.location.href);
+      console.log('[AuthContext] Document cookies available:', document.cookie.length > 0);
+
       try {
         const currentUser = await getCurrentUser();
+        console.log('[AuthContext] getCurrentUser result:', currentUser ? 'User found' : 'No user');
         setAuthUser(currentUser);
 
         if (currentUser) {
+          console.log('[AuthContext] Loading user profile for:', currentUser.id);
           await loadUserProfile(currentUser.id);
         }
       } catch (error) {
-        console.error('Auth initialization error:', error);
+        console.error('[AuthContext] Auth initialization error:', error);
       } finally {
+        console.log('[AuthContext] Auth initialization complete, setting isLoading=false');
         setIsLoading(false);
       }
     };
@@ -310,21 +459,21 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const updateTimeoutSettings = async (minutes: number) => {
     setTimeoutDuration(minutes);
     try {
-        // Optimistic update
-        const currentPrefs = await getUserPreferences();
-        const existingApiPrefs = (currentPrefs?.preferences || {}) as unknown as ApiUserPreferences;
-        
-        await updateUserPreferences({
-            preferences: {
-                ...existingApiPrefs,
-                session_timeout: minutes
-            }
-        });
-        
-        toast.success(`Session timeout set to ${minutes === 0 ? 'Disabled' : minutes + ' minutes'}`);
+      // Optimistic update
+      const currentPrefs = await getUserPreferences();
+      const existingApiPrefs = (currentPrefs?.preferences || {}) as unknown as ApiUserPreferences;
+
+      await updateUserPreferences({
+        preferences: {
+          ...existingApiPrefs,
+          session_timeout: minutes
+        }
+      });
+
+      toast.success(`Session timeout set to ${minutes === 0 ? 'Disabled' : minutes + ' minutes'}`);
     } catch (e) {
-        console.error('Failed to save timeout settings', e);
-        toast.error('Failed to save timeout settings');
+      console.error('Failed to save timeout settings', e);
+      toast.error('Failed to save timeout settings');
     }
   };
 
@@ -393,6 +542,12 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     return { error: result.error };
   };
 
+  // Sign in with AuthKit (Hosted UI)
+  const signInWithAuthKit = async (returnTo?: string, screen?: 'sign-in' | 'sign-up'): Promise<{ error: Error | null }> => {
+    const result = await authSignInWithAuthKit(returnTo, screen);
+    return { error: result.error };
+  };
+
   // Send Magic Link
   const sendMagicLink = async (email: string, returnTo?: string): Promise<{ success: boolean; error: Error | null }> => {
     const result = await authSendMagicLink(email, returnTo);
@@ -416,6 +571,10 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     isLoading,
     isAuthenticated: !!authUser,
     hasCompletedOnboarding,
+    // Onboarding state (database-persisted)
+    onboardingCompleted,
+    onboardingStep,
+    preferredPlatforms,
     workosStatus,
     isSSOUser,
     signUp,
@@ -424,24 +583,28 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     signInWithGitHub,
     signInWithMicrosoft,
     signInWithSSO,
+    signInWithAuthKit,
     sendMagicLink,
     signOut,
     refreshProfile,
     markOnboardingComplete,
+    // Onboarding methods (database-persisted)
+    updateOnboardingProgress,
+    completeOnboarding,
     updateTimeoutSettings,
     timeoutDuration,
   };
 
   return (
     <AuthContext.Provider value={value}>
-        {children}
-        <IdleTimeoutWarning 
-            isOpen={showTimeoutWarning} 
-            onStayLoggedIn={() => {
-                setShowTimeoutWarning(false);
-                resetTimers();
-            }}
-        />
+      {children}
+      <IdleTimeoutWarning
+        isOpen={showTimeoutWarning}
+        onStayLoggedIn={() => {
+          setShowTimeoutWarning(false);
+          resetTimers();
+        }}
+      />
     </AuthContext.Provider>
   );
 };
