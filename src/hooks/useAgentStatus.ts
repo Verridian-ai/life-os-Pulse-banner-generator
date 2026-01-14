@@ -94,14 +94,22 @@ export function useAgentStatus(
 
   // Auto-check on mount and interval
   useEffect(() => {
-    if (autoCheck) {
-      checkStatus();
+    if (!autoCheck) return;
 
-      if (interval > 0) {
-        const timer = setInterval(checkStatus, interval);
-        return () => clearInterval(timer);
-      }
+    // Schedule for next tick to avoid synchronous setState in effect
+    const timeoutId = setTimeout(() => {
+      void checkStatus();
+    }, 0);
+
+    let intervalId: ReturnType<typeof setInterval> | undefined;
+    if (interval > 0) {
+      intervalId = setInterval(() => void checkStatus(), interval);
     }
+
+    return () => {
+      clearTimeout(timeoutId);
+      if (intervalId) clearInterval(intervalId);
+    };
   }, [autoCheck, interval, checkStatus]);
 
   return {
